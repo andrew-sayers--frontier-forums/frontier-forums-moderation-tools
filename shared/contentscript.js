@@ -81,20 +81,20 @@
                 id: 'bad_signature',
                 title: 'Please bring your signature into line with forum rules',
                 body: "<<PM_HEADER>>\n\nThis is a friendly request to bring your signature in line with the forum rules.  Your signature has <<PROBLEM>> - could you modify it to comply with the rules quoted below?\n\n<<SIGNATURE RULES>>\n\nPlease modify your signature within 7 days (i.e. by <<NEXT WEEK>>) - we're required to issue an official warning if it's still in violation after that time.\n\n<<PM_FOOTER>>",
-                copy_to_user_note: 1,
+                copy_to_user_note: 1
             },
 
             {
                 id: 'masked_swearing',
                 title: 'Please avoid inappropriate language',
                 body: "<<PM_HEADER>>\n\nThis is a friendly reminder that you should rephrase sentences to avoid the need for filtered words, instead of leaving words masked or trying to work around the filter.  The filter is simply a reminder to keep things family-friendly before manual moderation is required.\n\n[post=<<POST_ID>>]Your message[/post] has now been edited to comply with forum rules.  Please be very careful if you re-edit the post - avoiding the problem phrase altogether is fine, but a second moderation will almost certainly be an automatic infraction.  For your reference, the rules on inappropriate language are quoted below.\n\n<<LANGUAGE RULES>>\n\n<<PM_FOOTER>>",
-                copy_to_user_note: 1,
+                copy_to_user_note: 1
             },
 
             {
                 id: 'report_take',
                 title: "I'm on it",
-                body: "I'm on it",
+                body: "I'm on it"
             },
 
             {
