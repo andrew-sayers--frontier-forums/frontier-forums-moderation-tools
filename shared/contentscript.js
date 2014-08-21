@@ -347,7 +347,7 @@
                     var $username = $(this).find('a.bigusername'),
                         post_id    = this.id.substr( 4 ),
                         goto_link  = ' - <a href="#' + this.id + '">view post</a>',
-                        userid     = $username.attr("href").split('?u=', 2)[1],
+                        userid     = ( $username.attr("href") || '' ).split('?u=', 2)[1],
                         body       = $( 'div[id^=post_message_]',this),
                         post_block = body.siblings().last()
                         username   = $username.text(),
