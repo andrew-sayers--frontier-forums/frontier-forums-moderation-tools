@@ -20,15 +20,61 @@
         return decodeURIComponent( location.search.replace( new RegExp( '.*&' + param + '=([^&]*).*' ), "$1" ) );
     }
 
-    var template_replacements = {
+    var rule_header = '[QUOTE=Forum Rules;421867]',
+        rule_footer = '[/QUOTE]',
+        things_you_agree_to_not_do = "[b]You agree to not:[/b]\n[LIST][*]Be insulting to any person via obscene, offensive, hateful or inflammatory comments via the means of private messages, public messages and visitor messages in order to bait, harass, and lure other users into responding. This is also known as trolling or flame-baiting.\n[*]Derail an ongoing discussion topic, forcing it to another type of discussion.\n[*]Use sexually explicit or harmful language including the use of misspelled or punctuated words to insinuate, represent any of the above - also known as \"masked swearing\". This includes words that are blocked by the automatic filter, swearing is not allowed in posts.\n[*]Utilize symbols or other non-normal ASCII English letters to mask out a swear word. If a word is filtered, then it's filtered, don't evade it.\n[*]Partake in personal arguments with other members of the community on the forums. If you have problems with other members either resolve your issues in private via PM or email, or use the \"Ignore\" feature of the bulletin board system in order to ignore that person.\n[*]Promote discrimination based on race, sex, religion, nationality, disability, sexual orientation, age or other criteria that offends other users.\n[*]Use the discussion board features to call out individuals or groups in thread titles, polls and/or posts to simply demean or insult them. Commonly known as bandwagoning. \n[/LIST]",
+        problem_rules = {
+            'Abuse of post/content reporting system': rule_header + things_you_agree_to_not_do + rule_footer,
+            'Avatar Rule Violation': rule_header + '[B]Compliant Avatars and Signatures[/B]\n[INDENT]Avatars and signatures must adhere to the same rules as written posts. Do not use anything that may be construed as offensive, inflammatory, or illegal.\nThe current dimensions allowed are 80x80 pixels for avatars, and up to 650x150 pixels for signatures. Please refrain from including links to paid-for-services and advertising within your signature. Links within signatures should be reserved for personal links. Images in signatures that are larger than 650 pixels wide and 150 pixels tall will result in the removal of the image, coupled along with a private message notification and/or warning.[/INDENT]' + rule_footer,
+            'Divulged Personal Details': rule_header + '[B]Do Not Divulge Personal Details[/B]\n[INDENT]You agree to not disclose names, addresses, telephones, mobile or fax numbers, email addresses or any other personally identifiable data of any individual. We request for your safety that you do not post sensitive information about yourself or others on these forums.[/INDENT]' + rule_footer,
+            'Going off-topic/spamming': rule_header + "[B]Off-topic[/B]\n[INDENT]Going off-topic in an ongoing, on-topic discussion is defined as talking about something completely unrelated to the ongoing discussion or debate within the thread. Off-topic also includes replies created to topics for the sole purpose of ganging up on other members or groups of users. [/INDENT]\n\n[b]Thread hijacking[/b][INDENT]Hijacking a threads discussion will result in your posts and other posts that participated in the hijacking to be moderated. Continuous thread hijackings will result in moderation of your posting privileges on the Frontier forums. Hijacking threads is not limited to you injecting an off-topic opinion to a discussion, posting about politics, comparing objects/people/things to political objects and/or attempting to harass another member or group of members.[/INDENT]\n\n[B]No Spam[/B]\n[INDENT]No \"spam\" on the forums. Spamming is defined as the abuse of systems to post unnecessary or irrelevant messages, or non-contributing postings. This includes, but isn't limited to posting multiple copies of the same thread across various forums or cross-posting the same comments in multiple threads in order to get your comments noticed. [/INDENT]" + rule_footer,
+            'Image Spamming': rule_header + "[B]No Spam[/B]\n[INDENT]No \"spam\" on the forums. Spamming is defined as the abuse of systems to post unnecessary or irrelevant messages, or non-contributing postings. This includes, but isn't limited to posting multiple copies of the same thread across various forums or cross-posting the same comments in multiple threads in order to get your comments noticed. [/INDENT]" + rule_footer,
+            'Inappropriate Language' : rule_header + "[B]No Abuse or Disrespectful Behaviour[/B]\nThe following forum rules are in place to promote the Frontier forums as a safe, friendly and welcoming place for the community. Discussions and debates are greatly welcomed. However, not at the expense of common sense and decency, as exemplified by the rules below.\n\n" + things_you_agree_to_not_do,
+            'Inflammatory / baiting posts': rule_header + things_you_agree_to_not_do + rule_footer,
+            'Insubordination/Moderator Contestment': rule_header + "[b]Insubordination[/b]\n[indent]If you disagree with a moderator's course of action over an incident, whether that be the closing of a thread or the issuing of an infraction, you must contact a member of the moderation team privately (through private message) to voice your grievance(s), complaint(s), and/or concern(s). It is not acceptable to do this in a public discussion medium. Any attempt to do so will be seen as an attempt to undermine the moderation team and will result in an infraction and removal of the content posted. If you disagree with a moderator's decision it is also not acceptable to verbally abuse or harass them, either through the forum or any other form of communication. Any attempt to do so may result in a complete termination of your account from the forums.[/indent]" + rule_footer,
+            'Insulted Other Member(s)': rule_header + things_you_agree_to_not_do + rule_footer,
+            'Moderator/Employee Harassment': rule_header + "[b]Insubordination[/b][indent]If you disagree with a moderator's course of action over an incident, whether that be the closing of a thread or the issuing of an infraction, you must contact a member of the moderation team privately (through private message) to voice your grievance(s), complaint(s), and/or concern(s). It is not acceptable to do this in a public discussion medium. Any attempt to do so will be seen as an attempt to undermine the moderation team and will result in an infraction and removal of the content posted. If you disagree with a moderator's decision it is also not acceptable to verbally abuse or harass them, either through the forum or any other form of communication. Any attempt to do so may result in a complete termination of your account from the forums.[/indent]\n\n" + things_you_agree_to_not_do + rule_footer,
+            'Naming and Shaming': rule_header + "[B]No Naming and Shaming.[/B]\n[INDENT]We do not allow \"naming and shaming\" discussions, or types of content deemed naming and shaming on the Frontier discussion board. Naming and Shaming is the act of publicly naming someone and ridiculing or accusing them of something. This also includes putting names on a blacklist in your signature or thread. [/indent]\n\n[b]No witch-hunts/mob-mentality hunts[/b]\n[INDENT]We do not permit the Frontier forums to be used for 'witch-hunts' or mob-mentality griefing. This is essentially the inverse of naming and shaming where people will try to bait others into ratting people out.[/INDENT]" + rule_footer,
+            'Private Messaging Abuse': rule_header + "[B]Keep Private Communications Private[/B]\n[INDENT]You agree to not post private messages or emails between forum users, moderators or Frontier staff on the forums without the consent of the sender(s). [/INDENT]\n\n" + things_you_agree_to_not_do + rule_footer,
+            'Reputation Abuse': rule_header + things_you_agree_to_not_do + rule_footer,
+            'Role Play Abuse': rule_header + things_you_agree_to_not_do + rule_footer,
+            'Signature Rule Violation': rule_header + "[B]SIGNATURE RULES AND LIMITATIONS[/B]\n\n[LIST]\n[*]Maximum image file size limit limited to 250KB.\n[*] Maximum allowed images per user signature is one.\n[*]Animated images (eg: gif image or banner rotators) are [I]not[/I] allowed.\n[*][B]Maximum width[/B] of an image is 650 pixels.\n[*][B]Maximum height[/B] of an image is 150 pixels.\n[*]Maximum allowed lines of normal sized text per signature is [B]five[/B]. \n[*]If text lines are added to a sig they cannot be made larger than the default size.\n[*]Lines are not allowed to wrap else they count as additional lines\n[LIST]\n[*]If an image is added to a signature, and the image is up to 650x150, maximum lines permitted is zero\n[*]If an image is added to a signature, and the image is up to 650x120, maximum lines permitted is one\n[*]If an image is added to a signature, and the image is up to 650x90, maximum lines permitted is two\n[*]If NO image is added to a signature, maximum lines of text permitted is five.\n[*]Quote, code, and/or special bbcode that consumes lines of text, count as two lines each.\n[*]Links do not count as special bbcodes but must adhere to the links rules\n[*]Empty lines of text count as a line / additional line to a signature.\n[/LIST]\n[/LIST]" + rule_footer,
+            'Spammed Advertisements': rule_header + "[B]Zero Tolerance Policy on Offensive, Pornography and/or other Illegal/Malicious Content[/B]\n[INDENT]You agree to not post offensive material or post links, information or advert that illustrate illegal activity (including without limitation the posting or promoting of illegal software or media, be it television or software piracy) or lead to malicious sites/files. [i]Any posts of content with pornographic, fraudulent, phishing or warez material will skip the three-strike warnings.[/i]\n\n" + things_you_agree_to_not_do + rule_footer,
+            'Swear Filter Evasion': rule_header + things_you_agree_to_not_do + rule_footer,
+            'User Impersonation': rule_header + "[B]Do Not Impersonate Another User[/B]\n[INDENT]You are expressly forbidden from impersonating another forum user, moderator, administrator, Frontier employee or any of Frontier's partners. You will not give the impression that a thread or comment emanates from any of the listed. Means of impersonation could include the usage of avatars, profile pictures, signatures, posts/polls, and/or thread prefixes that mimic or appear to be 'officially posted'. [/INDENT]" + rule_footer,
+            'Visitor Messaging Abuse': rule_header + things_you_agree_to_not_do + rule_footer
+        },
+        problem_names = {
+            'Abuse of post/content reporting system': 'abuse of the post/content reporting system',
+            'Avatar Rule Violation': 'avatar rule violations',
+            'Divulged Personal Details': 'divulging personal details',
+            'Going off-topic/spamming': 'going off-topic/spamming',
+            'Image Spamming': 'image spamming',
+            'Inappropriate Language' : 'inappropriate language',
+            'Inflammatory / baiting posts': 'inflammatory / baiting posts',
+            'Insubordination/Moderator Contestment': 'insubordination/moderator contestment',
+            'Insulted Other Member(s)': 'insulting other member(s)',
+            'Moderator/Employee Harassment': 'moderator/employee harassment',
+            'Naming and Shaming': 'naming and shaming',
+            'Private Messaging Abuse': 'private messaging abuse',
+            'Reputation Abuse': 'reputation abuse',
+            'Role Play Abuse': 'role play abuse',
+            'Signature Rule Violation': 'signature rule violations',
+            'Spammed Advertisements': 'advertisement spamming',
+            'Swear Filter Evasion': 'swear filter evasion',
+            'User Impersonation': 'user impersonation',
+            'Visitor Messaging Abuse': 'visitor messaging abuse',
+        },
+        template_replacements = {
             PM_HEADER        : "Hi.",
             PM_FOOTER        : "Best regards,\nFrontier Moderation Team.",
             PROBLEM          : param_to_template('problem'),
             POST_ID          : param_to_template('post_id'),
             STATUS           : param_to_template('status' ),
             'NEXT WEEK'      : (new Date()).toGMTString().replace(/:[0-9][0-9] /, ' ' ),
-            'SIGNATURE RULES': "[QUOTE=Forum Rules;421867][B]SIGNATURE RULES AND LIMITATIONS[/B]\n\n[LIST]\n[*]Maximum image file size limit limited to 250KB.\n[*] Maximum allowed images per user signature is one.\n[*]Animated images (eg: gif image or banner rotators) are [I]not[/I] allowed.\n[*][B]Maximum width[/B] of an image is 650 pixels.\n[*][B]Maximum height[/B] of an image is 150 pixels.\n[*]Maximum allowed lines of normal sized text per signature is [B]five[/B]. \n[*]If text lines are added to a sig they cannot be made larger than the default size.\n[*]Lines are not allowed to wrap else they count as additional lines\n[LIST]\n[*]If an image is added to a signature, and the image is up to 650x150, maximum lines permitted is zero\n[*]If an image is added to a signature, and the image is up to 650x120, maximum lines permitted is one\n[*]If an image is added to a signature, and the image is up to 650x90, maximum lines permitted is two\n[*]If NO image is added to a signature, maximum lines of text permitted is five.\n[*]Quote, code, and/or special bbcode that consumes lines of text, count as two lines each.\n[*]Links do not count as special bbcodes but must adhere to the links rules\n[*]Empty lines of text count as a line / additional line to a signature.\n[/LIST]\n[/LIST][/QUOTE]",
-            'LANGUAGE RULES' : "[QUOTE=Forum Rules;421867][B]No Abuse or Disrespectful Behaviour[/B]\nThe following forum rules are in place to promote the Frontier forums as a safe, friendly and welcoming place for the community. Discussions and debates are greatly welcomed. However, not at the expense of common sense and decency, as exemplified by the rules below.\n\n[b]You agree to not:[/b]\n[LIST][*]Be insulting to any person via obscene, offensive, hateful or inflammatory comments via the means of private messages, public messages and visitor messages in order to bait, harass, and lure other users into responding. This is also known as trolling or flame-baiting.\n[*]Derail an ongoing discussion topic, forcing it to another type of discussion.\n[*]Use sexually explicit or harmful language including the use of misspelled or punctuated words to insinuate, represent any of the above - also known as \"masked swearing\". This includes words that are blocked by the automatic filter, swearing is not allowed in posts.\n[*]Utilize symbols or other non-normal ASCII English letters to mask out a swear word. If a word is filtered, then it's filtered, don't evade it.\n[*]Partake in personal arguments with other members of the community on the forums. If you have problems with other members either resolve your issues in private via PM or email, or use the \"Ignore\" feature of the bulletin board system in order to ignore that person.\n[*]Promote discrimination based on race, sex, religion, nationality, disability, sexual orientation, age or other criteria that offends other users.\n[*]Use the discussion board features to call out individuals or groups in thread titles, polls and/or posts to simply demean or insult them. Commonly known as bandwagoning. \n[/LIST][/QUOTE]"
+            'SIGNATURE RULES': problem_rules['Signature Rule Violation'],
+            'LANGUAGE RULES' : problem_rules['Inappropriate Language'  ],
+            'PROBLEM RULES'  : '<<PROBLEM RULES>>',
         },
         template_posts = [ // we use an array here to control the order they're displayed in
             {
@@ -55,11 +101,23 @@
                 id: 'report_update',
                 title: "Update",
                 body: 'Current action:\n\n[list]\n[*]\n[*]updated user notes\n[/list]\n\nCurrent status: <<STATUS>>'
+            },
+            {
+                id: 'infraction',
+                title: '<<PROBLEM>>',
+                body: 'You are being issued an <<INFRACTION TYPE>> for <<PROBLEM NAME>>.  We welcome all sorts of discussions on the Frontier forums, but we do not allow <<PROBLEM NAME>> so [post=<<POST_ID>>]your message[/post] has been removed.  For your reference, the relevant forum rules are quoted below.\n\n<<PROBLEM RULES>>'
             }
 
         ],
         template_post_overrides = JSON.parse( localStorage.getItem( 'moderation-template_posts' ) || '{}' )
     ;
+
+    function replace_template_text(text) {
+        for ( var replacement in template_replacements ) if ( template_replacements.hasOwnProperty(replacement) ) {
+            text = text.replace( new RegExp( '<<' + replacement + '>>', 'g' ), template_replacements[replacement] );
+        }
+        return text;
+    }
 
     /*
      * CROSS-PAGE ACTIONS
@@ -138,9 +196,20 @@
      * Runs after jQuery has loaded
      */
 
+    function copy_to_user_note() {
+        $('#vB_Editor_001_save').closest('form').submit(function() {
+            on_next_page( 'set_user_id', user_id );
+            on_next_page( 'check_user_note_checkbox' );
+            if ( !$("input[name=preview]:focus", this).length && $('#copy_to_user_note').prop('checked') )
+                on_next_page( 'copy_to_user_note', $('#vB_Editor_001_textarea').val(), $('[name=title],[name=note]').val(), $('input[name="securitytoken"]').val() );
+        });
+    }
+
     var i = setInterval( function() {
         if ( window.jQuery ) {
             clearInterval(i);
+
+            if ( !user_id ) user_id = $('input[name=u]').val();
 
             /*
              * POST TEMPLATES
@@ -169,21 +238,12 @@
                 select_box.change(function() {
                     $('[name=title]'      ).val (           select_box.find(':selected').text()                    );
                     $('#copy_to_user_note').prop('checked', select_box.find(':selected').data('copy_to_user_note') );
-                    var text = select_box.find(':selected').val();
-                    for ( var replacement in template_replacements ) if ( template_replacements.hasOwnProperty(replacement) ) {
-                        text = text.replace( '<<' + replacement + '>>', template_replacements[replacement] );
-                    }
-                    $('#vB_Editor_001_textarea').val( text );
+                    $('#vB_Editor_001_textarea').val( replace_template_text( select_box.find(':selected').val() ) );
                 });
                 if ( user_id ) { // copy to user_note
                     select_box.after( '<label style="display: block"><input type="checkbox" id="copy_to_user_note">Copy message to user note for user ' + user_id + '</label>' );
                     if ( check_user_note_checkbox ) $('#copy_to_user_note').prop( 'checked', true );
-                    $('#vB_Editor_001_save').closest('form').submit(function() {
-                        on_next_page( 'set_user_id', user_id );
-                        on_next_page( 'check_user_note_checkbox' );
-                        if ( !$("input[name=preview]:focus", this).length && $('#copy_to_user_note').prop('checked') )
-                            on_next_page( 'copy_to_user_note', $('#vB_Editor_001_textarea').val(), $('[name=title]').val(), $('input[name="securitytoken"]').val() );
-                    });
+                    copy_to_user_note();
                 }
                 $( '<a style="color: blue" href="#edit_template">edit template</a>' )
                     .insertAfter(select_box)
@@ -224,6 +284,37 @@
                 }
 
             };
+
+            /*
+             * INFRACTION PAGES
+             */
+            if (
+                   window.location.pathname == '/infraction.php'
+            ) {
+                $('[name=note]').after( '<label style="display: block"><input type="checkbox" checked id="copy_to_user_note">Copy message to user note for user ' + user_id + '</label>' );
+                copy_to_user_note();
+                if ( check_user_note_checkbox ) $('#copy_to_user_note').prop( 'checked', true );
+                if ( window.location.search.search('do=report') )
+                    $('input[name^=warning]').first().prop( 'checked', true );
+                $('input[id^=il_]').click(function() {
+                    var warning_links = $('input[name^=warning]'),
+                        is_checked = ( warning_links.filter(':checked').length ) ? true : false
+                    ;
+                    template_replacements['INFRACTION TYPE'] = is_checked ? 'official warning' : 'infraction';
+                    template_replacements['PROBLEM'] = $(this).closest('label').text();
+                    template_replacements['PROBLEM NAME'] = problem_names[ template_replacements['PROBLEM'] ];
+                    template_replacements['PROBLEM RULES'] = problem_rules[ template_replacements['PROBLEM'] ];
+                    for ( var n=0; n!=template_posts.length; ++n ) {
+                        if ( template_posts[n]['id'] == 'infraction' ) {
+                            $('[name=note]'            ).val( replace_template_text( template_posts[n]['title'] ) );
+                            $('#vB_Editor_001_textarea').val( replace_template_text( template_posts[n]['body' ] ) );
+                        }
+                    }
+                    warning_links.hide().prop( 'checked', false );
+                    $(this).closest('tr').find('input[name^=warning]').show().prop( 'checked', is_checked );
+                })
+                    .filter(':checked').click();
+            }
 
             /*
              * MODERATION TOOLS SECTION ON THREAD PAGES
@@ -326,7 +417,7 @@
                             '<h1>Common actions</h1><ul>' +
                                 '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&template=masked_swearing&post_id=' + reported_post + '">send PM for masked swearing</a>' +
                                 '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&post_id=' + reported_post + '">send PM (no template)</a>' +
-                                '<li><a href="http://forums.frontier.co.uk/infraction.php?do=report&p=' + reported_post + '">give infraction (no template)</a>' +
+                                '<li><a href="http://forums.frontier.co.uk/infraction.php?do=report&p=' + reported_post + '">give infraction</a>' +
                             '</ul>'
                         );
                     }
