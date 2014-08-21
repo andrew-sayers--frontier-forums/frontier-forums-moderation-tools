@@ -388,12 +388,8 @@
                      */
 
                     $(this).children( 'tbody' ).children( 'tr' ).last().find('.smallfont').first()
-                        .before( '<div style="cursor: pointer; text-decoration: underline; float: right" id="user-notes-' + userid + '" onclick="javascript:get_user_notes(' + userid + ')">View User Notes</div><div style="float: right; width: 2ex; text-align: center"> - </div><a style="float: right" href="http://forums.frontier.co.uk/usernote.php?do=newnote&u=' + userid + '">Post New User Note</a>' )
+                        .before( '<div style="cursor: pointer; text-decoration: underline; float: right" data-user-id="' + userid + '" class="view-user-notes">View User Notes</div><div style="float: right; width: 2ex; text-align: center"> - </div><a style="float: right" href="http://forums.frontier.co.uk/usernote.php?do=newnote&u=' + userid + '">Post New User Note</a>' )
                     ;
-
-                    window.get_user_notes = function(user_id) {
-                        $( "#user-notes-" + user_id ).removeAttr( 'style' ).removeAttr( 'onclick' ).load( '/usernote.php?u=' + user_id + ' [style="padding:0px 0px 6px 0px"]' );
-                    };
 
                     /*
                      * ADD "REPORT POSTS FORUM" extras
@@ -423,6 +419,10 @@
                     }
 
                 });
+
+            $('.view-user-notes').click(function() {
+                $(this).removeAttr( 'style' ).off( 'click' ).load( '/usernote.php?u=' + $(this).data('user-id') + ' [style="padding:0px 0px 6px 0px"]' );
+            });
 
             var report = '';
             for ( var violator in violators ) if ( violators.hasOwnProperty(violator) ) {
