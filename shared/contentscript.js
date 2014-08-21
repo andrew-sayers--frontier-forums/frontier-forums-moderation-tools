@@ -198,6 +198,9 @@
                         }
                     });
 
+                if ( location.search.search( '&cb_openclose=1' ) != -1 )
+                    $('#cb_openclose').prop('checked', true);
+
                 /*
                  * ADD TEMPLATES
                  */
@@ -239,8 +242,8 @@
             var first_post_in_reported_post_forum = -1;
             if ( $('table.tborder').eq(0).has( 'a[href="forumdisplay.php?f=48"]' ).length ) {
                 var newreply = $('a[href^=newreply]').eq(0);
-                newreply.after( '<span style="font-size: 200%"> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_take">take this report</a> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=open">update this report</a> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=closed">close this report</a></span>' );
-                first_post_in_reported_post_forum = $('table[id^=post]').first().attr( 'id' ).substr( 4 );
+                newreply.after( '<span style="font-size: 200%"> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_take">take this report</a> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=open">update this report</a> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=closed&cb_openclose=1">close this report</a></span>' );
+                first_post_in_reported_post_forum = ( $('table[id^=post]').first().attr( 'id' ) || '' ).substr( 4 );
             }
 
             $('table[id^=post]').each(
