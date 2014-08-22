@@ -211,6 +211,8 @@
 
             if ( !user_id ) user_id = $('input[name=u]').val();
 
+            var posts = $('table[id^=post]');
+
             /*
              * POST TEMPLATES
              */
@@ -330,14 +332,7 @@
                 $('#last_post_container div.normal:nth(1)').attr( 'style', 'color: white' );
             });
 
-            var first_post_in_reported_post_forum = -1;
-            if ( $('table.tborder').eq(0).has( 'a[href="forumdisplay.php?f=48"]' ).length ) {
-                var newreply = $('a[href^=newreply]').eq(0);
-                newreply.after( '<span style="font-size: 200%"> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_take">take this report</a> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=open">update this report</a> - <a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=closed&cb_openclose=1">close this report</a></span>' );
-                first_post_in_reported_post_forum = ( $('table[id^=post]').first().attr( 'id' ) || '' ).substr( 4 );
-            }
-
-            $('table[id^=post]').each(
+            posts.each(
                 function() {
 
                     /*
@@ -391,33 +386,6 @@
                         .before( '<div style="cursor: pointer; text-decoration: underline; float: right" data-user-id="' + userid + '" class="view-user-notes">View User Notes</div><div style="float: right; width: 2ex; text-align: center"> - </div><a style="float: right" href="http://forums.frontier.co.uk/usernote.php?do=newnote&u=' + userid + '">Post New User Note</a>' )
                     ;
 
-                    /*
-                     * ADD "REPORT POSTS FORUM" extras
-                     */
-
-                    if ( post_id == first_post_in_reported_post_forum ) {
-                        var user_notes = $('<div></div>').appendTo( body ), reported_user = -1,
-                            reported_post = $('a[href^="http://forums.frontier.co.uk/showthread.php?p="]').first().attr( 'href' ).split( '#post' )[1]
-                        ;
-                        $(this).find( 'a[href^="http://forums.frontier.co.uk/member.php"]' ).each(function() {
-                            if ( reported_user != this.getAttribute( 'href' ).split( '?u=' )[1] ) { // people sometimes report their own posts
-                                reported_user = this.getAttribute( 'href' ).split( '?u=' )[1];
-                                $('<div><h1>User notes for ' + $(this).html() + '</h1><div style="border-left: 3px solid black; padding-left: 1em"></div></div>' )
-                                    .prependTo( user_notes )
-                                    .children( 'div' )
-                                    .load( this.getAttribute( 'href' ).replace( 'member', 'usernote' ) + ' [style="padding:0px 0px 6px 0px"]' );
-                                ;
-                            }
-                        });
-                        user_notes.prepend(
-                            '<h1>Common actions</h1><ul>' +
-                                '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&template=masked_swearing&post_id=' + reported_post + '">send PM for masked swearing</a>' +
-                                '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&post_id=' + reported_post + '">send PM (no template)</a>' +
-                                '<li><a href="http://forums.frontier.co.uk/infraction.php?do=report&p=' + reported_post + '">give infraction</a>' +
-                            '</ul>'
-                        );
-                    }
-
                 });
 
             $('.view-user-notes').click(function() {
@@ -433,6 +401,51 @@
                 }
                 if ( header == '<li>' ) report += "</ul>\n";
             }
+
+            report_block.html( report );
+
+            /*
+             * ADD "REPORT POSTS FORUM" extras
+             */
+
+            if ( $('table.tborder').eq(0).has( 'a[href="forumdisplay.php?f=48"]' ).length ) {
+
+                var newreply = $('a[href^=newreply]').eq(0),
+                    common_actions,
+                    user_notes = $('<div></div>').appendTo( posts.first().find('div[id^=post_message_]') ), reported_user = -1,
+                    reported_post = $('a[href^="http://forums.frontier.co.uk/showthread.php?p="]').first().attr( 'href' ).split( '#post' )[1]
+                ;
+
+                posts.first().find( 'a[href^="http://forums.frontier.co.uk/member.php"]' ).each(function() {
+                    if ( reported_user != this.getAttribute( 'href' ).split( '?u=' )[1] ) { // people sometimes report their own posts
+                        reported_user = this.getAttribute( 'href' ).split( '?u=' )[1];
+                        $('<div><h1>User notes for ' + $(this).html() + '</h1><div style="border-left: 3px solid black; padding-left: 1em"></div></div>' )
+                            .prependTo( user_notes )
+                            .children( 'div' )
+                            .load( this.getAttribute( 'href' ).replace( 'member', 'usernote' ) + ' [style="padding:0px 0px 6px 0px"]' );
+                        ;
+                    }
+                });
+
+                if ( posts.length == 1 )
+                    common_actions = '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_take">take this report</a>';
+                else if ( posts.eq(1).find('a.bigusername').attr('href') != $('a[href^="member.php"]').first().attr('href') )
+                    common_actions = '<li>talk to the report owner (' + posts.eq(1).find('a.bigusername').text() + ')';
+                else
+                    common_actions =
+                    '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&template=masked_swearing&post_id=' + reported_post + '">send PM for masked swearing</a>' +
+                    '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&post_id=' + reported_post + '">send PM (no template)</a>' +
+                    '<li><a href="http://forums.frontier.co.uk/infraction.php?do=report&p=' + reported_post + '">Give infraction</a>' +
+                    '<li><a href="http://forums.frontier.co.uk/editpost.php?do=editpost&p=' + reported_post + '">Edit post</a>' +
+                    '<li><a href="http://forums.frontier.co.uk/usernote.php?do=newnote&u=' + reported_user + '">Add user note</a>' +
+                    '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=open">update this report</a>' +
+                    '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=closed&cb_openclose=1">close this report</a></span>'
+                ;
+
+                $('<h1>Common actions</h1><ul>' + common_actions + '</ul>').prependTo(user_notes);
+
+            }
+
 
             report_block.html( report );
 
