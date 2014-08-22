@@ -1,5 +1,9 @@
 (function(localStorage) { // note: we pass in a 'localStorage' variable because Firefox extensions can't use the real localStorage directly
 
+    // When reporting a post, go straight to the reports forum:
+    if ( location.pathname == '/showthread.php' && document.referrer.search('/report.php') != -1 )
+        location = 'http://forums.frontier.co.uk/forumdisplay.php?f=48'
+
     function main() {
 
         /*
