@@ -3,3 +3,4 @@
 /chrome.pem
 /chrome/contentscript.js
 /chrome/jquery.min.js
+/deploy.sh
