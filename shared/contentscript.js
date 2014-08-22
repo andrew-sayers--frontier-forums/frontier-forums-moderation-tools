@@ -449,8 +449,16 @@
 
             }
 
+            /*
+             * EDIT POST EXTRAS
+             */
 
-            report_block.html( report );
+            $('<br><label><input type="checkbox">I have confirmed with other moderators that this post can be physically removed from our servers</label>')
+                .insertAfter( $('#rb_del_hard').prop( 'disabled', true ).parent() )
+                .find('input')
+                .click(function() {
+                    $('#rb_del_hard').prop( 'disabled', !$(this).prop('checked') )
+                });
 
         }
     }, 100);
