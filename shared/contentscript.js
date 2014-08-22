@@ -20,6 +20,9 @@
         return decodeURIComponent( location.search.replace( new RegExp( '.*&' + param + '=([^&]*).*' ), "$1" ) );
     }
 
+    var next_week = new Date();
+    next_week.setDate(next_week.getDate()+14);
+
     var rule_header = '[QUOTE=Forum Rules;421867]',
         rule_footer = '[/QUOTE]',
         things_you_agree_to_not_do = "[b]You agree to not:[/b]\n[LIST][*]Be insulting to any person via obscene, offensive, hateful or inflammatory comments via the means of private messages, public messages and visitor messages in order to bait, harass, and lure other users into responding. This is also known as trolling or flame-baiting.\n[*]Derail an ongoing discussion topic, forcing it to another type of discussion.\n[*]Use sexually explicit or harmful language including the use of misspelled or punctuated words to insinuate, represent any of the above - also known as \"masked swearing\". This includes words that are blocked by the automatic filter, swearing is not allowed in posts.\n[*]Utilize symbols or other non-normal ASCII English letters to mask out a swear word. If a word is filtered, then it's filtered, don't evade it.\n[*]Partake in personal arguments with other members of the community on the forums. If you have problems with other members either resolve your issues in private via PM or email, or use the \"Ignore\" feature of the bulletin board system in order to ignore that person.\n[*]Promote discrimination based on race, sex, religion, nationality, disability, sexual orientation, age or other criteria that offends other users.\n[*]Use the discussion board features to call out individuals or groups in thread titles, polls and/or posts to simply demean or insult them. Commonly known as bandwagoning. \n[/LIST]",
@@ -71,7 +74,7 @@
             PROBLEM          : param_to_template('problem'),
             POST_ID          : param_to_template('post_id'),
             STATUS           : param_to_template('status' ),
-            'NEXT WEEK'      : (new Date()).toGMTString().replace(/:[0-9][0-9] /, ' ' ),
+            'NEXT WEEK'      : next_week.toGMTString().replace(/:[0-9][0-9] /, ' ' ),
             'SIGNATURE RULES': problem_rules['Signature Rule Violation'],
             'LANGUAGE RULES' : problem_rules['Inappropriate Language'  ],
             'PROBLEM RULES'  : '<<PROBLEM RULES>>',
