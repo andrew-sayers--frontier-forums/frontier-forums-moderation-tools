@@ -438,16 +438,25 @@
                 common_actions = '<li>talk to the report owner (' + posts.eq(1).find('a.bigusername').text() + ')';
             else
                 common_actions =
-                '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&template=masked_swearing&post_id=' + reported_post + '">send PM for masked swearing</a>' +
-                '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&post_id=' + reported_post + '">send PM (no template)</a>' +
-                '<li><a href="http://forums.frontier.co.uk/infraction.php?do=report&p=' + reported_post + '">Give infraction</a>' +
-                '<li><a href="http://forums.frontier.co.uk/editpost.php?do=editpost&p=' + reported_post + '">Edit post</a>' +
-                '<li><a href="http://forums.frontier.co.uk/usernote.php?do=newnote&u=' + reported_user + '">Add user note</a>' +
-                '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=open">update this report</a>' +
-                '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=closed&cb_openclose=1">close this report</a></span>'
+                '<li>Prod the user:' +
+                '<ul>' +
+                  '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&template=masked_swearing&post_id=' + reported_post + '">send PM for masked swearing</a>' +
+                  '<li><a href="http://forums.frontier.co.uk/private.php?do=newpm&u='+reported_user+'&post_id=' + reported_post + '">send PM (no template)</a>' +
+                  '<li><a href="http://forums.frontier.co.uk/infraction.php?do=report&p=' + reported_post + '">Give infraction</a>' +
+                '</ul>' +
+                '<li>Fix the problem:' +
+                '<ul>' +
+                  '<li><a href="http://forums.frontier.co.uk/editpost.php?do=editpost&p=' + reported_post + '">Edit post</a>' +
+                '</ul>' +
+                '<li>Update the records:' +
+                '<ul>' +
+                  '<li><a href="http://forums.frontier.co.uk/usernote.php?do=newnote&u=' + reported_user + '">Add user note</a> (if not done automatically)' +
+                  '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=open">update this report</a>' +
+                  '<li><a href="' + newreply.attr( 'href' ) + '&template=take_post&template=report_update&status=closed&cb_openclose=1">close this report</a></span>' +
+                '</ul>'
             ;
 
-            $('<h1>Common actions</h1><ul>' + common_actions + '</ul>').prependTo(user_notes);
+            $('<h1>Common actions</h1><ol>' + common_actions + '</ol>').prependTo(user_notes);
 
         }
 
