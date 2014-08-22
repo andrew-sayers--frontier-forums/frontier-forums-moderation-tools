@@ -227,7 +227,7 @@
                  * ADD ELEMENTS TO FORM
                  */
                 var select_box = $('<select><option value="">Pick a template</option></select>').insertBefore('table.fieldset'),
-                    edit_box = $('<form style="display: none; position: fixed; width: 40em; margin-left: -20em; margin-top: -12em; left: 50%; top: 50%; border: 2px solid black; background: #cde; padding: 1em"><input type="hidden" name="id"><input style="width: 99%" name="new_title"><textarea style="width: 99%; height: 20em" name="new_body"></textarea><br><input type="submit" value="OK"><input type="submit" value="Cancel"></form>').appendTo(document.body)
+                    edit_box = $('<form style="display: none; position: fixed; width: 40em; margin-left: -20em; margin-top: -12em; left: 50%; top: 50%; border: 2px solid black; background: #cde; padding: 1em"><input type="hidden" name="id"><input style="width: 99%" name="new_title"><textarea style="width: 99%; height: 20em" name="new_body"></textarea><br><input type="submit" value="OK"><input type="submit" value="Cancel"><a style="color: blue; float: right" target="_blank" href="http://forums.frontier.co.uk/showthread.php?t=34869">see more templates</a></form>').appendTo(document.body)
                 ;
                 edit_box.submit(function(event) {
                     if ( !$("input[value=Cancel]:focus", this).length ) {
