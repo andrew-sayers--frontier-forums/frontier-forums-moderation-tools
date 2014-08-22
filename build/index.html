@@ -11,27 +11,18 @@
 
     <p>To install in Chrome...
       <ol>
-        <li><a href="frontier-forums-moderation-tools.crx">right-click here</a> and save the file
-        <li>Type <tt>chrome://extensions</tt> into the URL bar and press enter
-        <li>Drag and drop the extension on to the page
+        <li><a href="frontier-forums-moderation-tools.crx">right-click here</a> and save the Chrome extension
+        <li>type <kbd>chrome://extensions</kbd> into the URL bar and press enter
+        <li>drag and drop the extension on to the page
       </ol>
-      If Chrome automatically disables the extension, you will need to perform these extra steps:
+      If Chrome automatically disables the extension, try this alternate solution.  It should work as normal, but will cause Chrome to complain about this extension running in developer mode:
       <ol>
-        <li>download <a href="http://dl.google.com/dl/edgedl/chrome/policy/policy_templates.zip">Chrome group policy templates</a>
-        <li>copy <kbd>[zip]\windows\chrome.admx</kbd> to <kbd>c:\windows\policydefinitions</kbd>
-        <li>copy <kbd>[zip]\windows\[yourlanguage]\chrome.adml</kbd> to <kbd>c:\windows\policydefinitions\[yourlanguage]\chrome.adml</kbd> (not <kbd>c:\windows\[yourlanguage]</kbd>)
-        <li>type <kbd>chrome://extensions/</kbd> in Chrome's URL bar and press enter
+        <li><a href="frontier-forums-moderation-tools.chrome.zip">click here</a> to download the zipped Chrome extension
+        <li>copy the <kbd>frontier-forums-moderation-tools</kbd> folder to an appropriate place on your hard drive (e.g. your <em>Documents</em> folder)
+        <li>type <kbd>chrome://extensions</kbd> into the URL bar and press enter
         <li>check the Developer Mode checkbox at the top
-        <li>scroll down the list of disabled extensions and note the ID of the Frontier Forums Moderation Tools extension.  At the time of writing, this was: <var>nndcellimmcbpaggigggceekfaepkjbd</var>
-        <li>open the <em>Run</em> window, either by clicking <kbd>Start</kbd> -&gt; <kbd>Run</kbd> or by pressing the Windows key and <kbd>r</kbd>
-        <li>type <kbd>gpedit.msc</kbd>
-        <li>press OK
-        <li>if <kbd>gpedit.msc</kbd> is not found, install it using <a href="http://www.askvg.com/how-to-enable-group-policy-editor-gpedit-msc-in-windows-7-home-premium-home-basic-and-starter-editions/">these instructions</a>
-        <li>expand <kbd>User Configuration</kbd> -&gt; <kbd>Administrative Templates</kbd> -&gt; <kbd>Google</kbd> -&gt; <kbd>Google Chrome</kbd> -&gt; <kbd>Extensions</kbd>
-        <li>double-click to open <kbd>Configure extension installation whitelist</kbd>
-        <li>select <kbd>Enabled</kbd>, then click <kbd>Show...</kbd>
-        <li>in the list, enter the ID for the extension
-        <li>click OK and restart Chrome
+        <li>click <kbd>Load unpacked extension...</kbd>
+        <li>open the <kbd>frontier-forums-moderation-tools</kbd> folder you previously saved
       </ol>
     </p>
 

@@ -4,3 +4,4 @@
 /chrome/contentscript.js
 /chrome/jquery.min.js
 /deploy.sh
+/tmp
