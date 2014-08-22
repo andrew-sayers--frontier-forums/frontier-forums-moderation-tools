@@ -16,7 +16,7 @@
      */
 
     function param_to_template(param) {
-        if ( location.search.search( '&' + param + '=' ) == -1 ) return '<<' + param.toUpperCase() + '>>';
+        if ( location.search.search( '&' + param + '=' ) == -1 ) return '';
         return decodeURIComponent( location.search.replace( new RegExp( '.*&' + param + '=([^&]*).*' ), "$1" ) );
     }
 
@@ -71,9 +71,9 @@
         template_replacements = {
             PM_HEADER        : "Hi.",
             PM_FOOTER        : "Best regards,\nFrontier Moderation Team.",
-            PROBLEM          : param_to_template('problem'),
-            POST_ID          : param_to_template('post_id'),
-            STATUS           : param_to_template('status' ),
+            PROBLEM          : param_to_template('problem') || '<<PROBLEM>>',
+            POST_ID          : param_to_template('post_id') || param_to_template('p'),
+            STATUS           : param_to_template('status' ) || '<<STATUS>>',
             'NEXT WEEK'      : next_week.toGMTString().replace(/:[0-9][0-9] /, ' ' ),
             'SIGNATURE RULES': problem_rules['Signature Rule Violation'],
             'LANGUAGE RULES' : problem_rules['Inappropriate Language'  ],
