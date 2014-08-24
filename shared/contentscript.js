@@ -78,7 +78,7 @@
                 PM_HEADER        : "Hi.",
                 PM_FOOTER        : "Best regards,\nFrontier Moderation Team.",
                 PROBLEM          : param_to_template('problem') || '<<PROBLEM>>',
-                POST_ID          : param_to_template('post_id') || param_to_template('p'),
+                POST_ID          : param_to_template('post_id') || param_to_template('p') || '<<POST_ID>>',
                 STATUS           : param_to_template('status' ) || '<<STATUS>>',
                 'NEXT WEEK'      : next_week.toGMTString().replace(/:[0-9][0-9] /, ' ' ),
                 'SIGNATURE RULES': problem_rules['Signature Rule Violation'],
