@@ -11,6 +11,8 @@
          */
         var
             user_id = location.search.match(/&u=([0-9]*)/),
+            thread_id = ( $('a[href^="/showthread.php?t="]').first().attr( 'href' ) || '' )
+                .replace( /^\/showthread\.php\?t=([0-9]*).*/, "$1" ), // note: may contain junk data on non-thread pages
             check_user_note_checkbox
         ;
         if ( user_id ) user_id = user_id[1];
@@ -335,6 +337,29 @@
         });
         $('#last_post_container').load( 'http://forums.frontier.co.uk/showthread.php?t=24499&goto=newpost [id^=edit]:last', function() {
             $('#last_post_container div.normal:nth(1)').attr( 'style', 'color: white' );
+        });
+
+        var notes_to_self = $('#qrform').clone();
+        notes_to_self
+            .removeAttr( 'id method onsubmit' )
+            .attr( 'action', '#notes_to_self' )
+            .find('.tcat').html(
+                "<a onclick=\"return toggle_collapse('notes_to_self');\" href=\"#top\" style=\"float:right\"><img border=\"0\" alt=\"\" src=\"skins/frontier/buttons/collapse_tcat.gif\" id=\"collapseimg_notes_to_self\"></a>Notes to self"
+            );
+        notes_to_self.find('#collapseobj_quickreply').attr( 'id', 'collapseobj_notes_to_self' );
+        notes_to_self.find('#vB_Editor_QR').html( '<div class="controlbar" style="padding-right:8px"><textarea style="width:100%; height:100px" cols="60" rows="10" placeholder="Add notes for your personal interest"></textarea></div>')
+        notes_to_self.find('textarea')
+            .val( localStorage.getItem( 'notes_to_self-' + thread_id ) || '' )
+            .on( 'input', function() {
+                localStorage.setItem( 'notes_to_self-' + thread_id, $(this).val() );
+            });
+        notes_to_self.find('fieldset,#qr_posting_msg,#qr_error_tbody,#qr_posting_msg').remove();
+        notes_to_self.find('#qr_preview').parent().remove();
+        $('#qrform').after( notes_to_self ).after( '<br>' );
+        $('a[id^=thread_title_]').each(function() {
+            var notes = localStorage.getItem( 'notes_to_self-' + this.id.substr(13) );
+            if ( notes )
+                $('<span style="font-size:smaller; vertical-align: top">[notes]</span>').appendTo( $(this).parent() ).attr( 'title', notes )
         });
 
         posts.each(
