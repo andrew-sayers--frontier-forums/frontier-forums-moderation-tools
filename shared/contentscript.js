@@ -376,7 +376,7 @@
                 goto_link  = ' - <a href="#' + this.id + '">view post</a>',
                 userid     = ( $username.attr("href") || '' ).split('?u=', 2)[1],
                 body       = $( 'div[id^=post_message_]',this),
-                post_block = body.siblings().last()
+                post_block = body.siblings().last(),
                 username   = $username.text(),
                 sig_block  = body.next().not('[align=right]').not('.smallfont').not('[style="padding:6px"]'),
                 sig_image  = sig_block.find( 'img' ).not('.inlineimg'),
