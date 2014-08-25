@@ -349,7 +349,11 @@
     notes_to_self.find('textarea')
         .val( localStorage.getItem( 'notes_to_self-' + thread_id ) || '' )
         .on( 'input', function() {
-            localStorage.setItem( 'notes_to_self-' + thread_id, $(this).val() );
+            if ( $(this).val() == '' ) {
+                localStorage.removeItem( 'notes_to_self-' + thread_id );
+            } else {
+                localStorage.setItem( 'notes_to_self-' + thread_id, $(this).val() );
+            }
         });
     notes_to_self.find('fieldset,#qr_posting_msg,#qr_error_tbody,#qr_posting_msg').remove();
     notes_to_self.find('#qr_preview').parent().remove();
