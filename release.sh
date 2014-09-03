@@ -22,8 +22,7 @@ then
 fi
 
 echo -n "Updating version to '$VERSION'... "
-sed -i -e 's/\("version": *"\).*"/\1'"$VERSION"'"/' chrome/manifest.json firefox/harness-options.json
-sed -i -e 's/<em:version>.*<\/em:version>/<em:version>'"$VERSION"'<\/em:version>/' firefox/install.rdf
+sed -i -e 's/\("version": *"\).*"/\1'"$VERSION"'"/' Chrome/manifest.json Firefox/package.json
 echo done.
 
 echo -n "Committing changes... "
