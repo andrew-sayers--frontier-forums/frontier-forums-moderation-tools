@@ -1,16 +1,10 @@
 { 
     "icon":"icon-48.png", 
     "icon64":"icon-64.png", 
-    "icon":"icon-48.png", 
-    "icon64":"icon-64.png", 
-    "icon":"icon-48.png", 
-    "icon64":"icon-64.png", 
-    "icon":"icon-48.png", 
-    "icon64":"icon-64.png",
     "description": "Add new moderator stuff to the Frontier Forums", 
     "license": "MPL 2.0", 
     "author": "Andrew Sayers", 
-    "version": "1.6", 
+    "version": "1.7", 
     "title": "Frontier forums moderation tools", 
     "id": "1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559", 
     "name": "frontier-forums-moderation-tools"
