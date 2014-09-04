@@ -22,6 +22,7 @@ then
 fi
 
 echo -n "Updating version to '$VERSION'... "
+sed -i -e "s/\(version *\).*/\1$VERSION/" lib/config.txt
 sed -i -e 's/\("version": *"\).*"/\1'"$VERSION"'"/' Chrome/manifest.json Firefox/package.json
 echo done.
 
