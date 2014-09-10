@@ -4,22 +4,22 @@
 #
 
 # In Linux, you can make a GUID by running `uuidgen` on the command line:
-id            abcdef01-2345-6789-9876-543210fedcba
+id            1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559
 
 # General config parameters
-name          babelext_your_name_here
-title         BabelExt
-description   An extension created with BabelExt - www.babelext.com
-license       GPL
-author        honestbleeps
-version       0.95
-update_chrome http://babelext.com/update-chrome.php
-website       http://babelext.com
-#icon_16       icon-16.png
-#icon_32       icon-32.png
-#icon_48       icon-48.png
-#icon_64       icon-64.png
-#icon_128      icon-128.png
+name          frontier-forums-moderation-tools
+title         Frontier forums moderation tools
+description   Add new moderator stuff to the Frontier Forums
+license       MPL 2.0
+author        Andrew Sayers
+version       1.5
+update_chrome http://pileofstuff.org/frontier-forums-moderation-tools/frontier-forums-moderation-tools.crx
+website       http://pileofstuff.org/frontier-forums-moderation-tools/
+icon_16       icon-16.png
+icon_32       icon-32.png
+icon_48       icon-48.png
+icon_64       icon-64.png
+icon_128      icon-128.png
 
 # userscript config parameters:
 
@@ -28,11 +28,12 @@ website       http://babelext.com
 # * 'early' runs at the earliest point supported by the browser (possibly before the DOM exists)
 # * 'middle' guarantees the DOM exists, but might run while the page is still loading
 # * 'late' guarantees the scripts are run aft the page finishes loading
-contentScriptWhen early
+contentScriptWhen late
+contentScriptFile jquery.min.js
 
 # normal settings:
 contentScriptFile extension.js
-match_domain      babelext.com
+match_domain      forums.frontier.co.uk
 # uncomment the next line to match *.<match_domain>:
 # match_include_subdomains
 
