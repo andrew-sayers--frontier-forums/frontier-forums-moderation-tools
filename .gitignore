@@ -1,7 +1,8 @@
-*~
+/firefox-unpacked
+/firefox-addon-sdk
+/Chrome.pem
 /build
-/chrome.pem
-/chrome/contentscript.js
-/chrome/jquery.min.js
+*~
 /deploy.sh
-/tmp
+/Chrome/*.png
+/Firefox/*.png
