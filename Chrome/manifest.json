@@ -1,21 +1,21 @@
 {
-	"name": "BabelExt Extension",
-	"author": "honestbleeps",
-	"version": "0.95",
+	"name": "Frontier forums moderation tools",
+	"author": "Andrew Sayers",
+	"version": "1.5",
 	"manifest_version": 2,
-	"description": "An extension created with BabelExt - www.babelext.com",
-	"update_url": "http://babelext.com/update-chrome.php",
+	"description": "Add new moderator stuff to the Frontier Forums",
+	"update_url": "http://pileofstuff.org/frontier-forums-moderation-tools/frontier-forums-moderation-tools.crx",
 	"background": {
 		"scripts": ["background.js"]
 	},
 	"content_scripts": [
 		{
-			"matches": ["http://babelext.com/*"],
-			"js": ["BabelExt.js", "extension.js"], // add others here if you like, i.e. jquery...
+			"matches": ["*://forums.frontier.co.uk/*"],
+			"js": ["BabelExt.js", "jquery.min.js" , "extension.js"], // add others here if you like, i.e. jquery...
 			"run_at": "document_end"
 		}
 	],
-	"icons": {},
+	"icons": { "16":"icon-16.png", "32":"icon-32.png", "48":"icon-48.png", "64":"icon-64.png", "128":"icon-128.png" },
 	"permissions": [
 		"contextMenus",
 		"tabs",

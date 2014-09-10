@@ -44,9 +44,9 @@ localStorage.removeItem = function(key) {
 };
 
 pageMod.PageMod({
-  include: ["*.babelext.com"],
+  include: ["http://forums.frontier.co.uk/*","https://forums.frontier.co.uk/*"],
   contentScriptWhen: 'ready',
-  contentScriptFile: [self.data.url('BabelExt.js'), self.data.url('extension.js')],
+  contentScriptFile: [self.data.url('BabelExt.js'), self.data.url('jquery.min.js') , self.data.url('extension.js')],
   onAttach: function(worker) {
 	tabs.on('activate', function(tab) {
 		// run some code when a tab is activated...

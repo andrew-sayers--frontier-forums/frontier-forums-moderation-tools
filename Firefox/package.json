@@ -1,9 +1,11 @@
-{
-    "description": "An extension created with BabelExt - www.babelext.com", 
-    "license": "GPL", 
-    "author": "honestbleeps", 
-    "version": "0.95", 
-    "title": "BabelExt", 
-    "id": "jid1-h7LuK9FSeAYouw", 
-    "name": "babelext_your_name_here"
+{ 
+    "icon":"icon-48.png", 
+    "icon64":"icon-64.png",
+    "description": "Add new moderator stuff to the Frontier Forums", 
+    "license": "MPL 2.0", 
+    "author": "Andrew Sayers", 
+    "version": "1.5", 
+    "title": "Frontier forums moderation tools", 
+    "id": "1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559", 
+    "name": "frontier-forums-moderation-tools"
 }
