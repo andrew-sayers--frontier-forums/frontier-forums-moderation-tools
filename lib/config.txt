@@ -12,7 +12,7 @@ title       Frontier forums moderation tools
 description Add new moderator stuff to the Frontier Forums
 license     MPL 2.0
 author      Andrew Sayers
-version     2.0
+version     2.2
 website     http://pileofstuff.org/frontier-forums-moderation-tools/
 icon_16     icon-16.png
 icon_32     icon-32.png
