@@ -1,21 +1,36 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "2.3",
+	"version": "2.4",
 	"manifest_version": 2,
-	"description": "Add new moderator stuff to the Frontier Forums",
+	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
-		"scripts": ["background.js"]
+		"scripts": [
+			"background.js"
+		]
 	},
 	"content_scripts": [
 		{
-			"matches": ["*://forums.frontier.co.uk/*"],
-			"js": ["BabelExt.js", "jquery.min.js" , "extension.js"],
-			"run_at": "document_end"
+			"matches": [
+				"*://babelext.com/*"
+			],
+			"js": [
+				"BabelExt.js",
+				"jquery.min.js",
+				"extension.js"
+			],
+			"run_at": "document_idle"
 		}
 	],
-	"icons": { "16":"icon-16.png", "32":"icon-32.png", "48":"icon-48.png", "64":"icon-64.png", "128":"icon-128.png" },
+	"icons": {
+		"16": "icon-16.png",
+		"32": "icon-32.png",
+		"48": "icon-48.png",
+		"64": "icon-64.png",
+		"128": "icon-128.png"
+	},
 	"permissions": [
+		"*://babelext.com/*",
 		"contextMenus",
 		"tabs",
 		"history",

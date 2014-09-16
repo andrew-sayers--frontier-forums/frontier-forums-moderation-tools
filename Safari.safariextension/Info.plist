@@ -3,19 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>Steve Sobel</string>
+	<string>Andrew Sayers</string>
 	<key>Builder Version</key>
 	<string>8536.30.1</string>
 	<key>CFBundleDisplayName</key>
-	<string>BabelExt Extension</string>
+	<string>Frontier forums moderation tools</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.honestbleeps.babelext-extension</string>
+	<string>com.honestbleeps.1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.95</string>
+	<string>2.4</string>
 	<key>CFBundleVersion</key>
-	<string>0.95</string>
+	<string>2.4</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -35,7 +35,7 @@
 		<array>
 			<dict>
 				<key>Command</key>
-				<string></string>
+				<string/>
 				<key>Identifier</key>
 				<string>notificationButton</string>
 				<key>Image</key>
@@ -57,6 +57,7 @@
 		<dict>
 			<key>End</key>
 			<array>
+				<string>jquery.min.js</string>
 				<string>extension.js</string>
 			</array>
 			<key>Start</key>
@@ -66,7 +67,7 @@
 		</dict>
 	</dict>
 	<key>Description</key>
-	<string>An extension created with BabelExt - www.babelext.com</string>
+	<string>Add moderator tools to the Frontier Forums</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -84,6 +85,6 @@
 		</dict>
 	</dict>
 	<key>Website</key>
-	<string>http://babelext.com</string>
+	<string>http://pileofstuff.org/frontier-forums-moderation-tools/</string>
 </dict>
 </plist>
