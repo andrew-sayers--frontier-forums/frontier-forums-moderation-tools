@@ -43,10 +43,12 @@ localStorage.removeItem = function(key) {
 	delete ss.storage[key];
 };
 
+var settings = require("./settings.js");
+
 pageMod.PageMod({
-  include: ["http://forums.frontier.co.uk/*","https://forums.frontier.co.uk/*"],
-  contentScriptWhen: 'ready',
-  contentScriptFile: [self.data.url('BabelExt.js'), self.data.url('jquery.min.js') , self.data.url('extension.js')],
+  include: settings.include,
+  contentScriptWhen: settings.contentScriptWhen,
+  contentScriptFile: settings.contentScriptFile,
   onAttach: function(worker) {
 	tabs.on('activate', function(tab) {
 		// run some code when a tab is activated...
