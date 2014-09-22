@@ -54,6 +54,8 @@
             "contentScriptFiles": [ "test-helper.js" ],
         },
 
+        "production": {}
+
     },
 
     "firefox_max_version": '32.*'
