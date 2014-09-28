@@ -36,7 +36,7 @@
      */
     "contentScriptWhen": "late",
 
-    "contentScriptFiles": [ "jquery.min.js", "extension.js" ],
+    "contentScriptFiles": [ "jquery-2.1.1.min.js", "extension.js" ],
     "match_domain":       "forums.frontier.co.uk",
     // whether to match *.<match_domain>:
     "match_include_subdomains": false,
