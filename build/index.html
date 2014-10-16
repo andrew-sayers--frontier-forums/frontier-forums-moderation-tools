@@ -1,15 +1,83 @@
 <html>
   <head>
-    <title>Frontier Forums Moderation Tools</title>
+    <title>Frontier Forums Moderation Tools (beta)</title>
   </head>
   <body>
-    <h1>Frontier Forums Moderation Tools</h1>
+    <h1>Frontier Forums Moderation Tools (beta)</h1>
 
-    <p>If you've installed a user script extension (e.g. <a href="https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/">Greasemonkey</a> or <a href="https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en">Tampermonkey</a>), install <a href="frontier-forums-moderation-tools.user.js">the user script</a> however your extension tells you (usually just by clicking the link).</p>
+    <p>Feature list:</p>
+<ul>
+  <li> A lot of configuration has been moved into <a href="https://forumstest.frontier.co.uk/showthread.php?t=32626">test thread 32626</a>
+    <ul>
+      <li> <b>Note:</b> the previous version let anyone define their own template, but changing the defaults meant editing the source,<br>
+        This version lets any moderator change the defaults, but making a private variation means editing the source.
+    </ul>
+  <li> When viewing profiles in ModCP
+    <ul>
+      <li> "go to member page" and "send PM" buttons<br>
+        <b>note:</b> doesn't work in Chrome when you go to /modcp/user.php - fixing that would be a long-term project
+    </ul>
+  <li> When moderating posts
+    <ul>
+      <li> Validating threads hides the "validate posts" section
+      <li> posts are coloured to indicate whether they will be validated/deleted/ignored
+      <li> One-click checking on StopForumSpam.com
+      <li> Count of modified posts at the bottom
+      <li> buttons now have more descriptive text
+    </ul>
+  <li> On thread pages
+    <ul>
+      <li> Watch list
+      <li> thread's moderation log, list of active reports and most recent post in the mod log appear at the bottom<br>
+        <b>note:</b> reported posts aren't styled correctly - this might be fixed when the forums go live, otherwise I'll do it
+      <li> "Report post" text changed for already-reported posts
+      <li> Single click to report an issue of a given type, go to the report and take it
+      <li> One-click checking on StopForumSpam.com<br>
+        <b>Note:</b> seems broken in Chrome right now due to security issues - this will probably fix itself when we go live
+    </ul>
+  <li> On report pages:
+    <ul>
+      <li> One-click button to take a thread
+      <li> Data shown from the reported user's member page, profile and user notes
+      <li> Context-dependent common actions
+      <li> Notification about reports for threads that have now been closed
+      <li> For open threads owned by you, "common actions" guides you through the whole reporting process<br>
+        <b>note:</b> the action form will be finalised once we have final confirmation about how the process will work in future
+    </ul>
+  <li> On edit pages
+    <ul>
+      <li> Delete message is simply marked "recommended" now the interface is less ambiguous
+    </ul>
+</ul>
 
-    <p>To install in Firefox, <a href="https://addons.mozilla.org/en-US/firefox/addon/frontier-forums-moderation-too/">click here</a> then Add to Firefox.</p>
-    <p>To install in Chrome, <a href="https://chrome.google.com/webstore/detail/loibodchdablbonhoimaihclljckleki">click here</a> then click the button marked "free" in the top-right</p>
-    <p>To install in Opera, <a href="https://addons.opera.com/en-gb/extensions/details/frontier-forums-moderation-tools/">click here</a> then click the button marked "Add to Opera" in the top-right</p>
+
+  <p>Features removed in the new version:</p>
+    <ul>
+      <li> Notes to self (useless)
+      <li> Automatic sig violation detection (redundant)
+      <li> Automatic swear detection (redundant)
+      <li> Templates (replaced with variables and overhauled reporting system)
+      <li> Mollyguard on the "physically remove" button on edit pages (redundant)
+    </ul>
+
+    <p>To install the beta in Firefox, <a href="frontier-forums-moderation-tools-beta.xpi">click here</a></p>
+
+    <p>To install in Opera/Chrome...
+      <ol>
+        <li><a href="frontier-forums-moderation-tools-beta.crx">right-click here</a> and save the Chrome extension
+        <li>type <kbd>chrome://extensions</kbd> into the URL bar and press enter
+        <li>drag and drop the extension on to the page
+      </ol>
+      If Chrome automatically disables the extension, try this alternate solution.  It should work as normal, but will cause Chrome to complain about this extension running in developer mode:
+      <ol>
+        <li><a href="frontier-forums-moderation-tools-beta.chrome.zip">click here</a> to download the zipped Chrome extension
+        <li>copy the <kbd>frontier-forums-moderation-tools</kbd> folder to an appropriate place on your hard drive (e.g. your <em>Documents</em> folder)
+        <li>type <kbd>chrome://extensions</kbd> into the URL bar and press enter
+        <li>check the Developer Mode checkbox at the top
+        <li>click <kbd>Load unpacked extension...</kbd>
+        <li>open the <kbd>frontier-forums-moderation-tools</kbd> folder you previously saved
+      </ol>
+    </p>
 
   </body>
 </html>
