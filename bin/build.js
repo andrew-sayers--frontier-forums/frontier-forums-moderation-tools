@@ -1,4 +1,4 @@
-#!/usr/bin/phantomjs
+#!/usr/bin/phantomjs --ssl-protocol=any
 
 /*
  * Phantom JS build script
@@ -59,16 +59,15 @@ function symbolicLink( source, target ) {
  * Create a hard link from source to target
  */
 function hardLink( source, target ) {
-    if ( ! fs.exists(target) ) {
-        if ( system.os.name == 'windows' ) {
-            childProcess.execFile('mklink', ['/H',target,source], function(err, stdout, stderr) {
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-            });
-        } else {
-            childProcess.execFile('ln', [source,target], null, function(err, stdout, stderr) {
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-            });
-        }
+    if ( fs.exists(target) ) fs.remove(target);
+    if ( system.os.name == 'windows' ) {
+        childProcess.execFile('mklink', ['/H',target,source], function(err, stdout, stderr) {
+            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+        });
+    } else {
+        childProcess.execFile('ln', [source,target], null, function(err, stdout, stderr) {
+            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+        });
     }
 }
 
@@ -265,6 +264,8 @@ function page( url, callback ) {
 
     page.showConsoleMessage();
 
+    page.settings.loadImages = false;
+
     return page.open( url, function(status) {
         if (status == 'success') {
             callback(page);
@@ -326,8 +327,36 @@ if ( system.env.hasOwnProperty('ENVIRONMENT') ) {
     phantom.exit(1);
 };
 settings.contentScriptFiles.unshift('BabelExt.js');
-settings.pretty_domain = ( settings.mach_include_subdomain ? '*.' : '' ) + settings.match_domain;
 delete settings.environment_specific;
+
+if (
+    settings.version.search(/^[0-9]+(?:\.[0-9]+){0,3}$/) ||
+    settings.version.split('.').filter(function(number) { return number > 65535 }).length
+) {
+    console.log(
+        'Google Chrome will not accept version number "' + settings.version + '"\n' +
+        'Please specify a version number containing 1-4 dot-separated integers between 0 and 65535'
+    );
+    phantom.exit(1);
+}
+
+settings.preferences.forEach(function(preference) {
+    /*
+     * Known-but-unsupported types:
+     * color - not supported by Safari
+     * file - not supported by Safari
+     * directory - not supported by Safari
+     * control - not supported by Safari, not clear what we'd do with it anyway
+     */
+    if ( preference.type.search(/^(bool|boolint|integer|string|menulist|radio)$/) == -1 ) {
+        console.log(
+            'Preference type "' + preference.type + ' is not supported.\n' +
+            'Please specify a valid preference type: bool, boolint, integer, string, menulist, radio\n'
+        );
+        phantom.exit(1);
+    }
+});
+
 
 /*
  * Load settings from lib/local_settings.json
@@ -401,6 +430,17 @@ function build_safari() {
     get_node('Description'               ).textContent = settings.description;
     get_node('Website'                   ).textContent = settings.website;
 
+    var match_domains = get_node('Allowed Domains');
+    while (match_domains.firstChild) match_domains.removeChild(match_domains.firstChild);
+    var domain = document.createElement("string");
+    domain.textContent = settings.match_domain;
+    match_domains.appendChild( document.createTextNode('\n\t\t\t\t') );
+    match_domains.appendChild(domain);
+    match_domains.appendChild( document.createTextNode('\n\t\t\t') );
+
+    var match_secure_domain = get_node('Include Secure Pages');
+    match_secure_domain.parentNode.replaceChild(document.createElement((settings.match_secure_domain||false).toString()),match_secure_domain);
+
     var start_scripts = get_node('Start');
     var   end_scripts = get_node('End');
 
@@ -429,6 +469,38 @@ function build_safari() {
     var xml_txt = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(document).replace(">",">\n") + "\n";
     fs.write( 'Safari.safariextension/Info.plist', xml_txt );
 
+    if ( settings.preferences )
+        function build_dict( preference, values ) {
+            return '\t<dict>\n\t\t<key>DefaultValue</key>\n\t\t<string>' + preference.value + '</string>\n\t\t<key>Key</key>\n\t\t<string>' + preference.name + '</string>\n\t\t<key>Title</key>\n\t\t<string>' + preference.title + '</string>' +
+                Object.keys(values).map(function(value) {
+                    if      ( typeof(values[value]) == 'string'  ) return '\n\t\t<key>' + value + '</key>\n\t\t<string>' + values[value] + '</string>';
+                    else if ( typeof(values[value]) == 'number'  ) return '\n\t\t<key>' + value + '</key>\n\t\t<real>' + values[value] + '</real>';
+                    else if ( typeof(values[value]) == 'boolean' ) return '\n\t\t<key>' + value + '</key>\n\t\t<' + values[value] + '/>';
+                    else    /* must be an array */                 return '\n\t\t<key>' + value + '</key>\n\t\t<array>' + values[value].map(function(v) { return '\n\t\t\t<string>'+v+'</string>'; }).join('') + '\n\t\t</array>'
+                }).join('') +
+	        '\n\t</dict>\n'
+        }
+        fs.write(
+            'Safari.safariextension/Settings.plist',
+            '<?xml version="1.0" encoding="UTF-8"?>\n' +
+            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+            '<plist version="1.0">\n' +
+                '<array>\n' +
+            settings.preferences.map(function(preference) {
+                switch ( preference.type ) {
+                case 'bool'    : return build_dict( preference, { Type: 'CheckBox' } );
+                case 'boolint' : return build_dict( preference, { Type: 'CheckBox', FalseValue: 0, TrueValue: 1 } );
+                case 'integer' : return build_dict( preference, { Type: 'Slider'   } );
+                case 'string'  : return build_dict( preference, { Type: 'TextField', Password: false } );
+                case 'menulist': return build_dict( preference, { Type: 'ListBox', Titles: preference.options.map(function(o) { return o.label }), Values: preference.options.map(function(o) { return o.value }),  } );
+                case 'radio'   : return build_dict( preference, { Type: 'RadioButtons', Titles: preference.options.map(function(o) { return o.label }), Values: preference.options.map(function(o) { return o.value }),  } );
+                }
+            }).join('') +
+                '</array>\n' +
+            '</plist>\n',
+            'w'
+        );
+
 }
 
 function build_firefox() {
@@ -442,7 +514,10 @@ function build_firefox() {
     // Create settings.js:
     fs.write(
         'Firefox/lib/settings.js',
-        'exports.include = ["http://' + settings.pretty_domain + '/*","https://' + settings.pretty_domain + '/*"];\n' +
+        ( settings.match_secure_domain
+          ? 'exports.include = ["http://' + settings.match_domain + '/*","https://' + settings.match_domain + '/*"];\n'
+          :  'exports.include = ["http://' + settings.match_domain + '/*"];\n'
+        ) +
         'exports.contentScriptWhen = "' + when_string[settings.contentScriptWhen] + '";\n' +
         'exports.contentScriptFile = ' + JSON.stringify(settings.contentScriptFiles) + ";\n"
         ,
@@ -459,17 +534,25 @@ function build_firefox() {
         "id": settings.id,
         "name": settings.name
     };
-    if (settings.icons[48]) { pkg.icon    = settings.icons[48]; symbolicLink( '../lib/'+pkg.icon   , 'Firefox/'+pkg.icon    ); }
-    if (settings.icons[64]) { pkg.icon_64 = settings.icons[64]; symbolicLink( '../lib/'+pkg.icon_64, 'Firefox/'+pkg.icon_64 ); }
+    if (settings.icons[48]  ) { pkg.icon        = settings.icons[48]; symbolicLink( '../lib/'+pkg.icon   , 'Firefox/'+pkg.icon    ); }
+    if (settings.icons[64]  ) { pkg.icon_64     = settings.icons[64]; symbolicLink( '../lib/'+pkg.icon_64, 'Firefox/'+pkg.icon_64 ); }
+    if (settings.preferences) { pkg.preferences = settings.preferences; }
     fs.write( 'Firefox/package.json', JSON.stringify(pkg, null, '    ' ) + "\n", 'w' );
 
     // Copy scripts into place:
+    fs.removeTree('Firefox/data'); // PhantomJS won't list dangling symlinks, so we have to just delete the directory and recreate it
+    fs.makeDirectory('Firefox/data');
     settings.contentScriptFiles.forEach(function(file) { symbolicLink( '../../lib/'+file, 'Firefox/data/' + file ) });
 
     program_counter.begin();
 
     // Check whether the Addon SDK is up-to-date:
     var page = webPage.create();
+    page.onResourceError = function(resourceError) {
+        console.log('Unable to load resource (' + resourceError.url + ')');
+        console.log('Error code: ' + resourceError.errorCode + '. Description: ' + resourceError.errorString);
+        return program_counter.end();
+    };
     page.onResourceReceived = function(response) {
         if ( fs.exists('firefox-addon-sdk-url.txt') && fs.read('firefox-addon-sdk-url.txt') == response.redirectURL ) {
             console.log( 'Firefox Addon SDK is up-to-date.' );
@@ -480,10 +563,10 @@ function build_firefox() {
             // do it with `curl` instead:
             console.log( 'Unpacking Firefox Addon SDK...', status );
             childProcess.execFile( 'curl', ['--silent',response.redirectURL,'-o','temporary_file.tar.gz'], null, function(err, stdout, stderr) {
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+                if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
                 fs.makeDirectory('firefox-addon-sdk');
                 childProcess.execFile( 'tar', ["zxf",'temporary_file.tar.gz','-C','firefox-addon-sdk','--strip-components=1'], null, function(err,stdout,stderr) {
-                    if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+                    if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
                     fs.remove('temporary_file.tar.gz');
                     fs.write( 'firefox-addon-sdk-url.txt', response.redirectURL, 'w' );
                     build_xpi();
@@ -507,7 +590,7 @@ function build_firefox() {
 
     // Move the .xpi into place, fix its install.rdf, and update firefox-unpacked:
     function finalise_xpi(err, stdout, stderr) {
-        if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+        if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
         fs.makeDirectory('build');
         var xpi = 'build/' + settings.name + '.xpi';
         if ( fs.exists(xpi) ) fs.remove(xpi);
@@ -515,7 +598,7 @@ function build_firefox() {
         fs.removeTree('firefox-unpacked');
         fs.makeDirectory('firefox-unpacked');
         childProcess.execFile( 'unzip', ['-d','firefox-unpacked',xpi], null, function(err,stdout,stderr) {
-            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+            if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
             fs.write(
                 'firefox-unpacked/install.rdf',
                 fs.read('firefox-unpacked/install.rdf').replace( /<em:maxVersion>.*<\/em:maxVersion>/, '<em:maxVersion>' + settings.firefox_max_version + '</em:maxVersion>' )
@@ -527,7 +610,7 @@ function build_firefox() {
             fs.changeWorkingDirectory('firefox-unpacked');
             childProcess.execFile( 'zip', ['../'+xpi,'install.rdf'], null, function(err,stdout,stderr) {
                 fs.changeWorkingDirectory('..');
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+                if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
                 console.log('Built ' + xpi + '\n\033[1mRemember to restart Firefox if you added/removed any files!\033[0m');
                 return program_counter.end();
             });
@@ -544,36 +627,99 @@ function build_chrome() {
         'late'  : 'document_idle'
     };
 
+    var match_url = ( settings.match_secure_domain ? "*://" : "http://" ) + settings.match_domain + '/*';
+
+    var manifest = {
+        "name": settings.title,
+        "author": settings.author,
+        "version": settings.version,
+	"manifest_version": 2,
+        "description": settings.description,
+	"background": {
+	    "scripts": ["background.js"]
+	},
+	"content_scripts": [
+	    {
+		"matches": [ match_url ],
+		"js": settings.contentScriptFiles,
+		"run_at": when_string[settings.contentScriptWhen]
+	    }
+	],
+	"icons": settings.icons,
+	"permissions": [
+            match_url,
+	    "contextMenus",
+	    "tabs",
+	    "history",
+	    "notifications"
+	]
+    };
+
+    if ( settings.preferences ) {
+        manifest.options_page = "options.html";
+        manifest.permissions.push('storage');
+        manifest.background.scripts.unshift('preferences.js');
+
+        fs.write(
+            'Chrome/' + manifest.background.scripts[0],
+            "var default_preferences = {" +
+            settings.preferences.map(function(preference) {
+                switch ( preference.type ) {
+                case 'bool'   : return "'" + preference.name + "':" + (preference.value?'true':'false');
+                case 'boolint': return "'" + preference.name + "':" + (preference.value?'1'   :'0'    );
+                default       : return "'" + preference.name + "':" +  JSON.stringify(preference.value);
+                }
+            }).join(', ') +
+            "};\n",
+            'w'
+        );
+
+        fs.write(
+            'Chrome/' + manifest.options_page,
+            "<!DOCTYPE html>\n" +
+            "<html>\n" +
+            "<head><title>" + settings.title + " Options</title></head>\n" +
+            '<link rel="stylesheet" type="text/css" href="chrome-bootstrap.css" />\n' +
+            '<body class="chrome-bootstrap">\n' +
+            '<div class="overlay">\n' +
+            '<form class="page">\n' +
+            '<h1>' + settings.title + '</h1>\n' +
+            '<div class="content-area">\n' +
+            settings.preferences.map(function(preference) {
+                switch ( preference.type ) {
+                case 'bool'   : return '<div class="checkbox"><span class="controlled-setting-with-label"><input class="pref" id="' + preference.name + '" ' + (preference.value?' checked':'') + ' type="checkbox"><label for="' + preference.name + '">' + preference.title + '</label></span></div>\n';
+                case 'boolint': return '<div class="checkbox"><span class="controlled-setting-with-label"><input class="pref" id="' + preference.name + '" data-on="1" data-off="0"' + (preference.value?' checked':'') + ' type="checkbox"><label for="' + preference.name + '">' + preference.title + '</label></span></div>\n';
+                case 'integer': return '<label title="' + preference.description + '">' + preference.title + ': <input id="' + preference.name + '" class="pref" type="number" value="' + preference.value + '"></label><br>\n';
+                case 'string': return '<label title="' + preference.description + '">' + preference.title + ': <input id="' + preference.name + '" class="pref" type="text" value="' + preference.value + '"></label><br>\n';
+                case 'menulist':
+                    return '<div class="media-device-control"><span>' + preference.title + ':</span><select id="' + preference.name + '" class="pref weakrtl">' +
+                        preference.options.map(function(option) {
+                            return ' <option value="' + option.value + '"' + ( option.value == preference.value ? ' selected' : '' ) + '>' + option.label + '</option>\n';
+                        }).join('') +
+                        '</select></div>'
+                    ;
+                case 'radio':
+                    return '<section><h3>' + preference.title + '</h3>' +
+                        preference.options.map(function(option,index) {
+                            return '<div class="radio"><span class="controlled-setting-with-label"><input id="' + preference.name + '-' + index + '" class="pref" type="radio" name="' + preference.name + '" value="' + option.value + '"' + ( option.value == preference.value ? ' checked' : '' ) + '><label for="' + preference.name + '-' + index + '">' + option.label + ( option.value == preference.value ? ' (recommended)' : '' ) + '</label></span></div>'
+                        }).join('') + '</section>';
+                }
+            }).join('') +
+
+            '</div>\n' +
+            '<div class="action-area"></div>\n' + // no buttons because we apply changes on click, but the padding makes the page look better
+            '</form>\n' +
+            '</div>\n' +
+            "<script src=\"options.js\"></script>\n" +
+            "</body>\n" +
+            "</html>\n",
+            'w'
+        );
+
+    }
+
     // Create manifest.json:
-    fs.write(
-        'Chrome/manifest.json',
-        JSON.stringify({
-            "name": settings.title,
-            "author": settings.author,
-            "version": settings.version,
-	    "manifest_version": 2,
-            "description": settings.description,
-	    "background": {
-		"scripts": ["background.js"]
-	    },
-	    "content_scripts": [
-		{
-		    "matches": [ "*://" + settings.pretty_domain + '/*' ],
-		    "js": settings.contentScriptFiles,
-		    "run_at": when_string[settings.contentScriptWhen]
-		}
-	    ],
-	    "icons": settings.icons,
-	    "permissions": [
-                "*://" + settings.pretty_domain + "/*",
-		"contextMenus",
-		"tabs",
-		"history",
-		"notifications"
-	    ]
-        }, null, '\t' ) + "\n",
-        'w'
-    );
+    fs.write( 'Chrome/manifest.json', JSON.stringify(manifest, null, '\t' ) + "\n", 'w' );
 
     // Copy scripts and icons into place:
     settings.contentScriptFiles.forEach(function(file) { hardLink( 'lib/'+file               , 'Chrome/' + file                ) });
@@ -586,7 +732,7 @@ function build_chrome() {
         build_crx();
     } else {
         childProcess.execFile(chrome_command, ["--pack-extension=Chrome"], null, function (err, stdout, stderr) {
-            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+            if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
             build_crx();
         });
     };
@@ -594,7 +740,7 @@ function build_chrome() {
     // Build the .crx, move it into place, and build the upload zip file:
     function build_crx() {
         childProcess.execFile(chrome_command, ["--pack-extension=Chrome","--pack-extension-key=Chrome.pem"], null, function (err, stdout, stderr) {
-            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+            if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
             if ( stdout != 'Created the extension:\n\nChrome.crx\n' ) console.log(stdout.replace(/\n$/,''));
             var crx = 'build/' + settings.name + '.crx';
             if ( fs.exists(crx) ) fs.remove(crx);
@@ -609,7 +755,7 @@ function build_chrome() {
                 ,
                 null,
                 function(err,stdout,stderr) {
-                    if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+                    if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
                     console.log('Built build/chrome-store-upload.zip');
                     return program_counter.end();
                 }
@@ -877,12 +1023,11 @@ function release_chrome(login_info) {
         );
 
         function get_auth_key(code) {
-            var page = webPage.create();
             var post_data = "grant_type=authorization_code&redirect_uri=urn:ietf:wg:oauth:2.0:oob&client_id=" + login_info.client_id + "&client_secret=" + login_info.client_secret + "&code=" + code;
 
             // PhantomJS refuses to download chunked data, do it with `curl` instead:
             childProcess.execFile( 'curl', ["--silent","https://accounts.google.com/o/oauth2/token",'-d',post_data], null, function(err, json, stderr) {
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+                if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(); }
                 upload_and_publish( JSON.parse(json) );
             });
         }
@@ -992,6 +1137,18 @@ function release_opera(login_info) {
 
 }
 
+function release_safari() {
+    /*
+     * Safari support is limited at the moment, as it's the least-used browser and the hardest to support.
+     *
+     * To release a Safari extension, start here: https://developer.apple.com/programs/safari/
+     * For instructions on building a Safari extension package on the command line, start here: http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
+     *
+     * Patches welcome!
+     *
+     */
+}
+
 /*
  * MAIN SECTION
  */
@@ -1024,6 +1181,7 @@ case 'release':
     case 'amo'   : release_amo   (local_settings.   amo_login_info); break;
     case 'chrome': release_chrome(local_settings.chrome_login_info); break;
     case 'opera' : release_opera (local_settings. opera_login_info); break;
+    case 'safari': release_safari(local_settings.safari_login_info); break;
     }
     break;
 
