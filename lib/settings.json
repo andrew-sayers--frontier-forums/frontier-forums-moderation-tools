@@ -12,7 +12,7 @@
     "description": "Add moderator tools to the Frontier Forums",
     "license":     "MPL 2.0",
     "author":      "Andrew Sayers",
-    "version":     "2.7.2",
+    "version":     "3.0",
     "website":     "http://pileofstuff.org/frontier-forums-moderation-tools/",
     "icons": {
         16:     "icon-16.png",
@@ -34,12 +34,11 @@
      * * 'middle' guarantees the DOM exists, but might run while the page is still loading
      * * 'late' guarantees the scripts are run aft the page finishes loading
      */
-    "contentScriptWhen": "late",
+    "contentScriptWhen": "early",
 
-    "contentScriptFiles": [ "jquery.min.js", "extension.js" ],
+    "contentScriptFiles": [ "jquery-2.1.1.min.js", "selectionchange.js", "extension.js" ],
     "match_domain":       "forums.frontier.co.uk",
-    // whether to match *.<match_domain>:
-    "match_include_subdomains": false,
+    "match_secure_domain": true,
 
     "environment_specific": {
         /*
@@ -47,7 +46,7 @@
          * variables from the relevant block will be used:
          */
         "development": {
-            "contentScriptFiles": [ "console.js" ],
+            "contentScriptFiles": [],
         },
 
         "test": {
@@ -57,6 +56,23 @@
         "production": {}
 
     },
+
+    "preferences": [
+        {
+            "name": "variable_thread_id",
+            "type": "integer",
+            "title": "Thread ID to load variables from",
+            "description": "View this thread in a browser for more information",
+            "value": 51194,
+        },
+        {
+            "name": "reload_interval",
+            "type": "integer",
+            "title": "seconds between reloading information",
+            "description": "For performance reasons, a lot of moderator data is cached between page loads",
+            "value": 60*60,
+        },
+    ],
 
     "firefox_max_version": '32.*'
 
