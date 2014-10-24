@@ -9,13 +9,13 @@
 	<key>CFBundleDisplayName</key>
 	<string>Frontier forums moderation tools</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.honestbleeps.1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559</string>
+	<string>com.honestbleeps.1af51de1-7f0f-4dd6-b5f4-06e8e9ca7558</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.6</string>
+	<string>3.0</string>
 	<key>CFBundleVersion</key>
-	<string>2.6</string>
+	<string>3.0</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -57,12 +57,13 @@
 		<dict>
 			<key>End</key>
 			<array>
-				<string>jquery.min.js</string>
-				<string>extension.js</string>
 			</array>
 			<key>Start</key>
 			<array>
 				<string>BabelExt.js</string>
+				<string>jquery-2.1.1.min.js</string>
+				<string>selectionchange.js</string>
+				<string>extension.js</string>
 			</array>
 		</dict>
 	</dict>
@@ -76,7 +77,7 @@
 		<dict>
 			<key>Allowed Domains</key>
 			<array>
-				<string>babelext.com</string>
+				<string>forums.frontier.co.uk</string>
 			</array>
 			<key>Include Secure Pages</key>
 			<true/>

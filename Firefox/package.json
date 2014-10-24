@@ -2,10 +2,26 @@
     "description": "Add moderator tools to the Frontier Forums",
     "license": "MPL 2.0",
     "author": "Andrew Sayers",
-    "version": "2.6",
+    "version": "3.0",
     "title": "Frontier forums moderation tools",
-    "id": "1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559",
+    "id": "1af51de1-7f0f-4dd6-b5f4-06e8e9ca7558",
     "name": "frontier-forums-moderation-tools",
     "icon": "icon-48.png",
-    "icon_64": "icon-64.png"
+    "icon_64": "icon-64.png",
+    "preferences": [
+        {
+            "name": "variable_thread_id",
+            "type": "integer",
+            "title": "Thread ID to load variables from",
+            "description": "View this thread in a browser for more information",
+            "value": 51194
+        },
+        {
+            "name": "reload_interval",
+            "type": "integer",
+            "title": "seconds between reloading information",
+            "description": "For performance reasons, a lot of moderator data is cached between page loads",
+            "value": 3600
+        }
+    ]
 }
