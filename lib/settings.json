@@ -38,7 +38,7 @@
 
     "contentScriptFiles": [ "jquery-2.1.1.min.js", "selectionchange.js", "extension.js" ],
     "match_domain":       "forums.frontier.co.uk",
-    "match_secure_domain": false,
+    "match_secure_domain": true,
 
     "environment_specific": {
         /*
