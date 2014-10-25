@@ -9,13 +9,13 @@
 	<key>CFBundleDisplayName</key>
 	<string>Frontier forums moderation tools</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.honestbleeps.1af51de1-7f0f-4dd6-b5f4-06e8e9ca7558</string>
+	<string>com.honestbleeps.1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.0</string>
+	<string>3.1</string>
 	<key>CFBundleVersion</key>
-	<string>3.0</string>
+	<string>3.1</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
