@@ -74,6 +74,6 @@
         },
     ],
 
-    "firefox_max_version": '32.*'
+    "firefox_max_version": '33.*'
 
 }
