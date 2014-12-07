@@ -59,11 +59,11 @@
 
     "preferences": [
         {
-            "name": "variable_thread_id",
-            "type": "integer",
-            "title": "Thread ID to load variables from",
-            "description": "View this thread in a browser for more information",
-            "value": 51194,
+            "name": "language",
+            "type": "string",
+            "title": "preferred language code",
+            "description": "Language code to use when the current forum/thread doesn't require a specific language",
+            "value": 'en',
         },
         {
             "name": "reload_interval",
