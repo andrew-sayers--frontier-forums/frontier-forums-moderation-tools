@@ -36,7 +36,7 @@
      */
     "contentScriptWhen": "early",
 
-    "contentScriptFiles": [ "jquery-2.1.1.min.js", "selectionchange.js", "extension.js" ],
+    "contentScriptFiles": [ "jquery-2.1.1.min.js", "selectionchange.js", "bulletin_board_api.js", "extension.js" ],
     "match_domain":       "forums.frontier.co.uk",
     "match_secure_domain": true,
 
