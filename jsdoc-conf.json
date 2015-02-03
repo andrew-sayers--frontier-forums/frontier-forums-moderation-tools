@@ -1,0 +1,16 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "includePattern": "lib/.+\\.js(doc)?$",
+    },
+    "plugins": [],
+    "templates": {
+        "cleverLinks": true,
+        "monospaceLinks": false,
+        "default": {
+            "outputSourceFiles": true
+        }
+    }
+}

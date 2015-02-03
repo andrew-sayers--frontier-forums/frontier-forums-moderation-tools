@@ -11,3 +11,4 @@
 /Firefox/*.png
 /Firefox/data/*.js
 /Safari.safariextension/Settings.plist
+/out
