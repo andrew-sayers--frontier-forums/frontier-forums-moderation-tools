@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "3.31",
+	"version": "4.0",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -19,6 +19,8 @@
 				"BabelExt.js",
 				"jquery-2.1.1.min.js",
 				"selectionchange.js",
+				"bulletin_board_api.js",
+				"dashboard.js",
 				"extension.js"
 			],
 			"run_at": "document_start"

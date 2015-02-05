@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.31</string>
+	<string>4.0</string>
 	<key>CFBundleVersion</key>
-	<string>3.31</string>
+	<string>4.0</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -63,6 +63,8 @@
 				<string>BabelExt.js</string>
 				<string>jquery-2.1.1.min.js</string>
 				<string>selectionchange.js</string>
+				<string>bulletin_board_api.js</string>
+				<string>dashboard.js</string>
 				<string>extension.js</string>
 			</array>
 		</dict>
