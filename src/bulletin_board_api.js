@@ -71,8 +71,8 @@ BulletinBoard.prototype.build_url = function( url, valid_args, args, hash ) {
  * This makes it hard to use when you want to pass a variable number
  * of Deferreds.
  *
- * @param {Array.<jQuery.Deferred>} promises array of promises to wait for
- * @return {jQuery.Deferred} return values from each promise
+ * @param {Array.<jQuery.Promise>} promises array of promises to wait for
+ * @return {jQuery.Promise} return values from each promise
  */
 BulletinBoard.prototype.when = function(promises) {
     return $.when.apply( // $.when() wants a variadic list of arguments - allow an array instead
@@ -100,7 +100,7 @@ BulletinBoard.prototype.when = function(promises) {
  * @param {string}  url URL to send to
  * @param {Object}  data parameters to send
  * @param {boolean} use_form send a form requset instead of an AJAX request
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 BulletinBoard.prototype.post = function( url, data, use_form ) {
 
@@ -142,7 +142,7 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
  * @protected
  * @abstract
  * @param {Object} data parameters passed to jQuery
- * @return {jQuery.Deferred} deferred object that will return when all necessary parameters have been found
+ * @return {jQuery.Promise} deferred object that will return when all necessary parameters have been found
  */
 BulletinBoard.prototype._add_standard_data = function(data) {}
 
@@ -216,7 +216,7 @@ BulletinBoard.prototype.quotes_process = function(text) {
  *
  * @param {number} thread_id ID of thread to get posts for
  * @param {string|jQuery|HTMLDocument} doc document to get posts for
- * @return {jQuery.Deferred} Deferred object that will return when all pages have loaded
+ * @return {jQuery.Promise} Deferred object that will return when all pages have loaded
  */
 BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
 
@@ -500,7 +500,7 @@ VBulletin.prototype.detect_post_error = function(reply) {
  * @summary Convert bbcode to HTML, for an existing thread
  * @param {Number} thread_id ID of thread to post in
  * @param {string} bbcode text to convert
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.bbcode_html = function( thread_id, bbcode ) {
     return this.post(
@@ -523,7 +523,7 @@ VBulletin.prototype.bbcode_html = function( thread_id, bbcode ) {
  * @summary Convert bbcode to HTML, for a new thread in the specified forum
  * @param {Number} forum_id ID of forum to post in
  * @param {string} bbcode text to convert
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.bbcode_html_newthread = function( forum_id, bbcode ) {
     return this.post(
@@ -550,7 +550,7 @@ VBulletin.prototype.bbcode_html_newthread = function( forum_id, bbcode ) {
 /**
  * @summary Give an infraction to a user
  * @param {Object} data infraction information
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @example
  * bb.infraction_give({
@@ -591,7 +591,7 @@ VBulletin.prototype.infraction_give = function( data ) {
 /**
  * @summary Give an infraction to a user
  * @param {Object} data infraction information
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @example
  * bb.infraction_give_custom({
@@ -630,7 +630,7 @@ VBulletin.prototype.infraction_give_custom = function( data ) {
 /**
  * @summary get the valid infractions IDs for a user
  * @param {string=} user_id ID of user to get (default: 37)
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @description
  *
@@ -665,7 +665,7 @@ VBulletin.prototype.infraction_ids = function( user_id ) {
  * @summary Soft-delete a post
  * @param {Number} post_ID ID of post to retrieve
  * @param {string=} reason  deletion reason
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.post_delete = function( post_id, reason ) {
     return this.post(
@@ -702,7 +702,7 @@ VBulletin.prototype.post_delete_multi = function( post_ids, reason ) {
  * @param {Number} post_ID ID of post to retrieve
  * @param {string} bbcode  bbcode of new post body
  * @param {reason=} reason edit reason
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
     return this.post(
@@ -719,7 +719,7 @@ VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
 /**
  * @summary Get the contents of a post (even if it's been deleted)
  * @param {Number} post_ID ID of post to retrieve
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.post_bbcode = function( post_id ) {
     return this.post(
@@ -754,7 +754,7 @@ VBulletin.prototype.posts_move = function( thread_id, post_ids ) {
  * @param {Number} post_id  ID of post to report
  * @param {string} bbcode   report body
  * @param {string} ajax_url URL to return from AJAX request
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.post_report = function( post_id, bbcode, ajax_url ) {
     return this.post(
@@ -774,7 +774,7 @@ VBulletin.prototype.post_report = function( post_id, bbcode, ajax_url ) {
  * @param {string} title             message title
  * @param {string} bbcode            message body
  * @param {boolean=} request_receipt whether to request a message receipt
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.pm_send = function( to, title, bbcode, request_receipt ) {
     return this.post(
@@ -799,7 +799,7 @@ VBulletin.prototype.pm_send = function( to, title, bbcode, request_receipt ) {
 /**
  * @summary Bump a thread
  * @param {Number} thread_ID ID of thread to bump
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.thread_bump = function(thread_id) {
     return this.post(
@@ -816,7 +816,7 @@ VBulletin.prototype.thread_bump = function(thread_id) {
  * @param {Number} forum_id ID of forum to create in
  * @param {string} title    thread title
  * @param {string} bbcode   bbcode of first post body
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
     return this.post(
@@ -835,7 +835,7 @@ VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
 /**
  * @summary Change thread metadata
  * @param {Object} data
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  * @example
  * bb.thread_edit({
  *     thread_id       : 123,
@@ -864,7 +864,7 @@ VBulletin.prototype.thread_edit = function( data ) {
 /**
  * @summary Merge a set of threads together
  * @param {Object} data
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @example
  * bb.thread_merge({
@@ -899,7 +899,7 @@ VBulletin.prototype.thread_merge = function( data ) {
  * @summary Open or close a thread
  * @param {Number} thread_id ID of thread to open or close
  * @param {boolean} open whether the thread status should be set to "open" (instead of "closed")
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @description
  * Note: this is guaranteed to perform the desired action,
@@ -916,7 +916,7 @@ VBulletin.prototype.thread_openclose = function( thread_id, open ) {
 /**
  * @summary Create a new reply in a thread (AJAX)
  * @param {Object} data
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @example
  * bb.thread_reply({
@@ -952,7 +952,7 @@ VBulletin.prototype.thread_reply = function( data ) {
 /**
  * @summary Get the list of posters in a thread
  * @param {Number} thread_id ID of thread to check
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @description Note: this is quite inefficient for threads with over 2,500 posts
  */
@@ -981,7 +981,7 @@ VBulletin.prototype.thread_whoposted = function( thread_id ) {
  * @param {string} user     name of user to ban
  * @param {string} reason   reason to show the user
  * @param {string} group_id set the user to this group
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  *
  * @example
  * bb.infraction_give({
@@ -1005,7 +1005,7 @@ VBulletin.prototype.user_ban = function( data ) {
 /**
  * @summary get parameters to pass to a "doips" request
  * @private
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype._get_ips_data = function() {
     if ( ! this._ips_data )
@@ -1024,7 +1024,7 @@ VBulletin.prototype._get_ips_data = function() {
  * @summary get IP addresses used by an account
  * @param {string} username user to check
  * @param {boolean} get_overlapping whether to also return the list of other accounts using those IPs
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  * @description
  * Note: "overlapping" users includes people that share the same
  * house, share an ISP which uses dynamic IP addresses, or just happen
@@ -1070,7 +1070,7 @@ VBulletin.prototype.user_ips = function( username, get_overlapping ) {
 /**
  * @summary get accounts used by an IP address
  * @param {string} ip IP address to check
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.ip_users = function( ip ) {
 
@@ -1109,7 +1109,7 @@ VBulletin.prototype.ip_users = function( ip ) {
  * @param {string} user_id ID of note recepient
  * @param {string} title  message title
  * @param {string} bbcode message body
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
     return this.post(
@@ -1195,7 +1195,7 @@ VBulletin.prototype.users_list_new = function() {
  * @summary Ban a spambot and delete all their posts as spam
  * @param {Number} user_ID ID of the user to ban
  * @param {Number} post_ID ID of the post that made you realise this was a spambot
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.spammer_delete = function( user_id, post_id ) {
     return this.post(
@@ -1225,7 +1225,7 @@ VBulletin.prototype.spammer_delete = function( user_id, post_id ) {
  * @see {thread_posts}
  *
  * @param {number} forum_id ID of forum to get threads for
- * @return {jQuery.Deferred} Deferred object that will return when all pages have loaded
+ * @return {jQuery.Promise} Deferred object that will return when all pages have loaded
  */
 VBulletin.prototype.forum_threads = function(forum_id) {
 
@@ -1324,7 +1324,7 @@ VBulletin.prototype.css_add = function(page_types) {
 
 /**
  * @summary Get posts in the moderation queue
- * @return {jQuery.Deferred}
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.posts_moderated = function() {
 
@@ -1379,7 +1379,7 @@ VBulletin.prototype.posts_moderated = function() {
  * @param {string} url URL to get
  * @param {string=} page_top_selector selector that indicates the top of the final page (default: '#cpform')
  * @param {string=} page_bottom_selector selector that indicates the bottom of the final page (default: '.copyright')
- * @param {jQuery.Deferred}
+ * @param {jQuery.Promise}
  *
  * @description
  * ModCP authentication is unrelated to normal site authentication,
