@@ -31,17 +31,16 @@
  *
  * Section elements have classes "loading", "empty", "nonempty", "done" and "undone" set as appropriate.
  */
-function Dashboard( data ) {
+function Dashboard( args ) {
 
-    this.bb    = data.bb;
-    this.cache = data.cache;
-    this.update_cache = function() { data.cache_updater( this.cache ) }
+    Cacheable.call( this, args );
+    this.bb = args.bb;
 
     /*
      * INITIALISE HEADER
      */
 
-    data.container.find('.dashboard-header').each(function() {
+    args.container.find('.dashboard-header').each(function() {
 
         /*
          * If you temporarily disable the extension, all running intervals will be cancelled.
@@ -53,8 +52,8 @@ function Dashboard( data ) {
                 '@-webkit-keyframes dashboard-warning { 0%, 99% {opacity: 0; visibility: hidden} 100% {opacity: 1; visibility: visible} }' +
                         '@keyframes dashboard-warning { 0%, 99% {opacity: 0; visibility: hidden} 100% {opacity: 1; visibility: visible} }' +
                 '.dashboard-warning' +
-                           '{ animation: dashboard-warning ' + Math.ceil(data.interval / 500) + 's;' +
-                    ' -webkit-animation: dashboard-warning ' + Math.ceil(data.interval / 500) + 's;' +
+                           '{ animation: dashboard-warning ' + Math.ceil(args.interval / 500) + 's;' +
+                    ' -webkit-animation: dashboard-warning ' + Math.ceil(args.interval / 500) + 's;' +
                     'float: none ! important; color: red}' +
             "</style>"
         );
@@ -65,7 +64,7 @@ function Dashboard( data ) {
 
         setInterval(function() {
             warning_container.find('.dashboard-warning').replaceWith( warning_container.find('.dashboard-warning').clone() );
-        }, data.interval );
+        }, args.interval );
 
     });
 
@@ -73,9 +72,9 @@ function Dashboard( data ) {
      * INITIALISE SECTIONS
      */
 
-    var sections = data.container.find('.dashboard-section');
+    var sections = args.container.find('.dashboard-section');
 
-    var interval = data.interval;
+    var interval = args.interval;
     var tick = interval / sections.length, tick_count = 0;
 
     var dashboard = this;
@@ -153,6 +152,11 @@ function Dashboard( data ) {
     });
 
 }
+
+Dashboard.prototype = Object.create(Cacheable.prototype, {
+    bb: { writable: true, configurable: false },
+});
+Dashboard.prototype.constructor = Dashboard;
 
 /**
  * @summary show notifications registered by the dashboard
