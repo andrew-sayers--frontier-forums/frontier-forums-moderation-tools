@@ -251,12 +251,14 @@ Dashboard.prototype.forum_refresh = function(container) {
 
 Dashboard.prototype.newbies_init = function(container) {
 
-    if ( !this.cache['newbies-next'] ) { // first run
-        return this.bb.users_list_new().then(function(users) {
-            this.cache['newbies-next'] = users[0].user_id + 1;
-            this.cache['newbies-current'] = [];
-            this.update_cache();
-            this.monitor_newbies(container);
+    var dashboard = this;
+
+    if ( !dashboard.cache['newbies-next'] ) { // first run
+        return dashboard.bb.users_list_new().then(function(users) {
+            dashboard.cache['newbies-next'] = users[0].user_id + 1;
+            dashboard.cache['newbies-current'] = [];
+            dashboard.update_cache();
+            dashboard.monitor_newbies(container);
         });
     }
 
