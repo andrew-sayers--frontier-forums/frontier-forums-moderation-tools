@@ -217,7 +217,7 @@ Dashboard.prototype.thread_refresh = function(container) {
  */
 
 Dashboard.prototype.forum_done = function(container, undo) {
-    this.cache['forum-done-'+container.data('thread')] = container.data( undo ? 'undone_id' : 'done_id' );
+    this.cache['forum-done-'+container.data('forum')] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
 Dashboard.prototype.forum_refresh = function(container) {
@@ -226,16 +226,17 @@ Dashboard.prototype.forum_refresh = function(container) {
 
     // forum pages are less expensive than thread pages, so we don't bother caching them:
     var read_post_id = dashboard.cache['forum-done-'+forum_id];
-    container.data( 'undone_id', read_post_id );
 
     return dashboard.bb.forum_threads(forum_id).then(function(threads) {
 
         var last_post_ids = threads.map(function(thread) { return thread.last_post_id });
-        container.data( 'done_id', Math.max.apply( Math, last_post_ids ) );
 
         // ignore if unchanged
         if ( container.data('signature') == last_post_ids.join() ) return;
         container.data( 'signature',  last_post_ids.join() );
+
+        container.data( 'done_id', Math.max.apply( Math, last_post_ids ) );
+        container.data( 'undone_id', read_post_id );
 
         if ( read_post_id ) threads = threads.filter(function(thread) { return thread.last_post_id > read_post_id });
         if ( container.data('filter') ) threads = threads.filter(container.data('filter'));
@@ -273,7 +274,6 @@ Dashboard.prototype.newbies_refresh = function(container) {
     var dashboard = this;
 
     var current_users = dashboard.cache['newbies-current'];
-    container.data( 'newbies-current', current_users );
 
     // approximate amount of time to spend downloading new user accounts:
     var end_time = new Date().getTime() + 10000;
@@ -306,6 +306,8 @@ Dashboard.prototype.newbies_refresh = function(container) {
         // If the section has already been initialed and there are no new users, return unchanged:
         if ( container.data( 'signature' ) && !user_count ) return;
         container.data( 'signature', true );
+
+        container.data( 'newbies-current', current_users );
 
         return current_users.sort(function (a,b) { return a.name.localeCompare(b.name) }).map(function(user) {
             var ret = $('<tr><td><a href=""></a><td>&lt;<span></span>&gt;</span><td></tr>');
@@ -343,10 +345,6 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
 
     var read_post_id   = dashboard.cache['moderated-next-post'  ];
     var read_thread_id = dashboard.cache['moderated-next-thread'];
-    container
-        .data(   'post-undone', read_post_id   )
-        .data( 'thread-undone', read_thread_id )
-    ;
 
     return dashboard.bb.posts_moderated().then(function(posts_and_threads) {
 
@@ -359,11 +357,12 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
         if ( signature == container.data( 'signature' ) ) return;
         container.data( 'signature', signature );
 
+        container
+            .data(   'post-done',   posts.length ? posts  [posts  .length-1].  post_id : read_post_id   )
+            .data( 'thread-done', threads.length ? threads[threads.length-1].thread_id : read_thread_id );
+
         if ( read_post_id   ) posts   = posts  .filter(function(post  ) { return post  .post_id   > read_post_id   });
         if ( read_thread_id ) threads = threads.filter(function(thread) { return thread.thread_id > read_thread_id });
-
-        container.data(   'post-done',   posts.length ? posts  [posts  .length-1].  post_id : read_post_id   );
-        container.data( 'thread-done', threads.lnegth ? threads[threads.length-1].thread_id : read_thread_id );
 
         return threads.map(function(thread) {
             var ret = $('<tr><td><a href=""></a><td><a href=""></a><td><a href=""></a><td><a href=""></a></a></tr>');
@@ -419,7 +418,6 @@ Dashboard.prototype.example_refresh = function(container) {
 
     // forum pages are less expensive than thread pages, so we don't bother caching them:
     var id = dashboard.cache['example-data'];
-    container.data( 'undone_id', id );
 
     return dashboard.bb.example(/*...*/).then(function(ret) {
 
@@ -427,7 +425,8 @@ Dashboard.prototype.example_refresh = function(container) {
         if ( container.data('signature') == ret.signature ) return;
         container.data( 'signature',  ret.signature );
 
-        // update stored values:
+        // update stored values after checking signature:
+        container.data( 'undone_id', id );
         container.data( 'done_id', ret.id );
 
         // most monitors have use for some kind of filter:

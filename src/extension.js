@@ -24,10 +24,10 @@
                 $("head").append(
                     "<style type='text/css'>" +
                         '.dashboard-section .nonempty, .dashboard-section .empty, .dashboard-section .loading, .dashboard-section .done, .dashboard-section .undone { display: none }' +
-                        '.dashboard-section.empty table, .dashboard-section.done table, .dashboard-section.empty.loading .empty { display: none }' +
+                        '.dashboard-section.empty table, .dashboard-section.empty.loading .dashboard-body, .dashboard-section.empty.loading .empty { display: none }' +
                         '.dashboard-section.nonempty .nonempty, .dashboard-section.empty .empty, .dashboard-section.loading .loading, .dashboard-section.done .done, .dashboard-section.undone .undone { display: inline }' +
                         '.dashboard-section h4 { clear: both }' +
-                        '.dashboard-section.done .dashboard-body { display: none }' +
+                        '.dashboard-section.done .dashboard-body, .dashboard-section.done table { display: none }' +
                     "</style>"
                 );
 
@@ -148,6 +148,7 @@
                 body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe>' );
                 bb.moderation_page( body_wrapper.find('iframe'), '/modcp/index.php?do=nav', '.navlink', '.navlink' ).then(function() {
 
+                    document.title = 'Dashboard';
                     body_wrapper.empty().append(dashboard);
                     new Dashboard({
                         cache        : JSON.parse( dashboard_cache || '{}' ),
