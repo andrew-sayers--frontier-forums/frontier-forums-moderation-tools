@@ -1327,12 +1327,14 @@ VBulletin.prototype.forum_threads = function(forum_id) {
                     .attr( 'title', 'double-click to close this thread' )
             }
 
+            var understate_text = $.trim($('.prefix.understate', this).text());
             var status = null;
-            if ( statuses.hasOwnProperty($.trim($('.prefix.understate', this).text())) )
-                status = statuses[ $.trim($('.prefix.understate', this).text()) || '' ];
+            if      ( understate_text.search( /^Closed:/ ) == 0 ) status = 'closed';
+            else if ( understate_text.search( /^Moved:/  ) == 0 ) status = 'moved';
             else if ( $( '.prefix_closed' , this ).length ) status = 'closed'
             else if ( $( '.prefix_deleted', this ).length ) status = 'deleted'
             ;
+
 
             return {
                 container_element: this,
