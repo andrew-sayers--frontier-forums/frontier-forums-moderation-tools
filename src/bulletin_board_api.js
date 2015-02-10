@@ -124,7 +124,7 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
             }).then(function(reply) {
                 var err = bb.detect_post_error( reply );
                 if ( err !== null ) {
-                    alert( "Couldn't load page " + url + "\nError:" + err );
+                    alert( "Couldn't load page " + url + "\n\nError:\n" + err );
                     var dfd = new jQuery.Deferred();
                     dfd.reject();
                     return dfd;
@@ -487,7 +487,7 @@ VBulletin.prototype._add_standard_data = function(data) {
 VBulletin.prototype.detect_post_error = function(reply) {
     return (
         ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
-        ? "Couldn't load page " + url + "\nError:" + reply.getElementsByTagName('error')[0].textContent
+        ? reply.getElementsByTagName('error')[0].textContent
         : null
     );
 }
