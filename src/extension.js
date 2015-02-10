@@ -260,71 +260,6 @@ BabelExt.utils.dispatch(
             }
 
             /*
-             * Get the vBCode etc. for a post
-             */
-            stash.get_post_info = function( post_id ) { // get a single post
-                return bb.post('/ajax.php?do=quickedit&p=' + post_id, {
-                    'do': 'quickedit',
-                    p: post_id
-                }).then(function(xml) {
-                    var post = $(xml.getElementsByTagName('editor')[0].textContent);
-                    var ret = {
-                        vbcode: post.find('#vB_Editor_QE_editor').text(),
-                        attachments: []
-                    };
-                    if ( post.find('input[id="cb_keepattachments"]').length ) { // '#cb_keepattachments' doesn't work for some reason
-                        // this post has attachments
-                        var ckeconfig = JSON.parse(xml.getElementsByTagName('ckeconfig')[0].textContent);
-                        ret.attachment_delete_info = {
-                            securitytoken: ckeconfig.vbulletin.securitytoken,
-                            posthash     : ckeconfig.vbulletin.attachinfo.posthash,
-                            poststarttime: ckeconfig.vbulletin.attachinfo.poststarttime,
-                            'values[p]'            : post_id,
-                            'values[poststarttime]': ckeconfig.vbulletin.attachinfo.poststarttime,
-                            'values[posthash]'     : ckeconfig.vbulletin.attachinfo.posthash
-                        };
-
-                        return $.get( '/newattachment.php', {
-                            do           : 'assetmanager',
-                            'values[p]'  : post_id,
-                            editpost     : 1,
-                            contenttypeid: 1,
-                            insertinline : 1,
-                            posthash     : ckeconfig.vbulletin.attachinfo.posthash,
-                            poststarttime: ckeconfig.vbulletin.attachinfo.poststarttime,
-                        }).then(function(html) {
-                            $(html).find('div.asset_div').each(function() {
-                                ret.attachments.push({
-                                    // assets appear to have an asset ID and an attachment ID (in case they're e.g. attached to multiple posts)
-                                    // we only care about the attachment ID:
-                                    id       : $( '.asset_attachment_container', this ).attr('id').split('_')[2],
-                                    thumbnail: $('.asset_attachment,.asset_attachment_nothumb', this).attr( 'src' ),
-                                    filename : $('.filename', this).attr( 'title' )
-                                });
-                            });
-                            return ret;
-                        });
-                    } else {
-                        return ret;
-                    }
-                });
-            }
-
-            stash.delete_attachments = function( attachment_delete_info, attachments ) {
-                var info = $.extend( {
-                    do               : 'manageattach',
-                    upload           : 0,
-                    s                : '',
-                    contenttypeid    : 1,
-                    MAX_FILE_SIZE    : 2097152,
-                    'attachmenturl[]': '',
-                    ajax             : '1'
-                }, attachment_delete_info );
-                attachments.forEach(function(attachment_id) { info[ 'delete['+attachment_id+']' ] = 1 });
-                return $.post( '/newattachment.php', info );
-            }
-
-            /*
              * Take a thread, then go to that thread
              */
             stash.take_thread_and_go = function( url, thread_id, flip_thread_openness ) {
@@ -807,10 +742,10 @@ BabelExt.utils.dispatch(
 
             function get_variables_thread( thread_datum, first_page ) {
                 function convert_replies() {
-                    return bb.when( thread_datum.replies.map(function(post_id) { return stash.get_post_info(post_id) }) ).then(function(posts) {
+                    return bb.when( thread_datum.replies.map(function(post_id) { return bb.post_info(post_id) }) ).then(function(posts) {
                         thread_datum.variables = {};
                         posts.forEach(function(post) {
-                            bb.quotes_process(post.vbcode).forEach(function(variable) {
+                            bb.quotes_process(post.bbcode).forEach(function(variable) {
                                 thread_datum.variables[variable.author.toLowerCase()] = variable.text;
                             })
                         });
@@ -1706,7 +1641,7 @@ BabelExt.utils.dispatch(
                     var html = $(html);
                     dfd.resolve( html, html.find( '#post_' + post_id ) );
                 });
-                stash.review_post_contents_promise = stash.get_post_info( post_id );
+                stash.review_post_contents_promise = bb.post_info( post_id );
                 stash.report_block.filter('.block.vbform').hide(); // no-one cares about the thread management log for report threads
             });
         }
@@ -2692,7 +2627,7 @@ BabelExt.utils.dispatch(
                     get_promises: function() {
                         return (
                             per_post_actions.attment.map(function(post) {
-                                return stash.delete_attachments( post.attment.attachment_delete_info, post.attment.to_delete );
+                                return bb.attachments_delete( post.attment.to_delete.map(function(id) { return post.attment.all[id] }) );
                             }).concat(
                                 per_post_actions.del .map(function(post) {
                                 return post.vbcode_promise.then(function() {
@@ -2915,17 +2850,17 @@ BabelExt.utils.dispatch(
                         posts[n].is_processed = process_post_key.filter(function(key) { return posts[n][key] }).length > 0;
                         if ( posts[n].is_processed ) {
                             ++total_processed;
-                            if ( !posts[n].vbcode_promise ) posts[n].vbcode_promise = stash.get_post_info(posts[n].post_id);
+                            if ( !posts[n].vbcode_promise ) posts[n].vbcode_promise = bb.post_info(posts[n].post_id);
                             if ( n < current_post )
                                 $('#goto-prev').prop( 'disabled', false ).data( 'post', n );
                             else if ( n > current_post && !next_enabled++ )
                                 $('#goto-next').prop( 'disabled', false ).data( 'post', n );
                             posts[n].action = posts[n].per_post_action || default_action;
-                            if ( posts[n].attment && !posts[n].action != 'delete' ) per_post_actions.attment.push( posts[n] );
+                            if ( posts[n].attment && posts[n].attment.to_delete.length && !posts[n].action != 'delete' ) per_post_actions.attment.push( posts[n] );
                             if ( posts[n].action == 'edit' ) {
                                 (function (post) {
                                     post.vbcode_promise.done(function(info) {
-                                        var vbcode = info.vbcode;
+                                        var vbcode = info.bbcode;
                                         replacements.forEach(function(replacement) { vbcode = vbcode.replace( replacement.from, function(match) {
                                             return '\uE001' + match + '\uE002' + replacement.to + '\uE003'; // characters from Unicode's private use area
                                         })});
@@ -2938,8 +2873,8 @@ BabelExt.utils.dispatch(
                                 posts[n].replaced_html   = BabelExt.utils.escapeHTML(posts[n].edited_vbcode);
                             } else {
                                 (function (post) { post.vbcode_promise.done(function(info) {
-                                    post.replaced_vbcode = info.vbcode;
-                                    post.replaced_html   = BabelExt.utils.escapeHTML(info.vbcode);
+                                    post.replaced_vbcode = info.bbcode;
+                                    post.replaced_html   = BabelExt.utils.escapeHTML(info.bbcode);
                                 })})(posts[n]);
                             }
 
@@ -3017,7 +2952,6 @@ BabelExt.utils.dispatch(
                     refresh_post_contents();
 
                 }
-                var attachment_delete_info;
                 function refresh_post_contents() {
                     return posts[current_post].vbcode_promise.done(function(info) {
                         $('#link-to-current-post')
@@ -3028,9 +2962,10 @@ BabelExt.utils.dispatch(
                         $('.per-post textarea.vbcode').val ( posts[current_post].replaced_vbcode );
                         $('.per-post div.vbcode'     ).html( posts[current_post].replaced_html   );
 
-                        if ( info.attachments.length ) {
-                            attachment_delete_info = info.attachment_delete_info;
-                            var to_delete = posts[current_post].attment ? posts[current_post].attment.to_delete : [];
+                        if ( info.attachments ) {
+                            if ( !posts[current_post].attment ) posts[current_post].attment = { all: {}, to_delete: [] };
+                            info.attachments.forEach(function(attment) { posts[current_post].attment.all[attment.id] = attment });
+                            var to_delete = posts[current_post].attment.to_delete;
                             $('.per-post .attments' ).html(
                                 '<hr>Attachments without a matching [ATTACH] code will be shown at the bottom of the post - click to delete attachments altogether:<br>' +
                                     info.attachments.map(function(attachment) {
@@ -3058,11 +2993,7 @@ BabelExt.utils.dispatch(
                     var attment_id = $(this).data('id');
                     if ( $(this).hasClass('deleted') ) {
                         posts[current_post].attment.to_delete = posts[current_post].attment.to_delete.filter(function(id) { return id != attment_id });
-                        if ( !posts[current_post].attment.to_delete.length ) delete posts[current_post].attment;
                     } else {
-                        if ( !posts[current_post].attment ) {
-                            posts[current_post].attment = { post_id: posts[current_post].post_id, to_delete: [], attachment_delete_info: attachment_delete_info };
-                        };
                         posts[current_post].attment.to_delete.push(attment_id);
                     }
                     refresh_post_list();
@@ -3091,12 +3022,12 @@ BabelExt.utils.dispatch(
                             post.after = post.post_id != post_to_review_id;
                             if ( post.message_element.find('.bbcode_postedby > a').filter(function() { return this.href.search(re) != -1 }).length ) {
                                 post.quotes_target = true;
-                                post.vbcode_promise = stash.get_post_info(post.post_id);
+                                post.vbcode_promise = bb.post_info(post.post_id);
                                 ++quotes_count;
                             }
                             if ( post.message_element.find('a').filter(function() { return !$(this.parentNode).hasClass('bbcode_postedby') && this.href.search(re) != -1 }).length ) {
                                 post.links_to_target = true;
-                                post.vbcode_promise = stash.get_post_info(post.post_id);
+                                post.vbcode_promise = bb.post_info(post.post_id);
                                 ++links_count;
                             }
                         });
@@ -3286,7 +3217,7 @@ BabelExt.utils.dispatch(
                             violation: issue_name.toLowerCase(),
                             'post id': post_to_review_id,
                             action: posts[0].action == 'delete' ? 'deleted' : 'edited',
-                            'original post vbcode': original_post_info.vbcode,
+                            'original post vbcode': original_post_info.bbcode,
                             'logged in user ID': $('.welcomelink a').attr( 'href' ).split( '?u=' )[1],
                             username: posts[0].username,
                             name: user_to_review.text()
