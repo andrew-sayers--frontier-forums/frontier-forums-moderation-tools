@@ -493,6 +493,33 @@ VBulletin.prototype.detect_post_error = function(reply) {
 }
 
 /*
+ * ATTACHMENT FUNCTIONS
+ */
+
+/**
+ * @summary delete an array of attachments
+ * @param {Array.<Object>} attachments attachment info, as returned from post_info()
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.attachments_delete = function( attachments ) {
+    var info = {
+        do               : 'manageattach',
+        upload           : 0,
+        s                : '',
+        contenttypeid    : 1,
+        MAX_FILE_SIZE    : 2097152,
+        'attachmenturl[]': '',
+        ajax             : '1'
+    };
+    var requests = {};
+    attachments.forEach(function(attachment) {
+        if ( !requests.hasOwnProperty(attachment.info.posthash) ) requests[attachment.info.posthash] = $.extend( info, attachment.info );
+        requests[attachment.info.posthash][ 'delete['+attachment.id+']' ] = 1;
+    });
+    return this.when(Object.keys(requests).map(function(key) { return $.post( '/newattachment.php', requests[key] ) }));
+}
+
+/*
  * BBCODE FUNCTIONS
  */
 
@@ -1316,7 +1343,8 @@ VBulletin.prototype.css_add = function(page_types) {
         $("head").append(
             "<style type='text/css'>" +
                 '#above_postlist { top: 0 }' +
-                "</style>"
+                '.threadbit.attachments { padding: 0 }' +
+            "</style>"
         );
     }
 
