@@ -744,18 +744,58 @@ VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
 }
 
 /**
- * @summary Get the contents of a post (even if it's been deleted)
+ * @summary Get information about a post (vBCode and attachment info)
  * @param {Number} post_ID ID of post to retrieve
  * @return {jQuery.Promise}
  */
-VBulletin.prototype.post_bbcode = function( post_id ) {
-    return this.post(
-        '/showpost.php?p=' + post_id,
-        {
-              ajax: 1,
-            postid: post_id
-        }
-    );
+VBulletin.prototype.post_info = function( post_id ) {
+
+    return this.post('/ajax.php?do=quickedit&p=' + post_id, {
+        do: 'quickedit',
+        p : post_id
+    }).then(function(xml) {
+
+        var post = $(xml.getElementsByTagName('editor')[0].textContent);
+        var ret = {
+            bbcode: post.find('#vB_Editor_QE_editor').text(),
+        };
+
+        // no attachments:
+        if ( !post.find('input[id="cb_keepattachments"]').length ) return ret; // '#cb_keepattachments' doesn't work for some reason
+
+        var ckeconfig = JSON.parse(xml.getElementsByTagName('ckeconfig')[0].textContent);
+        var attachment_info = {
+            securitytoken: ckeconfig.vbulletin.securitytoken,
+            posthash     : ckeconfig.vbulletin.attachinfo.posthash,
+            poststarttime: ckeconfig.vbulletin.attachinfo.poststarttime,
+            'values[p]'            : post_id,
+            'values[poststarttime]': ckeconfig.vbulletin.attachinfo.poststarttime,
+            'values[posthash]'     : ckeconfig.vbulletin.attachinfo.posthash
+        };
+
+        return $.get( '/newattachment.php', {
+            do           : 'assetmanager',
+            'values[p]'  : post_id,
+            editpost     : 1,
+            contenttypeid: 1,
+            insertinline : 1,
+            posthash     : ckeconfig.vbulletin.attachinfo.posthash,
+            poststarttime: ckeconfig.vbulletin.attachinfo.poststarttime,
+        }).then(function(html) {
+            ret.attachments = $(html).find('div.asset_div').map(function() {
+                return {
+                    // assets appear to have an asset ID and an attachment ID (in case they're e.g. attached to multiple posts)
+                    // we only care about the attachment ID:
+                    id       : $( '.asset_attachment_container', this ).attr('id').split('_')[2],
+                    thumbnail: $('.asset_attachment,.asset_attachment_nothumb', this).attr( 'src' ),
+                    filename : $('.filename', this).attr( 'title' ),
+                    info     : attachment_info
+                };
+            }).get();
+            return ret;
+        });
+
+    });
 }
 
 /**
