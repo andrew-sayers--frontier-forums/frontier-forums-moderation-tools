@@ -2534,7 +2534,7 @@ BabelExt.utils.dispatch(
                           make_input('checkbox', 'apply-to', 'link-direct', '&hellip; link to the reported post <span id="apply-to-link-direct"></span>' ) + '<br>' +
                           make_input('checkbox', 'apply-to', 'link-indirect', '&hellip; quote/link to a processed post <span id="apply-to-link-indirect"></span>' ) + '<br>' +
                           make_input('checkbox', 'apply-to', 'after', '&hellip; were posted after the processed post <span id="apply-to-after"></span>' ) + '<br>' +
-                          '<br>Total processed posts: <em id="total-processed"></em>' +
+                          '<br>Total examined posts: <em id="total-processed"></em>' +
                           '<br>Total edited posts: <em id="total-edited"></em>' +
                           '<br>Total deleted posts: <em id="total-deleted"></em>' +
                         '</fieldset>' +
