@@ -36,7 +36,7 @@
      */
     "contentScriptWhen": "early",
 
-    "contentScriptFiles": [ "lib/jquery-2.1.1.min.js", "lib/selectionchange.js", "src/bulletin_board_api.js", "src/cacheable.js", "src/dashboard.js", "src/extension.js" ],
+    "contentScriptFiles": [ "lib/jquery-2.1.1.min.js", "lib/selectionchange.js", "src/bulletin_board_api.js", "src/cacheable.js", "src/variables.js", "src/dashboard.js", "src/extension.js" ],
     "contentStyleFiles": [ "src/extension.css" ],
     "match_domains": [ "forums.frontier.co.uk" ],
     "match_secure_domain": true,
