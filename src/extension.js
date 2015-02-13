@@ -141,7 +141,7 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
                 /*
                   var title_suffix =
-                  stash.parse_variable('report process', 'report title suffix', { moderator: 'ANY_MODERATOR' })
+                  v.resolve('report process', 'report title suffix', { moderator: 'ANY_MODERATOR' })
                   .replace( /([.*+?^${}()|\[\]\/\\])/g, "\\$1" )
                   .replace( 'ANY_MODERATOR', '.*' )
 
@@ -227,7 +227,9 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
                 '<div style="width: 100%; text-align: center; margin: 1em"><a class="newcontent_textcontrol" href="#bump-thread" title="Click to bump this thread" style="float: none; display: inline; text-decoration: none; font-size: 200%">Bump&nbsp;this&nbsp;thread</a></div>'
             );
             post.find('a.newcontent_textcontrol').click(function(event) {
-                bb.thread_bump(params.t);
+                bb.thread_bump(params.t).then(function() {
+                    alert('thread bumped');
+                });
                 event.preventDefault();
             });
             $('#posts').prepend(post);
@@ -266,7 +268,7 @@ function handle_moderation_links() {
  * MAIN BLOCK
  */
 BabelExt.utils.dispatch({ // initialise general stuff
-    pass_storage    : ['variables_todo'],
+    pass_storage    : ['variables'],
     pass_preferences: [ 'language', 'reload_interval' ],
     callback: function( stash, pathname, params, variables, user_language, reload_interval ) {
         // First we retrieve storage and preferences needed everywhere
@@ -319,7 +321,7 @@ BabelExt.utils.dispatch({ // initialise general stuff
             bb              : bb,
             forum_id        : 70,
             cache           : JSON.parse( variables || '{}' ),
-            cache_updater   : function(cache) { BabelExt.storage.set( 'variables_todo', JSON.stringify( cache ) ) },
+            cache_updater   : function(cache) { BabelExt.storage.set( 'variables', JSON.stringify( cache ) ) },
             reload_interval : reload_interval * 1000,
             error_callback  : handle_error,
             default_language: user_language,
@@ -429,8 +431,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             stash.take_thread_and_go = function( url, thread_id, flip_thread_openness ) {
                 return bb.thread_reply({
                     thread_id: thread_id,
-                    title    : stash.parse_variable('report process', 'post title: take report', {}, 'string', undefined, thread_id ),
-                    bbcode   : stash.parse_variable('report process', 'post body: take report' , {}, 'string', undefined, thread_id ),
+                    title    : v.resolve('report process', 'post title: take report', {}, 'string', undefined, thread_id ),
+                    bbcode   : v.resolve('report process', 'post body: take report' , {}, 'string', undefined, thread_id ),
                     url      : url,
                     flip_thread_openness: flip_thread_openness
                 });
@@ -604,7 +606,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         ).then(function() {
                             var email = BabelExt.utils.escapeHTML( $(iframe[0].contentDocument.body).find('input[name="user\\[email\\]"]').val() );
                             var email_parts = email.split('@');
-                            stash.parse_variable('internal extension data', 'common e-mail domains', {}, 'array of items').forEach(function(domain) { if ( email_parts[1] == domain.value ) email_parts[1] = 'example.com'; });
+                            v.resolve('internal extension data', 'common e-mail domains', {}, 'array of items').forEach(function(domain) { if ( email_parts[1] == domain.value ) email_parts[1] = 'example.com'; });
                             email_parts = [
                                 new RegExp( '^(' + email_parts[0].replace( /([.*+?^${}()|\[\]\/\\])/g, "\\$1" ) + ')@' ),
                                 new RegExp( '@(' + email_parts[1].replace( /([.*+?^${}()|\[\]\/\\])/g, "\\$1" ) + ')$' )
@@ -830,306 +832,6 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
 
     /*
-     * VARIABLES
-     *
-     * To make the extension easier for ordinary moderators to configure,
-     * many variables are stored on the site: /forumdisplay.php?f=<variable_forum_id>
-     *
-     * Note: this forum is only readable/writable by forum moderators,
-     * so the content is considered trustworthy.
-     */
-    {
-        pass_storage: ['variables','variables_origin','variables_timestamp'],
-        pass_preferences: [ 'language', 'reload_interval' ],
-        callback: function( stash, pathname, params, variables, variables_origin, variables_timestamp, user_language, reload_interval ) {
-
-            /*
-             * PART ONE: download the list of variables
-             */
-            variables = JSON.parse(variables||'[]');
-            if ( !variables_origin ) variables_origin = location.origin; // detect switches between live and testing sites
-            if ( !$.isArray(variables) ) { // reset variables loaded from the old implementation
-                variables = [];
-                variables_timestamp = '0';
-            }
-
-            var variable_thread_map = {};
-            variables.forEach(function(datum) { if ( datum.type == 'variables' ) variable_thread_map[datum.thread_id] = datum });
-
-            function get_variables_forum() { // Download the variables forum, convert it to metadata
-                return $.get('/forumdisplay.php?f=70&pp=50').then(function(html) {
-                    html = $(html);
-                    var namespaces = {}, promises = [];
-                    var new_variables = html.find('#threads > li').map(function() { // Convert HTML to hashes
-                        var $this = $(this), $title = $this.find('.title'), thread_data = undefined, thread_id = $title.attr('href').split('?t=')[1];
-                        $title.text().replace( /^([^ :]*):\s*([^:]*)$/, function( text, language, namespace ) {
-
-                            if ( !namespaces.hasOwnProperty(thread_id) ) namespaces[thread_id] = [];
-
-                            if ( $this.hasClass('moved') ) {
-                                namespaces[thread_id].push( namespace + ': ' + language ) + '-'; // slightly reduce the match quality for redirects
-                                return;
-                            } else {
-                                namespaces[thread_id].push( namespace + ': ' + language );
-                            }
-
-                            var reply_count = parseInt( $this.find('.threadstats a').text(), 10 );
-                            if ( !reply_count ) return;
-
-                            var today = new Date(), yesterday = new Date();
-                            yesterday.setDate(yesterday.getDate()-1);
-                            today     = [ today    .getDate().toString().replace(/^(.)$/,"0$1"), (today    .getMonth()+1).toString().replace(/^(.)$/,"0$1"), today    .getYear()+1900 ].join( '/' );
-                            yesterday = [ yesterday.getDate().toString().replace(/^(.)$/,"0$1"), (yesterday.getMonth()+1).toString().replace(/^(.)$/,"0$1"), yesterday.getYear()+1900 ].join( '/' );
-                            var last_modified = $.trim($this.find('a.lastpostdate').parent().text().replace('Today',today).replace('Yesterday',yesterday));
-
-                            if ( !variable_thread_map.hasOwnProperty(thread_id) )
-                                variable_thread_map[thread_id] = { thread_id: thread_id, last_modified: 'new', replies: [] };
-                            thread_data = variable_thread_map[thread_id];
-                            thread_data.namespaces = namespaces[thread_id];
-
-                            if ( last_modified != thread_data.last_modified ) {
-                                thread_data.last_modified = last_modified;
-                                switch ( reply_count - thread_data.replies.length ) {
-                                case 0: break; // no new replies
-                                case 1: thread_data.replies.push($this.find('a.lastpostdate').attr('href').split('#post')[1]); break; // one new reply
-                                default: delete thread_data.replies; break; // many new replies
-                                }
-                                promises.push(get_variables_thread(thread_data));
-                            }
-
-                        });
-                        return thread_data;
-                    });
-                    return bb.when(promises).done(function() { update_variables(new_variables.get()) });
-                });
-            }
-
-            function get_variables_thread( thread_datum, first_page ) {
-                function convert_replies() {
-                    return bb.when( thread_datum.replies.map(function(post_id) { return bb.post_info(post_id) }) ).then(function(posts) {
-                        thread_datum.variables = {};
-                        posts.forEach(function(post) {
-                            bb.quotes_process(post.bbcode).forEach(function(variable) {
-                                thread_datum.variables[variable.author.toLowerCase()] = variable.text;
-                            })
-                        });
-                    });
-                }
-                if ( thread_datum.hasOwnProperty('replies') && !first_page )
-                    return convert_replies();
-                else
-                    return bb.thread_posts( thread_datum.thread_id, first_page ).then(function (posts) {
-                        thread_datum.replies = posts.map(function() { return this.post_id }).get();
-                        thread_datum.replies.shift(); // ignore the first post
-                        return convert_replies();
-                    });
-            }
-
-            function update_variables(new_variables) { // Download variables from metadata
-                if ( new_variables.length ) {
-                    variables = new_variables;
-                    variables.sort(function(a,b) { return parseInt(a.thread_id,10) - parseInt(b.thread_id,10) });
-                    BabelExt.storage.set( 'variables', JSON.stringify( variables ) );
-                    BabelExt.storage.set( 'variables_origin', location.origin );
-                    BabelExt.storage.set( 'variables_timestamp', new Date().getTime() );
-                }
-            }
-
-            if ( variables_origin != location.origin || parseInt(variables_timestamp||'0',10)+reload_interval*1000 < new Date().getTime() ) {
-                stash.variables_promise = get_variables_forum();
-            } else {
-                var dfd = new jQuery.Deferred();
-                stash.variables_promise = dfd.promise();
-                dfd.resolve();
-            }
-
-            var thread_datum = variables.filter(function(datum) { return datum.thread_id == params.t })[0];
-            if ( pathname == '/showthread.php' && params.t && thread_datum ) $(function() { // Update this thread
-                function update_thread() {
-                    get_variables_thread( thread_datum, document.body ).then(function() {
-                        update_variables(variables);
-                        alert("Variables updated - refresh any open pages to get the new values.");
-                    });
-                }
-
-                function observe_mutation(mutations) {
-                    var has_new_blockquotes = 0;
-                    mutations.forEach(function(mutation) {
-                        has_new_blockquotes += $(mutation.target).find('blockquote').length;
-                    });
-                    if ( has_new_blockquotes ) update_thread();
-                }
-                var observer;
-                if      ( typeof(      MutationObserver) != 'undefined' ) observer = new       MutationObserver(observe_mutation);
-                else if ( typeof(WebKitMutationObserver) != 'undefined' ) observer = new WebKitMutationObserver(observe_mutation);
-                $('#posts').each(function() { observer.observe(this, { childList: true, subtree: true }) });
-                update_thread();
-            });
-
-            /*
-             * PART TWO: parse variables
-             */
-            var thread_languages = {}, forum_languages = {}, unfound_variables = {}, unfound_variables_timeout = null; // initialised immediately below parse_variable()
-            stash.parse_variable = function( namespace, names, keys, parser, forum_id, thread_id ) {
-
-                var root_name;
-                if ( typeof(names) == 'string' ) {
-                    root_name = names;
-                    names = [];
-                } else { // array of possible names
-                    root_name = names.shift();
-                }
-
-                /*
-                 * STEP ONE: get the target language
-                 * Rules: thread language overrides forum language overrides user language,
-                 * EXCEPT when the user language is a specialism of the other language.
-                 * So a user language 'en-GB' overrides a thread language 'en',
-                 * but a user language 'en-GB' is overridden by a thread language 'fr'.
-                 */
-                var target_namespace = user_language;
-                if      ( thread_id && thread_languages.hasOwnProperty(thread_id) && target_namespace.search(thread_languages[thread_id]+'-')!=0 ) target_namespace = thread_languages[thread_id];
-                else if (  forum_id &&  forum_languages.hasOwnProperty( forum_id) && target_namespace.search( forum_languages[ forum_id]+'-')!=0 ) target_namespace =  forum_languages[ forum_id];
-                target_namespace = namespace + ': ' + target_namespace;
-
-                // STEP TWO: get the best matching variable given the target language
-                var variable = null, old_match_quality = 0;
-                variables.forEach(function(thread) {
-                    var match_quality = Math.max.apply( Math, thread.namespaces.map(function(namespace) {
-                        return (
-                            ( target_namespace == namespace )                     ? 2 // exact match
-                                : ( target_namespace.search( namespace + '-' ) == 0 ) ? 1 // want 'en-GB', have 'en'
-                                : ( namespace.search( target_namespace + '-' ) == 0 ) ? 1 // want 'en', have 'en-GB'
-                                : 0
-                        );
-                    }));
-                    if ( old_match_quality < match_quality ) {
-                        old_match_quality = match_quality;
-                        var name = root_name;
-                        for ( var n=1; n<Math.pow(2,names.length); ++n ) {
-                            var new_name = root_name + ': ' + names.filter(function(value,index) { return n & (1<<index) }).join(': ');
-                            if ( thread.variables.hasOwnProperty(new_name.toLowerCase()) ) name = new_name;
-                        }
-                        if ( thread.variables.hasOwnProperty(name.toLowerCase()) ) variable = thread.variables[name.toLowerCase()];
-                    }
-                });
-
-                if ( variable == null ) {
-                    var message = '* "' + [ root_name ].concat(names).join(': ') + '" in namespace "' + target_namespace + '"\n';
-                    if ( !unfound_variables.hasOwnProperty(message) ) {
-                        unfound_variables[message] = 1;
-                        if ( unfound_variables_timeout != null ) clearTimeout(unfound_variables_timeout);
-                        // Avoid spamming the user with error messages:
-                        unfound_variables_timeout = setTimeout(function() {
-                            var variable_text = Object.keys(unfound_variables);
-                            variable_text.sort();
-                            unfound_variables_timeout = null;
-                            if ( confirm(
-                                "Some variables were not found.  Please add the following:\n\n" +
-                                variable_text.join("") +
-                                "To fix these issues, paste the above notes into a text editor, go to the variables forum, find the relevant thread, and add or edit the relevant quotes.\n" +
-                                "\n" +
-                                "Would you like to go there now?"
-                            )) {
-                                location = '/forumdisplay.php?f=70';
-                            }
-                        }, 100 );
-                    }
-                    throw 'variable not found: ' + [ namespace, root_name ].concat(names).join(': ');
-                }
-
-                // STEP THREE: resolve {{keys}}
-                if ( !keys ) keys = {};
-
-                keys['origin'] = location.origin;
-                keys['next week'] = new Date();
-                keys['next week'].setDate(keys['next week'].getDate()+7);
-                keys['next week'] = keys['next week'].toUTCString().replace(/:[0-9][0-9] /, ' ' );
-
-                var has_changed = false;
-                do {
-                    has_changed = false;
-                    variable = variable.replace( /{{([^{}\n]+)}}/g, function(match, key) {
-                        key = key.toLowerCase();
-                        if ( keys.hasOwnProperty(key) ) {
-                            has_changed = true;
-                            return keys[key];
-                        } else if ( key.search(':') != -1 ) {
-                            try {
-                                var names = key.split(/:\s*/);
-                                var ret = stash.parse_variable( names.shift(), names, keys, 'string', forum_id, thread_id );
-                                has_changed = true;
-                                return ret;
-                            } catch (e) {};
-                        }
-                        return match;
-                    })
-                } while ( has_changed );
-
-                // STEP FOUR: parse
-                function parse_array() {
-                    var array = [];
-                    variable.replace( /\[list\]\s*\[\*\]\s*((?:.|\n)*?)\s*\[\/list\]/i, function(text, list) {
-                        array = list.split( /\s*\[\*\]\s*/);
-                    });
-                    return array;
-                }
-
-                function parse_item(item) {
-                    var ret = { type: 'text', value: item };
-                    item
-                        .replace( /^\[thread=([0-9]+)](.*)\[\/thread\]$/i, function(text, thread_id, value) {
-                            ret = { type: 'thread', value: value, thread_id: parseInt( thread_id, 10 ) };
-                            return '';
-                        }).replace(/^\[post=([0-9]+)](.*)\[\/post\]$/i, function(text, thread_id, value) {
-                            ret = { type: 'post', value: value, post_id: parseInt( thread_id, 10 ) };
-                            return '';
-                        }).replace(/^\[URL=\"[^"]*\/forumdisplay.php\?f=([0-9]+)"\](.*)\[\/URL\]$/i, function(text, forum_id, value) {
-                            ret = { type: 'forum', value: value, forum_id: parseInt( forum_id, 10 ) };
-                            return '';
-                        }).replace(/^\[URL=\"(.+)"\](.*)\[\/URL\]$/i, function(text, url, value) {
-                            ret = { type: 'url', value: value, url: url };
-                            return '';
-                        });
-                    return ret;
-                }
-
-                switch ( parser || 'string' ) {
-                case 'string': return variable;
-                case 'array of items':
-                    return parse_array().map(parse_item);
-                case 'hash of arrays':
-                    var ret = {};
-                    parse_array().forEach(function(item) {
-                        item.replace( /^\s*(.*?):\s*(.*?)\s*$/, function( text, key, values ) {
-                            if ( !ret.hasOwnProperty(key) ) ret[key] = [];
-                            ret[key] = ret[key].concat( values.split(/\s*,\s*/).map(parse_item) );
-                        });
-                    });
-                    return ret;
-                default:
-                    throw "Please pass a known parser, not '" + parser + '"';
-                }
-
-            }
-
-            function fix_languages() {
-                var tl = stash.parse_variable( 'policy', 'thread languages', {}, 'hash of arrays' );
-                var fl = stash.parse_variable( 'policy',  'forum languages', {}, 'hash of arrays' );
-                Object.keys(tl).forEach(function(language) { tl[language].forEach(function(thread) { if ( thread.type == 'thread' ) thread_languages[thread.thread_id] = language; }); });
-                Object.keys(fl).forEach(function(language) { fl[language].forEach(function(forum ) { if (  forum.type == 'forum'  )  forum_languages[ forum. forum_id] = language; }); });
-            }
-            if ( variables.length == 0 )
-                stash.variables_promise.done(fix_languages);
-            else
-                fix_languages();
-
-        }
-
-    },
-
-
-    /*
      * FUNCTIONS TO SEND MODERATION MESSAGES
      */
 
@@ -1142,7 +844,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
             // Refresh the list of infractions
             if ( parseInt(infractions_timestamp||'0',10)+reload_interval*1000 < new Date().getTime() ) {
-                stash.variables_promise.done(function() {
+                v.promise.done(function() {
                     bb.infraction_ids().then(function(infractions) {
                         if ( !infractions.length ) {
                             alert( "Could not refresh the list of infractions - some moderator actions may not work until you refresh the page" );
@@ -1151,7 +853,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
                         var infraction_map = {};
                         infractions.forEach(function(infraction) { infraction_map[ infraction.name.toLowerCase() ] = true });
-                        var bad_infractions = stash.parse_variable('policy', 'infraction-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
+                        var bad_infractions = v.resolve('policy', 'infraction-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
                         if ( bad_infractions.length && confirm(
                             "Some infraction-worthy violations do not exist.  Please fix the following:\n\n" +
                                 bad_infractions.map(function(violation) { return violation.value }).join("\n") + "\n\n" +
@@ -1163,7 +865,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             return;
                         }
 
-                        var bad_pms = stash.parse_variable('policy', 'PM-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
+                        var bad_pms = v.resolve('policy', 'PM-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
                         if ( bad_pms.length && confirm(
                             "Some PM-worthy violations do not exist.  Please fix the following:\n\n" +
                                 bad_pms.map(function(violation) { return violation.value }).join("\n") + "\n\n" +
@@ -1584,8 +1286,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         $this.html( loading_html );
                         bb.thread_reply({
                             thread_id: $this.siblings('.title').attr('id').substr(13), // thread_title_12345
-                            title    : stash.parse_variable('other templates', 'post title: welcome', { 'thread starter': thread_starter }, 'string', 16),
-                            bbcode   : stash.parse_variable('other templates',  'post body: welcome', { 'thread starter': thread_starter }, 'string', 16)
+                            title    : v.resolve('other templates', 'post title: welcome', { 'thread starter': thread_starter }, 'string', 16),
+                            bbcode   : v.resolve('other templates',  'post body: welcome', { 'thread starter': thread_starter }, 'string', 16)
                         })
                             .done(function() { $this.replaceWith( '<span style="float: right">reply sent</span>' ) });
                         event.preventDefault();
@@ -1642,7 +1344,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 '<div class="thread_info block">' +
                     '<div class="options_block_container">' +
                         '<div class="options_block" style="width: 100%">' +
-                            '<h4 class="collapse blockhead options_correct">Most recent post in <a href="/showthread.php?t=' + stash.parse_variable('policy', 'mod log thread id') + '&goto=newpost">the moderation thread</a></h4>' +
+                            '<h4 class="collapse blockhead options_correct">Most recent post in <a href="/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost">the moderation thread</a></h4>' +
                             '<table id="last_post_container" style="width: 100%"></table>' +
                             '<input type="checkbox"' + (popup_on_mod_log_post?' checked="checked"':'') + ' id="popup-on-mod-log-post"><label for="popup-on-mod-log-post"> Show popup notification when new posts appear in the moderation log</label>' +
                             stash.mark_read_html +
@@ -1705,7 +1407,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             .done(function() { threadbit.toggleClass('lock') });
                 });
                 var title_suffix =
-                    stash.parse_variable('report process', 'report title suffix', { moderator: 'ANY_MODERATOR' })
+                    v.resolve('report process', 'report title suffix', { moderator: 'ANY_MODERATOR' })
                     .replace( /([.*+?^${}()|\[\]\/\\])/g, "\\$1" )
                     .replace( 'ANY_MODERATOR', '.*' )
                 stash.report_block.find('#threadbits_forum_48_container a.title').filter(function() { return $(this).text().search( title_suffix ) == -1 }).each(function() {
@@ -1722,7 +1424,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             });
             var last_post_container = stash.report_block.find('#last_post_container');
             last_post_container
-                .load( '/showthread.php?t=' + stash.parse_variable('policy', 'mod log thread id') + '&goto=newpost .postcontainer:last', function() {
+                .load( '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost .postcontainer:last', function() {
                     last_post_container.find('.posthead,.postfoot,.after_content').remove();
                     last_post_container.find('.postbitlegacy').css({ 'margin-bottom': 0 });
                     var new_mod_log_post_id = last_post_container.find('.postbitlegacy').attr('id').substr(4);
@@ -1742,7 +1444,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     if ( new_mod_log_post_id != popup_mod_log_post_id ) {
                         BabelExt.storage.set( 'popup_mod_log_post_id', new_mod_log_post_id );
                         if ( popup_on_mod_log_post && confirm( 'New message in the moderation log.\n\nClick OK to view it, or cancel to hide this prompt.' ) )
-                            document.location = '/showthread.php?t=' + stash.parse_variable('policy', 'mod log thread id') + '&goto=newpost';
+                            document.location = '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost';
                     }
                 });
             newbies = JSON.parse( newbies || '[]' );
@@ -1870,15 +1572,15 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 '\n/* END THREAD MERGE DATA */'
                         };
                         return bb.thread_reply({ // Notify/save all posts in thread
-                            thread_id: stash.parse_variable('policy', 'merge log thread id'),
-                            title    : stash.parse_variable('report process', 'merge title', variable_data),
-                            bbcode   : stash.parse_variable('report process', 'merge body' , variable_data)
+                            thread_id: v.resolve('policy', 'merge log thread id'),
+                            title    : v.resolve('report process', 'merge title', variable_data),
+                            bbcode   : v.resolve('report process', 'merge body' , variable_data)
                         });
                     })
                 });
             }
 
-            stash.merge_destinations = stash.parse_variable('policy', 'frequent merge destinations', {}, 'array of items');
+            stash.merge_destinations = v.resolve('policy', 'frequent merge destinations', {}, 'array of items');
 
             if ( parseInt(merge_timestamp||'0',10)+reload_interval*1000 < new Date().getTime() ) {
 
@@ -1965,7 +1667,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                     bb.thread_merge({
                                         forum_id  : forum_id,
                                         thread_ids: [ destination.thread_id, params.t ],
-                                        url       : '/showthread.php?goto=newpost&t='+stash.parse_variable('policy', 'mod log thread id'),
+                                        url       : '/showthread.php?goto=newpost&t='+v.resolve('policy', 'mod log thread id'),
                                     });
                                 });
                             });
@@ -2254,7 +1956,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
         // match_params: { t: mod_log_thread }, // doing this neatly would be an architectural hassle, TODO: consider said hassle some day
         match_elements: [ '#below_postlist' ],
         callback: function(stash, pathname, params) {
-            var merge_log = stash.parse_variable('policy', 'merge log thread id');
+            var merge_log = v.resolve('policy', 'merge log thread id');
             if ( params.t == merge_log ) {
                 // Unmerge data in the merge log
                 $('.bbcode_code').each(function() {
@@ -2269,7 +1971,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         $('<input type="button" value="Unmerge this thread">')
                             .insertAfter($code.parent())
                             .click(function() {
-                                bb.thread_create( data.forum_id, data.title, stash.parse_variable('report process', 'unmerge notification body', variable_data) ).done(function(html) {
+                                bb.thread_create( data.forum_id, data.title, v.resolve('report process', 'unmerge notification body', variable_data) ).done(function(html) {
                                     var new_thread_id = $(html).find( 'input[name="t"]' ).val();
                                     if  ( typeof(new_thread_id) == 'undefined' ) {
                                         alert("Failed to create unmerge thread - please try again later");
@@ -2278,8 +1980,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                         bb.posts_move( new_thread_id, data.posts ).done(function() {
                                             bb.thread_reply({
                                                 thread_id: merge_log,
-                                                title    : stash.parse_variable('report process', 'unmerge title', variable_data),
-                                                bbcode   : stash.parse_variable('report process', 'unmerge body' , variable_data),
+                                                title    : v.resolve('report process', 'unmerge title', variable_data),
+                                                bbcode   : v.resolve('report process', 'unmerge body' , variable_data),
                                                 url      : '/showthread.php?goto=newpost&t='+merge_log
                                             });
                                         });
@@ -2315,7 +2017,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 $('#note').val( ( is_warning ? 'Official warning for ' : 'Infraction for ' ) + infraction.toLowerCase() );
                 BabelExt.utils.runInEmbeddedPage(
                     "vB_Editor['vB_Editor_001'].write_editor_contents(" + JSON.stringify(
-                        stash.parse_variable(
+                        v.resolve(
                             'violation info',
                             [ thread ? 'infraction' : 'user infraction', infraction ],
                             {
@@ -2361,9 +2063,9 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             if ( $('a[href="forumdisplay.php?f=71"]').length ) return; // disable extras in the dupe account forum
 
             var pm_worthy_violations = {};
-            stash.parse_variable('policy', 'pm-worthy violations', {}, 'array of items').forEach(function(violation) { pm_worthy_violations[violation.value] = true });
+            v.resolve('policy', 'pm-worthy violations', {}, 'array of items').forEach(function(violation) { pm_worthy_violations[violation.value] = true });
             var infraction_worthy_violations = {};
-            stash.parse_variable('policy', 'infraction-worthy violations', {}, 'array of items').forEach(function(violation) { infraction_worthy_violations[violation.value] = true });
+            v.resolve('policy', 'infraction-worthy violations', {}, 'array of items').forEach(function(violation) { infraction_worthy_violations[violation.value] = true });
 
             var first_post = bb.process_posts()[0],
                 user_to_review = first_post.message_element.find('a').filter(function() { return this.href.search(/member.php\?/) > -1 && !$(this).closest('bbcode_container').length }).eq(1),
@@ -2477,13 +2179,13 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
             switch ( thread_status ) {
             case 'yours':
-                var expected_title_suffix = stash.parse_variable('report process', 'report title suffix', { moderator: $('.welcomelink a').text() });
+                var expected_title_suffix = v.resolve('report process', 'report title suffix', { moderator: $('.welcomelink a').text() });
                 if ( document.title.search( expected_title_suffix.replace(/([.*+?^${}()|\[\]\/\\])/g, "\\$1") ) == -1 )
                     bb.thread_edit({
                         thread_id: params.t,
                         title: document.title.replace(
                             new RegExp(
-                                stash.parse_variable('report process', 'report title suffix', { moderator: "\uE000" })
+                                v.resolve('report process', 'report title suffix', { moderator: "\uE000" })
                                     .replace(/([.*+?^${}()|\[\]\/\\])/g, "\\$1") // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
                                     .replace( "\uE000", '.*?' )
                                     + '$'
@@ -2499,7 +2201,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 common_actions.find('.postcontent').html(
                     '<ul style="margin: 1em; padding-left: 1em">' +
                         '<li><a href="/private.php?do=newpm&u=' + report_owner_id + '">PM the report owner (' + report_owner +')</a>' +
-                        '<li><a href="/newreply.php?t=' + stash.parse_variable('policy', 'mod log thread id') + '">Copy an appeal to the moderation log</a>' +
+                        '<li><a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log</a>' +
                         '<li><a href="/infraction.php?do=report&u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action</a>' +
                         '<li><a href="/showgroups.php">Find an administrator</a> and PM them the post and user name if you want an infraction revoked' +
                         '<li><a href="#handle">Handle it anyway</a>' +
@@ -2524,7 +2226,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     '<ul style="margin: 1em; padding-left: 1em">' +
                         '<li><a href="/usernote.php?do=newnote&u=' + user_to_review_id + '">Post a new user note</a> for the reported user' +
                         '<li><a href="/forumdisplay.php?f=47">Check the infractions/warnings forum</a>' +
-                        '<li><a href="/newreply.php?t=' + stash.parse_variable('policy', 'mod log thread id') + '">Copy an appeal to the moderation log</a>' +
+                        '<li><a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log</a>' +
                         '<li><a href="/infraction.php?do=report&u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action</a>' +
                         '<li><a href="/showgroups.php">Find an administrator</a> and PM them the post and user name if you want an infraction revoked' +
                     '</ul>'
@@ -2732,11 +2434,11 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             '<div class="preview"></div>' + '<textarea class="vbcode" placeholder="notification message"></textarea>' +
                           '</div>' +
                           '<div class="warn">' +
-                            stash.parse_variable( 'report process',    'warning message', violation_variable_data, 'string', forum_to_review_id, stash.thread_to_review_id ) +
+                            v.resolve( 'report process',    'warning message', violation_variable_data, 'string', forum_to_review_id, stash.thread_to_review_id ) +
                           '</div>' +
                           '<div class="infract">' +
                             '<div style="text-align:center;font-size:larger" id="need-modcp-login"><b>Note:</b> you must log in to ModCP (above) before you can issue a ban.</div>' +
-                            stash.parse_variable( 'report process', 'infraction message', violation_variable_data, 'string', forum_to_review_id, stash.thread_to_review_id ) +
+                            v.resolve( 'report process', 'infraction message', violation_variable_data, 'string', forum_to_review_id, stash.thread_to_review_id ) +
                           '</div>' +
                         '</fieldset>' +
 
@@ -2797,7 +2499,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 return post.vbcode_promise.then(function() {
                                     return bb.post_delete(
                                         post.post_id,
-                                        stash.parse_variable('report process', [ 'deletion reason', post.is_reported_post ? 'reported post' : 'later post', resolution_variables.violation ], resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id)
+                                        v.resolve('report process', [ 'deletion reason', post.is_reported_post ? 'reported post' : 'later post', resolution_variables.violation ], resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id)
                                     );
                                 });
                             })).concat(
@@ -2806,7 +2508,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                     return bb.post_edit(
                                         post.post_id,
                                         post.replaced_vbcode,
-                                        stash.parse_variable('report process', [ 'edit reason', post.is_reported_post ? 'reported post' : 'later post', resolution_variables.violation ], resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id)
+                                        v.resolve('report process', [ 'edit reason', post.is_reported_post ? 'reported post' : 'later post', resolution_variables.violation ], resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id)
                                     );
                                 });
                             }))
@@ -2852,8 +2554,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         resolution_variables['actions taken'] += '[/list]'
                         bb.thread_reply({
                             thread_id: params.t,
-                            title    : stash.parse_variable('report process', 'post title: close report', resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id),
-                            bbcode   : stash.parse_variable('report process', 'post body: close report' , resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id),
+                            title    : v.resolve('report process', 'post title: close report', resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id),
+                            bbcode   : v.resolve('report process', 'post body: close report' , resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id),
                             url      : location.toString(),
                             flip_thread_openness: !thread_closed
                         });
@@ -2863,8 +2565,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     if ( !action_count ) {
                         bb.thread_reply({
                             thread_id: params.t,
-                            title    : stash.parse_variable('report process', 'post title: close report without action', {}, 'string', forum_to_review_id, stash.thread_to_review_id),
-                            bbcode   : stash.parse_variable('report process', 'post body: close report without action' , {}, 'string', forum_to_review_id, stash.thread_to_review_id),
+                            title    : v.resolve('report process', 'post title: close report without action', {}, 'string', forum_to_review_id, stash.thread_to_review_id),
+                            bbcode   : v.resolve('report process', 'post body: close report without action' , {}, 'string', forum_to_review_id, stash.thread_to_review_id),
                             url      : location.toString(),
                             flip_thread_openness: !thread_closed
                         });
@@ -2883,8 +2585,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             get_promises: function() { return [
                                 bb.usernote_add(
                                     user_to_review_id,
-                                    stash.parse_variable('report process', 'user notes title: report', resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id ),
-                                    stash.parse_variable('report process', 'user notes body: report' , resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id )
+                                    v.resolve('report process', 'user notes title: report', resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id ),
+                                    v.resolve('report process', 'user notes body: report' , resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id )
                                 )
                             ]},
                             titles: [ 'Update [URL="'+location.origin+'/usernote.php?u='+user_to_review_id+'"]user notes[/URL]' ],
@@ -3261,7 +2963,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             .find('ul')
                             .empty()
                             .append(
-                                stash.parse_variable('report process', [ 'replacement', $(this.previousSibling).val() ], {}, 'array of items' )
+                                v.resolve('report process', [ 'replacement', $(this.previousSibling).val() ], {}, 'array of items' )
                                     .map(function(suggestion) {
                                         return $( '<li style="width: 100%">' )
                                             .append(
@@ -3349,7 +3051,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         .trigger('input');
                     automatic_useraction_level = recommended_level;
 
-                    $('#issue-info').html( stash.parse_variable('report process', [ 'information', issue_count, issue_name ], {}, 'string', forum_to_review_id, stash.thread_to_review_id) );
+                    $('#issue-info').html( v.resolve('report process', [ 'information', issue_count, issue_name ], {}, 'string', forum_to_review_id, stash.thread_to_review_id) );
                     $('.issue-name').text(issue_name);
                     $('.issue-points').text(
                         [0].concat(issues.get()).reduce(function(a,b) { return a + b.points })
@@ -3402,8 +3104,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             $('.useraction').addClass( 'none' );
                             break;
                         case 1:
-                            $('.useraction .pm input'   ).val( stash.parse_variable('violation info', [ 'PM title', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ) );
-                            $('.useraction .pm textarea').val( stash.parse_variable('violation info', [ 'PM body' , issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ) );
+                            $('.useraction .pm input'   ).val( v.resolve('violation info', [ 'PM title', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ) );
+                            $('.useraction .pm textarea').val( v.resolve('violation info', [ 'PM body' , issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ) );
                             useraction_data = {
                                 description: 'explanatory PM',
                                 action_text: '[img]'+location.origin+'/images/buttons/add-infraction_sm.png[/img] explanatory PM',
@@ -3440,7 +3142,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             case 8: period = 'PERMANENT'     ; titles.push( "Give a permanent ban " + to_name ); action_text += ' with permanent ban'; break;
                             }
                             textarea.val(
-                                stash.parse_variable('violation info', [ 'infraction', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id )
+                                v.resolve('violation info', [ 'infraction', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id )
                             );
                             useraction_data = {
                                 description: variables['infraction type'],
@@ -3449,7 +3151,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                     var issues = get_issues();
                                     var args = {
                                         administrative_note: 'See ' + document.location.toString(),
-                                        reason             : stash.parse_variable('report process', [ 'ban reason', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ),
+                                        reason             : v.resolve('report process', [ 'ban reason', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ),
                                         bbcode             : textarea.val(),
                                         user_id            : user_to_review_id,
                                         post_id            : post_to_review_id,
