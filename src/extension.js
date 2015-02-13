@@ -255,6 +255,24 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
     }
 )}
 
+/*
+ * HANDLE MODERATION CHECKBOXES
+ * (so you can always tab through them, and hovering over tells you so)
+ */
+function handle_moderation_checkboxes() { BabelExt.utils.dispatch(
+    {
+        match_pathname: [ '/showthread.php', '/search.php', '/forumdisplay.php' ],
+        callback: function(stash) {
+            $(function() {
+                $('.postimod,[name^=imodcheck]').attr( 'title', 'press tab then space to select the next item' );
+                var highest_tab_index = Math.max.apply( Math, $('[tabindex]').map(function() { return parseInt( $(this).attr('tabindex'), 10 ) }).get() );
+                $('.postimod').each(function() {
+                    $(this).attr( 'tabindex', ++highest_tab_index );
+                });
+            });
+        }
+    }
+)}
 
 
 /*
@@ -332,10 +350,11 @@ BabelExt.utils.dispatch({ // initialise general stuff
         });
 
         v.promise.then(function() {
-            handle_dashboard       ( bb, v, loading_img );
-            handle_variables_thread( bb, v );
-            handle_moderation_links();
-            handle_legacy          ( bb, v, loading_html );
+            handle_dashboard            ( bb, v, loading_img );
+            handle_variables_thread     ( bb, v );
+            handle_moderation_links     ();
+            handle_moderation_checkboxes();
+            handle_legacy               ( bb, v, loading_html );
         });
 
     }
@@ -958,19 +977,6 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 });
             }
 
-        }
-    },
-
-    {
-        match_pathname: [ '/showthread.php', '/search.php', '/forumdisplay.php' ],
-        callback: function(stash) {
-            $(function() {
-                $('.postimod,[name^=imodcheck]').attr( 'title', 'press tab then space to select the next item' );
-                var highest_tab_index = Math.max.apply( Math, $('[tabindex]').map(function() { return parseInt( $(this).attr('tabindex'), 10 ) }).get() );
-                $('.postimod').each(function() {
-                    $(this).attr( 'tabindex', ++highest_tab_index );
-                });
-            });
         }
     },
 
