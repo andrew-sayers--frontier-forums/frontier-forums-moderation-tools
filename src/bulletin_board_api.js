@@ -689,6 +689,70 @@ VBulletin.prototype.infraction_ids = function( user_id ) {
  */
 
 /**
+ * Monitor the list of posts
+ * @param {function} callback function to call when a post is modified
+ */
+VBulletin.prototype.on_posts_modified = function( callback ) {
+
+    function observe_mutation(mutations) {
+        var modifications = {
+            initialised: [],
+            edited     : [],
+        }, has_modifications = false;
+        mutations.forEach(function(mutation) {
+            var post_id = $(mutation.target).closest('li').attr('id').substr(5);
+            if ( $(mutation.target).find('blockquote').length ) {
+                has_modifications = true;
+                modifications.initialised.push( post_id );
+            } else if ( $(mutation.target).find('.texteditor').length ) {
+                has_modifications = true;
+                modifications.edited.push( post_id );
+            }
+        });
+        if ( has_modifications ) callback( modifications );
+    }
+    var observer;
+    if      ( typeof(      MutationObserver) != 'undefined' ) observer = new       MutationObserver(observe_mutation);
+    else if ( typeof(WebKitMutationObserver) != 'undefined' ) observer = new WebKitMutationObserver(observe_mutation);
+    $('#posts').each(function() { observer.observe(this, { childList: true, subtree: true }) });
+
+}
+
+/**
+ * Create a new element that resembles a post
+ * @param {string} date           text to show as the date
+ * @param {string} username       text to show as the user's name
+ * @param {string} user_title     text to show as the user's title (e.g. "moderator")
+ * @param {string} post_title     text to show as the post title
+ * @param {string} post_body_html HTML to show as the post body
+ * @return {jQuery} new post element
+ */
+VBulletin.prototype.post_create = function( date, username, user_title, post_title, post_body_html ) {
+
+    var post = $('#posts li').first().clone();
+
+    post.find('[id]'               ).removeAttr( 'id' );
+    post.find('.date'              ).text( date );
+    post.find('.postdetails'       ).attr( 'class', 'postdetails' ); // remove flare etc.
+    post.find('.iepostcounter'     ).text( '#0' );
+    post.find('.username'          ).hide().attr( 'href', '' ).after( $('<b class="username"></b>').text( username ) );
+    post.find('.memberaction_body' ).remove();
+    post.find('.onlinestatus'      ).remove();
+    post.find('.usertitle'         ).text(user_title);
+    post.find('.postbit_reputation').remove();
+    post.find('.postuseravatar'    ).remove();
+    post.find('.userinfo_extra'    ).remove();
+    post.find('.title'             ).text(post_title);
+    post.find('.postrow'           ).removeClass('has_after_content');
+    post.find('blockquote'         ).html(post_body_html);
+    post.find('.after_content'     ).remove();
+    post.find('.postfoot'          ).remove();
+
+    return post;
+
+}
+
+/**
  * @summary Soft-delete a post
  * @param {Number} post_ID ID of post to retrieve
  * @param {string=} reason  deletion reason
@@ -1302,10 +1366,10 @@ VBulletin.prototype.forum_threads = function(forum_id) {
 
         var is_moderator = html.search( '<script type="text/javascript" src="clientscript/vbulletin_inlinemod.js?' ) != -1;
 
-        var statuses = {
-            'Closed:': 'closed',
-            'Moved:' : 'moved'
-        };
+        var today = new Date(), yesterday = new Date();
+        yesterday.setDate(yesterday.getDate()-1);
+        today     = [ today    .getDate().toString().replace(/^(.)$/,"0$1"), (today    .getMonth()+1).toString().replace(/^(.)$/,"0$1"), today    .getYear()+1900 ].join( '/' );
+        yesterday = [ yesterday.getDate().toString().replace(/^(.)$/,"0$1"), (yesterday.getMonth()+1).toString().replace(/^(.)$/,"0$1"), yesterday.getYear()+1900 ].join( '/' );
 
         if ( is_moderator && !this._forum_threads_callback_initialised++ ) {
             $(document).on( 'dblclick', '.bb_api_threadstatus', function() {
@@ -1317,7 +1381,7 @@ VBulletin.prototype.forum_threads = function(forum_id) {
 
         return $(html).find('li.threadbit').map(function() {
             var title = $('a.title', this);
-            var thread_id = this.id.substr(7);
+            var thread_id = title.attr('href').split( '?t=' )[1];
 
             if ( is_moderator ) {
                 $('.threadstatus', this)
@@ -1328,24 +1392,31 @@ VBulletin.prototype.forum_threads = function(forum_id) {
             }
 
             var understate_text = $.trim($('.prefix.understate', this).text());
-            var status = null;
+            var status = 'open';
             if      ( understate_text.search( /^Closed:/ ) == 0 ) status = 'closed';
             else if ( understate_text.search( /^Moved:/  ) == 0 ) status = 'moved';
             else if ( $( '.prefix_closed' , this ).length ) status = 'closed'
             else if ( $( '.prefix_deleted', this ).length ) status = 'deleted'
             ;
 
-
-            return {
+            var ret = {
                 container_element: this,
                 forum_id         : forum_id,
                 thread_id        : thread_id,
-                last_post_id     : parseInt( $( '.lastpostdate', this ).attr('href').split('#post')[1] ),
+                orig_thread_id   : this.id.substr(7), // for moved threads
                 title_element    : title,
                 title            : title.text(),
                 status           : status,
                 is_sticky        : $('div.sticky', this).length ? true : false
+            };
+            if ( status != 'moved' ) {
+                ret = $.extend( ret, {
+                    last_post_id : parseInt( $( 'a.lastpostdate', this ).attr('href').split('#post')[1] ),
+                    reply_count  : parseInt( $('.threadstats a', this).text(), 10 ),
+                    last_modified: $.trim($('a.lastpostdate', this).parent().text().replace('Today',today).replace('Yesterday',yesterday))
+                });
             }
+            return ret;
         }).get();
 
     });
