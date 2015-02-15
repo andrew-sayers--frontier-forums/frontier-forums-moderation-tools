@@ -256,6 +256,34 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
 )}
 
 /*
+ * EDIT POST PAGES
+ */
+function handle_post_edit( bb ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: ['/editpost.php'],
+        match_elements: ['#deltype_soft'],
+        callback: function(stash, pathname, params, button) {
+            $(button).parent().css({ width: '400px' }).append( ' (recommended)' );
+        }
+    },
+
+    {
+        match_pathname: ['/showthread.php'],
+        match_elements: [ '#below_postlist' ],
+        callback: function(stash, pathname, params, button) {
+            bb.on_posts_modified(function(modifications) {
+                if ( modifications.edited.length ) {
+                    $('#deltype_soft').prop( 'checked', true )
+                        .parent().css({ width: '400px' }).append(' (recommended)');
+                }
+            });
+        }
+    }
+
+
+)}
+
+/*
  * HANDLE MODERATION CHECKBOXES
  * (so you can always tab through them, and hovering over tells you so)
  */
@@ -274,6 +302,21 @@ function handle_moderation_checkboxes() { BabelExt.utils.dispatch(
     }
 )}
 
+/*
+ * MODERATION USER PAGE
+ */
+function handle_modcp_user() { BabelExt.utils.dispatch(
+    {
+        match_pathname: '/modcp/user.php',
+        match_params: {
+            'do': 'viewuser'
+        },
+        match_elements: '.normal',
+        callback: function(stash, pathname, params, normal) {
+            $(normal).after( ' - <a href="/member.php?u='+params.u+'">go to member page</a> - <a href="/private.php?do=newpm&u=' + params.u + '">send PM</a>' );
+        }
+    }
+)}
 
 /*
  * Link to Moderated Posts page from moderation links
@@ -352,8 +395,10 @@ BabelExt.utils.dispatch({ // initialise general stuff
         v.promise.then(function() {
             handle_dashboard            ( bb, v, loading_img );
             handle_variables_thread     ( bb, v );
+            handle_post_edit            ( bb );
             handle_moderation_links     ();
             handle_moderation_checkboxes();
+            handle_modcp_user           ();
             handle_legacy               ( bb, v, loading_html );
         });
 
@@ -1013,32 +1058,6 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             $('select[name="usergroupid"]').val(22); // spambots
             bb.redirect_duration.period = 'PERMANENT'; // trick the "redirect duration" code into setting the correct duration
             $('input[name="reason"]').val('Spambot');
-        }
-    },
-
-    /*
-     * EDIT POST PAGES
-     */
-    {
-        match_pathname: ['/editpost.php'],
-        match_elements: ['#deltype_soft'],
-        callback: function(stash, pathname, params, button) {
-            $(button).parent().css({ width: '400px' }).append( ' (recommended)' );
-        }
-
-    },
-
-    /*
-     * MODERATION USER PAGE
-     */
-    {
-        match_pathname: '/modcp/user.php',
-        match_params: {
-            'do': 'viewuser'
-        },
-        match_elements: '.normal',
-        callback: function(stash, pathname, params, normal) {
-            $(normal).after( ' - <a href="/member.php?u='+params.u+'">go to member page</a> - <a href="/private.php?do=newpm&u=' + params.u + '">send PM</a>' );
         }
     },
 
