@@ -33,22 +33,13 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
             // Dashboard CSS
             bb.css_add([ 'user_show', 'forum_show', 'thread_show' ]);
-            $("head").append(
-                "<style type='text/css'>" +
-                    '.dashboard-section .nonempty, .dashboard-section .empty, .dashboard-section .loading, .dashboard-section .done, .dashboard-section .undone { display: none }' +
-                    '.dashboard-section.empty table, .dashboard-section.empty.loading .dashboard-body, .dashboard-section.empty.loading .empty { display: none }' +
-                    '.dashboard-section.nonempty .nonempty, .dashboard-section.empty .empty, .dashboard-section.loading .loading, .dashboard-section.done .done, .dashboard-section.undone .undone { display: inline }' +
-                    '.dashboard-section h4 { clear: both }' +
-                    '.dashboard-section.done .dashboard-body, .dashboard-section.done table { display: none }' +
-                "</style>"
-            );
 
             function make_dashboard_section_header( link, empty_heading, nonempty_heading, done_text, undone_text ) {
                 return (
                     '<h4 class="collapse blockhead options_correct">' +
                         '<span class="loading">'  + 'Loading '       + link + ' ' + loading_img + '</span>' +
-                        '<span class="empty">'    +    empty_heading + link + ' <a href="#refresh" class="dashboard-refresh"><img style="vertical-align: top" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAI/SURBVDjLjZPbS9NhHMYH+zNidtCSQrqwQtY5y2QtT2QGrTZf13TkoYFlzsWa/tzcoR3cSc2xYUlGJfzAaIRltY0N12H5I+jaOxG8De+evhtdOP1hu3hv3sPzPO/z4SsBIPnfuvG8cbBlWiEVO5OUItA0VS8oxi9EdhXo+6yV3V3UGHRvVXHNfNv6zRfNuBZVoiFcB/3LdnQ8U+Gk+bhPVKB3qUOuf6/muaQR/qwDkZ9BRFdCmMr5EPz6BN7lMYylLGgNNaKqt3K0SKDnQ7us690t3rNsxeyvaUz+8OJpzo/QNzd8WTtcaQ7WlBmPvxhx1V2Pg7oDziIBimwwf3qAGWESkVwQ7owNujk1ztvk+cg4NnAUTT4FrrjqUKHdF9jxBfXr1rgjaSk4OlMcLrnOrJ7latxbL1V2lgvlbG9MtMTrMw1r1PImtfyn1n5q47TlBLf90n5NmalMtUdKZoyQMkLKlIGLjMyYhFpmlz3nGEVmFJlRZNaf7pIaEndM24XIjCOzjX9mm2S2JsqdkMYIqbB1j5C6yWzVk7YRFTsGFu7l+4nveExIA9aMCcOJh6DIoMigyOh+o4UryRWQOtIjaJtoziM1FD0mpE4uZcTc72gBaUyYKEI6khgqINXO3saR7kM8IZUVCRDS0Ucf+xFbCReQhr97MZ51wpWxYnhpCD3zOrT4lTisr+AJqVx0Fiiyr4/vhP4VyyMFIUWNqRrV96vWKXKckBoIqWzXYcoPDrUslDJoopuEVEpIB0sR+AuErIiZ6OqMKAAAAABJRU5ErkJggg=="></a></span>' +
-                        '<span class="nonempty">' + nonempty_heading + link + ' <a href="#refresh" class="dashboard-refresh"><img style="vertical-align: top" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAI/SURBVDjLjZPbS9NhHMYH+zNidtCSQrqwQtY5y2QtT2QGrTZf13TkoYFlzsWa/tzcoR3cSc2xYUlGJfzAaIRltY0N12H5I+jaOxG8De+evhtdOP1hu3hv3sPzPO/z4SsBIPnfuvG8cbBlWiEVO5OUItA0VS8oxi9EdhXo+6yV3V3UGHRvVXHNfNv6zRfNuBZVoiFcB/3LdnQ8U+Gk+bhPVKB3qUOuf6/muaQR/qwDkZ9BRFdCmMr5EPz6BN7lMYylLGgNNaKqt3K0SKDnQ7us690t3rNsxeyvaUz+8OJpzo/QNzd8WTtcaQ7WlBmPvxhx1V2Pg7oDziIBimwwf3qAGWESkVwQ7owNujk1ztvk+cg4NnAUTT4FrrjqUKHdF9jxBfXr1rgjaSk4OlMcLrnOrJ7latxbL1V2lgvlbG9MtMTrMw1r1PImtfyn1n5q47TlBLf90n5NmalMtUdKZoyQMkLKlIGLjMyYhFpmlz3nGEVmFJlRZNaf7pIaEndM24XIjCOzjX9mm2S2JsqdkMYIqbB1j5C6yWzVk7YRFTsGFu7l+4nveExIA9aMCcOJh6DIoMigyOh+o4UryRWQOtIjaJtoziM1FD0mpE4uZcTc72gBaUyYKEI6khgqINXO3saR7kM8IZUVCRDS0Ucf+xFbCReQhr97MZ51wpWxYnhpCD3zOrT4lTisr+AJqVx0Fiiyr4/vhP4VyyMFIUWNqRrV96vWKXKckBoIqWzXYcoPDrUslDJoopuEVEpIB0sR+AuErIiZ6OqMKAAAAABJRU5ErkJggg=="></a></span>' +
+                        '<span class="empty">'    +    empty_heading + link + ' <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>' +
+                        '<span class="nonempty">' + nonempty_heading + link + ' <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>' +
                         '<a href="#mark-done" class="dashboard-done" style="float: right">' +
                             '<span class="done">' + done_text + '</span>' +
                             '<span class="undone">'+ undone_text + '</span>' +
