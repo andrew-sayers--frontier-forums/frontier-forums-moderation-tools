@@ -15,11 +15,11 @@
     "version":     "4.1",
     "website":     "http://pileofstuff.org/frontier-forums-moderation-tools/",
     "icons": {
-        16:     "icon-16.png",
-        32:     "icon-32.png",
-        48:     "icon-48.png",
-        64:     "icon-64.png",
-        128:    "icon-128.png"
+        16:     "icons/icon-16.png",
+        32:     "icons/icon-32.png",
+        48:     "icons/icon-48.png",
+        64:     "icons/icon-64.png",
+        128:    "icons/icon-128.png"
     },
 
     "long_description":
@@ -36,8 +36,9 @@
      */
     "contentScriptWhen": "early",
 
-    "contentScriptFiles": [ "jquery-2.1.1.min.js", "selectionchange.js", "bulletin_board_api.js", "dashboard.js", "extension.js" ],
-    "match_domain":       "forums.frontier.co.uk",
+    "contentScriptFiles": [ "lib/jquery-2.1.1.min.js", "lib/selectionchange.js", "src/bulletin_board_api.js", "src/dashboard.js", "src/extension.js" ],
+    "contentStyleFiles": [ "src/extension.css" ],
+    "match_domains": [ "forums.frontier.co.uk" ],
     "match_secure_domain": true,
 
     "environment_specific": {
@@ -50,7 +51,7 @@
         },
 
         "test": {
-            "contentScriptFiles": [ "test-helper.js" ],
+            "contentScriptFiles": [ "src/test-helper.js" ],
         },
 
         "production": {}

@@ -50,6 +50,7 @@ pageMod.PageMod({
   include: settings.include,
   contentScriptWhen: settings.contentScriptWhen,
   contentScriptFile: settings.contentScriptFile.map(function(file) { return self.data.url(file) }),
+  contentStyleFile: settings.contentStyleFile.map(function(file) { return self.data.url(file) }),
   onAttach: function(worker) {
 	tabs.on('activate', function(tab) {
 		// run some code when a tab is activated...
@@ -199,6 +200,18 @@ pageMod.PageMod({
 					}
 
 				});
+				break;
+			case 'contextMenus.remove':
+				// Run through the current context items and destroy the one with a matching name
+				contextItems = contextMenu.contentContextMenu.items;
+				var len = contextItems.length;
+				for(var i =0; i < len; ++i){
+					if(request.obj.title == contextItems[i].label){
+						contextMenu.contentContextMenu.destroy(contextItems[i]);
+						break;
+					}
+				}
+
 				break;
 			default:
 				worker.postMessage({status: "unrecognized request type"});

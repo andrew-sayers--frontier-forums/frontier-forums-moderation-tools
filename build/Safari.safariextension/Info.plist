@@ -68,6 +68,10 @@
 				<string>extension.js</string>
 			</array>
 		</dict>
+		<key>Stylesheets</key>
+		<array>
+			<string>src/extension.css</string>
+		</array>
 	</dict>
 	<key>Description</key>
 	<string>Add moderator tools to the Frontier Forums</string>
