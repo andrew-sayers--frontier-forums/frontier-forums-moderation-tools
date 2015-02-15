@@ -38,7 +38,7 @@
 
     "contentScriptFiles": [ "lib/jquery-2.1.1.min.js", "lib/selectionchange.js", "src/bulletin_board_api.js", "src/cacheable.js", "src/variables.js", "src/dashboard.js", "src/legacy.js", "src/main.js" ],
     "contentStyleFiles": [ "src/main.css" ],
-    "match_domains": [ "forums.frontier.co.uk" ],
+    "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
     "match_secure_domain": true,
 
     "environment_specific": {
