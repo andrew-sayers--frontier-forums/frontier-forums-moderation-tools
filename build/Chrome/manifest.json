@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.1",
+	"version": "4.2",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -13,28 +13,36 @@
 	"content_scripts": [
 		{
 			"matches": [
-				"*://forums.frontier.co.uk/*"
+				"*://forums.frontier.co.uk/*",
+				"*://forumstest.frontier.co.uk/*"
 			],
 			"js": [
-				"BabelExt.js",
-				"jquery-2.1.1.min.js",
-				"selectionchange.js",
-				"bulletin_board_api.js",
-				"dashboard.js",
-				"extension.js"
+				"lib/BabelExt.js",
+				"lib/jquery-2.1.1.min.js",
+				"lib/selectionchange.js",
+				"src/bulletin_board_api.js",
+				"src/cacheable.js",
+				"src/variables.js",
+				"src/dashboard.js",
+				"src/legacy.js",
+				"src/main.js"
 			],
-			"run_at": "document_start"
+			"run_at": "document_start",
+			"css": [
+				"src/main.css"
+			]
 		}
 	],
 	"icons": {
-		"16": "icon-16.png",
-		"32": "icon-32.png",
-		"48": "icon-48.png",
-		"64": "icon-64.png",
-		"128": "icon-128.png"
+		"16": "icons/icon-16.png",
+		"32": "icons/icon-32.png",
+		"48": "icons/icon-48.png",
+		"64": "icons/icon-64.png",
+		"128": "icons/icon-128.png"
 	},
 	"permissions": [
 		"*://forums.frontier.co.uk/*",
+		"*://forumstest.frontier.co.uk/*",
 		"contextMenus",
 		"tabs",
 		"history",

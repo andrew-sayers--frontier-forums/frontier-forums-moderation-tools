@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.1</string>
+	<string>4.2</string>
 	<key>CFBundleVersion</key>
-	<string>4.1</string>
+	<string>4.2</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -60,17 +60,20 @@
 			</array>
 			<key>Start</key>
 			<array>
-				<string>BabelExt.js</string>
-				<string>jquery-2.1.1.min.js</string>
-				<string>selectionchange.js</string>
-				<string>bulletin_board_api.js</string>
-				<string>dashboard.js</string>
-				<string>extension.js</string>
+				<string>lib/BabelExt.js</string>
+				<string>lib/jquery-2.1.1.min.js</string>
+				<string>lib/selectionchange.js</string>
+				<string>src/bulletin_board_api.js</string>
+				<string>src/cacheable.js</string>
+				<string>src/variables.js</string>
+				<string>src/dashboard.js</string>
+				<string>src/legacy.js</string>
+				<string>src/main.js</string>
 			</array>
 		</dict>
 		<key>Stylesheets</key>
 		<array>
-			<string>src/extension.css</string>
+			<string>src/main.css</string>
 		</array>
 	</dict>
 	<key>Description</key>
@@ -84,6 +87,7 @@
 			<key>Allowed Domains</key>
 			<array>
 				<string>forums.frontier.co.uk</string>
+				<string>forumstest.frontier.co.uk</string>
 			</array>
 			<key>Include Secure Pages</key>
 			<true/>

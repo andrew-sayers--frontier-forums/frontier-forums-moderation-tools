@@ -2,12 +2,12 @@
     "description": "Add moderator tools to the Frontier Forums",
     "license": "MPL 2.0",
     "author": "Andrew Sayers",
-    "version": "4.1",
+    "version": "4.2",
     "title": "Frontier forums moderation tools",
     "id": "1af51de1-7f0f-4dd6-b5f4-06e8e9ca7559",
     "name": "frontier-forums-moderation-tools",
-    "icon": "icon-48.png",
-    "icon_64": "icon-64.png",
+    "icon": "icons/icon-48.png",
+    "icon_64": "icons/icon-64.png",
     "preferences": [
         {
             "name": "language",
