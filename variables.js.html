@@ -388,7 +388,11 @@ Variables.prototype.get = function( namespace, names, keys, forum_id, thread_id 
         }
     });
 
-    return variable || { target_namespace: target_namespace, matching_namespaces: matching_namespaces, name: [ root_name ].concat(names) };
+    if ( variable === null ) {
+        return { target_namespace: target_namespace, matching_namespaces: matching_namespaces, name: [ root_name ].concat(names) }
+    } else {
+        return variable;
+    };
 
 }
 
