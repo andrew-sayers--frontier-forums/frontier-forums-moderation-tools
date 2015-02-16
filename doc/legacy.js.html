@@ -281,13 +281,13 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
              * @summary Return a list of strings containing &lt;a> elements linking to lists of known spammers
              * @param {string}  ip          IP address to search for
              * @param {string}  name        account name to search for (only supported by some sites)
-             * @param {string=} prefix_text Text to prepend to the body of each link (default: 'Check&nbsp;on&nbsp;')
+             * @param {string=} prefix_text Text to prepend to the body of each link (default: 'Check&amp;nbsp;on&amp;nbsp;')
              * @return {Array.&lt;string>}
              */
             var spam_list_links_initialised = 0;
             stash.spam_list_links = function( ip, name, prefix_text ) {
 
-                if ( prefix_text === undefined ) prefix_text = 'Check&nbsp;on&nbsp;';
+                if ( prefix_text === undefined ) prefix_text = 'Check&amp;nbsp;on&amp;nbsp;';
 
                 if ( !spam_list_links_initialised++ ) {
                     BabelExt.utils.runInEmbeddedPage(
@@ -320,7 +320,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 document.body.setAttribute( 'stopforumspam-working', '' );
                             }
                     );
-                    $.ajax({ url: 'https://api.stopforumspam.org/api?ip=127.0.0.1&f=json', dataType: "jsonp", jsonpCallback: 'stop_forum_spam_check_callback' });
+                    $.ajax({ url: 'https://api.stopforumspam.org/api?ip=127.0.0.1&amp;f=json', dataType: "jsonp", jsonpCallback: 'stop_forum_spam_check_callback' });
 
                     $(document).on( 'click', '.stopforumspam', function(event) {
                         if ( document.body.hasAttribute('stopforumspam-working') || !confirm(
@@ -335,9 +335,9 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 }
 
                 return [
-                    '&lt;a class="stopforumspam" href="//api.stopforumspam.org/api?ip=' + encodeURIComponent(ip) + '&amp;username=' + encodeURIComponent(name) + '&amp;f=json">' + prefix_text + 'StopForumSpam&lt;/a>',
+                    '&lt;a class="stopforumspam" href="//api.stopforumspam.org/api?ip=' + encodeURIComponent(ip) + '&amp;amp;username=' + encodeURIComponent(name) + '&amp;amp;f=json">' + prefix_text + 'StopForumSpam&lt;/a>',
                     '&lt;a href="http://multirbl.valli.org/lookup/' + encodeURIComponent(ip) + '.html">' + prefix_text + 'MultiRBL&lt;/a>',
-                    '&lt;a href="https://www.projecthoneypot.org/ip_' + encodeURIComponent(ip) + '">' + prefix_text + 'Project&nbsp;Honeypot&lt;/a>'
+                    '&lt;a href="https://www.projecthoneypot.org/ip_' + encodeURIComponent(ip) + '">' + prefix_text + 'Project&amp;nbsp;Honeypot&lt;/a>'
                 ];
 
             }
@@ -398,7 +398,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
 
             stash.get_member_info = function(user_id) {
-                return $.get('/member.php?u='+user_id+'&tab=infractions&pp=50').then(function(html) {
+                return $.get('/member.php?u='+user_id+'&amp;tab=infractions&amp;pp=50').then(function(html) {
                     html = $(html);
                     var ret = {
                         stats : html.find('#view-stats_mini'),
@@ -449,7 +449,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     }
 
                     if ( html.find('#usermenu a[href^="modcp/banning.php?do=liftban"]').length ) {
-                        return $.get( stash.modcp_url( 'banning.php?do=editreason&userid=' + user_id ) ).then(function(html) {
+                        return $.get( stash.modcp_url( 'banning.php?do=editreason&amp;userid=' + user_id ) ).then(function(html) {
                             ret.infraction_summary = '&lt;span style="color: red">BANNED: ' + BabelExt.utils.escapeHTML($.trim($(html).find( '#it_reason_1' ).val())) + '&lt;/span>'
                             ret.summary = ret.infraction_summary + ret.summary;
                             return ret;
@@ -479,7 +479,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 var iframe = $('&lt;iframe>&lt;/iframe>').insertBefore(container.find('.postcontent')); // TODO: refactor to get this back out of the promise
                 var modcp_promise = bb.moderation_page(
                     iframe,
-                    '/modcp/user.php?do=viewuser&u='+user_id
+                    '/modcp/user.php?do=viewuser&amp;u='+user_id
                 );
 
                 /*
@@ -516,7 +516,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 });
                             })).concat(
                             Object.keys(user_data.overlapping_users).map(function(user) {
-                                return $.get( stash.modcp_url( 'user.php?do=viewuser&u=' + user_data.overlapping_users[user].user_id ) ).done(function(html) {
+                                return $.get( stash.modcp_url( 'user.php?do=viewuser&amp;u=' + user_data.overlapping_users[user].user_id ) ).done(function(html) {
                                     overlapping_user_emails[user] = $(html).find('input[name="user\\[email\\]"]').val();
                                 })
                             }))
@@ -532,7 +532,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 '&lt;div style="font-size: larger; font-weight: bold; clear: both; margin-top: 0.5em">Possible duplicate accounts&lt;/div>' +
                                 '&lt;div style="margin: 0.5em 0" >The following users have used the same IP address as &lt;i>' + username_html + '&lt;/i>.  That might just mean they\'re friends that have checked the forums from each others\' houses, but it can be a useful lead when looking for duplicate accounts.  If they have any active infractions, you can hover over the icons to see the date and reason.&lt;/div>' +
                                 '&lt;ul style="margin-left: 1em">&lt;li style="list-style:disc">' + member_info.summary +
-                                ' &lt;&lt;a href="mailto:' + email + '">' + email + '&lt;/a>&gt;' +
+                                ' &amp;lt;&lt;a href="mailto:' + email + '">' + email + '&lt;/a>&amp;gt;' +
                                 ' has used ' + user_data.used_ip_count + ' IP address(es) ' +
                                 ' - ' + member_info.join_summary +
                                 '&lt;ul style="margin-left:1em">' + Object.keys(user_data.overlapping_users).map(function(name) {
@@ -554,7 +554,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                         registration_message = ' including the address ' + username_html + ' registered from';
                                     }
                                     return '&lt;li style="list-style:disc">' + member_info.summary +
-                                        ' &lt;&lt;a href="mailto:' + email + '">' + email + '&lt;/a>&gt;' +
+                                        ' &amp;lt;&lt;a href="mailto:' + email + '">' + email + '&lt;/a>&amp;gt;' +
                                         ' has shared ' + overlap_data.addresses.length + '/' + ip_data.used_ip_count + ' address(es)' + registration_message +
                                         ' - ' + member_info.join_summary +
                                         ' - &lt;a href="#more-info" class="more-info" data-name="' + BabelExt.utils.escapeHTML(name) + '">more info&lt;/a>' +
@@ -592,16 +592,16 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                             '&lt;thead>&lt;th>Address&lt;th style="padding:0 1em">' + username_html + '&lt;th style="padding:0 1em">' + BabelExt.utils.escapeHTML(name) + '&lt;th style="padding:0 1em">Check on...&lt;th style="padding:0 1em">Also used by&lt;/tr>&lt;/thead>&lt;tbody>' +
                                             addresses.map(function(address) {
                                                 var ret = '&lt;tr>&lt;th style="text-align: right">' + address.domain_name;
-                                                if ( scored_addresses[address.ip] & 8 ) ret += '&lt;td style="padding:0 1em">registered';
-                                                else if ( scored_addresses[address.ip] & 4 ) ret += '&lt;td style="padding:0 1em">yes';
+                                                if ( scored_addresses[address.ip] &amp; 8 ) ret += '&lt;td style="padding:0 1em">registered';
+                                                else if ( scored_addresses[address.ip] &amp; 4 ) ret += '&lt;td style="padding:0 1em">yes';
                                                 else ret += '&lt;td style="padding:0 1em">';
-                                                if ( scored_addresses[address.ip] & 2 ) ret += '&lt;td style="padding:0 1em">registered';
-                                                else if ( scored_addresses[address.ip] & 1 ) ret += '&lt;td style="padding:0 1em">yes';
+                                                if ( scored_addresses[address.ip] &amp; 2 ) ret += '&lt;td style="padding:0 1em">registered';
+                                                else if ( scored_addresses[address.ip] &amp; 1 ) ret += '&lt;td style="padding:0 1em">yes';
                                                 else ret += '&lt;td style="padding:0 1em">';
-                                                ret += '&lt;td style="padding:0 1em">' + stash.spam_list_links( address.ip, username_text, '' ).join('&nbsp;');
+                                                ret += '&lt;td style="padding:0 1em">' + stash.spam_list_links( address.ip, username_text, '' ).join('&amp;nbsp;');
                                                 ret += '&lt;td style="padding:0 1em">' +
                                                     address.users
-                                                    .filter(function(user) { return user.name != username_text && user.name != name })
+                                                    .filter(function(user) { return user.name != username_text &amp;&amp; user.name != name })
                                                     .map(function(user) { return '&lt;a href="/member.php?u=' + user.user_id + '">' + BabelExt.utils.escapeHTML(user.name) + '&lt;/a>' }).join(', ');
                                                 return ret;
                                             }).join('') +
@@ -635,7 +635,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     container.find('#user-info').html(
                         '&lt;div class="view-stats_mini">&lt;/div>' +
                         ( stash.watched_users.hasOwnProperty(user_id) ? stash.watchlist_html : '' ) +
-                        '&lt;div>&lt;a id="browsing_options" href="/modcp/user.php?do=viewuser&u='+user_id+'#ctrl_options[receivepm]">&lt;b>Browsing options&lt;/b>&lt;/a>&lt;/div>' +
+                        '&lt;div>&lt;a id="browsing_options" href="/modcp/user.php?do=viewuser&amp;u='+user_id+'#ctrl_options[receivepm]">&lt;b>Browsing options&lt;/b>&lt;/a>&lt;/div>' +
                         '&lt;div class="profile_content">&lt;div id="infractions_block">&lt;b>Infractions&lt;/b>: none&lt;/div>&lt;/div>' +
                         '&lt;ol id="user_notes">&lt;li>&lt;b>User notes&lt;/b>: none&lt;/ol>'
                     );
@@ -667,7 +667,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 '&lt;li style="clear:both; border-bottom: 1px solid grey" class="userprof_content">' +
                                   '&lt;div class="infractionbit">' +
                                     '&lt;div class="inflistinfo">' +
-                                      '&lt;div class="infraction_reason">&lt;span class="shade">Title:&lt;/span> &lt;em>&lt;a href="/usernote.php?do=viewuser&u='+user_id+'#' + this.id + '">&lt;/a>&lt;/em>&lt;/div>' +
+                                      '&lt;div class="infraction_reason">&lt;span class="shade">Title:&lt;/span> &lt;em>&lt;a href="/usernote.php?do=viewuser&amp;u='+user_id+'#' + this.id + '">&lt;/a>&lt;/em>&lt;/div>' +
                                     '&lt;/div>' +
                                     '&lt;div class="inflistdate">&lt;span class="date">&lt;/span>&lt;div class="postby">by &lt;a href="member.php?u=">&lt;/a>&lt;/div>&lt;/div>' +
                                     '&lt;div class="inflistexpires">&lt;/div>' +
@@ -697,7 +697,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         // make sure we stay logged in to ModCP
                         var title = document.title;
                         $(mod_cp_iframe).one( 'load', function() { document.title = title });
-                        mod_cp_iframe.src = stash.modcp_url( 'user.php?do=viewuser&'+new Date().getTime() );
+                        mod_cp_iframe.src = stash.modcp_url( 'user.php?do=viewuser&amp;'+new Date().getTime() );
                     }, 60000);
                     var message;
                     var mod_cp = $( mod_cp_iframe.contentDocument.body );
@@ -771,7 +771,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         var infraction_map = {};
                         infractions.forEach(function(infraction) { infraction_map[ infraction.name.toLowerCase() ] = true });
                         var bad_infractions = v.resolve('policy', 'infraction-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
-                        if ( bad_infractions.length && confirm(
+                        if ( bad_infractions.length &amp;&amp; confirm(
                             "Some infraction-worthy violations do not exist.  Please fix the following:\n\n" +
                                 bad_infractions.map(function(violation) { return violation.value }).join("\n") + "\n\n" +
                                 "To fix these names, paste the above into a text editor, go to the variables forum and change \"infraction-worthy violations\" in the relevant \"policy\" thread.\n" +
@@ -783,7 +783,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         }
 
                         var bad_pms = v.resolve('policy', 'PM-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
-                        if ( bad_pms.length && confirm(
+                        if ( bad_pms.length &amp;&amp; confirm(
                             "Some PM-worthy violations do not exist.  Please fix the following:\n\n" +
                                 bad_pms.map(function(violation) { return violation.value }).join("\n") + "\n\n" +
                                 "To fix these names, paste the above into a text editor, go to the variables forum and change \"pm-worthy violations\" in the relevant \"policy\" thread.\n" +
@@ -826,14 +826,14 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                     banned_by : match.eq(1).text(),
                                     ban_period: match.eq(3).text(),
                                     ban_reason: $.trim( match.eq(7).text() ),
-                                    page      : stash.modcp_url( 'banning.php?do=modify&page=' + current )
+                                    page      : stash.modcp_url( 'banning.php?do=modify&amp;page=' + current )
                                 };
                             } else {
                                 return; // user has not been banned
                             }
                         };
                         current = Math.floor( ( first + last + 1 ) / 2 );
-                        return $.get( stash.modcp_url( 'banning.php?do=modify&page=' + current ) ).then(check);
+                        return $.get( stash.modcp_url( 'banning.php?do=modify&amp;page=' + current ) ).then(check);
                     }
                     return check(html);
                 });
@@ -853,13 +853,13 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
             if ( parseInt(watched_users_timestamp||'0',10)+reload_interval*1000 &lt; new Date().getTime() ) {
                 $.ajax({
-                    url: '/showpost.php?p=246029&postcount=1',
+                    url: '/showpost.php?p=246029&amp;postcount=1',
                     dataType: "html",
                     success: function( msg ) {
                         msg = $(msg).find('#post_message_246029');
                         if ( msg.length ) {
                             stash.watched_users = {};
-                            msg.find( 'a[href^="http://forums.frontier.co.uk/search.php?do=finduser&u="]' )
+                            msg.find( 'a[href^="http://forums.frontier.co.uk/search.php?do=finduser&amp;u="]' )
                                 .each(function() {
                                     stash.watched_users[this.href.substr(54)] = 1;
                                 });
@@ -931,7 +931,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     BabelExt.storage.set( 'moderated_posts', '' );
                 }
             }
-            if ( pathname == '/modcp/moderate.php' && params.do == 'posts' ) {
+            if ( pathname == '/modcp/moderate.php' &amp;&amp; params.do == 'posts' ) {
                 $(function() { update_moderated_posts(document.body) });
             } else if ( parseInt(moderated_posts_timestamp||'0',10)+600*1000 &lt; new Date().getTime() ) {
                 $.ajax({
@@ -964,16 +964,16 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     .closest('label')
                 ;
 
-                var user_id = this.href.split('&u=')[1];
+                var user_id = this.href.split('&amp;u=')[1];
                 ignore_button.closest('td').data( 'user_id', user_id ).addClass( 'user-'+user_id );
 
-                $.get( 'user.php?do=viewuser&u=' + user_id, function(html) {
+                $.get( 'user.php?do=viewuser&amp;u=' + user_id, function(html) {
                     spam_button.after( ' - ' + stash.spam_list_links( $(html).find('#it_user\\[ipaddress\\]_18').val() || '(no address found)', username ).join(' - ') );
                 });
 
             });
             $('input[value="1"][name^="threadaction"]').each(function() {
-                $('&lt;label>Validate and bump&nbsp;&lt;/label>').insertBefore(this.parentNode).prepend($(this).clone().removeAttr('id').addClass('bump'));
+                $('&lt;label>Validate and bump&amp;nbsp;&lt;/label>').insertBefore(this.parentNode).prepend($(this).clone().removeAttr('id').addClass('bump'));
             });
 
             $('&lt;a style="margin-left:1em" href="#update-notes">update&lt;/a>')
@@ -1056,8 +1056,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     }
                 });
             $('a[href^="user.php"]').each(function() {
-                var user_id = this.href.split('&u=')[1];
-                var pm_link = $(this).after(' - &lt;a href="/member.php?u=' + user_id + '">member page&lt;/a> - &lt;a class="pm_link" href="/private.php?do=newpm&u=' + user_id + '">send PM&lt;/a>').nextUntil('.pm_link').next();
+                var user_id = this.href.split('&amp;u=')[1];
+                var pm_link = $(this).after(' - &lt;a href="/member.php?u=' + user_id + '">member page&lt;/a> - &lt;a class="pm_link" href="/private.php?do=newpm&amp;u=' + user_id + '">send PM&lt;/a>').nextUntil('.pm_link').next();
                 stash.get_member_info(user_id).done(function(info) { pm_link.after( ' - ' + info.summary + ', ' + info.join_summary ); });
             });
             $('&lt;a style="margin-left:1em" href="#switch-mode">switch to preview mode&lt;/a>')
@@ -1113,7 +1113,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 this.id.replace( /\[([0-9]*)\]/, function( match, thread_id ) {
                     $(textarea).next().append( '&lt;a style="margin-left:1em" href="/showthread.php?t='+thread_id+'#posts">go to thread&lt;/a>' );
                     $(textarea).closest('tr').prev().prev().find('a')
-                        .after( ' - &lt;a href="https://forums.frontier.co.uk/postings.php?do=movethread&t='+thread_id+'">move thread&lt;/a>' )
+                        .after( ' - &lt;a href="https://forums.frontier.co.uk/postings.php?do=movethread&amp;t='+thread_id+'">move thread&lt;/a>' )
                     ;
                 });
             });
@@ -1156,7 +1156,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
     {
         callback: function(stash) {
             stash.add_welcome_button = function(selector) {
-                $('&lt;a style="float: right" title="click here to send a generic &ldquo;welcome to the forums&rdquo; message" href="#welcome-response">send "welcome" response&lt;/a>')
+                $('&lt;a style="float: right" title="click here to send a generic &amp;ldquo;welcome to the forums&amp;rdquo; message" href="#welcome-response">send "welcome" response&lt;/a>')
                     .insertAfter(selector)
                     .click(function(event) {
                         var $this = $(this)
@@ -1222,7 +1222,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 '&lt;div class="thread_info block">' +
                     '&lt;div class="options_block_container">' +
                         '&lt;div class="options_block" style="width: 100%">' +
-                            '&lt;h4 class="collapse blockhead options_correct">Most recent post in &lt;a href="/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost">the moderation thread&lt;/a>&lt;/h4>' +
+                            '&lt;h4 class="collapse blockhead options_correct">Most recent post in &lt;a href="/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&amp;goto=newpost">the moderation thread&lt;/a>&lt;/h4>' +
                             '&lt;table id="last_post_container" style="width: 100%">&lt;/table>' +
                             '&lt;input type="checkbox"' + (popup_on_mod_log_post?' checked="checked"':'') + ' id="popup-on-mod-log-post">&lt;label for="popup-on-mod-log-post"> Show popup notification when new posts appear in the moderation log&lt;/label>' +
                             stash.mark_read_html +
@@ -1248,7 +1248,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             );
             var dfd = new jQuery.Deferred();
             stash.recently_reported_posts_promise = dfd.promise();
-            $.get( '/postings.php?do=editthread&t=' + params.t, function(html) {
+            $.get( '/postings.php?do=editthread&amp;t=' + params.t, function(html) {
                 html = $(html);
                 if ( html.find('input[name=notes]').val() != '' )
                     html.find('div.vbform .blockhead')
@@ -1256,11 +1256,11 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                       .find('i').text(html.find('input[name=notes]').val())
                 ;
                 var moderation_events = html.find('div.vbform');
-                moderation_events.find('h2.blockhead').html( '&lt;a href="/postings.php?do=editthread&t=' + params.t + '">Thread management log&lt;/a>' );
+                moderation_events.find('h2.blockhead').html( '&lt;a href="/postings.php?do=editthread&amp;t=' + params.t + '">Thread management log&lt;/a>' );
                 var info = moderation_events.find('.summaryinfo');
                 moderation_events.find('ul').append( info.detach().get().reverse() );
                 if ( info.length > 5 ) info.slice( 0, info.length - 5 ).remove();
-                moderation_events.find('.blockhead').wrapInner( '&lt;a href="/postings.php?do=editthread&t=' + params.t + '">&lt;/a>' );
+                moderation_events.find('.blockhead').wrapInner( '&lt;a href="/postings.php?do=editthread&amp;t=' + params.t + '">&lt;/a>' );
                 stash.report_block.filter('.thread-management-log').append( moderation_events );
             });
             stash.report_block.find('#popup-on-mod-log-post').change(function() {
@@ -1290,7 +1290,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     .replace( 'ANY_MODERATOR', '.*' )
                 stash.report_block.find('#threadbits_forum_48_container a.title').filter(function() { return $(this).text().search( title_suffix ) == -1 }).each(function() {
                     var thread_id = this.href.split(/\?t=/)[1];
-                    $('&lt;a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread_id+'&noquote=1" style="float:right">Take this report&lt;/a>')
+                    $('&lt;a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread_id+'&amp;noquote=1" style="float:right">Take this report&lt;/a>')
                         .click(function(event) {
                             stash.take_thread_and_go( this.href, thread_id );
                             event.preventDefault();
@@ -1302,7 +1302,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             });
             var last_post_container = stash.report_block.find('#last_post_container');
             last_post_container
-                .load( '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost .postcontainer:last', function() {
+                .load( '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&amp;goto=newpost .postcontainer:last', function() {
                     last_post_container.find('.posthead,.postfoot,.after_content').remove();
                     last_post_container.find('.postbitlegacy').css({ 'margin-bottom': 0 });
                     var new_mod_log_post_id = last_post_container.find('.postbitlegacy').attr('id').substr(4);
@@ -1321,8 +1321,8 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         last_post_container.next().next().next().click();
                     if ( new_mod_log_post_id != popup_mod_log_post_id ) {
                         BabelExt.storage.set( 'popup_mod_log_post_id', new_mod_log_post_id );
-                        if ( popup_on_mod_log_post && confirm( 'New message in the moderation log.\n\nClick OK to view it, or cancel to hide this prompt.' ) )
-                            document.location = '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost';
+                        if ( popup_on_mod_log_post &amp;&amp; confirm( 'New message in the moderation log.\n\nClick OK to view it, or cancel to hide this prompt.' ) )
+                            document.location = '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&amp;goto=newpost';
                     }
                 });
             newbies = JSON.parse( newbies || '[]' );
@@ -1365,7 +1365,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             }
                         });
                 } else {
-                    $.get( '/memberlist.php?order=desc&sort=joindate&pp=100&page=' + memberlist_pageno, get_memberlist );
+                    $.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=100&amp;page=' + memberlist_pageno, get_memberlist );
                 }
             }
             get_memberlist('&lt;html>&lt;/html>');
@@ -1381,7 +1381,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 stash.thread_to_review_id = thread_id;
                 var dfd = new jQuery.Deferred();
                 stash.review_post_promise = dfd.promise();
-                $.get( '/showthread.php?t='+thread_id+'&p='+post_id+'&viewfull=1', function(html) {
+                $.get( '/showthread.php?t='+thread_id+'&amp;p='+post_id+'&amp;viewfull=1', function(html) {
                     var html = $(html);
                     dfd.resolve( html, html.find( '#post_' + post_id ) );
                 });
@@ -1397,7 +1397,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
         callback: function(stash, pathname, params, stylesheet) {
             $(stylesheet)
                 .clone()
-                .attr( 'href', stylesheet.href.replace( /([?&]sheet)=[^&]*/, '$1=threadlist.css,member.css') )
+                .attr( 'href', stylesheet.href.replace( /([?&amp;]sheet)=[^&amp;]*/, '$1=threadlist.css,member.css') )
                 .insertBefore(stylesheet)
             ;
             // Fix conflicts created by adding the above CSS:
@@ -1493,7 +1493,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
                 if ( get_requests.length )
                     $.when.apply( $, get_requests ).done(function() {
-                        if ( failed_gets.length && confirm(
+                        if ( failed_gets.length &amp;&amp; confirm(
                             'Some frequent merge destinations have changed recently.  Please fix the following issues:\n\n' +
                                 failed_gets + "\n" +
                                 "To fix these issues, paste the above notes into a text editor then go to the variables thread and change the \"frequent merge destinations\" block.\n" +
@@ -1545,7 +1545,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                     bb.thread_merge({
                                         forum_id  : forum_id,
                                         thread_ids: [ destination.thread_id, params.t ],
-                                        url       : '/showthread.php?goto=newpost&t='+v.resolve('policy', 'mod log thread id'),
+                                        url       : '/showthread.php?goto=newpost&amp;t='+v.resolve('policy', 'mod log thread id'),
                                     });
                                 });
                             });
@@ -1599,11 +1599,11 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 });
             });
 
-            var infractions = stash.infractions.map(function(infraction) { return '&lt;li>&lt;a href="">&nbsp;Take report: ' + infraction.name + '&nbsp;' }).join('');
+            var infractions = stash.infractions.map(function(infraction) { return '&lt;li>&lt;a href="">&amp;nbsp;Take report: ' + infraction.name + '&amp;nbsp;' }).join('');
 
             bb.process_posts().each(function() {
                 this.linking.append(
-                    '&lt;a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0">&lt;span style="font-size: 120%">&#x266b;&lt;/span> User Notes&lt;/a>' +
+                    '&lt;a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0">&lt;span style="font-size: 120%">&amp;#x266b;&lt;/span> User Notes&lt;/a>' +
                         (
                             stash.watched_users.hasOwnProperty(this.user_id)
                                 ? stash.watchlist_html
@@ -1679,7 +1679,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 var morse_messages = {}, has_morse;
                 this.message.replace( /[-.][-. ]{5,}[-.]/g, function(morse) {
                     var latin = morse.split( /\s+/ ).map(function(letter) { return morse_to_latin.hasOwnProperty(letter) ? morse_to_latin[letter] : letter }).join('');
-                    if ( morse.search(/-/) != -1 && morse.search(/\./) != -1 && latin.search( /[^-. ]/ ) != -1 ) {
+                    if ( morse.search(/-/) != -1 &amp;&amp; morse.search(/\./) != -1 &amp;&amp; latin.search( /[^-. ]/ ) != -1 ) {
                         morse_messages['&lt;li>&lt;i>' + morse + '&lt;/i> is Morse code for &lt;i>' + latin + '&lt;/i>'] = 1;
                         has_morse = 1;
                     }
@@ -1705,7 +1705,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             report_thread_id = report_thread_href.substr(17),
                             report_thread_text = report_thread.text()
                         ;
-                        if ( report_thread.closest('li').find('a[href^="misc.php?do=whoposted&t="]').text() == '0' )
+                        if ( report_thread.closest('li').find('a[href^="misc.php?do=whoposted&amp;t="]').text() == '0' )
                             stash.take_thread_and_go( report_thread_href, report_thread_id );
                         else
                             $.get( report_thread_href, function( html ) {
@@ -1860,7 +1860,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                                 thread_id: merge_log,
                                                 title    : v.resolve('report process', 'unmerge title', variable_data),
                                                 bbcode   : v.resolve('report process', 'unmerge body' , variable_data),
-                                                url      : '/showthread.php?goto=newpost&t='+merge_log
+                                                url      : '/showthread.php?goto=newpost&amp;t='+merge_log
                                             });
                                         });
                                     }
@@ -1902,12 +1902,12 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 violation: infraction,
                                 name: $('.vbform .blocksubhead').first().text(),
                                 'infraction type': is_warning ? 'official warning' : 'infraction',
-                                'post id': thread && thread.split(/#post/)[1],
+                                'post id': thread &amp;&amp; thread.split(/#post/)[1],
                                 action: 'edited'
                             },
                             'string',
-                            forum  &&  forum.split('?f='   )[1],
-                            thread && thread.split(/\?t=|&/)[1]
+                            forum  &amp;&amp;  forum.split('?f='   )[1],
+                            thread &amp;&amp; thread.split(/\?t=|&amp;/)[1]
                         )
                     ) + ");"
                 );
@@ -1946,7 +1946,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             v.resolve('policy', 'infraction-worthy violations', {}, 'array of items').forEach(function(violation) { infraction_worthy_violations[violation.value] = true });
 
             var first_post = bb.process_posts()[0],
-                user_to_review = first_post.message_element.find('a').filter(function() { return this.href.search(/member.php\?/) > -1 && !$(this).closest('bbcode_container').length }).eq(1),
+                user_to_review = first_post.message_element.find('a').filter(function() { return this.href.search(/member.php\?/) > -1 &amp;&amp; !$(this).closest('bbcode_container').length }).eq(1),
                 user_to_review_id = user_to_review.attr( 'href' ).split( '?u=' )[1]
             ;
 
@@ -2011,7 +2011,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 var infraction_name = this.message_element.find('.quote_container').first().text().replace(/^\s*|[.\s]*$/g,'') || '';
                 var infraction = stash.infractions.filter(function(infraction) { return infraction.name == infraction_name });
                 if ( infraction.length ) {
-                    if ( !infraction_id || ( this.username == logged_in_user && !logged_in_user_has_suggested_infraction_id ) ) {
+                    if ( !infraction_id || ( this.username == logged_in_user &amp;&amp; !logged_in_user_has_suggested_infraction_id ) ) {
                         logged_in_user_has_suggested_infraction_id = this.username == logged_in_user;
                         infraction_id = infraction[0].id;
                     };
@@ -2035,7 +2035,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     stash.take_thread_and_go( location.toString(), params.t );
                 event.preventDefault();
             }
-            $('&lt;a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+params.t+'&noquote=1" style="margin-left:10px;">' + take_thread_text + '&lt;/a>')
+            $('&lt;a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+params.t+'&amp;noquote=1" style="margin-left:10px;">' + take_thread_text + '&lt;/a>')
                 .insertAfter('#newreplylink_top,#newreplylink_bottom')
                 .click(take_thread)
                 .last().css({ 'margin-left': '155px' }); // only apply to the element at the bottom, which is styled differently for some reason
@@ -2049,7 +2049,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     '&lt;div class="cleardiv">&lt;/div>' +
                   '&lt;/div>' +
                     '&lt;div class="postfoot">&lt;div class="textcontrols floatcontainer">' +
-                    '&lt;span class="postcontrols">&nbsp;&lt;/span>' +
+                    '&lt;span class="postcontrols">&amp;nbsp;&lt;/span>' +
                     '&lt;/div>&lt;/div>' +
                   '&lt;hr>' +
                 '&lt;/li>'
@@ -2078,9 +2078,9 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 var report_owner_id = mod_posts.filter(function() { return this.username == report_owner })[0].user_id;
                 common_actions.find('.postcontent').html(
                     '&lt;ul style="margin: 1em; padding-left: 1em">' +
-                        '&lt;li>&lt;a href="/private.php?do=newpm&u=' + report_owner_id + '">PM the report owner (' + report_owner +')&lt;/a>' +
+                        '&lt;li>&lt;a href="/private.php?do=newpm&amp;u=' + report_owner_id + '">PM the report owner (' + report_owner +')&lt;/a>' +
                         '&lt;li>&lt;a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log&lt;/a>' +
-                        '&lt;li>&lt;a href="/infraction.php?do=report&u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action&lt;/a>' +
+                        '&lt;li>&lt;a href="/infraction.php?do=report&amp;u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action&lt;/a>' +
                         '&lt;li>&lt;a href="/showgroups.php">Find an administrator&lt;/a> and PM them the post and user name if you want an infraction revoked' +
                         '&lt;li>&lt;a href="#handle">Handle it anyway&lt;/a>' +
                     '&lt;/ul>'
@@ -2093,7 +2093,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             case 'open':
                 if ( report_owner == logged_in_user ) {
                     common_actions.find('.postcontent').html(
-                        '&lt;a class="newcontent_textcontrol" href="newreply.php?t='+params.t+'&noquote=1" rel="nofollow" title="Click to take this thread" style="margin: 1em 50%; font-size: 200%">Take&nbsp;this&nbsp;thread&lt;/a>'
+                        '&lt;a class="newcontent_textcontrol" href="newreply.php?t='+params.t+'&amp;noquote=1" rel="nofollow" title="Click to take this thread" style="margin: 1em 50%; font-size: 200%">Take&amp;nbsp;this&amp;nbsp;thread&lt;/a>'
                     )
                         .find('a').click(take_thread);
                     break;
@@ -2102,10 +2102,10 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
             default:
                 common_actions.find('.postcontent').html(
                     '&lt;ul style="margin: 1em; padding-left: 1em">' +
-                        '&lt;li>&lt;a href="/usernote.php?do=newnote&u=' + user_to_review_id + '">Post a new user note&lt;/a> for the reported user' +
+                        '&lt;li>&lt;a href="/usernote.php?do=newnote&amp;u=' + user_to_review_id + '">Post a new user note&lt;/a> for the reported user' +
                         '&lt;li>&lt;a href="/forumdisplay.php?f=47">Check the infractions/warnings forum&lt;/a>' +
                         '&lt;li>&lt;a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log&lt;/a>' +
-                        '&lt;li>&lt;a href="/infraction.php?do=report&u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action&lt;/a>' +
+                        '&lt;li>&lt;a href="/infraction.php?do=report&amp;u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action&lt;/a>' +
                         '&lt;li>&lt;a href="/showgroups.php">Find an administrator&lt;/a> and PM them the post and user name if you want an infraction revoked' +
                     '&lt;/ul>'
                 );
@@ -2262,7 +2262,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             '&lt;li>&lt;a class="forum-rules" data-forum="65" href="/showthread.php?t=38002">Groups Forum Rules&lt;/a>' +
                             '&lt;li>&lt;a class="forum-rules" data-forum="64" href="/showthread.php?t=37996">Roleplaying Forum Rules&lt;/a> ' +
                             '&lt;li>&lt;a class="forum-rules" data-forum="34" href="/showthread.php?t=4213">DDF rules and format&lt;/a>' +
-                            '&lt;li>&lt;a class="forum-rules" data-forum="44" href="/showthread.php?t=9201">Alpha Forum Rules & Guidelines&lt;/a>' +
+                            '&lt;li>&lt;a class="forum-rules" data-forum="44" href="/showthread.php?t=9201">Alpha Forum Rules &amp; Guidelines&lt;/a>' +
                           '&lt;/ul>' +
                         '&lt;/fieldset>' +
 
@@ -2272,12 +2272,12 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                           '&lt;input id="delete-posts" type="checkbox">&lt;label for="delete-posts">delete posts&lt;/label>' +
                         '&lt;/fieldset>' +
                         '&lt;fieldset>' +
-                          '&lt;legend>Also process posts that&hellip;&lt;/legend>' +
-                          make_input('checkbox', 'apply-to', 'quotes', '&hellip; quote the reported post &lt;span id="apply-to-quotes">&lt;/span>', true ) + '&lt;br>' +
-                          make_input('checkbox', 'apply-to', 'search', '&hellip; match a search pattern &lt;span id="apply-to-search">&lt;/span>' ) + '&lt;br>' +
-                          make_input('checkbox', 'apply-to', 'link-direct', '&hellip; link to the reported post &lt;span id="apply-to-link-direct">&lt;/span>' ) + '&lt;br>' +
-                          make_input('checkbox', 'apply-to', 'link-indirect', '&hellip; quote/link to a processed post &lt;span id="apply-to-link-indirect">&lt;/span>' ) + '&lt;br>' +
-                          make_input('checkbox', 'apply-to', 'after', '&hellip; were posted after the processed post &lt;span id="apply-to-after">&lt;/span>' ) + '&lt;br>' +
+                          '&lt;legend>Also process posts that&amp;hellip;&lt;/legend>' +
+                          make_input('checkbox', 'apply-to', 'quotes', '&amp;hellip; quote the reported post &lt;span id="apply-to-quotes">&lt;/span>', true ) + '&lt;br>' +
+                          make_input('checkbox', 'apply-to', 'search', '&amp;hellip; match a search pattern &lt;span id="apply-to-search">&lt;/span>' ) + '&lt;br>' +
+                          make_input('checkbox', 'apply-to', 'link-direct', '&amp;hellip; link to the reported post &lt;span id="apply-to-link-direct">&lt;/span>' ) + '&lt;br>' +
+                          make_input('checkbox', 'apply-to', 'link-indirect', '&amp;hellip; quote/link to a processed post &lt;span id="apply-to-link-indirect">&lt;/span>' ) + '&lt;br>' +
+                          make_input('checkbox', 'apply-to', 'after', '&amp;hellip; were posted after the processed post &lt;span id="apply-to-after">&lt;/span>' ) + '&lt;br>' +
                           '&lt;br>Total examined posts: &lt;em id="total-processed">&lt;/em>' +
                           '&lt;br>Total edited posts: &lt;em id="total-edited">&lt;/em>' +
                           '&lt;br>Total deleted posts: &lt;em id="total-deleted">&lt;/em>' +
@@ -2288,7 +2288,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                       '&lt;div class="column2">' +
 
                         // April fools!
-                        ( new Date().getMonth() == 3 && new Date().getDate() == 1 ? '&lt;input type="button" class="april-fools" value="BAN THEM ALL!">' : '' ) +
+                        ( new Date().getMonth() == 3 &amp;&amp; new Date().getDate() == 1 ? '&lt;input type="button" class="april-fools" value="BAN THEM ALL!">' : '' ) +
 
                         '&lt;fieldset class="useraction none vbcode-mode">' +
                           '&lt;legend>User action&lt;/legend>' +
@@ -2323,13 +2323,13 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                         '&lt;fieldset class="per-post vbcode-mode">' +
                           '&lt;legend>Per-post actions&lt;/legend>' +
                           '&lt;div style="text-align: center; margin-bottom: 1em; float: none" class="posthead">' +
-                            '&lt;input type="button" id="goto-prev" value="&laquo; prev"> ' +
+                            '&lt;input type="button" id="goto-prev" value="&amp;laquo; prev"> ' +
                              make_input('radio', 'action', '', 'default', true ) + ' ' +
                              make_input('radio', 'action', 'ignore', 'ignore' ) + ' ' +
                              switch_mode +
                              make_input('radio', 'action', 'hand-edit', 'edit by hand' ) + ' ' +
                              make_input('radio', 'action', 'delete', 'delete' ) + ' ' +
-                             '&lt;input type="button" id="goto-next" value="next &raquo;">' +
+                             '&lt;input type="button" id="goto-next" value="next &amp;raquo;">' +
                           '&lt;/div>' +
                           '&lt;div class="link-to-post-info">&lt;a id="link-to-current-post">&lt;/a> by &lt;a id="link-to-current-post-user">&lt;/a>&lt;/div>' +
                           '&lt;textarea class="vbcode">&lt;/textarea>' +
@@ -2586,7 +2586,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 return;
                             else
                                 return {
-                                    from: new RegExp( $(this).val().replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&"), 'gi' ),
+                                    from: new RegExp( $(this).val().replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&amp;"), 'gi' ),
                                     to: $(this.nextSibling).val()
                                 };
                         }).get();
@@ -2597,10 +2597,10 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             if ( !posts[n].vbcode_promise ) posts[n].vbcode_promise = bb.post_info(posts[n].post_id);
                             if ( n &lt; current_post )
                                 $('#goto-prev').prop( 'disabled', false ).data( 'post', n );
-                            else if ( n > current_post && !next_enabled++ )
+                            else if ( n > current_post &amp;&amp; !next_enabled++ )
                                 $('#goto-next').prop( 'disabled', false ).data( 'post', n );
                             posts[n].action = posts[n].per_post_action || default_action;
-                            if ( posts[n].attment && posts[n].attment.to_delete.length && !posts[n].action != 'delete' ) per_post_actions.attment.push( posts[n] );
+                            if ( posts[n].attment &amp;&amp; posts[n].attment.to_delete.length &amp;&amp; !posts[n].action != 'delete' ) per_post_actions.attment.push( posts[n] );
                             if ( posts[n].action == 'edit' ) {
                                 (function (post) {
                                     post.vbcode_promise.done(function(info) {
@@ -2612,7 +2612,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                         post.replaced_html   = BabelExt.utils.escapeHTML(vbcode).replace(/\uE001/g,'&lt;del>').replace(/\uE002/g,'&lt;/del>&lt;ins>').replace(/\uE003/g,'&lt;/ins>')
                                     });
                                 })(posts[n]);
-                            } else if ( posts[n].action == 'hand-edit' && posts[n].hasOwnProperty('edited_vbcode') ) {
+                            } else if ( posts[n].action == 'hand-edit' &amp;&amp; posts[n].hasOwnProperty('edited_vbcode') ) {
                                 posts[n].replaced_vbcode = posts[n].edited_vbcode;
                                 posts[n].replaced_html   = BabelExt.utils.escapeHTML(posts[n].edited_vbcode);
                             } else {
@@ -2628,7 +2628,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
 
                         if ( posts[n].is_processed || posts[n].links_to_processed ) {
                             processed_searches.push(posts[n].post_id);
-                            link_to_processed_re = new RegExp( 'showthread\.php(?:\\?|.*&)p=(?:' + processed_searches.join('|') + ')($|&|#)' );
+                            link_to_processed_re = new RegExp( 'showthread\.php(?:\\?|.*&amp;)p=(?:' + processed_searches.join('|') + ')($|&amp;|#)' );
                         }
 
                         var post_text = '[*] [post='+posts[n].post_id+']post ' + posts[n].post_id + '[/post]: ';
@@ -2761,7 +2761,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     bb.thread_posts( stash.thread_to_review_id, html ).done(function(more_posts) {
                         posts = posts.concat( more_posts.filter(function(post) { return parseInt(this.post_id,10) >= parseInt(post_to_review_id,10); }).get().slice(posts.length) );
                         $('#apply-to-after').text( ' (' + (posts.length-1) + ')' );
-                        var re = new RegExp( 'showthread\.php(?:\\?|.*&)p=' + post_to_review_id + '($|&|#)' );
+                        var re = new RegExp( 'showthread\.php(?:\\?|.*&amp;)p=' + post_to_review_id + '($|&amp;|#)' );
                         posts.forEach(function(post) {
                             post.after = post.post_id != post_to_review_id;
                             if ( post.message_element.find('.bbcode_postedby > a').filter(function() { return this.href.search(re) != -1 }).length ) {
@@ -2769,7 +2769,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                                 post.vbcode_promise = bb.post_info(post.post_id);
                                 ++quotes_count;
                             }
-                            if ( post.message_element.find('a').filter(function() { return !$(this.parentNode).hasClass('bbcode_postedby') && this.href.search(re) != -1 }).length ) {
+                            if ( post.message_element.find('a').filter(function() { return !$(this.parentNode).hasClass('bbcode_postedby') &amp;&amp; this.href.search(re) != -1 }).length ) {
                                 post.links_to_target = true;
                                 post.vbcode_promise = bb.post_info(post.post_id);
                                 ++links_count;
@@ -2788,7 +2788,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                     var selection = window.getSelection();
                     if ( $(selection.anchorNode).closest('.vbcode').closest('.per-post').length == 0 || $(selection.focusNode).closest('.vbcode').closest('.per-post').length == 0 ) return;
                     target_search.val( selection.toString() );
-                    if ( selection.toString() != '' && needs_mouseup ) {
+                    if ( selection.toString() != '' &amp;&amp; needs_mouseup ) {
                         $(window).one( 'mouseup', function() {
                             target_search.next().blur();
                             needs_mouseup = true;
@@ -2822,9 +2822,9 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                 form
                     .on( 'focus blur', '.search-replace-block', function() {
                         $(this).siblings().filter(function() {
-                            return $(this).find('.search-for').val() == '' && $(this).find('.replace-with').val() == '';
+                            return $(this).find('.search-for').val() == '' &amp;&amp; $(this).find('.replace-with').val() == '';
                         }).remove();
-                        if ( $('.search-for',this).val() == '' && $('.replace-with',this).val() == '' ) {
+                        if ( $('.search-for',this).val() == '' &amp;&amp; $('.replace-with',this).val() == '' ) {
                             target_search = $(this).find('.search-for');
                         } else {
                             target_search = $(search_replace_html).appendTo( this.parentNode ).find('.search-for');
@@ -3010,7 +3010,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
                             var image = ( is_warning ? '/images/buttons/yellow-card_sm.png' : '/images/buttons/red-card_sm.png' );
                             var textarea = $('.useraction .' + (is_warning?'warn':'infract') + ' textarea');
                             var to_name = ' to [URL="'+location.origin+'/member.php?u=' + user_to_review_id + '"]' + user_to_review.text() + '[/URL]';
-                            var titles = [ 'Give an ' + variables['infraction type'] + to_name + ' for [URL="'+location.origin+'/infraction.php?do=view&p=' + posts[0].post_id + '"]post #' + posts[0].post_id + '[/URL]' ];
+                            var titles = [ 'Give an ' + variables['infraction type'] + to_name + ' for [URL="'+location.origin+'/infraction.php?do=view&amp;p=' + posts[0].post_id + '"]post #' + posts[0].post_id + '[/URL]' ];
                             var action_text = '[img]'+location.origin+image+'[/img] ' + variables['infraction type'];
                             var period, expires;
                             switch ( useraction_type ) {
@@ -3157,7 +3157,7 @@ function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on 16 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 16 February 2015
         </footer>
     </div>
 </div>
