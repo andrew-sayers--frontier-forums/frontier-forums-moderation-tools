@@ -290,7 +290,7 @@ BulletinBoard.prototype = Object.create(null, {
  * @summary Convenience function to construct a URL
  *
  * @example
- * // returns "/example.html?f=qux&b=default+value"
+ * // returns "/example.html?f=qux&amp;b=default+value"
  * bb.build_url(
  *     '/example.html',
  *     [
@@ -316,7 +316,7 @@ BulletinBoard.prototype.build_url = function( url, valid_args, args, hash ) {
                 var value = args.hasOwnProperty(arg.key) ? args[arg.key] : arg['default'];
                 if ( arg.map ) value = arg.map[value] || value;
                 url += connector + encodeURIComponent(arg.param) + '=' + encodeURIComponent(value);
-                connector = '&';
+                connector = '&amp;';
             }
         });
     }
@@ -747,7 +747,7 @@ VBulletin.prototype._add_standard_data = function(data) {
 
 VBulletin.prototype.detect_post_error = function(reply) {
     return (
-        ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
+        ( reply.getElementsByTagName &amp;&amp; reply.getElementsByTagName('error').length ) // XML response
         ? reply.getElementsByTagName('error')[0].textContent
         : null
     );
@@ -792,7 +792,7 @@ VBulletin.prototype.attachments_delete = function( attachments ) {
  */
 VBulletin.prototype.bbcode_html = function( thread_id, bbcode ) {
     return this.post(
-        '/newreply.php?do=postreply&t=' + thread_id,
+        '/newreply.php?do=postreply&amp;t=' + thread_id,
         {
             message_backup: bbcode,
             message       : bbcode,
@@ -815,7 +815,7 @@ VBulletin.prototype.bbcode_html = function( thread_id, bbcode ) {
  */
 VBulletin.prototype.bbcode_html_newthread = function( forum_id, bbcode ) {
     return this.post(
-        '/newthread.php?do=postthread&f=' + forum_id,
+        '/newthread.php?do=postthread&amp;f=' + forum_id,
         {
             'do': 'postthread',
             subject: 'Test converting bbcode to HTML',
@@ -867,7 +867,7 @@ VBulletin.prototype.infraction_give = function( data ) {
     if ( data.is_warning ) post_data['warning['+data.infraction_id+']'] = 1;
     return this.post( '/infraction.php?do=update', post_data ).then(function(html) {
         var errors = $(html).find( '.blockrow.error' );
-        if ( errors.length && errors.text().length ) {
+        if ( errors.length &amp;&amp; errors.text().length ) {
             alert("Could not give infraction:\n" + errors.text());
             var dfd = new jQuery.Deferred();
             dfd.reject();
@@ -1058,7 +1058,7 @@ VBulletin.prototype.post_delete_multi = function( post_ids, reason ) {
  */
 VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
     return this.post(
-        '/editpost.php?do=updatepost&postid=' + post_id,
+        '/editpost.php?do=updatepost&amp;postid=' + post_id,
         {
             'do': 'updatepost',
             postid: post_id,
@@ -1075,7 +1075,7 @@ VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
  */
 VBulletin.prototype.post_info = function( post_id ) {
 
-    return this.post('/ajax.php?do=quickedit&p=' + post_id, {
+    return this.post('/ajax.php?do=quickedit&amp;p=' + post_id, {
         do: 'quickedit',
         p : post_id
     }).then(function(xml) {
@@ -1130,7 +1130,7 @@ VBulletin.prototype.post_info = function( post_id ) {
  */
 VBulletin.prototype.posts_move = function( thread_id, post_ids ) {
     return this.post(
-        '/inlinemod.php?do=domoveposts&t=' + thread_id + '&postids=' + post_ids,
+        '/inlinemod.php?do=domoveposts&amp;t=' + thread_id + '&amp;postids=' + post_ids,
         {
             do            : 'domoveposts',
             type          : 1,
@@ -1212,7 +1212,7 @@ VBulletin.prototype.thread_bump = function(thread_id) {
  */
 VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
     return this.post(
-        '/newthread.php?do=postthread&f=' + forum_id,
+        '/newthread.php?do=postthread&amp;f=' + forum_id,
         {
             do            : 'postthread',
             subject       : title,
@@ -1239,7 +1239,7 @@ VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
  * });
  */
 VBulletin.prototype.thread_edit = function( data ) {
-    return this.post( '/postings.php?do=updatethread&t=' + data.thread_id, {
+    return this.post( '/postings.php?do=updatethread&amp;t=' + data.thread_id, {
         do      : 'updatethread',
         title   : data.title || document.title,
         notes   : data.notes,
@@ -1267,7 +1267,7 @@ VBulletin.prototype.thread_edit = function( data ) {
  */
 VBulletin.prototype.thread_merge = function( data ) {
     return this.post(
-        '/inlinemod.php?do=domergethreads&threadids=' + data.thread_ids.join(),
+        '/inlinemod.php?do=domergethreads&amp;threadids=' + data.thread_ids.join(),
         {
             do           : 'domergethreads',
             destthreadid : data.thread_ids.sort( function(a, b) { return a-b } )[0],
@@ -1298,7 +1298,7 @@ VBulletin.prototype.thread_merge = function( data ) {
  *       whereas thread_reply() suffers from race conditions
  */
 VBulletin.prototype.thread_openclose = function( thread_id, open ) {
-    return this.post( '/ajax.php?do=updatethreadopen&t=' + thread_id, {
+    return this.post( '/ajax.php?do=updatethreadopen&amp;t=' + thread_id, {
         do  : 'updatethreadopen',
         t   : thread_id,
         open: open ? 'true' : 'false'
@@ -1326,7 +1326,7 @@ VBulletin.prototype.thread_openclose = function( thread_id, open ) {
  */
 VBulletin.prototype.thread_reply = function( data ) {
     return this.post(
-        '/newreply.php?do=postreply&t=' + data.thread_id,
+        '/newreply.php?do=postreply&amp;t=' + data.thread_id,
         {
             do            : 'postreply',
             title         : data.title,
@@ -1349,7 +1349,7 @@ VBulletin.prototype.thread_reply = function( data ) {
  * @description Note: this is quite inefficient for threads with over 2,500 posts
  */
 VBulletin.prototype.thread_whoposted = function( thread_id ) {
-    return $.get( '/misc.php?do=whoposted&t=' + thread_id ).then(function(html) {
+    return $.get( '/misc.php?do=whoposted&amp;t=' + thread_id ).then(function(html) {
         html = $(html);
         return {
             total: html.find('.stats.total dd').text(),
@@ -1439,7 +1439,7 @@ VBulletin.prototype.user_ips = function( username, get_overlapping ) {
             html.find( '#cpform_table ul ul > li' ).each(function() {
                 var elements = $(this).children('a');
                 var name     = elements.eq(0).text(),
-                user_id  = elements.eq(0).attr('href').split('&u=')[1],
+                user_id  = elements.eq(0).attr('href').split('&amp;u=')[1],
                 address  = elements.eq(1).text()
                 ;
                 if ( address === '127.0.0.1' ) return; // ignore localhost
@@ -1479,7 +1479,7 @@ VBulletin.prototype.ip_users = function( ip ) {
                 ip: ip,
                 domain_name: domain_name,
                 users: html.find('#cpform_table li a b').parent().map(function() {
-                    var user_id = $(this).attr('href').split('&u=')[1];
+                    var user_id = $(this).attr('href').split('&amp;u=')[1];
                     if ( !previous_users.hasOwnProperty(user_id) ) {
                         previous_users[user_id] = 1;
                         return {
@@ -1505,7 +1505,7 @@ VBulletin.prototype.ip_users = function( ip ) {
  */
 VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
     return this.post(
-        '/usernote.php?do=donote&u=' + user_id,
+        '/usernote.php?do=donote&amp;u=' + user_id,
         {
             do            : 'donote',
             title         : title,
@@ -1520,7 +1520,7 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
  */
 VBulletin.prototype.user_moderation_info = function(user_id) {
 
-    return $.get( '/modcp/user.php?do=viewuser&u=' + user_id ).then(function(html) {
+    return $.get( '/modcp/user.php?do=viewuser&amp;u=' + user_id ).then(function(html) {
         html = $(html);
 
         var name = html.find( '[name="user\\[username\\]"]'  ).val();
@@ -1566,7 +1566,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
  */
 VBulletin.prototype.users_list_new = function() {
 
-    return $.get( '/memberlist.php?order=desc&sort=joindate&pp=100' ).then(function(html) {
+    return $.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=100' ).then(function(html) {
         return $(html).find('#memberlist_table tr:not(.columnsort) a.username').map(function() {
             var $this = $(this);
             return {
@@ -1632,7 +1632,7 @@ VBulletin.prototype.forum_threads = function(forum_id) {
         today     = [ today    .getDate().toString().replace(/^(.)$/,"0$1"), (today    .getMonth()+1).toString().replace(/^(.)$/,"0$1"), today    .getYear()+1900 ].join( '/' );
         yesterday = [ yesterday.getDate().toString().replace(/^(.)$/,"0$1"), (yesterday.getMonth()+1).toString().replace(/^(.)$/,"0$1"), yesterday.getYear()+1900 ].join( '/' );
 
-        if ( is_moderator && !this._forum_threads_callback_initialised++ ) {
+        if ( is_moderator &amp;&amp; !this._forum_threads_callback_initialised++ ) {
             $(document).on( 'dblclick', '.bb_api_threadstatus', function() {
                 var threadbit = $(this).closest('.threadbit');
                 bb.thread_openclose( $(this).data( 'thread_id' ), threadbit.hasClass('lock') )
@@ -1710,7 +1710,7 @@ VBulletin.prototype.css_add = function(page_types) {
         var stylesheet = $('link[rel="stylesheet"][type="text/css"]').first();
         stylesheet
             .clone()
-            .attr( 'href', stylesheet.attr( 'href' ).replace( /([?&]sheet)=[^&]*/, '$1=' + extra_types.join() ) )
+            .attr( 'href', stylesheet.attr( 'href' ).replace( /([?&amp;]sheet)=[^&amp;]*/, '$1=' + extra_types.join() ) )
             .insertBefore(stylesheet)
         ;
         // Fix conflicts created by adding the above CSS:
@@ -1740,7 +1740,7 @@ VBulletin.prototype.posts_moderated = function() {
         function parse_row() {
             $( 'a[href^="user.php"]', this ).each(function() { // User who created a post (first row of a block)
                 current_block.push(current = {
-                    user_id  : this.href.split('&u=')[1],
+                    user_id  : this.href.split('&amp;u=')[1],
                     user_name: $(this).text()
                 });
             });
@@ -1807,7 +1807,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
                 var interval = setInterval(function() {
                     if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) {
                         // still on the login page
-                    } else if ( $('#redirect_button,#vb_login_username,.standard_error', iframe[0].contentDocument.body).length && !has_progressed ) {
+                    } else if ( $('#redirect_button,#vb_login_username,.standard_error', iframe[0].contentDocument.body).length &amp;&amp; !has_progressed ) {
                         // on the redirect page
                         has_progressed = true;
                         iframe.hide();
@@ -1849,7 +1849,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.2</a> on 16 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 16 February 2015
         </footer>
     </div>
 </div>
