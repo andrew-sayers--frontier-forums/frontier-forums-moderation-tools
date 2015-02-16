@@ -1,3 +1,8 @@
+/**
+ * @file Main section for Frontier Forums Moderation Tools
+ * @author Andrew Sayers
+ */
+
 /*
  * HANDLER SECTIONS
  *
@@ -18,8 +23,11 @@
  *
  */
 
-/*
- * HANDLE THE DASHBOARD PAGE
+/**
+ * @summary Handle the dashboard page
+ * @param {BulletinBoard} bb          Bulletin Board to manipulate
+ * @param {Variables}     v           Variables to use
+ * @param {string}        loading_img HTML to create the "loading" icon
  */
 function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
     {
@@ -178,8 +186,10 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
 )}
 
-/*
- * HANDLE VARIABLES THREADS
+/**
+ * @summary Handle variables threads
+ * @param {BulletinBoard} bb Bulletin Board to manipulate
+ * @param {Variables}     v  Variables to use
  */
 function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
     {
@@ -244,8 +254,9 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
     }
 )}
 
-/*
- * EDIT POST PAGES
+/**
+ * @summary Handle "edit post" pages
+ * @param {BulletinBoard} bb Bulletin Board to manipulate
  */
 function handle_post_edit( bb ) { BabelExt.utils.dispatch(
     {
@@ -272,9 +283,9 @@ function handle_post_edit( bb ) { BabelExt.utils.dispatch(
 
 )}
 
-/*
- * HANDLE MODERATION CHECKBOXES
- * (so you can always tab through them, and hovering over tells you so)
+/**
+ * @summary Handle moderation checkboxes
+ * @description (so you can always tab through them, and hovering over tells you so)
  */
 function handle_moderation_checkboxes() { BabelExt.utils.dispatch(
     {
@@ -291,8 +302,8 @@ function handle_moderation_checkboxes() { BabelExt.utils.dispatch(
     }
 )}
 
-/*
- * MODERATION USER PAGE
+/**
+ * @summary Handle "user" pages in ModCP
  */
 function handle_modcp_user() { BabelExt.utils.dispatch(
     {
@@ -307,8 +318,8 @@ function handle_modcp_user() { BabelExt.utils.dispatch(
     }
 )}
 
-/*
- * Link to Moderated Posts page from moderation links
+/**
+ * @summary Link to Moderated Posts page from moderation links
  */
 function handle_moderation_links() {
     $(function(){$('img[src="images/misc/moderated.gif"],img[src="images/misc/moderated_small.gif"]').wrap('<a href="/modcp/moderate.php?do=posts"></a>')});
