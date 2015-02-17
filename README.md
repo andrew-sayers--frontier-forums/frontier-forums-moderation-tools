@@ -1,7 +1,7 @@
 frontier-forums-moderation-tools
 ================================
 
-Tools to ease the moderation process on http://forums.frontier.co.uk/
+Tools to ease the moderation process on [The Frontier Forums](http://forums.frontier.co.uk/)
 
 Based on BabelExt.
 
