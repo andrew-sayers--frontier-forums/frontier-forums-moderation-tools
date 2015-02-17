@@ -42,80 +42,10 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
             // Dashboard CSS
             bb.css_add([ 'user_show', 'forum_show', 'thread_show' ]);
 
-            function make_dashboard_section_header( link, empty_heading, nonempty_heading, done_text, undone_text ) {
-                return (
-                    '<h4 class="collapse blockhead options_correct">' +
-                        '<span class="loading">'  + 'Loading '       + link + ' ' + loading_img + '</span>' +
-                        '<span class="empty">'    +    empty_heading + link + ' <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>' +
-                        '<span class="nonempty">' + nonempty_heading + link + ' <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>' +
-                        '<a href="#mark-done" class="dashboard-done" style="float: right">' +
-                            '<span class="done">' + done_text + '</span>' +
-                            '<span class="undone">'+ undone_text + '</span>' +
-                        '</a>' +
-                    '</h4>'
-                );
-            }
-
-            // Dashboard HTML
-            var dashboard = $(
-
-                '<div id="breadcrumb" class="breadcrumb" style="margin-bottom: 1em">' +
-                    '<ul class="floatcontainer">' +
-                        '<li class="navbithome">' +
-                        '<li class="navbit lastnavbit dashboard-header"></li>'+
-                    '</ul>'+
-                    '<hr>' +
-
-                    '<div class="dashboard-section postlist restrain" data-monitor="thread" data-thread="47517">' +
-                        make_dashboard_section_header(
-                            '<a href="' + bb.url_for.thread_show({ thread_id: 47517 }) + '">the mod log</a>',
-                            'No unread posts in ',
-                            'Please read recent posts in ',
-                            'Mark log unread',
-                            'Mark log read'
-                        ) +
-                        '<ol class="posts dashboard-body" start="1" style="margin-right: 2px"></ol>' +
-                    '</div>' +
-
-                    '<div class="options_block_container"><div class="options_block dashboard-section" data-monitor="forum" data-forum="48" style="width: 100%">' +
-                        make_dashboard_section_header(
-                            '<a href="' + bb.url_for.forum_show({ forum_id: 48 }) + '">the reported posts forum</a>',
-                            'No unchecked threads in ',
-                            'Please check threads in ',
-                            'Mark all reports unread',
-                            'Mark all reports read'
-                        ) +
-                        '<ol class="threads dashboard-body" start="1" style="margin-right: 2px"></ol>' +
-                    '</div></div>' +
-
-                    '<div style="clear: both" class="dashboard-section" data-monitor="mod_queue">' +
-                        make_dashboard_section_header(
-                            '<a href="' + bb.url_for.moderation_posts() + '">the moderation queue</a>',
-                            'No unmoderated posts in ',
-                            'Please moderate posts in ',
-                            'Mark the queue unmoderated',
-                            'Mark the queue moderated'
-                        ) +
-                        '<table><thead><tr><th>Forum<th>Thread<th>Title<th>author</thead><tbody class="dashboard-body"></tbody></table>' +
-                    '</div>' +
-
-                    '<div style="clear: both" class="dashboard-section" data-monitor="newbies">' +
-                        make_dashboard_section_header(
-                            '<a href="' + bb.url_for.users_show() + '">the member list</a>',
-                            'No unvalidated newbies in ',
-                            'Please validate newbie names in ',
-                            'Unmark newbies valid',
-                            'Mark newbies valid'
-                        ) +
-                        '<table><thead><tr><th>Name<th>e-mail address<th>Also associated with this IP address</thead><tbody class="dashboard-body"></tbody></table>' +
-                    '</div>' +
-
-                '</div>'
-
-            );
+            var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
             // Reported posts forum filter
-            dashboard.find('[data-forum="48"]').data( 'filter', function(thread) {
+            dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(thread) {
 
                 if ( thread.is_sticky || thread.status ) return false;
 
@@ -154,6 +84,15 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
                 return true;
             });
+
+            var mod_log_thread_id = v.resolve('policy', 'mod log thread id');
+            var report_forum_id = 48;
+            dashboard.find( '[data-thread="mod-log"]'          ).data( 'thread', mod_log_thread_id );
+            dashboard.find( 'a[href="#insert-mod-log-link"]'   ).attr( 'href', bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
+            dashboard.find( '[data-forum="reported-posts"]'    ).data( 'thread', report_forum_id );
+            dashboard.find( 'a[href="#insert-mod-log-link"]'   ).attr( 'href', bb.url_for.forum_show({ forum_id: report_forum_id }) );
+            dashboard.find( 'a[href="#insert-mod-queue-link"]' ).attr( 'href', bb.url_for.moderation_posts() );
+            dashboard.find( 'a[href="#insert-newbies-link"]'   ).attr( 'href', bb.url_for.users_show() );
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
             body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe>' );
