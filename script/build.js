@@ -3,7 +3,7 @@
 /*
  * Phantom JS build script
  *
- * Usage: phantomjs <build|release>
+ * Usage: phantomjs <build|release> <firefox|chrome|safari>
  *
  *
  * PhantomJS is a headless web browser, which allows us to automate
@@ -39,19 +39,48 @@ phantom.onError = function(msg, trace) {
 };
 
 /*
+ * Replace PhantomJS' execFile() with something more useful:
+ */
+var execFile = childProcess.execFile;
+childProcess.execFile = function(cmd, args, opts, cb) {
+
+    // need to check both the callback and value of "exit":
+    var calls = 0, err, stdout, stderr, code;
+
+    // run the command and get stdout/stderr:
+    var ctx = execFile.call( childProcess, cmd, args, opts, function(_err,_stdout,_stderr) {
+        err    = _err;
+        stdout = _stdout;
+        stderr = _stderr;
+        if ( calls++ ) run_callback();
+    });
+
+    // also get the exit code:
+    ctx.on("exit", function (_code) {
+        code = _code;
+        if ( calls++ ) run_callback();
+    });
+
+    // once we've got all the information, print STDERR and continue if there was no error:
+    function run_callback() {
+        if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+        if ( code ) program_counter.end(code);
+        else if ( cb ) cb(null, stdout, stderr, code);
+    }
+
+    return ctx;
+}
+
+/*
  * Create a symbolic link from source to target
  */
 function symbolicLink( source, target ) {
     target.replace(/\//g, function() { source = '../' + source });
     if ( ! fs.isLink(target) ) {
         if ( system.os.name == 'windows' ) {
-            childProcess.execFile('mklink', [target,source], function(err, stdout, stderr) {
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-            });
+            childProcess.execFile('mklink',  [target,source] );
         } else {
-            childProcess.execFile('ln', ["-s",source,target], null, function(err, stdout, stderr) {
-                if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-            });
+            childProcess.execFile('ln', ["-s",source,target] );
         }
     }
 }
@@ -62,13 +91,46 @@ function symbolicLink( source, target ) {
 function hardLink( source, target ) {
     if ( fs.exists(target) ) fs.remove(target);
     if ( system.os.name == 'windows' ) {
-        childProcess.execFile('mklink', ['/H',target,source], function(err, stdout, stderr) {
-            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-        });
+        childProcess.execFile('mklink', ['/H',target,source]);
     } else {
-        childProcess.execFile('ln', [source,target], null, function(err, stdout, stderr) {
-            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+        childProcess.execFile('ln'    ,      [source,target]);
+    }
+}
+
+/*
+ * Return information about the specified files.
+ * Currently returns an array of { name: ..., id: ..., modified: ... }
+ * 'name' is the passed-in name, 'id' is the file's inode, and 'modified' is the modification time relative to the epoch.
+ */
+function stat( files, callback ) {
+    // TODO: no idea how you'd do this on Windows
+    files = files.filter( fs.exists );
+    childProcess.execFile( 'stat', [ '--printf=%i %Y\n' ].concat(files), null, function(err,stdout,stderr) {
+        var lines = stdout.split("\n");
+        lines.pop(); // eat trailing newline
+        callback( lines.map(function(line, index) {
+            var rows = line.split(' ');
+            return { name: files[index], id: rows[0], modified: rows[1] };
+        }) );
+    });
+}
+
+/*
+ * Build a resources.js file
+ */
+function build_resources() {
+    if ( settings.resources ) {
+        var resources = {};
+        settings.resources.forEach(function(filename) {
+            resources[filename] = fs.open(filename, 'r').read();
         });
+        fs.write(
+            'lib/BabelExtResources.js', "BabelExt.resources._resources = " +
+                // prettify our JavaScript a bit, for the benefit of reviewers:
+                JSON.stringify(resources, null, ' ').replace( /\\n(?!")/g, "\\n\" +\n    \"" ) + ";\n",
+            'w'
+        );
+        return true;
     }
 }
 
@@ -80,7 +142,7 @@ function _waitForEvent( test, callback ) { // low-level interface - see waitFor*
 
     // originally based on http://newspaint.wordpress.com/2013/04/05/waiting-for-page-to-load-in-phantomjs/
 
-    var timeout = 10000;
+    var timeout = 20000;
     var expiry = new Date().getTime() + timeout;
 
     var interval = setInterval(checkEvent,100);
@@ -118,11 +180,9 @@ function _waitForElementsPresent( selectors, callback ) { // call callback when 
 
     return this.waitForEvent(
         function() {
-            var missing_elements = [];
-            selectors.forEach(
+            var missing_elements = selectors.filter(
                 function(selector) {
-                    if ( ! page.evaluate(function(selector) {return document.querySelector(selector)}, selector ) )
-                        missing_elements.push(selector);
+                    return ! page.evaluate(function(selector) { return document.querySelector(selector) }, selector );
                 }
             );
             if ( missing_elements.length )
@@ -267,6 +327,24 @@ function page( url, callback ) {
 
     page.settings.loadImages = false;
 
+    page.openBinary = function(url, settings, callback) {
+
+        // PhantomJS refuses to download chunked data, do it with `curl` instead (TODO: make this work in Windows):
+
+        if ( !callback ) {
+            callback = settings;
+            settings = {};
+        }
+
+        var args = [ "--silent", url, '-L' ];
+
+        if ( settings.data     ) args = args.concat([ '-d', settings.data     ]);
+        if ( settings.out_file ) args = args.concat([ '-o', settings.out_file ]);
+        if ( settings.cookies  ) args = args.concat([ '-H', 'Cookie: ' + settings.cookies  ]);
+
+        childProcess.execFile( 'curl', args, null, callback );
+    }
+
     return page.open( url, function(status) {
         if (status == 'success') {
             callback(page);
@@ -295,70 +373,74 @@ var program_counter = new AsyncCounter(function(errors) { phantom.exit(errors||0
  * Load settings from conf/settings.json
  */
 var settings;
-try {
-    settings = eval('('+fs.read('conf/settings.json')+')');
-} catch (e) {
-    console.error(
-        "Error in conf/settings.json: " + e + "\n" +
-        "Please make sure the file is formatted correctly and try again."
-    );
-    phantom.exit(1);
-}
-if ( system.env.hasOwnProperty('ENVIRONMENT') ) {
-    var environment_specific = settings.environment_specific[ system.env.ENVIRONMENT ];
-    if ( !environment_specific ) {
-        console.log(
-            'Please specify one of the following build environments: ' +
-            Object.keys(settings.environment_specific).join(' ')
+function update_settings() {
+
+    try {
+        settings = eval('('+fs.read('conf/settings.json')+')');
+    } catch (e) {
+        console.error(
+            "Error in conf/settings.json: " + e + "\n" +
+            "Please make sure the file is formatted correctly and try again."
         );
         phantom.exit(1);
     }
-    Object.keys(environment_specific)
-        .forEach(function(property, n, properties) {
-            settings[ property ] =
-                ( Object.prototype.toString.call( settings[ property ] ) === '[object Array]' )
-                ? settings[ property ].concat( environment_specific[property] )
-                : environment_specific[property]
-            ;
-        });
-} else if ( settings.environment_specific ) {
-    console.log(
-        'Please specify build environment using the ENVIRONMENT environment variable,\n' +
-        'or comment out the "environment_specific" section in settings.json'
-    );
-    phantom.exit(1);
-};
-settings.contentScriptFiles.unshift('lib/BabelExt.js');
-delete settings.environment_specific;
-
-if (
-    settings.version.search(/^[0-9]+(?:\.[0-9]+){0,3}$/) ||
-    settings.version.split('.').filter(function(number) { return number > 65535 }).length
-) {
-    console.log(
-        'Google Chrome will not accept version number "' + settings.version + '"\n' +
-        'Please specify a version number containing 1-4 dot-separated integers between 0 and 65535'
-    );
-    phantom.exit(1);
-}
-
-settings.preferences.forEach(function(preference) {
-    /*
-     * Known-but-unsupported types:
-     * color - not supported by Safari
-     * file - not supported by Safari
-     * directory - not supported by Safari
-     * control - not supported by Safari, not clear what we'd do with it anyway
-     */
-    if ( preference.type.search(/^(bool|boolint|integer|string|menulist|radio)$/) == -1 ) {
+    if ( system.env.hasOwnProperty('ENVIRONMENT') ) {
+        var environment_specific = settings.environment_specific[ system.env.ENVIRONMENT ];
+        if ( !environment_specific ) {
+            console.log(
+                'Please specify one of the following build environments: ' +
+                Object.keys(settings.environment_specific).join(' ')
+            );
+            phantom.exit(1);
+        }
+        Object.keys(environment_specific)
+            .forEach(function(property, n, properties) {
+                settings[ property ] =
+                    ( Object.prototype.toString.call( settings[ property ] ) === '[object Array]' )
+                    ? settings[ property ].concat( environment_specific[property] )
+                    : environment_specific[property]
+                ;
+            });
+    } else if ( settings.environment_specific ) {
         console.log(
-            'Preference type "' + preference.type + ' is not supported.\n' +
-            'Please specify a valid preference type: bool, boolint, integer, string, menulist, radio\n'
+            'Please specify build environment using the ENVIRONMENT environment variable,\n' +
+            'or comment out the "environment_specific" section in settings.json'
+        );
+        phantom.exit(1);
+    };
+    settings.contentScriptFiles.unshift('lib/BabelExt.js');
+    delete settings.environment_specific;
+
+    if (
+        settings.version.search(/^[0-9]+(?:\.[0-9]+){0,3}$/) ||
+        settings.version.split('.').filter(function(number) { return number > 65535 }).length
+    ) {
+        console.log(
+            'Google Chrome will not accept version number "' + settings.version + '"\n' +
+            'Please specify a version number containing 1-4 dot-separated integers between 0 and 65535'
         );
         phantom.exit(1);
     }
-});
 
+    settings.preferences.forEach(function(preference) {
+        /*
+         * Known-but-unsupported types:
+         * color - not supported by Safari
+         * file - not supported by Safari
+         * directory - not supported by Safari
+         * control - not supported by Safari, not clear what we'd do with it anyway
+         */
+        if ( preference.type.search(/^(bool|boolint|integer|string|menulist|radio)$/) == -1 ) {
+            console.log(
+                'Preference type "' + preference.type + ' is not supported.\n' +
+                'Please specify a valid preference type: bool, boolint, integer, string, menulist, radio\n'
+            );
+            phantom.exit(1);
+        }
+    });
+
+}
+update_settings();
 
 /*
  * Load settings from conf/local_settings.json
@@ -386,8 +468,6 @@ function get_changelog(callback) { // call the callback with the changelog text 
         local_settings.changelog_command.splice(1),
         null,
         function(err,changelog,stderr) {
-            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-            if (err) throw err;
             if ( changelog == '' ) {
                 console.log( "Error: empty changelog" );
                 return program_counter.end(1);
@@ -402,7 +482,7 @@ function get_changelog(callback) { // call the callback with the changelog text 
  * BUILD COMMANDS
  */
 
-function build_safari() {
+function build_safari(login_info) {
 
     var when_string = {
         'early' : 'Start',
@@ -423,14 +503,40 @@ function build_safari() {
         get_node(key).textContent = value;
     }
 
+    /*
+     * PART ONE: build the Safari.safariextension directory:
+     */
+
+    // BabelExt IDs are UUIDs, but Safari IDs must be alphabetical:
+    var map = {
+        '0': 'a',
+        '1': 'b',
+        '2': 'c',
+        '3': 'd',
+        '4': 'e',
+        '5': 'f',
+        '6': 'g',
+        '7': 'h',
+        '8': 'i',
+        '9': 'j',
+        'a': 'k',
+        'b': 'l',
+        'g': 'm',
+        'd': 'n',
+        'e': 'o',
+        'f': 'p',
+        '-': 'q'
+    };
+
     get_node('Author').textContent = settings.author;
 
     get_node('CFBundleDisplayName'       ).textContent = settings.title;
-    get_node('CFBundleIdentifier'        ).textContent = 'com.honestbleeps.' + settings.id;
+    get_node('CFBundleIdentifier'        ).textContent = 'com.honestbleeps.' + settings.id.replace( /(.)/g, function(char) { return map[char] });
     get_node('CFBundleShortVersionString').textContent = settings.version;
     get_node('CFBundleVersion'           ).textContent = settings.version;
     get_node('Description'               ).textContent = settings.description;
     get_node('Website'                   ).textContent = settings.website;
+    get_node('DeveloperIdentifier'       ).textContent = settings.safari_team_id || '(not set)';
 
     var match_domains = get_node('Allowed Domains');
     while (match_domains.firstChild) match_domains.removeChild(match_domains.firstChild);
@@ -524,6 +630,171 @@ function build_safari() {
             'w'
         );
 
+
+    /*
+     * PART TWO: build a signed .safariextz file
+     */
+
+    program_counter.begin();
+
+    if ( fs.exists('build/safari-certs/AppleWWDRCA.cer') ) {
+        check_xar();
+    } else {
+
+        if ( !login_info || login_info.skip ) {
+            console.log( 'Please add Safari login details to local_settings.json to build a Safari package' );
+            return program_counter.end(0);
+        }
+
+        if ( !login_info.password ) {
+            if ( system.env.hasOwnProperty('APPLE_PASSWORD') ) {
+                login_info.password = system.env.APPLE_PASSWORD;
+            } else {
+                console.log("Please specify a password for apple.com");
+                return program_counter.end(1);
+            }
+        }
+
+        if ( !fs.exists('build/safari-certs/id.rsa') ) {
+            console.log(
+                "Please generate a private key and Certificater Signature Request.\n" +
+                "The private key should not have an associated password.\n" +
+                "Example command:\n" +
+                "openssl req -new -nodes -newkey rsa:2048 -keyout build/safari-certs/id.rsa -out build/safari-certs/request.csr"
+            );
+            return program_counter.end(1);
+        }
+
+        console.log( 'Generating keys...' );
+        page( 'https://developer.apple.com/account/safari/certificate/certificateRequest.action', function(page) {
+
+            var onError = page.onError;
+            page.onError = function(msg, trace) {
+                // Ignore expected error
+                if ( msg != "TypeError: 'undefined' is not an object (evaluating 'document.form1.submit')" ) {
+                    onError.call( page, msg, trace );
+                }
+            };
+
+            page.submit_form(
+                '#submitButton2',
+                {
+                    '#accountname'    : login_info.username,
+                    '#accountpassword': login_info.password
+                },
+                function() {
+                    page.onError = onError;
+                    page.waitForElementsPresent(
+                        [ 'form[name="certificateRequest"]' ],
+                        function() {
+                            page.click('a.submit');
+                            page.waitForElementsPresent(
+                                [ '#certificateSubmit' ],
+                                function() {
+
+                                    page.submit_form(
+                                        'a.submit',
+                                        {
+                                            'input[name="upload"]': 'build/safari-certs/request.csr',
+                                        },
+                                        function() {
+                                            page.waitForElementsPresent(
+                                                [ '.downloadForm' ],
+                                                function() {
+                                                    var download_url = page.evaluate(function() {
+                                                        return document.getElementsByClassName('blue')[0].getAttribute('href')
+                                                    });
+                                                    var cookies = page.cookies.map(function(cookie) { return cookie.name + '=' + cookie.value });
+                                                    page.openBinary( 'https://developer.apple.com' + download_url, { cookies: cookies.join('; '), out_file: 'build/safari-certs/local.cer' }, function() {
+                                                        page.openBinary(    'https://www.apple.com/appleca/AppleIncRootCertificate.cer', { out_file: 'build/safari-certs/AppleIncRootCertificate.cer' }, function() {
+                                                            page.openBinary('https://developer.apple.com/certificationauthority/AppleWWDRCA.cer', { out_file: 'build/safari-certs/AppleWWDRCA.cer' }, check_xar );
+                                                        });
+                                                    });
+                                                });
+                                        });
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+
+        });
+
+    }
+
+    function check_xar() {
+        page( 'http://mackyle.github.io/xar/', function(page) {
+
+            var xar_url = page.evaluate(function() {
+                return document.getElementsByClassName('down')[0].parentNode.getAttribute('href')
+            });
+
+            if ( fs.exists('build/xar-url.txt') && fs.read('build/xar-url.txt') == xar_url ) {
+                console.log( 'XAR is up-to-date.' );
+                build_safariextz();
+            } else {
+                console.log( 'Downloading xar archiver...' );
+                page.openBinary(xar_url, { out_file: 'temporary_file.tar.gz' }, function() {
+                    console.log( 'Unpacking xar archiver...', status );
+                    if ( fs.exists( 'build/xar' ) ) fs.removeTree('build/xar');
+                    fs.makeDirectory('build/xar');
+                    childProcess.execFile( 'tar', ["zxf",'temporary_file.tar.gz','-C','build/xar','--strip-components=1'], null, function(err,stdout,stderr) {
+                        console.log( 'Building xar archiver...', status );
+                        if ( system.os.name == 'windows' ) {
+                            // TODO: fill in real Windows values here (the following line is just a guess):
+                            childProcess.execFile( 'cmd' , [    'cd build\\xar  ; ./configure  ; make'], null, finalise_xar );
+                        } else {
+                            childProcess.execFile( 'bash', ['-c','cd build/xar && ./configure && make'], null, finalise_xar );
+                        }
+
+                        function finalise_xar(err,stdout,stderr) {
+                            fs.remove('temporary_file.tar.gz');
+                            fs.write( 'build/xar-url.txt', xar_url, 'w' );
+                            build_safariextz();
+                        }
+
+                    });
+                });
+            }
+
+        });
+    }
+
+    function build_safariextz() {
+
+        function run_commands(commands, then) {
+            function run_command(err, stdout, stderr) {
+                if ( commands.length ) {
+                    var command = commands.shift();
+                    return childProcess.execFile( command[0], command.splice(1), null, run_command );
+                } else {
+                    return then(err, stdout, stderr)
+                }
+            }
+            run_command();
+        }
+
+        fs.changeWorkingDirectory('build');
+
+        var xar = './xar/src/xar';
+        var safariextz = '../out/' + settings.name + '.safariextz';
+
+        run_commands([
+            [ xar, '-czf', safariextz, '--distribution', 'Safari.safariextension' ],
+            [ xar,   '-f', safariextz, '--sign', '--digestinfo-to-sign', 'safari-certs/tmp.dat', '--sig-size', 256, '--cert-loc', 'safari-certs/local.cer', '--cert-loc', 'safari-certs/AppleWWDRCA.cer', '--cert-loc', 'safari-certs/AppleIncRootCertificate.cer' ],
+            [ 'openssl', 'rsautl', '-sign', '-inkey', 'safari-certs/id.rsa', '-in', 'safari-certs/tmp.dat', '-out', 'safari-certs/tmp.sig' ],
+            [ xar,   '-f', safariextz, '--inject-sig', 'safari-certs/tmp.sig' ]
+        ], function() {
+            fs.remove('safari-certs/tmp.dat');
+            fs.remove('safari-certs/tmp.sig');
+            fs.changeWorkingDirectory('..');
+            console.log('Built ' + safariextz.substr(3));
+            return program_counter.end(0);
+        });
+    }
+
+
 }
 
 function build_firefox() {
@@ -594,14 +865,9 @@ function build_firefox() {
             build_xpi();
         } else {
             console.log( 'Downloading Firefox Addon SDK...' );
-            // PhantomJS refuses to download any file as large as the SDK (I think it's either about the encoding or the file size)
-            // do it with `curl` instead:
-            console.log( 'Unpacking Firefox Addon SDK...', status );
-            childProcess.execFile( 'curl', ['--silent',response.redirectURL,'-o','temporary_file.tar.gz'], null, function(err, stdout, stderr) {
-                if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
+            page.openBinary( response.redirectURL, { out_file: 'temporary_file.tar.gz' }, function() {
                 fs.makeDirectory('build/firefox-addon-sdk');
                 childProcess.execFile( 'tar', ["zxf",'temporary_file.tar.gz','-C','build/firefox-addon-sdk','--strip-components=1'], null, function(err,stdout,stderr) {
-                    if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
                     fs.remove('temporary_file.tar.gz');
                     fs.write( 'build/firefox-addon-sdk-url.txt', response.redirectURL, 'w' );
                     build_xpi();
@@ -625,7 +891,6 @@ function build_firefox() {
 
     // Move the .xpi into place, fix its install.rdf, and update firefox-unpacked:
     function finalise_xpi(err, stdout, stderr) {
-        if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
         fs.makeDirectory('out');
         var xpi = 'out/' + settings.name + '.xpi';
         if ( fs.exists(xpi) ) fs.remove(xpi);
@@ -633,7 +898,6 @@ function build_firefox() {
         fs.removeTree('build/firefox-unpacked');
         fs.makeDirectory('build/firefox-unpacked');
         childProcess.execFile( 'unzip', ['-d','build/firefox-unpacked',xpi], null, function(err,stdout,stderr) {
-            if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
             fs.write(
                 'build/firefox-unpacked/install.rdf',
                 fs.read('build/firefox-unpacked/install.rdf').replace( /<em:maxVersion>.*<\/em:maxVersion>/, '<em:maxVersion>' + settings.firefox_max_version + '</em:maxVersion>' )
@@ -644,7 +908,7 @@ function build_firefox() {
             });
             fs.changeWorkingDirectory('build/firefox-unpacked');
             childProcess.execFile( 'zip', ['../'+xpi,'install.rdf'], null, function(err,stdout,stderr) {
-                fs.changeWorkingDirectory('..');
+                fs.changeWorkingDirectory('../..');
                 if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
                 console.log('Built ' + xpi + '\n\033[1mRemember to restart Firefox if you added/removed any files!\033[0m');
                 return program_counter.end(0);
@@ -792,16 +1056,12 @@ function build_chrome() {
     if (fs.exists('build/Chrome.pem')) {
         build_crx();
     } else {
-        childProcess.execFile(chrome_command, ["--pack-extension=build/Chrome"], null, function (err, stdout, stderr) {
-            if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
-            build_crx();
-        });
+        childProcess.execFile(chrome_command, ["--pack-extension=build/Chrome"], null, build_crx );
     };
 
     // Build the .crx, move it into place, and build the upload zip file:
     function build_crx() {
         childProcess.execFile(chrome_command, ["--pack-extension=build/Chrome","--pack-extension-key=build/Chrome.pem"], null, function (err, stdout, stderr) {
-            if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
             if ( stdout != 'Created the extension:\n\nbuild/Chrome.crx\n' ) console.log(stdout.replace(/\n$/,''));
             var crx = 'out/' + settings.name + '.crx';
             if ( fs.exists(crx) ) fs.remove(crx);
@@ -816,7 +1076,6 @@ function build_chrome() {
                 ,
                 null,
                 function(err,stdout,stderr) {
-                    if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
                     console.log('Built out/chrome-store-upload.zip');
                     return program_counter.end(0);
                 }
@@ -1085,15 +1344,12 @@ function release_chrome(login_info) {
 
         function get_auth_key(code) {
             var post_data = "grant_type=authorization_code&redirect_uri=urn:ietf:wg:oauth:2.0:oob&client_id=" + login_info.client_id + "&client_secret=" + login_info.client_secret + "&code=" + code;
-
-            // PhantomJS refuses to download chunked data, do it with `curl` instead:
-            childProcess.execFile( 'curl', ["--silent","https://accounts.google.com/o/oauth2/token",'-d',post_data], null, function(err, json, stderr) {
-                if ( stderr != '' ) { console.log(stderr.replace(/\n$/,'')); return program_counter.end(1); }
-                upload_and_publish( JSON.parse(json) );
-            });
+            page.openBinary( 'https://accounts.google.com/o/oauth2/token', { data:  post_data }, upload_and_publish );
         }
 
         function upload_and_publish(data) {
+
+            data = JSON.parse(data);
 
             var page = webPage.create();
             page.customHeaders = {
@@ -1199,15 +1455,69 @@ function release_opera(login_info) {
 }
 
 function release_safari() {
-    /*
-     * Safari support is limited at the moment, as it's the least-used browser and the hardest to support.
-     *
-     * To release a Safari extension, start here: https://developer.apple.com/programs/safari/
-     * For instructions on building a Safari extension package on the command line, start here: http://developer.streak.com/2013/01/how-to-build-safari-extension-using.html
-     *
-     * Patches welcome!
-     *
-     */
+    console.log(
+        'The Safari extensions gallery just links to your actual download site.\n' +
+        'This function is included only for completeness'
+    );
+}
+
+/*
+ * MAINTAIN COMMANDS
+ */
+
+function maintain() {
+
+    program_counter.begin();
+
+    function maintain_resources() {
+        update_settings();
+        if ( settings.resources )
+            stat( [ 'lib/BabelExtResources.js' ].concat( settings.resources ), function(files) {
+                var resources_file = files.shift();
+                if ( files.filter(function(file) { return file.modified > resources_file.modified } ).length ) {
+                    console.log( 'Rebuilding ' + 'lib/BabelExtResources.js' );
+                    build_resources();
+                }
+                maintain_content_files();
+            });
+        else
+            maintain_content_files();
+    }
+
+    function maintain_content_files() {
+        var files = settings.contentScriptFiles.concat( settings.contentStyleFiles || [] );
+        files = files.concat(
+            files.map(function(name) { return 'build/Chrome/' + name })
+        ).concat(
+            files.map(function(name) { return 'build/Safari.safariextension/' + name })
+        );
+
+        stat( files, function(files) {
+            var id_links = {}, name_links = {}; // list of file IDs that are valid hardlink targets
+            files.forEach(function(file) {
+                if ( file.name.search( '^build/' ) == -1 ) {
+                     // source file - set hardlink target
+                      id_links[ file.id   ] = file;
+                    name_links[ file.name ] = file;
+                } else if ( !id_links.hasOwnProperty(file.id) ) {
+                    var source = name_links[ file.name.replace( /^build\/(?:[^\/]+)\//, '' ) ];
+                    // need to recreate
+                    if ( file.modified > source.modified ) {
+                        console.log( file.name + ' is newer than ' + source.name + ' - please save the built contents back to the original' );
+                    } else {
+                        console.log( 'Relinking ' + file.name + ' to ' + source.name );
+                        fs.remove( file.name );
+                        hardLink(  source.name, file.name );
+                    }
+                }
+            });
+
+        });
+    }
+
+    maintain_resources();
+    setInterval(maintain_resources, settings.maintenanceInterval );
+
 }
 
 /*
@@ -1218,22 +1528,26 @@ var args = system.args;
 
 function usage() {
     console.log(
-        'Usage: ' + args[0] + ' <command> [<arguments>]\n' +
+        'Usage: ' + args[0] + ' <command> <build|release> <firefox|chrome|safari>\n' +
         'Commands:\n' +
-        '    build - builds extensions for all browsers\n' +
-        '    release <target> - release extension to either "amo" (addons.mozilla.org) "chrome" (Chrome store) or "opera" (Opera site)'
+        '    build <target> - builds extensions for "amo" (Firefox) "chrome" or "safari"\n' +
+        '    release <target> - release extension to "amo" (addons.mozilla.org) "chrome" (Chrome store), "opera" (opera site) or "safari" (extensions gallery)'
     );
     phantom.exit(1);
 }
 
 program_counter.begin();
+
 switch ( args[1] || '' ) {
 
 case 'build':
-    if ( args.length != 2 ) usage();
-    build_safari();
-    build_firefox();
-    build_chrome ();
+    if ( args.length != 3 ) usage();
+    if ( build_resources() ) settings.contentScriptFiles.splice(1, 0, 'lib/BabelExtResources.js');
+    switch ( args[2] ) {
+    case 'firefox': build_firefox(local_settings.   amo_login_info); break;
+    case 'chrome' : build_chrome (local_settings.chrome_login_info); break;
+    case 'safari' : build_safari (local_settings.safari_login_info); break;
+    }
     break;
 
 case 'release':
@@ -1244,6 +1558,11 @@ case 'release':
     case 'opera' : release_opera (local_settings. opera_login_info); break;
     case 'safari': release_safari(local_settings.safari_login_info); break;
     }
+    break;
+
+case 'maintain':
+
+    maintain();
     break;
 
 default:

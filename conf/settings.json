@@ -38,8 +38,11 @@
 
     "contentScriptFiles": [ "lib/jquery-2.1.1.min.js", "lib/selectionchange.js", "src/bulletin_board_api.js", "src/cacheable.js", "src/variables.js", "src/dashboard.js", "src/legacy.js", "src/main.js" ],
     "contentStyleFiles": [ "src/main.css" ],
+    "resources": [ "res/extension.html" ],
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
     "match_secure_domain": true,
+
+    "maintenanceInterval": 5 * 1000, // the 'maintain' command will pause for this long between updates
 
     "environment_specific": {
         /*
@@ -76,5 +79,7 @@
     ],
 
     "firefox_max_version": '34.*'
+
+    "safari_team_id": 'ABCDEFGHIJ' // visible at https://developer.apple.com/membercenter/index.action#accountSummary
 
 }

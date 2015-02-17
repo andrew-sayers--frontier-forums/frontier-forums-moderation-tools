@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>Andrew Sayers</string>
 	<key>Builder Version</key>
-	<string>8536.30.1</string>
+	<string>8537.85.12.18</string>
 	<key>CFBundleDisplayName</key>
 	<string>Frontier forums moderation tools</string>
 	<key>CFBundleIdentifier</key>
@@ -78,6 +78,8 @@
 	</dict>
 	<key>Description</key>
 	<string>Add moderator tools to the Frontier Forums</string>
+	<key>DeveloperIdentifier</key>
+	<string>ABCDEFGHIJ</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>

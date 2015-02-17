@@ -37,6 +37,7 @@ has its own function calls and way of working, including, but not limited to:
 - Accessing and controlling tabs (i.e. opening a link in a new one and choosing if it's focused)
 - Cross domain http requests (extensions require)
 - Storing data (using HTML5 localStorage or similar/equivalent engines)
+- Managing resources (like large HTML snippets that are hard to read in raw JavaScript)
 - Managing add-on preferences (which some browsers call options or settings)
 - Triggering notifications (desktop or browser, depending on the browser's particular level of support)
 - Adding URLs to history (to mark links as visited)
@@ -66,23 +67,20 @@ thought to how to make it more universally useful.
 
 First, download all of the source from Github and put it together within a folder.
 
-Then, download PhantomJS (http://phantomjs.org), which is used to build and deploy extensions.
+Then, download [PhantomJS](http://phantomjs.org), which is used to build and deploy extensions.
 
-In UNIX-based OSes, run `./script/build.sh build` to build packages, and `./script/build.sh release`
-to release them.
+In UNIX-based OSes, run `./script/build.sh build <browser>` to build packages for each browser,
+and `./script/build.sh release <site>` to release them to the various extension sites.
 
 The build system hasn't been tested under Windows yet - your best bet is probably to look at
 the scripts and write a Windows equivalent.  If it's any good, please send in a patch!
 
-**IMPORTANT SAFARI NOTE:** Safari has a "security feature" that is not documented, gives no user
-feedback at all, and can be a HUGE time sink if you don't know about it!  If you have any
-files in your extension folder that are symlinks, Safari will **silently** ignore them.
-With Safari, a hard link will work, but a symbolic link will not.  If you made the links
-yourself instead of using the batch file, and your extension is doing nothing at all in
-Safari, double check that!
+The build system maintains browser-specific `build` directories based on `conf/settings.json`.
+It uses symbolic links where possible, but falls back to hard links for Chrome and Safari
+(which silently ignore symlinks).
 
-One last Safari quirk: if the directory does not end in ".safariextension", it will not be
-recognized by Safari. Don't remove that from the name!
+It is recommended run `./script/build.sh maintain &` in the background.
+This automatically fixes broken hard links and updates `BabelExt.resources` every few seconds.
 
 ## Instructions for loading/testing an extension in each browser ##
 
@@ -133,10 +131,32 @@ recognized by Safari. Don't remove that from the name!
 
 - Further Safari development information can be found at [https://developer.apple.com/library/safari/#documentation/Tools/Conceptual/SafariExtensionGuide/Introduction/Introduction.html](https://developer.apple.com/library/safari/#documentation/Tools/Conceptual/SafariExtensionGuide/Introduction/Introduction.html)
 
+#### Certificates ####
+
+Safari requires all packages to be signed with a private key that's been registered with Apple.
+You can develop unpacked extensions without a license, but you will need a (free) Apple Developer
+account to build a package.  You will also need to create a private key, which you can do with:
+
+    openssl req -new -nodes -newkey rsa:2048 -keyout build/safari-info/id.rsa -out apple-cert.csr
+
+Apple seems to prefer you have a single private key per Apple Developer account.
+If you maintain several projects with one account, consider linking build/safari-certs to a central location.
+
+BabelExt will automatically register your key and download extra certificates if you pass in your
+username and password.  Here are the steps if you prefer to do it by hand:
+
+- Go through [Apple's Certificate Request process](https://developer.apple.com/account/safari/certificate/certificateRequest.action) and save your certificate as `build/safari-certs/local.cer`
+- Download [Apple's Worldwide Developer Relations Certificate](https://developer.apple.com/certificationauthority/AppleWWDRCA.) to `build/safari-certs/AppleIncRootCertificate.cer`
+- Download [Apple's Root Certificate](https://www.apple.com/appleca/AppleIncRootCertificate.cer) to `build/safari-certs/AppleWWDRCA.cer`
+- Download and compile [a modified version of the "xar" tool](http://mackyle.github.io/xar/) as `build/xar`
+
+Note: some online documentation refers to these keys as `cert00`, `cert01` and `cert02`
+(these are the names `xar` uses when extracting them from a package)
+
 ## Resetting extension data ##
 
 If your extension uses storage or preferences, you will need to test the extension data with
-different stored values.  Apart from Safari, all the browsers let you creat add multiple
+different stored values.  Apart from Safari, all the browsers let you create multiple
 profiles ("users" in Chrome), so you might want to create throwaway profiles for use during
 testing.
 
@@ -149,5 +169,5 @@ extension data by deleting all files matching <profile_directory>/Local*/*<exten
 You need to release the first version of your extension by hand, because each site has slightly
 different requirements for their extensions.
 
-After the initial release, fill in local_settings.json and run `script/build.js` with the "release"
-command to release and update metadata.
+After the initial release, fill in `local_settings.json` and run `script/build.sh release <site>`
+to release and update metadata.
