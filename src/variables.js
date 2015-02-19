@@ -86,7 +86,8 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
         root_name = names;
         names = [];
     } else { // array of possible names
-        root_name = names.shift();
+        root_name = names[0];
+        names = names.slice(1);
     }
 
     /*
