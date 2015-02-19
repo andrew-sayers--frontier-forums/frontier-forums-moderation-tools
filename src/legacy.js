@@ -8,8 +8,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
      * GENERAL UTILITIY FUNCTIONS
      */
     {
-        pass_storage: ['infractions'],
-        callback: function( stash, pathname, params, infractions ) {
+        callback: function( stash, pathname, params ) {
 
             /*
              * Legacy compatibility:
@@ -486,101 +485,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
     },
 
-
-    /*
-     * FUNCTIONS TO SEND MODERATION MESSAGES
-     */
-
-    {
-        pass_storage: ['infractions','infractions_timestamp'],
-        pass_preferences: [ 'variable_thread_id', 'reload_interval' ],
-        callback: function( stash, pathname, params, infractions, infractions_timestamp, variable_thread_id, reload_interval ) {
-
-            stash.infractions = JSON.parse(infractions||'[]');
-
-            // Refresh the list of infractions
-            if ( parseInt(infractions_timestamp||'0',10)+reload_interval*1000 < new Date().getTime() ) {
-                v.promise.done(function() {
-                    bb.infraction_ids().then(function(infractions) {
-                        if ( !infractions.length ) {
-                            alert( "Could not refresh the list of infractions - some moderator actions may not work until you refresh the page" );
-                            return;
-                        }
-
-                        var infraction_map = {};
-                        infractions.forEach(function(infraction) { infraction_map[ infraction.name.toLowerCase() ] = true });
-                        var bad_infractions = v.resolve('policy', 'infraction-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
-                        if ( bad_infractions.length && confirm(
-                            "Some infraction-worthy violations do not exist.  Please fix the following:\n\n" +
-                                bad_infractions.map(function(violation) { return violation.value }).join("\n") + "\n\n" +
-                                "To fix these names, paste the above into a text editor, go to the variables forum and change \"infraction-worthy violations\" in the relevant \"policy\" thread.\n" +
-                                "\n" +
-                                "Would you like to go there now?"
-                        )) {
-                            location = '/forumdisplay.php?f=70';
-                            return;
-                        }
-
-                        var bad_pms = v.resolve('policy', 'PM-worthy violations', {}, 'array of items').filter(function(violation) { return !infraction_map.hasOwnProperty(violation.value) });
-                        if ( bad_pms.length && confirm(
-                            "Some PM-worthy violations do not exist.  Please fix the following:\n\n" +
-                                bad_pms.map(function(violation) { return violation.value }).join("\n") + "\n\n" +
-                                "To fix these names, paste the above into a text editor, go to the variables forum and change \"pm-worthy violations\" in the relevant \"policy\" thread.\n" +
-                                "\n" +
-                                "Would you like to go there now?"
-                        )) {
-                            location = '/forumdisplay.php?f=70';
-                            return;
-                        }
-
-                        stash.infractions = infractions;
-                        BabelExt.storage.set( 'infractions', JSON.stringify( infractions ) );
-                        BabelExt.storage.set( 'infractions_timestamp', new Date().getTime() );
-
-                    },
-                    function() {
-                        alert( "Could not refresh the list of infractions - some moderator actions may not work until you refresh the page" );
-                    });
-                });
-            }
-
-            stash.find_user_ban = function( username ) {
-                return $.get( stash.modcp_url( 'banning.php?do=modify' ) ).then(function(html) {
-                    var first = 2, last = parseInt( $(html).find( '#cpform_table' ).last().find( 'tr:eq(1) a' ).last().text(), 10 ), current = 1;
-                    function check(html) {
-                        var table = $(html).find( '#cpform_table' ).last();
-                        var names = table.find('a b');
-                        if        ( username.localeCompare( names.eq(0             ).text() ) < 0 ) { // this page is after the matching page
-                            last = current - 1;
-                        } else if ( username.localeCompare( names.eq(names.length-1).text() ) > 0 ) { // this page is before the matching page
-                            first = current + 1;
-                        } else if ( first > last ) {
-                            return;
-                        } else {
-                            var match = table.find('a b').filter(function() { return this.textContent == username });
-                            if ( match.length ) {
-                                match = match.closest('tr').find('td');
-                                return {
-                                    name      : username,
-                                    banned_by : match.eq(1).text(),
-                                    ban_period: match.eq(3).text(),
-                                    ban_reason: $.trim( match.eq(7).text() ),
-                                    page      : stash.modcp_url( 'banning.php?do=modify&page=' + current )
-                                };
-                            } else {
-                                return; // user has not been banned
-                            }
-                        };
-                        current = Math.floor( ( first + last + 1 ) / 2 );
-                        return $.get( stash.modcp_url( 'banning.php?do=modify&page=' + current ) ).then(check);
-                    }
-                    return check(html);
-                });
-            }
-
-        }
-
-    },
 
     { // retrieve the wathchlist
         match_pathname: [ '/showthread.php', '/member.php', '/inlinemod.php' ],
@@ -1338,7 +1242,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 });
             });
 
-            var infractions = stash.infractions.map(function(infraction) { return '<li><a href="">&nbsp;Take report: ' + infraction.name + '&nbsp;' }).join('');
+            var infractions = vi.violations.map(function(infraction) { return '<li><a href="">&nbsp;Take report: ' + infraction.name + '&nbsp;' }).join('');
 
             bb.process_posts().each(function() {
                 this.linking.append(
@@ -1680,9 +1584,13 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             if ( $('a[href="forumdisplay.php?f=71"]').length ) return; // disable extras in the dupe account forum
 
             var pm_worthy_violations = {};
-            v.resolve('policy', 'pm-worthy violations', {}, 'array of items').forEach(function(violation) { pm_worthy_violations[violation.value] = true });
             var infraction_worthy_violations = {};
-            v.resolve('policy', 'infraction-worthy violations', {}, 'array of items').forEach(function(violation) { infraction_worthy_violations[violation.value] = true });
+            vi.violations.forEach(function(violation) {
+                switch ( violation.default_user_action ) {
+                case 'PM'        :         pm_worthy_violations[ violation.name.toLowerCase() ] = true; break;
+                case 'infraction': infraction_worthy_violations[ violation.name.toLowerCase() ] = true; break;
+                }
+            });
 
             var first_post = bb.process_posts()[0],
                 user_to_review = first_post.message_element.find('a').filter(function() { return this.href.search(/member.php\?/) > -1 && !$(this).closest('bbcode_container').length }).eq(1),
@@ -1748,7 +1656,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             var infraction_id, logged_in_user_has_suggested_infraction_id;
             mod_posts.each(function() {
                 var infraction_name = this.message_element.find('.quote_container').first().text().replace(/^\s*|[.\s]*$/g,'') || '';
-                var infraction = stash.infractions.filter(function(infraction) { return infraction.name == infraction_name });
+                var infraction = vi.violations.filter(function(infraction) { return infraction.name == infraction_name });
                 if ( infraction.length ) {
                     if ( !infraction_id || ( this.username == logged_in_user && !logged_in_user_has_suggested_infraction_id ) ) {
                         logged_in_user_has_suggested_infraction_id = this.username == logged_in_user;
@@ -1985,7 +1893,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                         '<fieldset>' +
                           '<legend>Type of issue</legend>' +
                           make_input( 'radio', "issue-type", '', 'Issue not yet specified', true, ' disabled' ) + '<br>' +
-                          stash.infractions.map(function(infraction) { return make_input( 'radio', "issue-type", infraction.id, infraction.name, undefined, ' data-points="'+infraction.points+'"' ) + '<br>' }).join('') +
+                          vi.violations.map(function(infraction) { return make_input( 'radio', "issue-type", infraction.id, infraction.name, undefined, ' data-points="'+infraction.points+'"' ) + '<br>' }).join('') +
                           '<br>' + make_input( 'checkbox', "allow-multiple", 1, "Multiple infractions" ) +
                         '</fieldset>' +
                         '<fieldset>' +
