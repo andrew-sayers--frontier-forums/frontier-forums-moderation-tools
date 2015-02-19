@@ -36,7 +36,25 @@
      */
     "contentScriptWhen": "early",
 
-    "contentScriptFiles": [ "lib/jquery-2.1.1.min.js", "lib/selectionchange.js", "src/bulletin_board_api.js", "src/cacheable.js", "src/variables.js", "src/dashboard.js", "src/legacy.js", "src/main.js" ],
+    "contentScriptFiles": [
+        /* Third-party libraries */
+        "lib/jquery-2.1.1.min.js",
+        "lib/selectionchange.js",
+
+        /* Low-level libraries */
+        "src/bulletin_board_api.js",
+        "src/cacheable.js",
+
+        /* Basic functionality */
+        "src/variables.js",
+
+        /* Specific features */
+        "src/dashboard.js",
+
+        /* User-visible functionality */
+        "src/legacy.js",
+        "src/main.js"
+    ],
     "contentStyleFiles": [ "src/main.css" ],
     "resources": [ "res/dashboard.html" ],
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
