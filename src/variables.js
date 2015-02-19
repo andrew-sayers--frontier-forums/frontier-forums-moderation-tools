@@ -298,7 +298,7 @@ VariablesFromForum.prototype = Object.create(Variables.prototype);
 VariablesFromForum.prototype.suggest_resolutions = function( matching_namespaces ) {
     var v = this;
     return matching_namespaces.map(function(namespace) {
-        var thread = Object.keys(v.cache.threads).filter(function(thread_id) { return v.cache.threads[thread_id].namespace === namespace })[0];
+        var thread = Object.keys(v.cache.threads).filter(function(thread_id) { return v.cache.threads[thread_id].namespace.names.join(' / ') === namespace.names.join(' / ') })[0];
         thread = v.cache.threads[ thread ];
         return {
             message: 'Add variable to ' + thread.title,
