@@ -2,7 +2,7 @@
  * LEGACY CODE
  * old code, needs to be refactored.
  */
-function handle_legacy( bb, v, loading_html ) { BabelExt.utils.dispatch(
+function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
     /*
      * GENERAL UTILITIY FUNCTIONS

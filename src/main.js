@@ -264,9 +264,9 @@ function handle_moderation_links() {
  * MAIN BLOCK
  */
 BabelExt.utils.dispatch({ // initialise general stuff
-    pass_storage    : ['variables'],
+    pass_storage    : ['variables', 'violations'],
     pass_preferences: [ 'language', 'reload_interval' ],
-    callback: function( stash, pathname, params, variables, user_language, reload_interval ) {
+    callback: function( stash, pathname, params, variables, violations, user_language, reload_interval ) {
         // First we retrieve storage and preferences needed everywhere
 
         /*
@@ -325,14 +325,24 @@ BabelExt.utils.dispatch({ // initialise general stuff
             }
         });
 
-        v.promise.then(function() {
+        var vi = new Violations({
+            v                  : v,
+            bb                 : bb,
+            cache              : JSON.parse( violations || '{}' ),
+            cache_updater      : function(cache) { BabelExt.storage.set( 'violations', JSON.stringify( cache ) ) },
+            reload_interval    : reload_interval * 1000,
+            error_callback     : handle_error,
+            default_user_action: 'warning',
+        });
+
+        $.when( vi.promise, v.promise ).then(function() {
             handle_dashboard            ( bb, v, loading_img );
             handle_variables_thread     ( bb, v );
             handle_post_edit            ( bb );
             handle_moderation_links     ();
             handle_moderation_checkboxes();
             handle_modcp_user           ();
-            handle_legacy               ( bb, v, loading_html ); // everything that hasn't been refactored yet
+            handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
         });
 
     }
