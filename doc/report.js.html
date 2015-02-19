@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Variables</title>
+    <title>Source: report.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -294,649 +294,106 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Variables.html">Class: Variables</h1>
+        <h1 class="page-title" data-filename="report.js.html">Source: report.js</h1>
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>/**
+ * @file Handle a report
+ * @author Andrew Sayers
+ */
+
+/**
+ * @summary Handle a report
+ * @param {Object} args report arguments
+ * @constructor
+ * @description Reports just handle the actual report thread itself.
+ * Actions stemming from the report are handled elsewhere.
+ *
+ * @example
+ * var report = new Report({
+ *     v: variables,
+ *     bb: bulletin_board,
+ *     thread_id: 123,
+ *     title: 'Reported post by &lt;name> [TID: 456] [PID: 7890] [ASSIGNED: J. Random Moderator]'
+ * });
+ */
+
+function Report(args) {
+
+    if ( args.title ) {
+        args.title.replace(     /\[PID: ([0-9]+)\]/, function(match, pid ) { args.target_post_id   = pid });
+        args.title.replace(     /\[TID: ([0-9]+)\]/, function(match, tid ) { args.target_thread_id = tid });
+        args.title.replace( /\[ASSIGNED: ([^)]+)\]/, function(match, name) { args.assigned         = name });
+    }
+
+    this.v  = args.v;
+    this.bb = args.bb;
+
+    this.title            = args.title;
+    this.thread_id        = args.thread_id;
+    this.target_thread_id = args.target_thread_id;
+    this.target_post_id   = args.target_post_id;
+    this.assigned         = args.assigned;
+
+}
+
+Report.prototype.constructor = Report;
+Report.prototype = Object.create(Object, {
+
+    v : { writable: true, configurable: false },
+    bb: { writable: true, configurable: false },
+
+    thread_id       : { writable: true, configurable: false },
+    target_thread_id: { writable: true, configurable: false },
+    target_post_id  : { writable: true, configurable: false },
+    assigned        : { writable: true, configurable: false }
+
+});
+
+/*
+ * @summary Take a report thread
+ * @param {string}   name          name of the moderator who will take the thread
+ * @param {boolean=} thread_closed whether to open or close the thread
+ *
+ * This will load the thread in the current page after taking it.
+ */
+Report.prototype.take = function( name, thread_closed ) {
+
+    var report = this;
+    var expected_title_suffix = report.v.resolve('report process', 'report title suffix', { moderator: name });
+    var new_title = this.title.replace(
+        new RegExp(
+            report.v.resolve('report process', 'report title suffix', { moderator: "\uE000" })
+             .replace(/([.*+?^${}()|\[\]\/\\])/g, "\\$1") // escape special characters: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+             .replace( "\uE000", '.*?' )
+             + '$'
+        )
+    ) + expected_title_suffix;
+
+    report.bb.thread_edit({
+        thread_id: report.thread_id,
+        title: new_title,
+        notes: 'thread taken by ' + name,
+        close_thread: thread_closed
+    }).then(function() {
+        report.bb.thread_reply({
+            thread_id: report.thread_id,
+            title    : report.v.resolve('report process', 'post title: take report', {}, 'string', undefined, report.thread_id ),
+            bbcode   : report.v.resolve('report process', 'post body: take report' , {}, 'string', undefined, report.thread_id ),
+            url      : report.bb.url_for.thread_show({ thread_id: report.thread_id, goto: 'newpost' }),
+            flip_thread_openness: false
+        });
+    });
+
+}
+</code></pre>
+        </article>
+    </section>
 
-
-
-
-<section>
-
-<header>
-    <h2>
-    Variables
-    </h2>
-
-</header>
-
-<article>
-    <div class="container-overview">
-
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="Variables">
-
-            <span class="type-signature ">abstract</span>new Variables<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line19">line 19</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">Generic class for any type of bulletin board</p>
-
-</dt>
-<dd>
-
-
-    <div class="description">Each variable has a language, namespace and value.
-Variable resolution is necessarily quite complex:
-+ A default language is passed in
-+ If a "thread languages" variable exists, it is used for thread-specific language overrides
-+ If a "forum languages" variable exists, it is used for forum-specific language overrides
-+ Variable names of the form "foo: bar: baz" are treated specially - the part before the first ": " must be matched, others are optional (so a request for ['foo', 'bar'] would match a variable named 'foo)
-Variable values can include {{keys}}, which are resolved recursively.  So {{foo: {{something}}}} will first resolve {{something}}, then {{foo: (that thing)}}</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="check">
-
-            check<span class="signature">(namespace, names, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line140">line 140</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">check if a variable exists</p>
-
-</dt>
-<dd>
-
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>namespace</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                namespace to find the variable in</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>names</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;string></span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                name(s) of variable within the namespace</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>forum_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of forum to instantiate for</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>thread_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of thread to instantiate for</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code></code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">boolean</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                </td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="resolve">
-
-            resolve<span class="signature">(namespace, names, <span class="optional">keys</span>, <span class="optional">parser</span>, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line162">line 162</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">resolve a variable</p>
-
-</dt>
-<dd>
-
-
-    <div class="description">Variables need to follow some fairly specific rules to produce useful results:
-Variables are defined per-language, then the language is decided based on the forum, thread, and default language.
-Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
-We always try to return the most specific name for the language, but can default to less-specific ones</div>
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>namespace</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                namespace to find the variable in</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>names</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;string></span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                name(s) of variable within the namespace</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>keys</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object.&lt;string, *></span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                keys used to instantiate the variable</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>parser</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                parser used for the variable ('string', 'array of items' or 'hash of arrays', default: 'string')</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>forum_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of forum to instantiate for</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>thread_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of thread to instantiate for</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h5>Example</h5>
-
-
-
-    <pre class="prettyprint"><code>v.resolve( 'policy', [ 'greeting message', 'newbie' ], { name: username }, 'string', 12, 345 );</code></pre>
-
-
-
-</dd>
-
-        </dl>
-
-
-
-
-
-</article>
-
-</section>
 
 
 
@@ -945,7 +402,7 @@ We always try to return the most specific name for the language, but can default
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 19 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 19 February 2015
         </footer>
     </div>
 </div>
