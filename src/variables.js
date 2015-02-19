@@ -166,6 +166,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     if ( variable.variable === null ) { // actual return is error message, not variable
         var message = "Couldn't find variable \"" + variable.name.join(': ') + '" in namespace "' + variable.target_namespace + '"';
         this.error_callback( message, this.suggest_resolutions(variable.matching_namespaces) );
+        throw message;
     }
     variable = variable.variable;
 

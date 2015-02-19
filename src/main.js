@@ -297,8 +297,6 @@ BabelExt.utils.dispatch({ // initialise general stuff
             ).children(':not(:last-child)').after(', ');
             $(function() { handle_error_box.show() });
 
-            throw message;
-
         }
 
         /*
