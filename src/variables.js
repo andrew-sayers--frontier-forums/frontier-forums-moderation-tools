@@ -124,11 +124,7 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
         }
     });
 
-    if ( variable === null ) {
-        return { target_namespace: target_namespace, matching_namespaces: matching_namespaces, name: [ root_name ].concat(names) }
-    } else {
-        return variable;
-    };
+    return { target_namespace: target_namespace, matching_namespaces: matching_namespaces, name: [ root_name ].concat(names), variable: variable };
 
 }
 
@@ -141,7 +137,7 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
  * @param {boolean}
  */
 Variables.prototype.check = function( namespace, names, forum_id, thread_id ) {
-    return typeof( this.get( namespace, names, forum_id, thread_id ) ) == 'string';
+    return this.get( namespace, names, forum_id, thread_id ).variable !== null;
 }
 
 /**
@@ -167,11 +163,11 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     var v = this;
 
     var variable = this.get(namespace, names, forum_id, thread_id);
-
-    if ( typeof(variable) != 'string' ) { // actual return is error message, not variable
+    if ( variable.variable === null ) { // actual return is error message, not variable
         var message = "Couldn't find variable \"" + variable.name.join(': ') + '" in namespace "' + variable.target_namespace + '"';
-        return this.error_callback( message, this.suggest_resolutions(variable.matching_namespaces) );
+        this.error_callback( message, this.suggest_resolutions(variable.matching_namespaces) );
     }
+    variable = variable.variable;
 
     // resolve {{keys}}:
     keys = $.extend( this.default_keys, keys || {} );
@@ -257,6 +253,25 @@ Variables.prototype.suggest_resolutions = function( matching_namespaces ) {/*
         }
     ];
 */}
+
+/*
+ * Suggest ways to resolve an error by editing it
+ * @param {string}                namespace namespace to find the variable in
+ * @param {string|Array.<string>} names     name(s) of variable within the namespace
+ * @param {Number=}               forum_id  ID of forum to instantiate for
+ * @param {Number=}               thread_id ID of thread to instantiate for
+ */
+Variables.prototype.suggest_resolutions_edit = function( namespace, names, forum_id, thread_id ) {
+
+    var variable = this.get( namespace, names, forum_id, thread_id );
+
+    var resolutions = this.suggest_resolutions( variable.matching_namespaces );
+
+    resolutions.forEach(function(resolution) { resolution.message = 'edit ' + variable.name });
+
+    return resolutions;
+
+}
 
 /*
  * Build a namespace from a set of posts
