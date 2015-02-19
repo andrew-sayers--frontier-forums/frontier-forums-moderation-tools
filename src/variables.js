@@ -181,12 +181,12 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
                 has_changed = true;
                 return keys[key];
             } else if ( key.search(':') != -1 ) {
-                try {
-                    var names = key.split(/:\s*/);
-                    var ret = v.resolve( names.shift(), names, keys, 'string', forum_id, thread_id );
+                var names = key.split(/:\s*/);
+                var root_name = names.shift();
+                if ( v.check( root_name, names, forum_id, thread_id ) ) {
                     has_changed = true;
-                    return ret;
-                } catch (e) {};
+                    return v.resolve( root_name, names, keys, 'string', forum_id, thread_id );
+                }
             }
             return match;
         })
