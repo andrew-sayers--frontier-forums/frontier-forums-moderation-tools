@@ -44,6 +44,9 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
             var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
+            var recently_reported_posts = {};
+            var name = $('.welcomelink a').text();
+
             // Reported posts forum filter
             dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(thread) {
 
@@ -51,11 +54,6 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
                 // modify the container elements to make moderation easier
                 $('.threadimod', thread.container_element).remove();
-
-                var recently_reported_posts = {};
-                thread.title.replace( /\[PID: ([0-9]*)\]/, function(match, pid) {
-                    recently_reported_posts['#post_'+pid] = thread.thread_id;
-                });
 
                 $( '.threadstatus', this )
                     .css({ cursor: 'pointer' })
@@ -66,23 +64,21 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
                             .done(function() { threadbit.toggleClass('lock') });
                     });
 
-                /*
-                  var title_suffix =
-                  v.resolve('report process', 'report title suffix', { moderator: 'ANY_MODERATOR' })
-                  .replace( /([.*+?^${}()|\[\]\/\\])/g, "\\$1" )
-                  .replace( 'ANY_MODERATOR', '.*' )
+                var report = new Report({ v: v, bb: bb, thread_id: thread.thread_id, title: thread.title })
 
-                  if ( thread.title.search( title_suffix ) == -1 ) {
-                  $('<a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread.thread_id+'&noquote=1" style="float:right">Take this report</a>')
-                  .click(function(event) {
-                  stash.take_thread_and_go( this.href, thread_id );
-                  event.preventDefault();
-                  })
-                  .insertAfter(this);
-                  }
-                */
+                recently_reported_posts['#post_'+report.target_post_id] = report.target_thread_id;
+
+                if ( !report.assigned ) {
+                    $('<a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread.thread_id+'&noquote=1" style="float:right">Take this report</a>')
+                        .click(function(event) {
+                            report.take( name, false );
+                            event.preventDefault();
+                        })
+                        .insertAfter(thread.title_element);
+                }
 
                 return true;
+
             });
 
             var mod_log_thread_id = v.resolve('policy', 'mod log thread id');

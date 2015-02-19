@@ -50,6 +50,7 @@
 
         /* Specific features */
         "src/dashboard.js",
+        "src/report.js",
 
         /* User-visible functionality */
         "src/legacy.js",
