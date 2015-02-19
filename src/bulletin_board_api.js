@@ -329,6 +329,13 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
                 args
             )},
 
+            login: function() { return BulletinBoard.prototype.build_url(
+                '/login.php',
+                [
+                    { key: 'do', param: 'do', default: 'login' }
+                ]
+            )},
+
             moderation_inline: function() { return BulletinBoard.prototype.build_url( '/inlinemod.php' ) },
             moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
             moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
