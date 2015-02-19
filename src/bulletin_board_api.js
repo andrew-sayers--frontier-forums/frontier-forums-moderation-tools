@@ -1099,7 +1099,7 @@ VBulletin.prototype.thread_whoposted = function( thread_id ) {
         html = $(html);
         return {
             total: html.find('.stats.total dd').text(),
-            users: html.find('.blockrow').map(function() {
+            users: html.find('#whoposted .blockrow').map(function() { // '#whoposted' is needed on forums with debugging enabled
                 return {
                     user_id   : $('.username a', this).attr('href').split('?u=')[1],
                     username  : $('.username a', this).text(),
