@@ -285,8 +285,13 @@ BabelExt.utils.dispatch({ // initialise general stuff
             handle_error_box.hide();
             event.preventDefault();
         });
+        var previous_errors = {};
 
         function handle_error( message, resolutions ) {
+
+            // ignore duplicate messages:
+            if ( previous_errors[message] ) return;
+            previous_errors[message] = true;
 
             var row = $('<tr><td><td style="padding-left: 1em"></tr>').appendTo(handle_error_box.find('tbody'));
             row.children('td').first().text( message );
