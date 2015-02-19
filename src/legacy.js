@@ -1947,8 +1947,8 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                             '<div class="useraction-level-text" id="useraction-level-3"><span><img src="images/buttons/yellow-card_sm.png">second warning</span>'+switch_mode+'</div>' +
                             '<div class="useraction-level-text" id="useraction-level-4"><span><img src="images/buttons/yellow-card_sm.png">final warning</span>'+switch_mode+'</div>' +
                             '<div class="useraction-level-text" id="useraction-level-5"><span><img src="images/buttons/red-card_sm.png"> infraction with automatic ban (recommended)</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-6"><span><img src="images/buttons/red-card_sm.png"> infraction with manual seven-day ban</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-7"><span><img src="images/buttons/red-card_sm.png"> infraction with manual one-month ban</span>'+switch_mode+'</div>' +
+                            '<div class="useraction-level-text" id="useraction-level-6"><span><img src="images/buttons/red-card_sm.png"> infraction with manual seven-day ban (rarely used)</span>'+switch_mode+'</div>' +
+                            '<div class="useraction-level-text" id="useraction-level-7"><span><img src="images/buttons/red-card_sm.png"> infraction with manual one-month ban (rarely used)</span>'+switch_mode+'</div>' +
                             '<div class="useraction-level-text" id="useraction-level-8"><span><img src="images/buttons/red-card_sm.png"> manual permaban</span>'+switch_mode+'</div>' +
                           '</div>' +
                           '<div class="none">' +
