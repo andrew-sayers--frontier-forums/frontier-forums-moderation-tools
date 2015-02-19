@@ -47,7 +47,7 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
             // Reported posts forum filter
             dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(thread) {
 
-                if ( thread.is_sticky || thread.status ) return false;
+                if ( thread.is_sticky || thread.status != 'open' ) return false;
 
                 // modify the container elements to make moderation easier
                 $('.threadimod', thread.container_element).remove();
@@ -87,12 +87,12 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
             var mod_log_thread_id = v.resolve('policy', 'mod log thread id');
             var report_forum_id = 48;
-            dashboard.find( '[data-thread="mod-log"]'          ).data( 'thread', mod_log_thread_id );
-            dashboard.find( 'a[href="#insert-mod-log-link"]'   ).attr( 'href', bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
-            dashboard.find( '[data-forum="reported-posts"]'    ).data( 'thread', report_forum_id );
-            dashboard.find( 'a[href="#insert-mod-log-link"]'   ).attr( 'href', bb.url_for.forum_show({ forum_id: report_forum_id }) );
-            dashboard.find( 'a[href="#insert-mod-queue-link"]' ).attr( 'href', bb.url_for.moderation_posts() );
-            dashboard.find( 'a[href="#insert-newbies-link"]'   ).attr( 'href', bb.url_for.users_show() );
+            dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
+            dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href', bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
+            dashboard.find( '[data-forum="reported-posts"]'        ).data( 'forum', report_forum_id );
+            dashboard.find( 'a[href="#insert-reported-posts-link"]').attr( 'href', bb.url_for.forum_show({ forum_id: report_forum_id }) );
+            dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href', bb.url_for.moderation_posts() );
+            dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href', bb.url_for.users_show() );
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
             body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe>' );
