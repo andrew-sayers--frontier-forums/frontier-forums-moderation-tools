@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Variables</title>
+    <title>Class: Report</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -294,7 +294,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Variables.html">Class: Variables</h1>
+        <h1 class="page-title" data-filename="Report.html">Class: Report</h1>
 
 
 
@@ -303,7 +303,7 @@
 
 <header>
     <h2>
-    Variables
+    Report
     </h2>
 
 </header>
@@ -316,119 +316,27 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Variables">
+        <h4 class="name" id="Report">
 
-            <span class="type-signature ">abstract</span>new Variables<span class="signature">()</span>
+            new Report<span class="signature">(args)</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line19">line 19</a>
+            <a href="report.js.html">report.js</a>, <a href="report.js.html#line22">line 22</a>
         </div>
 
     </div>
 
 
-    <p class="summary">Generic class for any type of bulletin board</p>
+    <p class="summary">Handle a report</p>
 
 </dt>
 <dd>
 
 
-    <div class="description">Each variable has a language, namespace and value.
-Variable resolution is necessarily quite complex:
-+ A default language is passed in
-+ If a "thread languages" variable exists, it is used for thread-specific language overrides
-+ If a "forum languages" variable exists, it is used for forum-specific language overrides
-+ Variable names of the form "foo: bar: baz" are treated specially - the part before the first ": " must be matched, others are optional (so a request for ['foo', 'bar'] would match a variable named 'foo)
-Variable values can include {{keys}}, which are resolved recursively.  So {{foo: {{something}}}} will first resolve {{something}}, then {{foo: (that thing)}}</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="check">
-
-            check<span class="signature">(namespace, names, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line140">line 140</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">check if a variable exists</p>
-
-</dt>
-<dd>
-
+    <div class="description">Reports just handle the actual report thread itself.
+Actions stemming from the report are handled elsewhere.</div>
 
 
 
@@ -458,13 +366,13 @@ Variable values can include {{keys}}, which are resolved recursively.  So {{foo:
 
         <tr>
 
-                <td class="name"><code>namespace</code></td>
+                <td class="name"><code>args</code></td>
 
 
             <td class="type">
 
 
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
 
@@ -474,406 +382,7 @@ Variable values can include {{keys}}, which are resolved recursively.  So {{foo:
 
             <td class="description last">
 
-
-
-
-
-
-                namespace to find the variable in</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>names</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;string></span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                name(s) of variable within the namespace</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>forum_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of forum to instantiate for</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>thread_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of thread to instantiate for</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code></code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">boolean</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                </td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="resolve">
-
-            resolve<span class="signature">(namespace, names, <span class="optional">keys</span>, <span class="optional">parser</span>, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line162">line 162</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">resolve a variable</p>
-
-</dt>
-<dd>
-
-
-    <div class="description">Variables need to follow some fairly specific rules to produce useful results:
-Variables are defined per-language, then the language is decided based on the forum, thread, and default language.
-Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
-We always try to return the most specific name for the language, but can default to less-specific ones</div>
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>namespace</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                namespace to find the variable in</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>names</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-|
-
-<span class="param-type">Array.&lt;string></span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-
-
-
-
-                name(s) of variable within the namespace</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>keys</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object.&lt;string, *></span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                keys used to instantiate the variable</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>parser</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">string</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                parser used for the variable ('string', 'array of items' or 'hash of arrays', default: 'string')</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>forum_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of forum to instantiate for</td>
-        </tr>
-
-
-
-        <tr>
-
-                <td class="name"><code>thread_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-
-                        <span class="optional">optional</span>
-
-
-
-
-
-                ID of thread to instantiate for</td>
+                report arguments</td>
         </tr>
 
 
@@ -922,13 +431,32 @@ We always try to return the most specific name for the language, but can default
 
 
 
-    <pre class="prettyprint"><code>v.resolve( 'policy', [ 'greeting message', 'newbie' ], { name: username }, 'string', 12, 345 );</code></pre>
+    <pre class="prettyprint"><code>var report = new Report({
+    v: variables,
+    bb: bulletin_board,
+    thread_id: 123,
+    title: 'Reported post by <name> [TID: 456] [PID: 7890] [ASSIGNED: J. Random Moderator]'
+});</code></pre>
 
 
 
 </dd>
 
-        </dl>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
