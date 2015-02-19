@@ -31,11 +31,11 @@ function Variables(args) {
     var v = this;
     this.promise = this.promise.then(function() {
         v.set_namespaces();
-        if ( v.check( 'policy', 'thread languages', {}, 'hash of arrays' ) ) {
+        if ( v.check( 'policy', 'thread languages', 'hash of arrays' ) ) {
             var tl = v.resolve( 'policy', 'thread languages', {}, 'hash of arrays' );
             Object.keys(tl).forEach(function(language) { tl[language].forEach(function(thread) { if ( thread.type == 'thread' ) v.thread_languages[thread.thread_id] = language; }); });
         }
-        if ( v.check( 'policy', 'forum languages', {}, 'hash of arrays' ) ) {
+        if ( v.check( 'policy', 'forum languages', 'hash of arrays' ) ) {
             var fl = v.resolve( 'policy',  'forum languages', {}, 'hash of arrays' );
             Object.keys(fl).forEach(function(language) { fl[language].forEach(function(forum ) { if (  forum.type == 'forum'  ) v. forum_languages[ forum. forum_id] = language; }); });
         }
@@ -75,12 +75,11 @@ VariablesFromForum.prototype.set_namespaces = function() {/*
  * @private
  * @param {string}                namespace namespace to find the variable in
  * @param {string|Array.<string>} names     name(s) of variable within the namespace
- * @param {Object.<string,*>=}    keys      keys used to instantiate the variable
  * @param {Number=}               forum_id  ID of forum to instantiate for
  * @param {Number=}               thread_id ID of thread to instantiate for
  * @return {string|Object} variable (if found) or error information (otherwise)
  */
-Variables.prototype.get = function( namespace, names, keys, forum_id, thread_id ) {
+Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
 
     var root_name;
     if ( typeof(names) == 'string' ) {
@@ -89,8 +88,6 @@ Variables.prototype.get = function( namespace, names, keys, forum_id, thread_id 
     } else { // array of possible names
         root_name = names.shift();
     }
-
-    keys = $.extend( this.default_keys, keys || {} );
 
     /*
      * STEP ONE: get the target language
@@ -139,13 +136,12 @@ Variables.prototype.get = function( namespace, names, keys, forum_id, thread_id 
  * @summary check if a variable exists
  * @param {string}                namespace namespace to find the variable in
  * @param {string|Array.<string>} names     name(s) of variable within the namespace
- * @param {Object.<string,*>=}    keys      keys used to instantiate the variable
  * @param {Number=}               forum_id  ID of forum to instantiate for
  * @param {Number=}               thread_id ID of thread to instantiate for
  * @param {boolean}
  */
-Variables.prototype.check = function( namespace, names, keys, forum_id, thread_id ) {
-    return typeof( this.get( namespace, names, keys, forum_id, thread_id ) ) == 'string';
+Variables.prototype.check = function( namespace, names, forum_id, thread_id ) {
+    return typeof( this.get( namespace, names, forum_id, thread_id ) ) == 'string';
 }
 
 /**
@@ -170,7 +166,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
 
     var v = this;
 
-    var variable = this.get(namespace, names, keys, forum_id, thread_id);
+    var variable = this.get(namespace, names, forum_id, thread_id);
 
     if ( typeof(variable) != 'string' ) { // actual return is error message, not variable
         var message = "Couldn't find variable \"" + variable.name.join(': ') + '" in namespace "' + variable.target_namespace + '"';
@@ -178,6 +174,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     }
 
     // resolve {{keys}}:
+    keys = $.extend( this.default_keys, keys || {} );
     var has_changed;
     do {
         has_changed = false;
