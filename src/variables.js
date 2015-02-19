@@ -31,11 +31,11 @@ function Variables(args) {
     var v = this;
     this.promise = this.promise.then(function() {
         v.set_namespaces();
-        if ( v.check( 'policy', 'thread languages', 'hash of arrays' ) ) {
+        if ( v.check( 'policy', 'thread languages' ) ) {
             var tl = v.resolve( 'policy', 'thread languages', {}, 'hash of arrays' );
             Object.keys(tl).forEach(function(language) { tl[language].forEach(function(thread) { if ( thread.type == 'thread' ) v.thread_languages[thread.thread_id] = language; }); });
         }
-        if ( v.check( 'policy', 'forum languages', 'hash of arrays' ) ) {
+        if ( v.check( 'policy', 'forum languages' ) ) {
             var fl = v.resolve( 'policy',  'forum languages', {}, 'hash of arrays' );
             Object.keys(fl).forEach(function(language) { fl[language].forEach(function(forum ) { if (  forum.type == 'forum'  ) v. forum_languages[ forum. forum_id] = language; }); });
         }
