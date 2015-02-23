@@ -1894,7 +1894,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                           '<legend>Type of issue</legend>' +
                           make_input( 'radio', "issue-type", '', 'Issue not yet specified', true, ' disabled' ) + '<br>' +
                           vi.violations.map(function(infraction) { return make_input( 'radio', "issue-type", infraction.id, infraction.name, undefined, ' data-points="'+infraction.points+'"' ) + '<br>' }).join('') +
-                          '<br>' + make_input( 'checkbox', "allow-multiple", 1, "Multiple infractions" ) +
                         '</fieldset>' +
                         '<fieldset>' +
                           '<legend>About this issue type</legend>' +
@@ -2526,18 +2525,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 /*
                  * USER ACTION
                  */
-
-                form.find( 'input[name="allow-multiple"]' ).click(function() {
-                    if ( $(this).prop('checked') ) {
-                        form.find( 'input[name="issue-type"]' )
-                            .attr( 'type', 'checkbox' )
-                            .each(function() { if ( !$(this).prop('checked') ) $(this).prop('checked', $(this).data('was-checked') ); } )
-                    } else {
-                        form.find( 'input[name="issue-type"]' )
-                            .each(function() { $(this).data( 'was-checked', $(this).prop('checked') ) } )
-                            .attr( 'type', 'radio' )
-                    }
-                });
 
                 function get_issues() {
                     return form.find( 'input[name="issue-type"]:checked' ).map(function() {
