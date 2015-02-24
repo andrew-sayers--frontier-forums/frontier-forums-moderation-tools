@@ -1,0 +1,18 @@
+.severity-slider-level {
+    padding: 0 1em;
+    width: 100%;
+    clear: both;
+    box-sizing: border-box;
+}
+
+/* Set the thumb colour (Firefox): */
+      .severity-slider-type-none::-moz-range-thumb { background: white }
+        .severity-slider-type-PM::-moz-range-thumb { background: black }
+   .severity-slider-type-warning::-moz-range-thumb { background: #FF0  }
+.severity-slider-type-infraction::-moz-range-thumb { background: #F00  }
+
+/* As above, but for WebKit: */
+      .severity-slider-type-none::-webkit-slider-thumb { background: white }
+        .severity-slider-type-PM::-webkit-slider-thumb { background: black }
+   .severity-slider-type-warning::-webkit-slider-thumb { background: #FF0  }
+.severity-slider-type-infraction::-webkit-slider-thumb { background: #F00  }

@@ -45,6 +45,9 @@
         "src/bulletin_board_api.js",
         "src/cacheable.js",
 
+        /* Widgets */
+        "src/widgets/severity_slider.js",
+
         /* Basic functionality */
         "src/variables.js",
         "src/violations.js",
@@ -57,7 +60,13 @@
         "src/legacy.js",
         "src/main.js"
     ],
-    "contentStyleFiles": [ "src/main.css" ],
+    "contentStyleFiles": [
+     /* widgets */
+     "src/widgets/severity_slider.css",
+
+     /* User-visible functionality */
+     "src/main.css"
+    ],
     "resources": [ "res/dashboard.html" ],
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
     "match_secure_domain": true,
