@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.4",
+	"version": "4.5",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -23,6 +23,7 @@
 				"lib/selectionchange.js",
 				"src/bulletin_board_api.js",
 				"src/cacheable.js",
+				"src/widgets/severity_slider.js",
 				"src/variables.js",
 				"src/violations.js",
 				"src/dashboard.js",
@@ -32,6 +33,7 @@
 			],
 			"run_at": "document_start",
 			"css": [
+				"src/widgets/severity_slider.css",
 				"src/main.css"
 			]
 		}

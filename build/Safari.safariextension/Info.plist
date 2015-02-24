@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.4</string>
+	<string>4.5</string>
 	<key>CFBundleVersion</key>
-	<string>4.4</string>
+	<string>4.5</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -66,6 +66,7 @@
 				<string>lib/selectionchange.js</string>
 				<string>src/bulletin_board_api.js</string>
 				<string>src/cacheable.js</string>
+				<string>src/widgets/severity_slider.js</string>
 				<string>src/variables.js</string>
 				<string>src/violations.js</string>
 				<string>src/dashboard.js</string>
@@ -76,6 +77,7 @@
 		</dict>
 		<key>Stylesheets</key>
 		<array>
+			<string>src/widgets/severity_slider.css</string>
 			<string>src/main.css</string>
 		</array>
 	</dict>
