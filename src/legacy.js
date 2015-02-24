@@ -1812,28 +1812,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                         '.common-actions .useraction div.none, .common-actions .useraction div.pm, .common-actions .useraction div.warn, .common-actions .useraction div.infract { display: none }' +
                         '.common-actions .useraction.none .none,.common-actions .useraction.pm .pm,.common-actions .useraction.warn .warn,.common-actions .useraction.infract .infract { clear: both; display: inherit }' +
                         '.common-actions .useraction-level-text { margin: 0 1em; display: none }' +
-                        '#useraction-level { padding: 0 1em; width: 100%; box-sizing: border-box }' +
-                        '#useraction-level[data-value="0"]::-moz-range-thumb { background: white }' +
-                        '#useraction-level[data-value="1"]::-moz-range-thumb { background: black }' +
-                        '#useraction-level[data-value="2"]::-moz-range-thumb { background: #FF0 }' +
-                        '#useraction-level[data-value="3"]::-moz-range-thumb { background: #FF0 }' +
-                        '#useraction-level[data-value="4"]::-moz-range-thumb { background: #FF0 }' +
-                        '#useraction-level[data-value="5"]::-moz-range-thumb { background: #866 }' +
-                        '#useraction-level[data-value="6"]::-moz-range-thumb { background: #F80 }' +
-                        '#useraction-level[data-value="7"]::-moz-range-thumb { background: #F40 }' +
-                        '#useraction-level[data-value="8"]::-moz-range-thumb { background: #F00 }' +
-
-                        '#useraction-level-1 input, #useraction-level-2 input, #useraction-level-3 input, #useraction-level-4 input { float: right }' +
-                        '#useraction-level-5 input, #useraction-level-6 input, #useraction-level-7 input, #useraction-level-8 input { float: left  }' +
-                        '#useraction-level-5, #useraction-level-6, #useraction-level-7, #useraction-level-8 { text-align: right }' +
-                        '#useraction-level-1 span { margin-left: 11% }' +
-                        '#useraction-level-2 span { margin-left: 22% }' +
-                        '#useraction-level-3 span { margin-left: 33% }' +
-                        '#useraction-level-4 span { margin-left: 44% }' +
-                        '#useraction-level-5 span { margin-right: 33% }' +
-                        '#useraction-level-6 span { margin-right: 22% }' +
-                        '#useraction-level-7 span { margin-right: 11% }' +
-                        '#useraction-level-8 span { margin-right:  0% }' +
 
                         '.common-actions .per-post.vbcode-mode.hand-edit div.vbcode,.common-actions .per-post.vbcode-mode textarea.vbcode { display: none }' +
                         '.common-actions .per-post.vbcode-mode.hand-edit textarea.vbcode { display: block }' +
@@ -1938,17 +1916,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
                         '<fieldset class="useraction none vbcode-mode">' +
                           '<legend>User action</legend>' +
-                          '<div style="margin-bottom: 1em" class="posthead">' +
-                            '<input id="useraction-level" type="range" data-value="0" min="0" max="8" value="0">' +
-                            '<div class="useraction-level-text" id="useraction-level-0" style="display: block"><img src="images/buttons/add-infraction_sm.png" style="visibility: hidden">no action</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-1"><span><img src="images/buttons/add-infraction_sm.png">explanatory PM</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-2"><span><img src="images/buttons/yellow-card_sm.png">first warning</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-3"><span><img src="images/buttons/yellow-card_sm.png">second warning</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-4"><span><img src="images/buttons/yellow-card_sm.png">final warning</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-5"><span><img src="images/buttons/red-card_sm.png"> infraction with automatic ban (recommended)</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-6"><span><img src="images/buttons/red-card_sm.png"> infraction with manual seven-day ban (rarely used)</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-7"><span><img src="images/buttons/red-card_sm.png"> infraction with manual one-month ban (rarely used)</span>'+switch_mode+'</div>' +
-                            '<div class="useraction-level-text" id="useraction-level-8"><span><img src="images/buttons/red-card_sm.png"> manual permaban</span>'+switch_mode+'</div>' +
+                          '<div style="clear: both; margin-bottom: 1em" class="posthead">' +
                           '</div>' +
                           '<div class="none">' +
                             '(no action will be taken)' +
@@ -1994,6 +1962,22 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     '</div>'
 
                 ).appendTo( common_actions.find('.postcontent').empty() );
+
+                var slider_current_type = 'infraction';
+                var slider = new SeveritySlider({
+                    default: 2,
+                    levels: [
+                        { type: 'none'      , html: '<span>' + /* no icon */                               'no action</span>'       },
+                        { type: 'PM'        , html: '<span><img src="images/buttons/add-infraction_sm.png"> explanatory PM</span>' },
+                        { type: 'infraction', html: '<span><img src="images/buttons/red-card_sm.png">'  + ' infraction</span>' },
+                    ],
+                    extra_html: switch_mode,
+                    callback: function(level) {
+                        slider_current_type = level.type;
+                        refresh_actions();
+                    },
+                    container: form.find( '.useraction .posthead' )
+                });
 
                 promises.modcp.done(function() {
                     $('#need-modcp-login').remove();
@@ -2161,7 +2145,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                  */
 
                 var post_to_review_id = stash.post_to_review_id;
-                var automatic_useraction_level = -1;
 
                 function refresh_post_list_and_searches() {
                     var searches = $('.common-actions .search-for').map(function() {
@@ -2551,18 +2534,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                                'multiple issues'
                     ;
 
-                    // issue an infraction if there's at least one infraction-worthy issue, or a PM if all issues are PM-worthy:
-                    var recommended_level = (
-                        ( issues.filter(function() { return this.infraction_worthy }).length ) ? 5                    :
-                        ( issues.filter(function() { return !this.pm_worthy        }).length ) ? 2 + infraction_count :
-                                                                                                 1
-                    );
-                    form.find( '#useraction-level' )
-                        .filter(function() { return automatic_useraction_level == -1 || automatic_useraction_level == this.value }) // ignore if changed by the user
-                        .attr( 'value', recommended_level ).val( recommended_level )
-                        .trigger('input');
-                    automatic_useraction_level = recommended_level;
-
                     $('#issue-info').html( v.resolve('report process', [ 'information', issue_count, issue_name ], {}, 'string', forum_to_review_id, stash.thread_to_review_id) );
                     $('.issue-name').text(issue_name);
                     $('.issue-points').text(
@@ -2572,12 +2543,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     $('.useraction .switch-mode-vbcode:visible').click();
                 });
 
-                form.find('#useraction-level').on( 'input change', function() {
-                    form.find('.useraction-level-text').hide().filter('#useraction-level-'+this.value).show();
-                    this.setAttribute( 'data-value', this.value );
-                });
-
-                form.find('input[name="issue-type"],#useraction-level,#delete-posts,input[name="action"]').on( 'input change', function() {
+                function refresh_actions() {
 
                     $('.useraction .switch-mode-vbcode:visible').click();
 
@@ -2602,10 +2568,10 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                         };
 
                         $('.useraction').removeClass( 'none pm warn infract' );
-                        var useraction_type = Math.min( parseInt( $('#useraction-level').val(), 10 ), 8 );
+
                         var is_warning = false;
-                        switch ( useraction_type ) {
-                        case 0:
+                        switch ( slider_current_type ) {
+                        case 'none':
                             useraction_data = {
                                 get_promises: function() {},
                                 titles:   [],
@@ -2615,7 +2581,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                             };
                             $('.useraction').addClass( 'none' );
                             break;
-                        case 1:
+                        case 'PM':
                             $('.useraction .pm input'   ).val( v.resolve('violation info', [ 'PM title', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ) );
                             $('.useraction .pm textarea').val( v.resolve('violation info', [ 'PM body' , issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ) );
                             useraction_data = {
@@ -2631,28 +2597,13 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                             }
                             $('.useraction').addClass( 'pm' );
                             break;
-                        case 2:
-                        case 3:
-                        case 4:
-                            is_warning = true;
-                            // FALL THROUGH
-                        case 5:
-                        case 6:
-                        case 7:
-                        case 8:
+                        case 'infraction':
                             variables['infraction type'] = ( is_warning ? 'official warning' : 'infraction' );
                             var image = ( is_warning ? '/images/buttons/yellow-card_sm.png' : '/images/buttons/red-card_sm.png' );
                             var textarea = $('.useraction .' + (is_warning?'warn':'infract') + ' textarea');
                             var to_name = ' to [URL="'+location.origin+'/member.php?u=' + user_to_review_id + '"]' + user_to_review.text() + '[/URL]';
                             var titles = [ 'Give an ' + variables['infraction type'] + to_name + ' for [URL="'+location.origin+'/infraction.php?do=view&p=' + posts[0].post_id + '"]post #' + posts[0].post_id + '[/URL]' ];
                             var action_text = '[img]'+location.origin+image+'[/img] ' + variables['infraction type'];
-                            var period, expires;
-                            switch ( useraction_type ) {
-                            case 5:                                                                              action_text += ' with automatic ban'; break;
-                            case 6: period = 'D'; expires = 7; titles.push( "Give a seven-day ban " + to_name ); action_text += ' with seven-day ban'; break;
-                            case 7: period = 'M'; expires = 1; titles.push( "Give a one-month ban " + to_name ); action_text += ' with one-month ban'; break;
-                            case 8: period = 'PERMANENT'     ; titles.push( "Give a permanent ban " + to_name ); action_text += ' with permanent ban'; break;
-                            }
                             textarea.val(
                                 v.resolve('violation info', [ 'infraction', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id )
                             );
@@ -2686,18 +2637,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                         ret.push(bb.infraction_give_custom( args ));
                                     }
 
-                                    if ( period ) {
-                                        ret.push(promises.modcp.then(function() {
-                                            return bb.user_ban({
-                                                username: user_to_review.text(),
-                                                reason  : resolution_variables.violation,
-                                                group_id: is_spam ? 22 : 8,
-                                                period  : period,
-                                                expires : expires
-                                            });
-                                        }));
-                                    }
-
                                     return ret;
 
                                 },
@@ -2716,7 +2655,9 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
                     })});
 
-                });
+                }
+                form.find('input[name="issue-type"],#useraction-level,#delete-posts,input[name="action"]').on( 'input change', refresh_actions );
+                refresh_actions();
 
                 $('.april-fools').click(function() {
                     // April fools button - pretend to ban each user starting from user ID == 1
