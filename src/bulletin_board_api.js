@@ -1330,6 +1330,23 @@ VBulletin.prototype.users_list_new = function() {
 
 }
 
+/**
+ * @summary suggest possible completions given a partial user name
+ * @param {string} prefix partial user name
+ * @return {Array.<Object>} list of user names and IDs
+ */
+VBulletin.prototype.users_complete = function( prefix ) {
+    return this.post( '/ajax.php?do=usersearch', {
+	do      : 'usersearch',
+        fragment: prefix
+    }).then(function(xml) {
+        var ret = [], users = xml.getElementsByTagName('user'), n;
+        for ( n=0; n!=users.length; ++n )
+            ret.push({ user_id: users[n].getAttribute('userid'), username: users[n].textContent });
+        return ret;
+    });
+}
+
 /*
  * MISCELLANEOUS
  */
