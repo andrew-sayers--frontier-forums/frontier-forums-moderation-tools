@@ -1581,7 +1581,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         match_elements: [ '#breadcrumb .navbit a[href="forumdisplay.php?f=48"]', '#below_postlist' ],
         callback: function(stash, pathname, params) {
 
-            if ( $('a[href="forumdisplay.php?f=71"]').length ) return; // disable extras in the dupe account forum
+            if ( $('#breadcrumb a[href="forumdisplay.php?f=71"]').length ) return; // disable extras in the dupe account forum
 
             var pm_worthy_violations = {};
             var infraction_worthy_violations = {};
