@@ -340,7 +340,7 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
             moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
             moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
 
-            infraction_give: function(args) { return BulletinBoard.prototype.build_url(
+            infraction: function(args) { return BulletinBoard.prototype.build_url(
                 '/infraction.php',
                 [
                     { key: 'user_id', param: 'u' },
@@ -676,7 +676,7 @@ VBulletin.prototype.infraction_give_custom = function( data ) {
  */
 VBulletin.prototype.infraction_ids = function( user_id ) {
 
-    return $.get( this.url_for.infraction_give({ action: 'report', user_id: user_id || 37 }) ).then(function(html) {
+    return $.get( this.url_for.infraction({ action: 'report', user_id: user_id || 37 }) ).then(function(html) {
         return $(html).find('input[name="infractionlevelid"]').map(function() {
             if ( $(this).val() != '0' ) {
                 var name = $.trim($(this).parent().text());
