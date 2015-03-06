@@ -255,13 +255,16 @@ Dashboard.prototype.newbies_init = function(container) {
 
     var dashboard = this;
 
-    if ( !dashboard.cache['newbies-next'] ) { // first run
-        return dashboard.bb.users_list_new().then(function(users) {
-            dashboard.cache['newbies-next'] = users[0].user_id + 1;
-            dashboard.cache['newbies-current'] = [];
-            dashboard.update_cache();
-            dashboard.monitor_newbies(container);
-        });
+    container.data( 'template', container.find( '.template' ).removeClass( 'template' ).detach() );
+
+    if ( !dashboard.cache['newbies-next'] ) {
+        // first run - get min_user_id if possible, else set it to the next user ID that will be created:
+        return $.when( container.data('min_user_id')(), dashboard.bb.users_list_new() )
+            .then(function(min_user_id, users) {
+                dashboard.cache['newbies-next'] = min_user_id  || users[0].user_id + 1;
+                dashboard.cache['newbies-current'] = [];
+                dashboard.update_cache();
+            });
     }
 
 }
@@ -281,57 +284,97 @@ Dashboard.prototype.newbies_refresh = function(container) {
     var user_count = 0;
 
     // get a new user account (called recursively until the time limit is reached):
-    function get_user(user_info) {
+    function get_user(user_info, users) {
 
         if ( user_info ) {
             ++user_count;
-            return dashboard.bb.ip_users( user_info.ip ).then(function(users) {
 
-                user_info.suspected_duplicates = users.users;
+            return $.when.apply( $, // get user info about suspected duplicate accounts
+                users.map(function(user) {
+                    return dashboard.bb.user_info(user.user_id).then(function(info) {
+                        user.suspiciousness = (
+                            ( info.is_banned        && 8 ) | // same IP as a currently-banned user - DODGEY!
+                            ( info.infraction_count && 4 ) | // same IP as an infracted user - probably dodgey
+                            ( info.   warning_count && 2 ) | // same IP as a user with a warning - might well be dodgey
+                                                       1     // same IP as another user - could be dodgey
+                        );
+                        user.info = info;
+                    });
+                }).concat(
+                    users.map(function(user) {
+                        return dashboard.bb.user_moderation_info(user.user_id).then(function(info) {
+                            user.moderation_info = info;
+                        });
+                    })
+                )
+            ).then(function() {
+                if ( users.length ) {
+                    users.sort(function(a,b) { return b.suspiciousness - a.suspiciousness || a.username.localeCompare(b.username) });
+                    user_info.suspiciousness = users[0].suspiciousness;
+                } else {
+                    user_info.suspiciousness = 0;
+                }
+
+                user_info.suspected_duplicates = users;
                 ++dashboard.cache['newbies-next'];
                 current_users.push(user_info);
                 dashboard.update_cache();
 
                 if ( new Date().getTime() < end_time ) {
                     // get another account
-                    return dashboard.bb.user_moderation_info(dashboard.cache['newbies-next']).then(get_user);
+                    return $.when(
+                        dashboard.bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
+                        dashboard.bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
+                    ).then(get_user);
                 }
-
             });
+
         }
 
     };
 
-    return dashboard.bb.user_moderation_info(dashboard.cache['newbies-next']).then(get_user).then(function() {
+    function get_newbies(user_id) {
 
-        // If the section has already been initialed and there are no new users, return unchanged:
-        if ( container.data( 'signature' ) && !user_count ) return;
-        container.data( 'signature', true );
+        if ( dashboard.cache['newbies-next'] < user_id ) dashboard.cache['newbies-next'] = user_id;
 
-        container.data( 'newbies-current', current_users );
+        return $.when(
+            dashboard.bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
+            dashboard.bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
+        ).then(get_user).then(function() {
 
-        return current_users.sort(function (a,b) { return a.name.localeCompare(b.name) }).map(function(user) {
-            var ret = $('<tr><td><a href=""></a><td>&lt;<span></span>&gt;</span><td></tr>');
-            ret.find('a'   ).text( user.name ).attr( 'href', dashboard.bb.url_for.user_show({ user_id: user.user_id }) );
-            ret.find('span').text( user.email );
-            var dupes = user.suspected_duplicates.map(function(dupe_user) {
-                if ( user.name != dupe_user.name ) {
-                    return $('<a href=""></a>')
-                        .text( dupe_user.name )
-                        .attr( 'href', dashboard.bb.url_for.user_show({ user_id: dupe_user.user_id }) )
-                }
+            // If the section has already been initialised and there are no new users, return unchanged:
+            if ( container.data( 'signature' ) && !user_count ) return;
+            container.data( 'signature', true );
+
+            current_users.sort(function (a,b) {
+                if ( a.suspected_duplicates.filter(function(user) { return user.user_id == b.user_id }).length ) {
+                    // groups of duplicate users are sorted by activity time
+                    return b.activity_date - a.activity_date;
+                } else {
+                    return b.suspiciousness - a.suspiciousness || a.username.localeCompare(b.username);
+                };
             });
-            if ( dupes.length ) {
-                ret.find('td').eq(2).append(dupes).children(':not(:last-child)').after(', ');
-            }
-            return ret;
+
+            container.data( 'newbies-current', current_users );
+
+            var template = container.data( 'template' );
+
+            var users = current_users.map(function(user) {
+                return $.extend( { element: template.clone() }, user );
+            });
+
+            if ( container.data('filter') ) users = container.data('filter')(users);
+
+            return users.map(function(user) { return user.element });
+
         });
 
-        if ( container.data('filter') ) users = container.data('filter')(users);
+    }
 
-        return users.map(function(user) { return user.element });
-
-    });
+    if ( container.data('min_user_id') )
+        return container.data('min_user_id')().then(get_newbies);
+    else
+        return get_newbies(0);
 
 }
 
@@ -522,6 +565,9 @@ Dashboard.prototype.server_stats_refresh = function(container) {
         values.members_online.push( stats.members_online );
         values. guests_online.push( stats. guests_online );
 
+        var loadavg = container.data('loadavg');
+        var online  = container.data('online');
+
         if ( values.labels.length >= 15 ) {
             loadavg.removeData();
             online .removeData();
@@ -530,11 +576,8 @@ Dashboard.prototype.server_stats_refresh = function(container) {
 
         dashboard.update_cache();
 
-        var loadavg = container.data('loadavg');
         loadavg.addData( [ stats.one_minute_loadavg, stats.five_minute_loadavg, stats.fifteen_minute_loadavg ], time );
-
-        var online = container.data('online');
-        online.addData( [ stats.members_online, stats.guests_online ], time );
+        online .addData( [ stats.members_online, stats.guests_online                                         ], time );
 
     });
 
