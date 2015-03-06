@@ -1465,6 +1465,110 @@ VBulletin.prototype.user_current = function(user_id) {
 }
 
 /**
+ * @summary Get information about a user from their member page
+ * @param {Number} user_id ID of user to gather information about
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_info = function(user_id) {
+    return $.get('/member.php?u='+user_id+'&tab=infractions&pp=50').then(function(html) {
+        html = $(html);
+
+        var join_date = $.trim(html.find( '.userinfo dd' ).first().text());
+        var title     = $.trim(html.find('#userinfo .usertitle').text());
+        var username  = $.trim(html.find('.member_username').text());
+
+        var ret = {
+            joined: join_date,
+            title : title,
+
+            user_note_count: parseInt( html.find('a[href="usernote.php?u='+user_id+'"]').text().replace( /^(?:.*[^0-9])?\(([0-9]+)\).*/, "$1" ), 10 ),
+
+            summary: '<a href="/member.php?u=' + user_id + '">' + $('<div/>').text(username).html() + '</a>',
+
+            infraction_reasons: [],
+            infraction_count  : 0,
+            warning_count     : 0,
+            infraction_points : 0,
+            infraction_summary: '',
+
+            join_summary: 'joined ' + $('<div/>').text(join_date).html() + ', ' + $('<div/>').text(title).html()
+        };
+
+        if ( html.find('.infractions_block').length ) {
+
+            var infractions = html.find( '#infractionslist > li' ); // all infractions, even those expired or reversed
+
+            var interesting_user_notes = ret.user_note_count - infractions.length;
+            if ( interesting_user_notes > 0 ) {
+                ret.infraction_summary += (
+                    '<a href="/usernote.php?u='+user_id+'" title="' +
+                    ( ( ret.user_note_count == 1 ) ? '1 user note' : ret.user_note_count + ' user notes'  ) +
+                    '">' +
+                    new Array( interesting_user_notes + 1 ).join( '&#x2669;' ) +
+                    '</a>'
+                );
+            }
+
+            html.find( '#infractions' ).text().replace( '[0-9]+', function( points ) { ret.infraction_points = points });
+
+            infractions = infractions.filter(function() { return $('.inflistexpires',this).text().search(/Reversed/) == -1 });
+
+            ret.infraction_reasons = infractions.map(function() { return $('.infraction_reason em', this).text() }).get();
+
+            infractions = infractions.filter(function() { return $('.inflistexpires',this).text().search(/Expired/) == -1 });
+
+            ret.infraction_count  = infractions.length;
+            ret.warning_count     = infractions.has('img.inlineimg[src="images/misc/yellowcard_small.gif"]').length;
+            ret.infraction_summary += (
+                infractions.closest('li').map(function() {
+                    var info = $(this).find('.inflistinfo');
+                    var date = $(this).find('.inflistdate');
+                    date.find('.postby').remove();
+                    if ( info.find('a').length ) { // post-related infraction
+                        return (
+                            '<a href="'    + $('<div/>').text(info.find('a').attr('href')).html() +
+                                '" title="'     + $('<div/>').text($.trim(date.text()) + ': ' + info.find('em').text()).html() +
+                                '"><img src="/' + $('<div/>').text(info.find('img').attr('src')).html() +
+                                '"></a>'
+                        );
+                    } else {
+                        return (
+                            '<span title="'     + $('<div/>').text($.trim(date.text()) + ': ' + info.find('em').text()).html() +
+                                '"><img src="/' + $('<div/>').text(info.find('img').attr('src')).html() +
+                                '"></span>'
+                        );
+                    }
+                }).get().reverse().join('')
+            );
+
+        } else if ( ret.user_note_count ) {
+
+            ret.infraction_summary += (
+                '<a href="/usernote.php?u='+user_id+'" title="' +
+                ( ( ret.user_note_count == 1 ) ? '1 user note' : ret.user_note_count + ' user notes'  ) +
+                '">' +
+                new Array( ret.user_note_count + 1 ).join( '&#x2669;' ) +
+                '</a>'
+            );
+
+        }
+
+        if ( html.find('#usermenu a[href^="modcp/banning.php?do=liftban"]').length ) {
+            return $.get( '/modcp/banning.php?do=editreason&userid=' + user_id ).then(function(html) {
+                ret.is_banned = true;
+                // ignore warnings/infractions/notes for banned users:
+                ret.infraction_summary = '<span style="color: red">BANNED: ' + $('<div/>').text($.trim($(html).find( '#it_reason_1' ).val())).html() + '</span>';
+                ret.summary = ret.infraction_summary + ' ' + ret.summary;
+                return ret;
+            });
+        } else {
+            ret.summary = ret.infraction_summary + ' ' + ret.summary;
+            return ret;
+        }
+    });
+}
+
+/**
  * @summary Get information about a user from ModCP
  * @param {Number} user_id ID of user to gather information about
  * @return {jQuery.Promise}
