@@ -61,6 +61,7 @@
         "src/dashboard.js",
         "src/report.js",
         "src/form_keys.js",
+        "src/email_highlighter.js",
 
         /* User-visible functionality */
         "src/legacy.js",
