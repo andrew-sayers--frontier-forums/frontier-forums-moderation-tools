@@ -1265,6 +1265,8 @@ VBulletin.prototype.thread_openclose = function( thread_id, open ) {
  *     bbcode              : 'post [i]body[/i]',
  *     flip_thread_openness: false,
  *     url                 : '/foo.php' // optional, default: post with AJAX to avoid page load
+ * }).then(function(new_post_id) {
+ *     ...
  * });
  *
  * @description
@@ -1273,7 +1275,7 @@ VBulletin.prototype.thread_openclose = function( thread_id, open ) {
  *       See {@link thread_openclose} for a safer solution.
  */
 VBulletin.prototype.thread_reply = function( data ) {
-    return this.post(
+    var ret = this.post(
         '/newreply.php?do=postreply&t=' + data.thread_id,
         {
             do            : 'postreply',
@@ -1288,6 +1290,12 @@ VBulletin.prototype.thread_reply = function( data ) {
         },
         data.url
     );
+    if ( data.url )
+        return ret;
+    else
+        return ret.then(function(xml) {
+            return xml.getElementsByTagName('postbit')[0].getAttribute('postid');
+        });
 }
 
 /**
