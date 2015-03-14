@@ -1672,3 +1672,26 @@ VBulletin.prototype.editor_get = function() {
     document.body.removeAttribute('data-editor-contents');
     return ret;
 }
+
+/**
+ * @summary Statistics about the server running the bulletin board
+ * @return {Object} one, five and fifteen minute load averages; total, logged-in and logged-out users online
+ */
+VBulletin.prototype.server_stats = function( ) {
+    return $.get( '/modcp/index.php?do=home' ).then(function(html) {
+        var ret;
+        $(html).find('.alt1').eq(1).text().replace(
+            /^\s*([0-9.]+)\s*([0-9.]+)\s*([0-9.]+)\s*\|\s*([0-9,]+) Users Online \(([0-9,]+) members and ([0-9,]+) guests\)\s*$/,
+            function( match, one_minute, five_minutes, fifteen_minutes, total_online, members_online, guests_online ) {
+                ret = {
+                        one_minute_loadavg: parseFloat(     one_minute  ),
+                       five_minute_loadavg: parseFloat(    five_minutes ),
+                    fifteen_minute_loadavg: parseFloat( fifteen_minutes ),
+                      total_online: parseInt(   total_online.replace( /,/g, '' ), 10 ),
+                    members_online: parseInt( members_online.replace( /,/g, '' ), 10 ),
+                     guests_online: parseInt(  guests_online.replace( /,/g, '' ), 10 ),
+                };
+            });
+        return ret;
+    });
+}
