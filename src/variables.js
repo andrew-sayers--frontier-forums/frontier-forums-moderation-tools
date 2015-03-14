@@ -20,7 +20,7 @@ function Variables(args) {
 
     this.bb               = args.bb;
     this.default_language = args.default_language;
-    this.default_keys     = args.default_keys;
+    this.default_keys     = args.default_keys || {};
     this.error_callback   = args.error_callback;
 
     this.thread_languages = {};
@@ -172,7 +172,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     variable = variable.variable;
 
     // resolve {{keys}}:
-    keys = $.extend( this.default_keys, keys || {} );
+    keys = $.extend( {}, this.default_keys, keys || {} );
     var has_changed;
     do {
         has_changed = false;
