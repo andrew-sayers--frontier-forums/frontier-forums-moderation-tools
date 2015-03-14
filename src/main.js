@@ -138,27 +138,7 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
                 'Moderation tools',
                 'Browser extension',
                 'How to edit a variables thread',
-                'This thread contains variables used by the moderation tools.<br>' +
-                '<br>' +
-                'To edit an existing variable:<br>' +
-                '<ol>' +
-                    '<li>Search for a [quote] block attributed to your variable name' +
-                    '<li>Edit the post containing that block' +
-                    '<li>Make your changes' +
-                    '<li>Save the new post' +
-                    '<li>Load a page that uses your variable, and make sure it works as expected' +
-                    '<li>Bump this thread so others will see your change' +
-                '</ol>' +
-                '<br>' +
-                'To create a new variable:' +
-                '<ol>' +
-                    '<li>Edit an existing post or create a new one' +
-                    '<li>Add a new piece of text like [quote=(name of your variable)](contents of your variable)[/quote]' +
-                    '<li>Save the new post' +
-                    '<li>Load a page that uses your variable, and make sure it works as expected' +
-                    '<li>Bump this thread so others will see your change' +
-                '</ol>' +
-                '<div style="width: 100%; text-align: center; margin: 1em"><a class="newcontent_textcontrol" href="#bump-thread" title="Click to bump this thread" style="float: none; display: inline; text-decoration: none; font-size: 200%">Bump&nbsp;this&nbsp;thread</a></div>'
+                BabelExt.resources.get('res/variables_thread_post.html')
             );
             post.find('a.newcontent_textcontrol').click(function(event) {
                 bb.thread_bump(params.t).then(function() {
@@ -344,14 +324,7 @@ BabelExt.utils.dispatch({ // initialise general stuff
          */
         var maintainer_user_id = 18617, maintainer_name = 'Andrew Sayers';
 
-        var handle_error_box = $(
-            '<div style="display: none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 5px solid black; border-radius: 5px; background: white; color: black">' +
-                '<h1 style="width: 100%; box-sizing: border-box; border-bottom: 1px solid black; padding: 1em; font-weight: bold">Error!</h1>' +
-                '<table style="margin: 1em"><thead style="font-weight: bold"><tr><th>Message</th><th style="padding-left: 1em">Suggested resolutions</th></tr><tbody></tbody></table>' +
-                '<a style="float: left; padding: 1em" href="#pm-maintainer">Send debug log to the maintainer</a>' +
-                '<a style="float: right; padding: 1em" href="#close-error-box">close</a>' +
-            '</div>'
-        );
+        var handle_error_box = $(BabelExt.resources.get('res/error_box.html'));
         $(function() {
             handle_error_box.appendTo(document.body);
             $('<a id="debug-log-show" href="#debug-log-show">(click here to show the moderators\' extension debug log)</a>')
