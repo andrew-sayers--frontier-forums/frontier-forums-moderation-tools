@@ -1375,6 +1375,28 @@ VBulletin.prototype.users_complete = function( prefix ) {
  */
 
 /**
+ * @summary convert a URL to the parameters needed to build it
+ * @param {string} url URL to convert
+ * @return {Object} e.g. { type: 'user', url_for: 'user_show', args: { user_id: 1234 } }
+ * @description The return value contains the following:
+ * * type    - the main object of the URL (e.g. "user" or "thread")
+ * * subtype - the specific page type (see url_for for a list)
+ * * args    - arguments to url_for.<subtype>()
+ */
+VBulletin.prototype.url_decode = function( url ) {
+    var ret;
+    var decoders = [
+        [ /showthread\.php\?(?:.*&)?p=([0-9]+)/, function(url, id) { ret = { type: 'post'  , subtype: 'thread_show', args: {   post_id: id } } } ],
+        [ /showthread\.php\?(?:.*&)?t=([0-9]+)/, function(url, id) { ret = { type: 'thread', subtype: 'thread_show', args: { thread_id: id } } } ],
+        [ /member.php\?(?:.*&)?u=([0-9]+)/     , function(url, id) { ret = { type: 'user'  , subtype:   'user_show', args: {   user_id: id } } } ]
+    ];
+    do {
+        url.replace.apply( url, decoders.shift() );
+    } while ( decoders.length && !ret );
+    return ret;
+}
+
+/**
  * @summary Ban a spambot and delete all their posts as spam
  * @param {Number} user_ID ID of the user to ban
  * @param {Number} post_ID ID of the post that made you realise this was a spambot
