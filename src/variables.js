@@ -156,6 +156,9 @@ Variables.prototype.check = function( namespace, names, forum_id, thread_id ) {
  * Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
  * We always try to return the most specific name for the language, but can default to less-specific ones
  *
+ * Note: keys should either be strings or arrays of strings.  Arrays are automatically converted to sentences,
+ * e.g. [1,2,3] becomes "1, 2 and 3".
+ *
  * @example
  * v.resolve( 'policy', [ 'greeting message', 'newbie' ], { name: username }, 'string', 12, 345 );
  */
@@ -180,7 +183,17 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
             key = key.toLowerCase();
             if ( keys.hasOwnProperty(key) ) {
                 has_changed = true;
-                return keys[key];
+                var values = keys[key];
+                if ( $.isArray(values) ) {
+                    if ( values.length == 1 ) {
+                        return values[0];
+                    } else {
+                        var last = values.pop();
+                        return values.join(', ') + ' and ' + last;
+                    }
+                } else {
+                    return values;
+                }
             } else if ( key.search(':') != -1 ) {
                 var names = key.split(/:\s*/);
                 var root_name = names.shift();
