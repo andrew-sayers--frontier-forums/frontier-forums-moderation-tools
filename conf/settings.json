@@ -40,6 +40,7 @@
         /* Third-party libraries */
         "lib/jquery-2.1.1.min.js",
         "lib/selectionchange.js",
+        "lib/Chart.js",
 
         /* Low-level libraries */
         "src/debug_log.js",
