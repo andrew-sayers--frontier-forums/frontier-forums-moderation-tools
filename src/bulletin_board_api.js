@@ -1264,7 +1264,9 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
 }
 
 /**
- * @summary Get information about users from ModCP
+ * @summary Get information about a user from ModCP
+ * @param {Number} user_id ID of user to gather information about
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.user_moderation_info = function(user_id) {
 
@@ -1311,6 +1313,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
 /**
  * @summary Get new users
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.users_list_new = function() {
 
