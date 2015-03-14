@@ -386,6 +386,126 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
 
 }
 
+// Some monitors need more than the default initialisation:
+Dashboard.prototype.server_stats_init = function(container) {
+
+    function make_chart( name, data, settings ) {
+        var chart = new Chart( container.find('.dashboard-server_stats-'+name+' canvas')[0].getContext("2d") );
+        var line = chart.Line(data, settings);
+        container.find('.dashboard-server_stats-'+name).append(line.generateLegend());
+        container.data( name, line );
+    }
+
+    make_chart(
+        'loadavg',
+        {
+            labels: [],
+            datasets: [
+                {
+                    label: "One-minute load average",
+                    fillColor: "rgba(220,220,220,0.2)",
+                    strokeColor: "#f33",
+                    pointColor: "#f33",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(220,220,222,1)",
+                    data: []
+                },
+                {
+                    label: "Five-minute load average",
+                    fillColor: "rgba(220,220,223,0.2)",
+                    strokeColor: "#e88",
+                    pointColor: "#e88",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(220,220,225,1)",
+                    data: []
+                },
+                {
+                    label: "Fifteen-minute load average",
+                    fillColor: "rgba(220,220,226,0.2)",
+                    strokeColor: "#daa",
+                    pointColor: "#daa",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(220,220,228,1)",
+                    data: []
+                },
+            ]
+        },
+        {
+            bezierCurve: true,
+            animation: false,
+            scaleOverride: true,
+            scaleSteps: 10,
+            scaleStepWidth: 0.1,
+            scaleStartValue: 0
+        }
+    );
+
+    make_chart(
+        'online',
+        {
+            labels: [],
+            datasets: [
+                {
+                    label: "Members online",
+                    fillColor: "rgba(220,220,220,0.2)",
+                    strokeColor: "#3f3",
+                    pointColor: "#3f3",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(220,220,220,1)",
+                    data: []
+                },
+                {
+                    label: "Guests online",
+                    fillColor: "rgba(220,220,220,0.2)",
+                    strokeColor: "#33f",
+                    pointColor: "#33f",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(220,220,220,1)",
+                    data: []
+                },
+            ]
+        },
+        {
+            bezierCurve: true,
+            animation: false,
+            scaleBeginAtZero: true
+        }
+    );
+
+}
+
+Dashboard.prototype.server_stats_done = function(container, undo) {}
+
+// called when it's time to refresh the list:
+Dashboard.prototype.server_stats_refresh = function(container) {
+
+    return this.bb.server_stats().then(function(stats) {
+
+        var time = new Date();
+
+        time =
+            time.getHours() + ':' +
+            ( time.getMinutes() < 10 ? '0' : '' ) + time.getMinutes() + ':' +
+            ( time.getSeconds() < 10 ? '0' : '' ) + time.getSeconds()
+        ;
+
+        var loadavg = container.data('loadavg');
+        if ( loadavg.datasets[0].points.length == 15 ) loadavg.removeData();
+        loadavg.addData( [ stats.one_minute_loadavg, stats.five_minute_loadavg, stats.fifteen_minute_loadavg ], time );
+
+        var online = container.data('online');
+        if ( online.datasets[0].points.length == 15 ) online.removeData();
+        online.addData( [ stats.members_online, stats.guests_online ], time );
+
+    });
+
+}
+
 /*
  * EXAMPLE MONITORING
  */
