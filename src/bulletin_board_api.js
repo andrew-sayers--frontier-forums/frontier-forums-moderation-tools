@@ -1660,3 +1660,15 @@ VBulletin.prototype.editor_set = function( text ) {
     if ( ! $('#vB_Editor_001_textarea:visible,#cke_contents_vB_Editor_QR_editor:visible,.cke_source:visible').val( text ).length )
         BabelExt.utils.runInEmbeddedPage("vB_Editor['vB_Editor_001'].write_editor_contents(" + JSON.stringify(text) + ")");
 }
+
+/**
+ * @summary get the contents of the page's main edit box
+ * @return {string} text contents
+ */
+VBulletin.prototype.editor_get = function() {
+    // The only reliable way to get this value is from JavaScript running in page context:
+    BabelExt.utils.runInEmbeddedPage( 'document.body.setAttribute( "data-editor-contents", vB_Editor["vB_Editor_001"].get_editor_contents() )');
+    var ret = document.body.getAttribute('data-editor-contents');
+    document.body.removeAttribute('data-editor-contents');
+    return ret;
+}
