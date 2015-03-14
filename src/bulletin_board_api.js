@@ -1650,3 +1650,13 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
     return dfd.promise();
 
 }
+
+/**
+ * @summary set the contents of the page's main edit box
+ * @param {string} text text to set
+ */
+VBulletin.prototype.editor_set = function( text ) {
+    $('#vB_Editor_QR_editor_backup,#vB_Editor_QR_editor').val( text );
+    if ( ! $('#vB_Editor_001_textarea:visible,#cke_contents_vB_Editor_QR_editor:visible,.cke_source:visible').val( text ).length )
+        BabelExt.utils.runInEmbeddedPage("vB_Editor['vB_Editor_001'].write_editor_contents(" + JSON.stringify(text) + ")");
+}
