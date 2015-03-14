@@ -301,6 +301,28 @@ Variables.prototype.posts_namespace = function( posts, names ) {
 
 
 /*
+ * VARIABLES FROM POST
+ */
+
+/**
+ * @summary variables loaded from the first post in a thread
+ */
+function VariablesFromFirstPost(args) {
+    args.default_language = 'default';
+    Variables.prototype.constructor.call(this, args);
+}
+VariablesFromFirstPost.prototype = Object.create(Variables.prototype);
+
+VariablesFromFirstPost.prototype.set_namespaces = function() { this.namespaces = this.cache.namespaces }
+
+VariablesFromFirstPost.prototype.refresh = function(args) {
+    var v = this;
+    return this.bb.thread_posts( args.thread_id, args.first_page ).then(function (posts) {
+        return v.posts_namespace( [ posts[0].post_id ], [{ name: args.namespace, language: 'default' }] ).then(function(namespace) { v.cache.namespaces = [namespace] });
+    });
+}
+
+/*
  * VARIABLES FROM FORUM
  */
 
