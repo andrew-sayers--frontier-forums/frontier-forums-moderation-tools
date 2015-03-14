@@ -2628,7 +2628,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                         ret.push(bb.infraction_give(args));
                                     } else if ( issues.length == 0 ) {
                                         alert("Please select an issue");
-                                        throw "Pleaese select an issue";
+                                        throw "Please select an issue";
                                     } else {
                                         args.reason  = issues.map(function() { return this.name }).get().join(', ');
                                         args.points  = [0].concat(issues.get()).reduce(function(a,b) { return a + b.points });
