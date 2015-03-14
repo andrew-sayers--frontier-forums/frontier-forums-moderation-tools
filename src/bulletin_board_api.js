@@ -952,6 +952,29 @@ VBulletin.prototype.thread_bump = function(thread_id) {
 }
 
 /**
+ * @summary suggest possible completions given a partial thread title
+ * @param {string} substring partial thread title
+ * @return {Array.<Object>} list of thread titles and IDs
+ */
+VBulletin.prototype.threads_complete = function(substring) {
+    return this.post(
+        '/search.php?do=process',
+        {
+            do: 'process',
+            contenttypeid: 1,
+            query: substring,
+            titleonly: 1,
+            showposts: 0,
+            searchfromtype: 'vBForum:Post'
+        }
+    ).then(function(html) {
+        return $(html).find( '.title' ).map(function() {
+            return { thread_id: this.id.split('_')[2], title: $(this).text() }
+        }).get();
+    });
+}
+
+/**
  * @summary Create a new thread
  * @param {Number} forum_id ID of forum to create in
  * @param {string} title    thread title
