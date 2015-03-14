@@ -69,7 +69,12 @@
      /* User-visible functionality */
      "src/main.css"
     ],
-    "resources": [ "res/dashboard.html" ],
+    "resources": [
+        "res/dashboard.html",
+        "res/Account Merge Request Thread.html",
+        "res/Moderation Chase-Up Thread.html",
+        "res/Name Change Request Thread.html"
+    ],
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
     "match_secure_domain": true,
 

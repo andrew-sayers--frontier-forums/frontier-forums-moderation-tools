@@ -190,6 +190,49 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
 )}
 
 /**
+ * @summary Handle threads where a form should be provided to produce replies
+ */
+function handle_thread_form( bb, v, error_callback ) {
+    function handle_form(editor, name, thread_id) {
+        var post_var = new VariablesFromFirstPost({
+            bb: bb,
+            thread_id: thread_id,
+            namespace: 'post',
+            cache_updater: function() {},
+            error_callback: error_callback
+        });
+        form_keys( bb, $(BabelExt.resources.get('res/' + name + '.html')).insertBefore(editor), function(keys) {
+            post_var.promise.then(function() {
+                bb.editor_set( post_var.resolve( 'post', 'recommended reply format', keys ) );
+            });
+            return false; // prevent form submission
+        });
+    }
+
+    var dispatchers = [];
+    [
+        'Moderation Chase-Up Thread',
+        'Account Merge Request Thread',
+        'Name Change Request Thread'
+    ].forEach(function(thread) {
+        var thread_id = v.resolve( 'frequently used posts/threads', thread );
+        BabelExt.utils.dispatch(
+            {
+                match_pathname: ['/newreply.php'],
+                match_elements: [ '.description a[href="showthread.php?t=' + thread_id + '"]', '#vB_Editor_001' ],
+                callback: function(stash, pathname, params, a, editor) { handle_form( editor, thread, thread_id ) }
+            },
+            {
+                match_pathname: ['/showthread.php'],
+                match_elements: [ 'link[rel="canonical"][href="showthread.php?t=' + thread_id + '"]', '#vB_Editor_QR' ],
+                callback: function(stash, pathname, params, a, editor) { handle_form( editor, thread, thread_id ) }
+            }
+        );
+    });
+
+}
+
+/**
  * @summary Handle "edit post" pages
  * @param {BulletinBoard} bb Bulletin Board to manipulate
  */
@@ -401,6 +444,7 @@ BabelExt.utils.dispatch({ // initialise general stuff
             handle_moderation_links     ();
             handle_moderation_checkboxes();
             handle_modcp_user           ();
+            handle_thread_form          ( bb, v, handle_error );
             handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
         });
 
