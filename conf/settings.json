@@ -74,7 +74,8 @@
         "res/dashboard.html",
         "res/Account Merge Request Thread.html",
         "res/Moderation Chase-Up Thread.html",
-        "res/Name Change Request Thread.html"
+        "res/Name Change Request Thread.html",
+        "res/usernotes_cc.html"
     ],
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
     "match_secure_domain": true,

@@ -233,6 +233,32 @@ function handle_thread_form( bb, v, error_callback ) {
 }
 
 /**
+ * @summary CC user notes to other users
+ */
+function handle_usernotes_cc( bb ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: ['/usernote.php'],
+        match_elements: ['#vB_Editor_001'],
+        callback: function(stash, pathname, params, editor) {
+            var cc = null;
+            $(document.body).on( 'submit', '.vbform.block', function(event) {
+                if ( cc ) {
+                    var form = this, title = $('#titlefield').val(), bbcode = bb.editor_get();
+                    $.when.apply( $, cc.map(function(user_id) { bb.usernote_add( user_id, title, bbcode ) }) ).then(function() {
+                        cc = null;
+                        $(form).submit();
+                    });
+                    event.preventDefault();
+                }
+            });
+            form_keys( bb, $(BabelExt.resources.get('res/usernotes_cc.html')).insertBefore(editor), function(keys) {
+                cc = keys[ 'cc values' ];
+            });
+        }
+    }
+)}
+
+/**
  * @summary Handle "edit post" pages
  * @param {BulletinBoard} bb Bulletin Board to manipulate
  */
@@ -445,6 +471,7 @@ BabelExt.utils.dispatch({ // initialise general stuff
             handle_moderation_checkboxes();
             handle_modcp_user           ();
             handle_thread_form          ( bb, v, handle_error );
+            handle_usernotes_cc         ( bb, v );
             handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
         });
 
