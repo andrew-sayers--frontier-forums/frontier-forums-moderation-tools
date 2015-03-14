@@ -1,0 +1,10 @@
+.dashboard-newbies fieldset {
+    border-color: {{foreground colour}};
+}
+
+.dashboard-newbies legend, .dashboard-newbies h1 {
+    color: {{foreground colour}};
+}
+
+.dashboard-newbies            a.collapse { background-image: url("images.{{theme}}/buttons/collapse_40b.png")           }
+.dashboard-newbies .collapsed a.collapse { background-image: url("images.{{theme}}/buttons/collapse_40b_collapsed.png") }

@@ -25,29 +25,48 @@
 
 /**
  * @summary Handle the dashboard page
- * @param {BulletinBoard} bb          Bulletin Board to manipulate
- * @param {Variables}     v           Variables to use
- * @param {string}        loading_img HTML to create the "loading" icon
+ * @param {BulletinBoard} bb           Bulletin Board to manipulate
+ * @param {Variables}     v            Variables to use
+ * @param {Violations}    vi           Violations to use
+ * @param {MiscellaneousCache} mc      Miscellaneous Cache to use
+ * @param {string}        loading_html HTML to show while loading
  */
-function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
+function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispatch(
     {
         match_pathname: '/',
         match_params: {
             do: 'dashboard',
         },
         match_elements: '.below_body',
-        pass_storage: ['dashboard_cache'],
-        callback: function( stash, pathname, params, below_body, dashboard_cache ) {
+        pass_storage: ['dashboard_cache', 'dashboard-newbie-actions'],
+        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) {
 
             // Dashboard CSS
             bb.css_add([ 'user_show', 'forum_show', 'thread_show' ]);
+            $("head").append(
+                "<style type='text/css'>" +
+                v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
+                "</style>"
+            );
 
             var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
             var recently_reported_posts = {};
             var name = $('.welcomelink a').text();
 
-            // Reported posts forum filter
+            var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
+            var report_forum_id = 48;
+            dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
+            dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href'  , bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
+            dashboard.find( '[data-forum="reported-posts"]'        ).data( 'forum' , report_forum_id );
+            dashboard.find( 'a[href="#insert-reported-posts-link"]').attr( 'href'  , bb.url_for.forum_show({ forum_id: report_forum_id }) );
+            dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href'  , bb.url_for.moderation_posts() );
+            dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
+
+
+            /*
+             * REPORTED POSTS FORUM
+             */
             dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(threads) {
 
                 return threads.filter(function(thread) {
@@ -83,14 +102,321 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
             });
 
-            var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
-            var report_forum_id = 48;
-            dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
-            dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href', bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
-            dashboard.find( '[data-forum="reported-posts"]'        ).data( 'forum', report_forum_id );
-            dashboard.find( 'a[href="#insert-reported-posts-link"]').attr( 'href', bb.url_for.forum_show({ forum_id: report_forum_id }) );
-            dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href', bb.url_for.moderation_posts() );
-            dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href', bb.url_for.users_show() );
+
+            /*
+             * NEWBIE LIST
+             */
+
+            var newbie_policy = new NewbiePolicy({
+                v : v,
+                bb: bb,
+                vi: vi
+            });
+
+            var update_timer = null;
+            function update_actions() {
+
+                if ( update_timer !== null ) clearTimeout(update_timer);
+
+                update_timer = setTimeout(function() {
+                    update_timer = null;
+                    var title = newbie_policy.set_actions(
+                        dashboard.find('.dashboard-newbies [name="issue"]:checked').map(function() { return $(this).data('action') }).get()
+                    );
+                    dashboard.find('.dashboard-newbies-result input').prop( 'disabled', !title ).val( title || '(nothing to do)' );
+                }, 100 );
+
+            }
+
+            dashboard.find('.dashboard-newbies .dashboard-body')
+                .on( 'click', 'a.collapse', function(event) {
+                    $(this).closest('.options_block').toggleClass('collapsed');
+                    event.stopPropagation();
+                    event.preventDefault();
+                })
+                .on( 'click', '[name="issue"]', function() { // update when user selects an action
+
+                    var block = $(this).closest('.options_block');
+
+                    if ( this.value == 'valid' )
+                        block.toggleClass('collapsed');
+                    else
+                        block.removeClass('collapsed');
+
+                    block
+                        .removeClass('valid inappropriate dupe')
+                        .addClass(this.value)
+                    ;
+
+                    /*
+                     * Build blocks when the user actually clicks to see them.
+                     * Building this at creation time would be incredibly slow.
+                     */
+
+                    if ( this.value == 'inappropriate' && !block.hasClass('inappropriate-built') ) {
+
+                        /*
+                         * Initialise the inappropriate username block
+                         */
+
+                        var user = block.data('user');
+
+                        function update_inappropriate() {
+                            if ( !extra_post ) return; // ignore the callback during construction
+                            block.find('[name="issue"][value="inappropriate"]')
+                                .data( 'action', newbie_policy.action_inappropriate_wrapper( extra_post, notification.action(), user ));
+                            update_actions();
+                        }
+
+                        var inappropriate = block.find('.inappropriate');
+                        inappropriate.find( '.search .username' ).text( user.username );
+                        inappropriate.find( '.search a' ).each(function() {
+                            this.href += encodeURIComponent(user.username);
+                        });
+                        var notification = new NotificationSelector($.extend(
+                            newbie_policy.notification_selector_inappropriate(undefined, user),
+                            widget_args,
+                            { container: inappropriate.find('.notification') }
+                        ));
+                        var extra_post = new ExtraPost($.extend(
+                            newbie_policy.extra_post_inappropriate(undefined, user),
+                            widget_args,
+                            {
+                                container: notification.extra_block(),
+                                callback : update_inappropriate
+                            }
+                        ));
+                        new SeveritySlider($.extend(
+                            newbie_policy.severity_slider_inappropriate(),
+                            widget_args,
+                            {
+                                container: inappropriate.find('.posthead'),
+                                callback: function(level) {
+                                    notification.val(newbie_policy.notification_selector_inappropriate( level, user ));
+                                    extra_post.val(newbie_policy.extra_post_inappropriate(level, user));
+                                    update_inappropriate();
+                                }
+                            }
+                        ));
+                        inappropriate.find('.notification').prepend( notification.mode_switcher() );
+
+                        block.addClass('inappropriate-built');
+
+                    } else if ( this.value == 'dupe' && !block.hasClass('dupe-built') ) {
+
+                        /*
+                         * Initialise the duplicate account block
+                         */
+
+                        var user = block.data('user');
+
+                        var suspiciousness = newbie_policy.suspiciousness_duplicate(user);
+
+                        var dupe_level, dupe_users = [{
+                            username: user.username,
+                            user_id : user.user_id,
+                            email   : user.email,
+                            notes   : user.summary,
+                            is_primary: true,
+                        }]
+                            .concat(user.suspected_duplicates.map(function(user) {
+                                return {
+                                    username  : user.username,
+                                    user_id   : user.user_id,
+                                    email     : user.moderation_info.email,
+                                    notes     : user.info.infraction_summary + ' ' + user.moderation_info.summary,
+                                    is_banned : user.info.is_banned,
+                                    is_primary: false
+                                };
+                            }));
+
+                        var dupe = block.find('.dupe');
+                        var dupe_action_container = dupe.find('.dupe-actions');
+
+                        function update_dupe() {
+
+                            var extra_post, user_actions = [];
+
+                            dupe_action_container.empty().append(
+
+                                dupe_users.map(function(user, index) {
+
+                                    var element = $('<fieldset class="dupe-user-action"><legend></legend><div class="notification"></div></fieldset>');
+                                    element.find('legend').text( 'User action: ' + user.username );
+
+                                    var notification = new NotificationSelector($.extend(
+                                        newbie_policy.notification_selector_duplicate(dupe_level, user, dupe_users, suspiciousness ),
+                                        widget_args,
+                                        { container: element.find('.notification') }
+                                    ));
+
+                                    if ( !index ) {
+                                        extra_post = new ExtraPost($.extend(
+                                            newbie_policy.extra_post_duplicate(suspiciousness, dupe_level, user, dupe_users),
+                                            widget_args,
+                                            {
+                                                container: notification.extra_block(),
+                                                callback : update_actions
+                                            }
+                                        ));
+                                    }
+
+                                    user_actions.push( notification.action() );
+                                    element.find('.notification').prepend( notification.mode_switcher() );
+                                    return element;
+                                })
+                            );
+
+                            block.find('[name="issue"][value="dupe"]')
+                                .data( 'action', newbie_policy.action_duplicate_wrapper( extra_post, user_actions, dupe_users ) );
+
+                            update_actions();
+
+                        };
+
+                        new SeveritySlider($.extend(
+                            newbie_policy.severity_slider_duplicate(suspiciousness),
+                            widget_args,
+                            {
+                                container: dupe.find('.posthead'),
+                                callback: function(level) {
+                                    dupe_level = level;
+                                    update_dupe();
+                                }
+                            }
+                        ));
+                        new DuplicateAccountList($.extend(
+                            widget_args,
+                            {
+                                required: dupe_users.slice(0,1),
+                                default : dupe_users.slice(1),
+                                container: dupe.find('.dupes'),
+                                callback: function(u) {
+                                    dupe_users = u;
+                                    update_dupe();
+                                }
+                            }
+                        ));
+
+                        block.addClass('dupe-built');
+
+                    }
+
+                    update_actions();
+
+                })
+            ;
+
+            var min_user_id, max_user_id;
+
+            dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
+                var progress_bar = $(this).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '[name="extra-notes"]' ).val() )
+                    .progress(function(percent) {
+                        progress_bar.css({ width: percent + '%' });
+                    })
+                    .always(function() {
+                        progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                    })
+                    .done(function() {
+                        dashboard.find( '.dashboard-newbies .dashboard-done .done').click();
+                        dashboard.find( '.dashboard-newbies-result input').prop( 'disabled', true ).val( 'validated!' );
+                    })
+                ;
+                })
+            ;
+
+            var widget_args = {
+                v               : v,
+                bb              : bb,
+                violations      : vi,
+                violation_groups: mc.violation_groups,
+                loading_html    : loading_html,
+            };
+
+            dashboard.find('[data-monitor="newbies"]').data( 'min_user_id', function(users) { return newbie_policy.get_base_user_id() });
+
+            dashboard.find('[data-monitor="newbies"]').data( 'filter', function(users) {
+
+                var previous_users = {};
+
+                min_user_id = Infinity;
+                max_user_id = 0;
+
+                // Need to fire this after the elements have been inserted into the DOM:
+                setTimeout(function() { dashboard.find('[data-monitor="newbies"] time').timeago() }, 0 );
+
+                return users.filter(function(user) {
+
+                    if ( min_user_id > user.user_id ) min_user_id = user.user_id;
+                    if ( max_user_id < user.user_id ) max_user_id = user.user_id;
+
+                    /*
+                     * Initialise the basic interface.
+                     * Specific blocks are initialised if and when they become visible
+                     */
+
+                    user.element.data( 'username', user.username );
+                    user.element.data( 'user_id', user.user_id );
+                    user.element.data( 'user', user );
+
+                    user.element.find('h4 .title').text( user.username );
+
+                    if ( previous_users.hasOwnProperty(user.user_id) ) {
+                        user.element.find('[name="issue"][value="valid"]').first().prop( 'checked', true );
+                    } else if ( user.suspected_duplicates.length ) {
+                        var element =
+                            user.element.removeClass('collapsed')
+                            .find('.valid')
+                            .html('Suspected additional accounts for <a></a> &lt;<a></a>&gt;: <ul></ul><a href="">See IP address report for <span></span></a> (only finds users with overlapping post addresses)')
+                        ;
+                        var anchors = element.find('a');
+                        anchors.eq(0)
+                            .attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) )
+                            .text( user.username );
+                        anchors.eq(1)
+                            .attr( 'href', 'mailto:' + user.email )
+                            .text( user.email );
+                        anchors.eq(2)
+                            .attr( 'href', bb.url_for.moderation_ipsearch({ username: user.username, depth: 2 }) )
+                            .find('span').text( user.username );
+                        var highlighter = new EmailHighlighter({ v: v, source_address: user.email });
+                        element
+                            .children('ul')
+                            .append(
+                                user.suspected_duplicates.map(function(user) {
+                                    var element = $('<li><a></a> &lt;<a><span></span>@<span></span></a>&gt; <span></span></li>')
+                                    element.find('a').first()
+                                        .attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) )
+                                        .text( user.username );
+                                    var email_element = element.find('a').last()
+                                        .attr( 'href', 'mailto:' + user.moderation_info.email );
+                                    highlighter.highlight_to_element(
+                                        user.moderation_info.email,
+                                        email_element.children().eq(0),
+                                        email_element.children().eq(1)
+                                    );
+                                    element.children().last().html(
+                                        user.info.infraction_summary + ' ' + user.moderation_info.summary
+                                    );
+                                    return element;
+                                })
+                            );
+                        user.suspected_duplicates.forEach(function(user) { previous_users[user.user_id] = true });
+                    }
+
+                    previous_users[user.user_id] = true;
+
+                    return true;
+
+                });
+
+            });
+
+
+            /*
+             * INITIALISE
+             */
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
             body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe>' );
@@ -103,8 +429,8 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
                     cache_updater: function(cache) { BabelExt.storage.set( 'dashboard_cache', JSON.stringify( cache ) ) },
                     container: body_wrapper,
                     interval : 60000,
-                    bb       : bb
-
+                    bb       : bb,
+                    v        : v
                 });
 
             });
@@ -325,9 +651,9 @@ function handle_moderation_links() {
  * MAIN BLOCK (not run in iFrames)
  */
 if (window.location == window.parent.location) BabelExt.utils.dispatch({ // initialise general stuff
-    pass_storage    : ['variables', 'violations'],
+    pass_storage    : ['variables', 'violations', 'misc'],
     pass_preferences: [ 'language', 'reload_interval' ],
-    callback: function( stash, pathname, params, variables, violations, user_language, reload_interval ) {
+    callback: function( stash, pathname, params, variables, violations, misc, user_language, reload_interval ) {
 
         var bb = new VBulletin();
 
@@ -424,41 +750,54 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
         var next_week = new Date();
         next_week.setDate(next_week.getDate()+7);
 
-        var v = new VariablesFromForum({
-            bb              : bb,
+        function cacheable_args(cache, name, args) {
+            return $.extend({
+                bb             : bb,
+                cache          : JSON.parse( cache || '{}' ),
+                cache_updater  : function(cache) { BabelExt.storage.set( name, JSON.stringify( cache ) ) },
+                reload_interval: reload_interval * 1000,
+                error_callback : handle_error,
+            }, args );
+        }
+
+        var v = new VariablesFromForum(cacheable_args( variables, 'variables', {
             forum_id        : 70,
-            cache           : JSON.parse( variables || '{}' ),
-            cache_updater   : function(cache) { BabelExt.storage.set( 'variables', JSON.stringify( cache ) ) },
-            reload_interval : reload_interval * 1000,
-            error_callback  : handle_error,
             default_language: user_language,
             default_keys    : {
                 origin     : location.origin,
                 'next week': next_week.toUTCString().replace(/:[0-9][0-9] /, ' ' )
             }
-        });
+        }));
 
-        var vi = new Violations({
-            v                  : v,
-            bb                 : bb,
-            cache              : JSON.parse( violations || '{}' ),
-            cache_updater      : function(cache) { BabelExt.storage.set( 'violations', JSON.stringify( cache ) ) },
-            reload_interval    : reload_interval * 1000,
-            error_callback     : handle_error,
-            default_user_action: 'warning',
-        });
+        v.promise.then(function() { return handle_variables_thread( bb, v ) }).then(function() {
 
-        $.when( vi.promise, v.promise ).then(function() {
-            handle_modcp_doips          ( bb );
-            handle_dashboard            ( bb, v, loading_img );
-            handle_variables_thread     ( bb, v );
-            handle_post_edit            ( bb );
-            handle_moderation_links     ();
-            handle_moderation_checkboxes();
-            handle_modcp_user           ();
-            handle_thread_form          ( bb, v, handle_error );
-            handle_usernotes_cc         ( bb, v );
-            handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
+            bb.config({
+                'unPMable user groups': v.resolve( 'policy', 'unpmable user groups', undefined, 'array of items' ).map(function(g) { return g.value }),
+                'default user group'  : v.resolve( 'policy', 'default user group' )
+            });
+
+            var vi = new Violations(cacheable_args( violations, 'violations', {
+                v: v,
+                default_user_action: 'warning',
+            }));
+
+            var mc = new MiscellaneousCache(cacheable_args( misc, 'misc', {
+                v : v,
+                vi: vi
+            }));
+
+            $.when( vi.promise, mc.promise ).then(function() {
+                handle_modcp_doips          ( bb );
+                handle_post_edit            ( bb );
+                handle_moderation_links     ();
+                handle_moderation_checkboxes();
+                handle_modcp_user           ();
+                handle_thread_form          ( bb, v, handle_error );
+                handle_usernotes_cc         ( bb, v );
+                handle_dashboard            ( bb, v, vi, mc, loading_html );
+                handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
+            });
+
         });
 
     }

@@ -88,6 +88,8 @@
 
         "res/dashboard.html",
 
+        "res/main.css",
+
         "res/Account Merge Request Thread.html",
         "res/Moderation Chase-Up Thread.html",
         "res/Name Change Request Thread.html",

@@ -1,11 +1,106 @@
 /*
  * DASHBOARD CSS
  */
+#breadcrumb {
+    margin-bottom: 1em;
+}
+
+.dashboard-done {
+    float: right;
+}
+
+ol.dashboard-body {
+    margin-right: 2px
+}
+
+.dashboard-section {
+    clear: both;
+    width: 100%;
+}
+
+.dashboard-section > table {
+    width: 100%;
+}
+
 .dashboard-section .nonempty, .dashboard-section .empty, .dashboard-section .loading, .dashboard-section .done, .dashboard-section .undone { display: none }
-.dashboard-section.empty table, .dashboard-section.empty.loading .dashboard-body, .dashboard-section.empty.loading .empty { display: none }
+.dashboard-section.empty table, .dashboard-section.empty.loading .dashboard-body, .dashboard-section.empty.loading .empty                  { display: none }
 .dashboard-section.nonempty .nonempty, .dashboard-section.empty .empty, .dashboard-section.loading .loading, .dashboard-section.done .done, .dashboard-section.undone .undone { display: inline }
 .dashboard-section h4 { clear: both }
 .dashboard-section.done .dashboard-body, .dashboard-section.done table { display: none }
+
+.dashboard-newbies .options_block {
+    margin: 0 1em 1em;
+}
+.dashboard-newbies .options_block.collapsed {
+    margin-bottom: 0;
+}
+
+.dashboard-newbies .search {
+    clear: both;
+}
+
+.dashboard-newbies textarea {
+    width: 100%;
+    height: 20em;
+}
+
+.dashboard-newbies .options_block.collapsed .blockbody,
+.dashboard-newbies .options_block:not(.valid) .blockbody.valid,
+.dashboard-newbies .options_block:not(.inappropriate) .blockbody.inappropriate,
+.dashboard-newbies .options_block:not(.dupe) .blockbody.dupe {
+    display: none;
+}
+
+.dashboard-newbies a.collapse {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+    position: static;
+    float: right;
+    /* background-image: see res/main.css */
+}
+
+.dashboard-newbies .posthead, .dashboard-newbies .dupes, .dashboard-newbies .notification {
+    clear: both;
+    margin-bottom: 1em
+}
+
+.dashboard-newbies .dupes table td,
+.dashboard-newbies .dupes table th {
+    border: none;
+}
+
+.dashboard-newbies .issues {
+    float: right;
+    display: inline-block;
+    margin-right: 1em;
+}
+
+.dashboard-newbies fieldset {
+    clear: both;
+    border-width: 1px;
+    border-style: solid;
+    /* border-color: see res/main.css */
+    padding: 1em;
+}
+.dashboard-newbies legend, #dashboard-newbies h1 {
+    /* color: see res/main.css */
+    font-size: larger;
+    font-weight: bold;
+    margin-bottom: 0.25em
+}
+
+.dashboard-newbies .notification-text-button {
+    float: right;
+}
+
+.dashboard-newbies .collapsed:hover {
+    opacity: 0.8;
+}
+
+.dashboard-issues > :hover {
+    font-style: italic;
+}
 
 a.dashboard-refresh {
     width: 16px;
@@ -24,4 +119,28 @@ a.dashboard-refresh {
     height:1em;
     display:inline-block;
     margin-right: 0.5em;
+}
+
+/*
+ * Simple progress bar
+ */
+
+.mod-friend-progress,
+.mod-friend-progressing * {
+    display: none;
+}
+
+.mod-friend-progressing .mod-friend-progress {
+    background-color: blue;
+    border-radius: 2px;
+    display: block;
+    margin-left: auto;
+    width: 10em;
+}
+
+.mod-friend-progressing .mod-friend-progress > div {
+    width: 0;
+    display: block;
+    background-color: yellow;
+    border-radius: 2px
 }
