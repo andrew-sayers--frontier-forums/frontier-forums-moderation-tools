@@ -49,10 +49,7 @@ Violations.prototype.refresh = function(args) {
         function(violations) {
 
             if ( !violations.length ) {
-                args.error_callback( "Could not refresh the list of violations", [{
-                    message: 'log in',
-                    href   : args.bb.url_for.login(),
-                }]);
+                args.error_callback( "Could not refresh the list of violations", 'log in');
                 return;
             }
 
@@ -82,10 +79,7 @@ Violations.prototype.refresh = function(args) {
 
         },
         function() {
-            args.error_callback( "Could not refresh the list of violations", [{
-                message: 'log in',
-                href   : args.bb.url_for.login(),
-            }]);
+            args.error_callback( "Could not refresh the list of violations", 'log in' );
         }
     );
 

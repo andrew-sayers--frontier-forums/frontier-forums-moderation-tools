@@ -280,7 +280,17 @@ BabelExt.utils.dispatch({ // initialise general stuff
                 '<a style="float: right; padding: 1em" href="#close-error-box">close</a>' +
             '</div>'
         );
-        $(function() { handle_error_box.appendTo(document.body) });
+        $(function() {
+            handle_error_box.appendTo(document.body);
+            $('<a id="debug-log-show" href="#debug-log-show">(click here to show the moderators\' extension debug log)</a>')
+                .appendTo('#footer_morecopyright')
+                .before('<br>')
+                .click(function(event) {
+                    debug_log.show();
+                    $(this).hide();
+                    event.preventDefault();
+                });
+        });
         handle_error_box.find('a').click(function(event) {
             handle_error_box.hide();
             event.preventDefault();
@@ -288,6 +298,25 @@ BabelExt.utils.dispatch({ // initialise general stuff
         var previous_errors = {};
 
         function handle_error( message, resolutions ) {
+
+            debug_log.log( message, resolutions ).show();
+            $("#debug-log-show").hide();
+
+            if ( !$.isArray(resolutions) ) resolutions = [resolutions];
+            resolutions = resolutions.map(function(resolution) {
+                switch (resolution) {
+                case 'log in':
+                    if ( bb.user_current() ) {
+                        return { message: 'Contact the maintainer', href: '/private.php?do=newpm&u=18617' };
+                    } else {
+                        return {
+                            message: 'log in',
+                            href   : bb.url_for.login(),
+                        };
+                    }
+                default: return resolution;
+                }
+            });
 
             // ignore duplicate messages:
             if ( previous_errors[message] ) return;
@@ -303,6 +332,20 @@ BabelExt.utils.dispatch({ // initialise general stuff
             $(function() { handle_error_box.show() });
 
         }
+
+        $( document ).ajaxError(function debug_ajax_errors( event, xhr, settings, error ) {
+            var messages = [];
+            try {
+                messages.push( error );
+                messages.push( settings );
+                messages.push( event );
+                messages.push( xhr.status );
+                messages.push( xhr.statusText );
+                messages.push( xhr.getAllResponseHeaders() );
+                messages.push( xhr.responseText );
+            } catch (error) {  messages.push('caught error while adding values:', error); };
+            debug_log.log.apply( debug_log, messages );
+        });
 
         /*
          * GENERAL VARIABLES

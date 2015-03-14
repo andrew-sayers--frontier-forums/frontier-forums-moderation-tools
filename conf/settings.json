@@ -42,6 +42,7 @@
         "lib/selectionchange.js",
 
         /* Low-level libraries */
+        "src/debug_log.js",
         "src/bulletin_board_api.js",
         "src/cacheable.js",
 
