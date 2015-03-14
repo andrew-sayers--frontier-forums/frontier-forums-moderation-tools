@@ -414,9 +414,8 @@ Dashboard.prototype.example_done = function(container, undo) {
 // called when it's time to refresh the list:
 Dashboard.prototype.example_refresh = function(container) {
 
-    var dashboard = this, example_id = container.data('forum');
+    var dashboard = this, example_id = container.data('example');
 
-    // forum pages are less expensive than thread pages, so we don't bother caching them:
     var id = dashboard.cache['example-data'];
 
     return dashboard.bb.example(/*...*/).then(function(ret) {
