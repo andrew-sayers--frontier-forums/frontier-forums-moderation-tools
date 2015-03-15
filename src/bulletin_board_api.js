@@ -1287,6 +1287,19 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
 }
 
 /**
+ * @summary Get information about the current user
+ * @return {Object} username and user_id
+ */
+VBulletin.prototype.user_current = function(user_id) {
+    var link = $('.welcomelink a');
+    return (
+        link.length
+        ? { username: link.text(), user_id: link.attr('href').split('?u=')[1] }
+        : null
+    );
+}
+
+/**
  * @summary Get information about a user from ModCP
  * @param {Number} user_id ID of user to gather information about
  * @return {jQuery.Promise}
