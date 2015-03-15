@@ -397,10 +397,23 @@ Dashboard.prototype.server_stats_init = function(container) {
         container.data( name, line );
     }
 
+    if ( !this.cache['server-stats'] ) { // first run
+        this.cache['server-stats'] = {
+            labels: [],
+                one_minute_loadavg: [],
+               five_minute_loadavg: [],
+            fifteen_minute_loadavg: [],
+            members_online: [],
+             guests_online: []
+        };
+    }
+
+    var values = this.cache['server-stats'];
+
     make_chart(
         'loadavg',
         {
-            labels: [],
+            labels: values.labels.slice(0),
             datasets: [
                 {
                     label: "One-minute load average",
@@ -410,7 +423,7 @@ Dashboard.prototype.server_stats_init = function(container) {
                     pointStrokeColor: "#fff",
                     pointHighlightFill: "#fff",
                     pointHighlightStroke: "rgba(220,220,222,1)",
-                    data: []
+                    data: values.one_minute_loadavg
                 },
                 {
                     label: "Five-minute load average",
@@ -420,7 +433,7 @@ Dashboard.prototype.server_stats_init = function(container) {
                     pointStrokeColor: "#fff",
                     pointHighlightFill: "#fff",
                     pointHighlightStroke: "rgba(220,220,225,1)",
-                    data: []
+                    data: values.five_minute_loadavg
                 },
                 {
                     label: "Fifteen-minute load average",
@@ -430,7 +443,7 @@ Dashboard.prototype.server_stats_init = function(container) {
                     pointStrokeColor: "#fff",
                     pointHighlightFill: "#fff",
                     pointHighlightStroke: "rgba(220,220,228,1)",
-                    data: []
+                    data: values.fifteen_minute_loadavg
                 },
             ]
         },
@@ -447,7 +460,7 @@ Dashboard.prototype.server_stats_init = function(container) {
     make_chart(
         'online',
         {
-            labels: [],
+            labels: values.labels.slice(0),
             datasets: [
                 {
                     label: "Members online",
@@ -457,7 +470,7 @@ Dashboard.prototype.server_stats_init = function(container) {
                     pointStrokeColor: "#fff",
                     pointHighlightFill: "#fff",
                     pointHighlightStroke: "rgba(220,220,220,1)",
-                    data: []
+                    data: values.members_online
                 },
                 {
                     label: "Guests online",
@@ -467,7 +480,7 @@ Dashboard.prototype.server_stats_init = function(container) {
                     pointStrokeColor: "#fff",
                     pointHighlightFill: "#fff",
                     pointHighlightStroke: "rgba(220,220,220,1)",
-                    data: []
+                    data: values.guests_online
                 },
             ]
         },
@@ -485,6 +498,8 @@ Dashboard.prototype.server_stats_done = function(container, undo) {}
 // called when it's time to refresh the list:
 Dashboard.prototype.server_stats_refresh = function(container) {
 
+    var dashboard = this;
+
     return this.bb.server_stats().then(function(stats) {
 
         var time = new Date();
@@ -495,12 +510,26 @@ Dashboard.prototype.server_stats_refresh = function(container) {
             ( time.getSeconds() < 10 ? '0' : '' ) + time.getSeconds()
         ;
 
+        var values = dashboard.cache['server-stats'];
+        values.labels.push( time );
+        values.    one_minute_loadavg.push( stats.    one_minute_loadavg );
+        values.   five_minute_loadavg.push( stats.   five_minute_loadavg );
+        values.fifteen_minute_loadavg.push( stats.fifteen_minute_loadavg );
+        values.members_online.push( stats.members_online );
+        values. guests_online.push( stats. guests_online );
+
+        if ( values.labels.length >= 15 ) {
+            loadavg.removeData();
+            online .removeData();
+            Object.keys(values).forEach(function(key) { values[key].shift() });
+        }
+
+        dashboard.update_cache();
+
         var loadavg = container.data('loadavg');
-        if ( loadavg.datasets[0].points.length == 15 ) loadavg.removeData();
         loadavg.addData( [ stats.one_minute_loadavg, stats.five_minute_loadavg, stats.fifteen_minute_loadavg ], time );
 
         var online = container.data('online');
-        if ( online.datasets[0].points.length == 15 ) online.removeData();
         online.addData( [ stats.members_online, stats.guests_online ], time );
 
     });
