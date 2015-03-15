@@ -55,6 +55,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
 
                 <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
@@ -215,7 +217,13 @@
 
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
 
                 <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
 
@@ -255,6 +263,8 @@
 
                 <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
 
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
                 <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
 
                 <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
@@ -273,13 +283,21 @@
 
                 <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
 
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
                 <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
 
@@ -346,7 +364,7 @@ function Variables(args) {
 
     this.bb               = args.bb;
     this.default_language = args.default_language;
-    this.default_keys     = args.default_keys;
+    this.default_keys     = args.default_keys || {};
     this.error_callback   = args.error_callback;
 
     this.thread_languages = {};
@@ -482,6 +500,9 @@ Variables.prototype.check = function( namespace, names, forum_id, thread_id ) {
  * Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
  * We always try to return the most specific name for the language, but can default to less-specific ones
  *
+ * Note: keys should either be strings or arrays of strings.  Arrays are automatically converted to sentences,
+ * e.g. [1,2,3] becomes "1, 2 and 3".
+ *
  * @example
  * v.resolve( 'policy', [ 'greeting message', 'newbie' ], { name: username }, 'string', 12, 345 );
  */
@@ -498,7 +519,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     variable = variable.variable;
 
     // resolve {{keys}}:
-    keys = $.extend( this.default_keys, keys || {} );
+    keys = $.extend( {}, this.default_keys, keys || {} );
     var has_changed;
     do {
         has_changed = false;
@@ -506,7 +527,17 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
             key = key.toLowerCase();
             if ( keys.hasOwnProperty(key) ) {
                 has_changed = true;
-                return keys[key];
+                var values = keys[key];
+                if ( $.isArray(values) ) {
+                    if ( values.length == 1 ) {
+                        return values[0];
+                    } else {
+                        var last = values.pop();
+                        return values.join(', ') + ' and ' + last;
+                    }
+                } else {
+                    return values;
+                }
             } else if ( key.search(':') != -1 ) {
                 var names = key.split(/:\s*/);
                 var root_name = names.shift();
@@ -627,6 +658,28 @@ Variables.prototype.posts_namespace = function( posts, names ) {
 
 
 /*
+ * VARIABLES FROM POST
+ */
+
+/**
+ * @summary variables loaded from the first post in a thread
+ */
+function VariablesFromFirstPost(args) {
+    args.default_language = 'default';
+    Variables.prototype.constructor.call(this, args);
+}
+VariablesFromFirstPost.prototype = Object.create(Variables.prototype);
+
+VariablesFromFirstPost.prototype.set_namespaces = function() { this.namespaces = this.cache.namespaces }
+
+VariablesFromFirstPost.prototype.refresh = function(args) {
+    var v = this;
+    return this.bb.thread_posts( args.thread_id, args.first_page ).then(function (posts) {
+        return v.posts_namespace( [ posts[0].post_id ], [{ name: args.namespace, language: 'default' }] ).then(function(namespace) { v.cache.namespaces = [namespace] });
+    });
+}
+
+/*
  * VARIABLES FROM FORUM
  */
 
@@ -735,6 +788,8 @@ VariablesFromForum.prototype.refresh = function(args) {
             return v.update_cache();
         });
 
+    }, function() {
+        args.error_callback( "Could not refresh the list of variables", 'log in');
     });
 
 }
@@ -761,7 +816,7 @@ VariablesFromForum.prototype.refresh_thread = function(thread_id, body) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 24 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>

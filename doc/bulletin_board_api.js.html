@@ -55,6 +55,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
 
                 <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
@@ -215,7 +217,13 @@
 
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
 
                 <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
 
@@ -255,6 +263,8 @@
 
                 <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
 
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
                 <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
 
                 <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
@@ -273,13 +283,21 @@
 
                 <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
 
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
                 <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
 
@@ -421,6 +439,33 @@ BulletinBoard.prototype.when = function(promises) {
  */
 
 /**
+ * @summary Send a message to the server as an AJAX request
+ * @protected
+ * @param {...Object} var_args passed to $.get()
+ * @return {jQuery.Promise}
+ */
+BulletinBoard.prototype.get = function( url, data, use_form ) {
+
+    var bb = this;
+
+    return $.get.apply( $, Array.prototype.slice.call( arguments, 0 ) ).then(
+        function(reply) {
+            var err = bb.detect_post_error( reply );
+            if ( err !== null ) {
+                debug_log.log( "Couldn't load page", err );
+                var dfd = new jQuery.Deferred();
+                dfd.reject();
+                return dfd;
+            } else {
+                return reply;
+            }
+        },
+        debug_log.log
+    );
+
+}
+
+/**
  * @summary Send a message to the server as either an AJAX request or a form
  * @protected
  * @param {string}  url URL to send to
@@ -447,17 +492,21 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                 type: "POST",
                 url: url,
                 data: data,
-            }).then(function(reply) {
-                var err = bb.detect_post_error( reply );
-                if ( err !== null ) {
-                    alert( "Couldn't load page " + url + "\n\nError:\n" + err );
-                    var dfd = new jQuery.Deferred();
-                    dfd.reject();
-                    return dfd;
-                } else {
-                    return reply;
-                }
-            });
+            }).then(
+                function(reply) {
+                    var err = bb.detect_post_error( reply );
+                    if ( err !== null ) {
+                        debug_log.log( "Couldn't load page", err );
+                        alert( "Couldn't load page " + url + "\n\nError:\n" + err );
+                        var dfd = new jQuery.Deferred();
+                        dfd.reject();
+                        return dfd;
+                    } else {
+                        return reply;
+                    }
+                },
+                debug_log.log
+            );
         }
     });
 
@@ -563,7 +612,7 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
         var pages = bb.get_pages(html);
         for ( var n=pages.current+1; n&lt;=pages.total; ++n )
             more_pages.push(
-                $.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: n }))
+                bb.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: n }))
                     .then(function(html) {
                         return bb.process_posts(bb.get_posts(html));
                     })
@@ -595,6 +644,7 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
             );
         },
         error: function() {
+            debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
             dfd.reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) );
         }
     });
@@ -666,7 +716,7 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
             moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
             moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
 
-            infraction_give: function(args) { return BulletinBoard.prototype.build_url(
+            infraction: function(args) { return BulletinBoard.prototype.build_url(
                 '/infraction.php',
                 [
                     { key: 'user_id', param: 'u' },
@@ -794,21 +844,23 @@ VBulletin.prototype._add_standard_data = function(data) {
         data.ajax = 1; // some URLs will serve a lightweight page if passed this
     }
 
-    data.securitytoken = $('input[name="securitytoken"]').val();
-    if ( !data.security_token ) {
+    function get_token() {
+        data.securitytoken = $('input[name="securitytoken"]').val();
+        if ( data.securitytoken ) return true;
         BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
         data.securitytoken = document.head.getAttribute('data-securitytoken');
         document.head.removeAttribute('data-securitytoken');
+        return data.securitytoken;
     }
 
-    if ( data.securitytoken ) {
+    if ( get_token() ) {
         dfd.resolve(data);
     } else {
         $(function() {
-            data.securitytoken = $('input[name="securitytoken"]').val();
-            if ( data.securitytoken ) {
+            if ( get_token() ) {
                 dfd.resolve(data);
             } else {
+                debug_log.log("Fatal: could not get securitytoken");
                 dfd.reject();
             }
         });
@@ -821,6 +873,8 @@ VBulletin.prototype.detect_post_error = function(reply) {
     return (
         ( reply.getElementsByTagName &amp;&amp; reply.getElementsByTagName('error').length ) // XML response
         ? reply.getElementsByTagName('error')[0].textContent
+        : ( reply.search &amp;&amp; reply.search(' class="standard_error"') != -1 ) // HTML error
+        ? $(reply).find('.standard_error').text()
         : null
     );
 }
@@ -940,6 +994,7 @@ VBulletin.prototype.infraction_give = function( data ) {
     return this.post( '/infraction.php?do=update', post_data ).then(function(html) {
         var errors = $(html).find( '.blockrow.error' );
         if ( errors.length &amp;&amp; errors.text().length ) {
+            debug_log.log( "Could not give infraction", errors.text());
             alert("Could not give infraction:\n" + errors.text());
             var dfd = new jQuery.Deferred();
             dfd.reject();
@@ -1002,7 +1057,7 @@ VBulletin.prototype.infraction_give_custom = function( data ) {
  */
 VBulletin.prototype.infraction_ids = function( user_id ) {
 
-    return $.get( this.url_for.infraction_give({ action: 'report', user_id: user_id || 37 }) ).then(function(html) {
+    return this.get( this.url_for.infraction({ action: 'report', user_id: user_id || 37 }) ).then(function(html) {
         return $(html).find('input[name="infractionlevelid"]').map(function() {
             if ( $(this).val() != '0' ) {
                 var name = $.trim($(this).parent().text());
@@ -1149,6 +1204,8 @@ VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
  */
 VBulletin.prototype.post_info = function( post_id ) {
 
+    var bb = this;
+
     return this.post('/ajax.php?do=quickedit&amp;p=' + post_id, {
         do: 'quickedit',
         p : post_id
@@ -1172,7 +1229,7 @@ VBulletin.prototype.post_info = function( post_id ) {
             'values[posthash]'     : ckeconfig.vbulletin.attachinfo.posthash
         };
 
-        return $.get( '/newattachment.php', {
+        return bb.get( '/newattachment.php', {
             do           : 'assetmanager',
             'values[p]'  : post_id,
             editpost     : 1,
@@ -1275,6 +1332,29 @@ VBulletin.prototype.thread_bump = function(thread_id) {
             t : thread_id
         }
     );
+}
+
+/**
+ * @summary suggest possible completions given a partial thread title
+ * @param {string} substring partial thread title
+ * @return {Array.&lt;Object>} list of thread titles and IDs
+ */
+VBulletin.prototype.threads_complete = function(substring) {
+    return this.post(
+        '/search.php?do=process',
+        {
+            do: 'process',
+            contenttypeid: 1,
+            query: substring,
+            titleonly: 1,
+            showposts: 0,
+            searchfromtype: 'vBForum:Post'
+        }
+    ).then(function(html) {
+        return $(html).find( '.title' ).map(function() {
+            return { thread_id: this.id.split('_')[2], title: $(this).text() }
+        }).get();
+    });
 }
 
 /**
@@ -1423,7 +1503,7 @@ VBulletin.prototype.thread_reply = function( data ) {
  * @description Note: this is quite inefficient for threads with over 2,500 posts
  */
 VBulletin.prototype.thread_whoposted = function( thread_id ) {
-    return $.get( '/misc.php?do=whoposted&amp;t=' + thread_id ).then(function(html) {
+    return this.get( '/misc.php?do=whoposted&amp;t=' + thread_id ).then(function(html) {
         html = $(html);
         return {
             total: html.find('.stats.total dd').text(),
@@ -1475,7 +1555,7 @@ VBulletin.prototype.user_ban = function( data ) {
  */
 VBulletin.prototype._get_ips_data = function() {
     if ( ! this._ips_data )
-        this._ips_data = $.get( '/modcp/user.php?do=doips' ).then(function(html) {
+        this._ips_data = this.get( '/modcp/user.php?do=doips' ).then(function(html) {
             html = $(html);
             return {
                 do           : 'doips',
@@ -1590,11 +1670,26 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
 }
 
 /**
- * @summary Get information about users from ModCP
+ * @summary Get information about the current user
+ * @return {Object} username and user_id
+ */
+VBulletin.prototype.user_current = function(user_id) {
+    var link = $('.welcomelink a');
+    return (
+        link.length
+        ? { username: link.text(), user_id: link.attr('href').split('?u=')[1] }
+        : null
+    );
+}
+
+/**
+ * @summary Get information about a user from ModCP
+ * @param {Number} user_id ID of user to gather information about
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.user_moderation_info = function(user_id) {
 
-    return $.get( '/modcp/user.php?do=viewuser&amp;u=' + user_id ).then(function(html) {
+    return this.get( '/modcp/user.php?do=viewuser&amp;u=' + user_id ).then(function(html) {
         html = $(html);
 
         var name = html.find( '[name="user\\[username\\]"]'  ).val();
@@ -1637,10 +1732,11 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
 /**
  * @summary Get new users
+ * @return {jQuery.Promise}
  */
 VBulletin.prototype.users_list_new = function() {
 
-    return $.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=100' ).then(function(html) {
+    return this.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=100' ).then(function(html) {
         return $(html).find('#memberlist_table tr:not(.columnsort) a.username').map(function() {
             var $this = $(this);
             return {
@@ -1653,9 +1749,48 @@ VBulletin.prototype.users_list_new = function() {
 
 }
 
+/**
+ * @summary suggest possible completions given a partial user name
+ * @param {string} prefix partial user name
+ * @return {Array.&lt;Object>} list of user names and IDs
+ */
+VBulletin.prototype.users_complete = function( prefix ) {
+    return this.post( '/ajax.php?do=usersearch', {
+	do      : 'usersearch',
+        fragment: prefix
+    }).then(function(xml) {
+        var ret = [], users = xml.getElementsByTagName('user'), n;
+        for ( n=0; n!=users.length; ++n )
+            ret.push({ user_id: users[n].getAttribute('userid'), username: users[n].textContent });
+        return ret;
+    });
+}
+
 /*
  * MISCELLANEOUS
  */
+
+/**
+ * @summary convert a URL to the parameters needed to build it
+ * @param {string} url URL to convert
+ * @return {Object} e.g. { type: 'user', url_for: 'user_show', args: { user_id: 1234 } }
+ * @description The return value contains the following:
+ * * type    - the main object of the URL (e.g. "user" or "thread")
+ * * subtype - the specific page type (see url_for for a list)
+ * * args    - arguments to url_for.&lt;subtype>()
+ */
+VBulletin.prototype.url_decode = function( url ) {
+    var ret;
+    var decoders = [
+        [ /showthread\.php\?(?:.*&amp;)?p=([0-9]+)/, function(url, id) { ret = { type: 'post'  , subtype: 'thread_show', args: {   post_id: id } } } ],
+        [ /showthread\.php\?(?:.*&amp;)?t=([0-9]+)/, function(url, id) { ret = { type: 'thread', subtype: 'thread_show', args: { thread_id: id } } } ],
+        [ /member.php\?(?:.*&amp;)?u=([0-9]+)/     , function(url, id) { ret = { type: 'user'  , subtype:   'user_show', args: {   user_id: id } } } ]
+    ];
+    do {
+        url.replace.apply( url, decoders.shift() );
+    } while ( decoders.length &amp;&amp; !ret );
+    return ret;
+}
 
 /**
  * @summary Ban a spambot and delete all their posts as spam
@@ -1697,7 +1832,7 @@ VBulletin.prototype.forum_threads = function(forum_id) {
 
     var bb = this;
 
-    return $.get( '/forumdisplay.php?f=' + forum_id ).then(function(html) {
+    return bb.get( '/forumdisplay.php?f=' + forum_id ).then(function(html) {
 
         var is_moderator = html.search( '&lt;script type="text/javascript" src="clientscript/vbulletin_inlinemod.js?' ) != -1;
 
@@ -1804,7 +1939,7 @@ VBulletin.prototype.css_add = function(page_types) {
  */
 VBulletin.prototype.posts_moderated = function() {
 
-    return $.get( '/modcp/moderate.php?do=posts' ).then(function(html) {
+    return this.get( '/modcp/moderate.php?do=posts' ).then(function(html) {
         html = $(html);
         var ret = {
             threads: [],
@@ -1911,6 +2046,51 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
     return dfd.promise();
 
 }
+
+/**
+ * @summary set the contents of the page's main edit box
+ * @param {string} text text to set
+ */
+VBulletin.prototype.editor_set = function( text ) {
+    $('#vB_Editor_QR_editor_backup,#vB_Editor_QR_editor').val( text );
+    if ( ! $('#vB_Editor_001_textarea:visible,#cke_contents_vB_Editor_QR_editor:visible,.cke_source:visible').val( text ).length )
+        BabelExt.utils.runInEmbeddedPage("vB_Editor['vB_Editor_001'].write_editor_contents(" + JSON.stringify(text) + ")");
+}
+
+/**
+ * @summary get the contents of the page's main edit box
+ * @return {string} text contents
+ */
+VBulletin.prototype.editor_get = function() {
+    // The only reliable way to get this value is from JavaScript running in page context:
+    BabelExt.utils.runInEmbeddedPage( 'document.body.setAttribute( "data-editor-contents", vB_Editor["vB_Editor_001"].get_editor_contents() )');
+    var ret = document.body.getAttribute('data-editor-contents');
+    document.body.removeAttribute('data-editor-contents');
+    return ret;
+}
+
+/**
+ * @summary Statistics about the server running the bulletin board
+ * @return {Object} one, five and fifteen minute load averages; total, logged-in and logged-out users online
+ */
+VBulletin.prototype.server_stats = function( ) {
+    return this.get( '/modcp/index.php?do=home' ).then(function(html) {
+        var ret;
+        $(html).find('.alt1').eq(1).text().replace(
+            /^\s*([0-9.]+)\s*([0-9.]+)\s*([0-9.]+)\s*\|\s*([0-9,]+) Users Online \(([0-9,]+) members and ([0-9,]+) guests\)\s*$/,
+            function( match, one_minute, five_minutes, fifteen_minutes, total_online, members_online, guests_online ) {
+                ret = {
+                        one_minute_loadavg: parseFloat(     one_minute  ),
+                       five_minute_loadavg: parseFloat(    five_minutes ),
+                    fifteen_minute_loadavg: parseFloat( fifteen_minutes ),
+                      total_online: parseInt(   total_online.replace( /,/g, '' ), 10 ),
+                    members_online: parseInt( members_online.replace( /,/g, '' ), 10 ),
+                     guests_online: parseInt(  guests_online.replace( /,/g, '' ), 10 ),
+                };
+            });
+        return ret;
+    });
+}
 </code></pre>
         </article>
     </section>
@@ -1923,7 +2103,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 24 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>

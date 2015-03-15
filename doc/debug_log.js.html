@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Source: cacheable.js</title>
+    <title>Source: debug_log.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -335,7 +335,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="cacheable.js.html">Source: cacheable.js</h1>
+        <h1 class="page-title" data-filename="debug_log.js.html">Source: debug_log.js</h1>
 
 
 
@@ -343,86 +343,55 @@
     <section>
         <article>
             <pre class="prettyprint source "><code>/**
- * @file Abstract "cacheable" object
+ * @file Simple Debugging Log
  * @author Andrew Sayers
- * @description Manage storage to and retrieval from an arbitrary cache
  */
 
-/**
- * @summary Base class for objects that can cache their contents
- * @param {Object} args cacheable arguments
- * @constructor
- * @abstract
- *
- * @example
- * var cacheable = new ChildOfCacheable({
- *     cache          : variable_retrieved_from_storage,
- *     cache_updater  : function(cache) { storage.store( cache ) },
- *     reload_interval: 60 * 60 * 1000, // optional
- *     ... // arguments to child object
- * });
- */
-function Cacheable(args) {
+var debug_log = {
 
-    this.cache_updater = args.cache_updater;
+    div: $('&lt;div style="width: 100%; text-align: center">&lt;hr>&lt;h1>Debugging log - please send this to the maintainer if requested&lt;/h1>&lt;textarea style="width: 80em; max-width: 50%; height: 20em;" placeholder="Moderators\' extension debugging information">&lt;/textarea>&lt;/div>'),
 
-    var needs_refresh;
-    if (
-        args.cache &amp;&amp; // cache initialised
-        args.cache.cache &amp;&amp; // cache correctly initialised (not e.g. grandfathered in from an older implementation)
-        args.cache.origin == location.origin // cache loaded from current domain (not e.g. from a test domain)
-       ) {
-        this.cache    = args.cache.cache;
-        needs_refresh = args.reload_interval &amp;&amp; args.cache.timestamp+args.reload_interval &lt; new Date().getTime();
-    } else {
-        this.cache    = {};
-        needs_refresh = true;
+    /**
+     * @summary Show the debugging log at the bottom of the current page
+     * @description You might want to show the debugging log at page load, or only when a "severe" error occurs
+     */
+    show: function() {
+        $(function() { debug_log.div.appendTo(document.body) });
+        this.show = function() { return this };
+        return this;
+    },
+
+    /**
+     * @summary Add values to the debugging log
+     */
+    log: function() {
+        var caller = debug_log.log.caller.name;
+        if ( !caller ) {
+            caller = debug_log.log.caller.toString();
+            if ( caller.length > 110 ) {
+                caller = caller.substr(0,100) + '...';
+            }
+        }
+        debug_log.textarea.value +=
+            '================================================================================\n' +
+            'Date: ' + new Date() + "\n" +
+            'Caller: ' + caller + "\n" +
+            'Data: ' + JSON.stringify(Array.prototype.slice.call(arguments, 0), null, '    ') + "\n" +
+            "\n"
+        ;
+        return debug_log;
+    },
+
+    /**
+     * @summary Get the contents of the debug log
+     */
+    text: function() {
+        return '' + debug_log.textarea.value;
     }
 
-    if ( needs_refresh ) {
-        this.promise = this.refresh(args);
-    } else {
-        var dfd = new jQuery.Deferred();
-        this.promise = dfd.promise();
-        dfd.resolve();
-    }
+};
 
-}
-
-Cacheable.prototype.constructor = Cacheable;
-Cacheable.prototype = Object.create(Object, {
-
-    cache        : { writable: true, configurable: false },
-    cache_updater: { writable: true, configurable: false },
-
-    // will return when the cache is up-to-date:
-    promise      : { writable: true, configurable: false },
-
-});
-
-/**
- * Update this.cache using the passed cache_updater() callback
- */
-Cacheable.prototype.update_cache = function() {
-    return this.cache_updater.call( null, {
-        timestamp: new Date().getTime(),
-        origin   : location.origin,
-        cache    : this.cache
-    });
-}
-
-/**
- * Reload the cached values
- * @param {Object} args cacheable arguments (as passed to Cacheable())
- * @return {jQuery.Promise} promise that will return when the cache has been refreshed
- * @abstract
- */
-Cacheable.prototype.refresh = function(args) {/*
-    return $.get(...).then(function(html) {
-        ...
-        this.update_cache();
-    });
-*/}
+debug_log.textarea = debug_log.div.find('textarea')[0];
 </code></pre>
         </article>
     </section>

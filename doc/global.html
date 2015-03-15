@@ -55,6 +55,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
 
                 <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
@@ -215,7 +217,13 @@
 
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
 
                 <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
 
@@ -255,6 +263,8 @@
 
                 <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
 
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
                 <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
 
                 <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
@@ -273,13 +283,21 @@
 
                 <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
 
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
                 <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
 
@@ -384,6 +402,198 @@
         <h3 class="subsection-title">Methods</h3>
 
         <dl>
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="form_keys">
+
+            form_keys<span class="signature">(bb, form, callback)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="form_keys.js.html">form_keys.js</a>, <a href="form_keys.js.html#line16">line 16</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Manage a form that builds a set of keys</p>
+
+</dt>
+<dd>
+
+
+    <div class="description">Automatically populates certain values in a form (e.g. suggesting "user" and "thread" completions),
+and builds a set of keys based on the inputs, in a format that can be passed to Variables.resolve()</div>
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>bb</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="BulletinBoard.html">BulletinBoard</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Bulletin board to retrieve data from</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>form</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">jQuery</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Form to manage</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>callback</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">function</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Called when the form changes or is submitted</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery
+
+
+            </td>
+            <td class="description last">form</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
 
 <dt>
     <div class="nameContainer">
@@ -554,7 +764,7 @@
 
 
         <div class="tag-source">
-            <a href="main.js.html">main.js</a>, <a href="main.js.html#line243">line 243</a>
+            <a href="main.js.html">main.js</a>, <a href="main.js.html#line292">line 292</a>
         </div>
 
     </div>
@@ -623,7 +833,7 @@
 
 
         <div class="tag-source">
-            <a href="main.js.html">main.js</a>, <a href="main.js.html#line225">line 225</a>
+            <a href="main.js.html">main.js</a>, <a href="main.js.html#line274">line 274</a>
         </div>
 
     </div>
@@ -694,7 +904,7 @@
 
 
         <div class="tag-source">
-            <a href="main.js.html">main.js</a>, <a href="main.js.html#line259">line 259</a>
+            <a href="main.js.html">main.js</a>, <a href="main.js.html#line308">line 308</a>
         </div>
 
     </div>
@@ -763,7 +973,7 @@
 
 
         <div class="tag-source">
-            <a href="main.js.html">main.js</a>, <a href="main.js.html#line196">line 196</a>
+            <a href="main.js.html">main.js</a>, <a href="main.js.html#line245">line 245</a>
         </div>
 
     </div>
@@ -825,6 +1035,144 @@
 
 	</tbody>
 </table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="handle_thread_form">
+
+            handle_thread_form<span class="signature">()</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="main.js.html">main.js</a>, <a href="main.js.html#line175">line 175</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Handle threads where a form should be provided to produce replies</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="handle_usernotes_cc">
+
+            handle_usernotes_cc<span class="signature">()</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="main.js.html">main.js</a>, <a href="main.js.html#line218">line 218</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">CC user notes to other users</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
 
 
 
@@ -1076,6 +1424,75 @@
 
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="VariablesFromFirstPost">
+
+            VariablesFromFirstPost<span class="signature">()</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line323">line 323</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">variables loaded from the first post in a thread</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="VariablesFromForum">
 
             VariablesFromForum<span class="signature">()</span>
@@ -1083,7 +1500,7 @@
 
 
         <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line310">line 310</a>
+            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line345">line 345</a>
         </div>
 
     </div>
@@ -1158,7 +1575,7 @@
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 24 February 2015
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>
