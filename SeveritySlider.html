@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Source: cacheable.js</title>
+    <title>Class: SeveritySlider</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -335,98 +335,298 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="cacheable.js.html">Source: cacheable.js</h1>
+        <h1 class="page-title" data-filename="SeveritySlider.html">Class: SeveritySlider</h1>
 
 
 
 
-    <section>
-        <article>
-            <pre class="prettyprint source "><code>/**
- * @file Abstract "cacheable" object
- * @author Andrew Sayers
- * @description Manage storage to and retrieval from an arbitrary cache
- */
+<section>
 
-/**
- * @summary Base class for objects that can cache their contents
- * @param {Object} args cacheable arguments
- * @constructor
- * @abstract
- *
- * @example
- * var cacheable = new ChildOfCacheable({
- *     cache          : variable_retrieved_from_storage,
- *     cache_updater  : function(cache) { storage.store( cache ) },
- *     reload_interval: 60 * 60 * 1000, // optional
- *     ... // arguments to child object
- * });
- */
-function Cacheable(args) {
+<header>
+    <h2>
+    SeveritySlider
+    </h2>
 
-    this.cache_updater = args.cache_updater;
+</header>
 
-    var needs_refresh;
-    if (
-        args.cache &amp;&amp; // cache initialised
-        args.cache.cache &amp;&amp; // cache correctly initialised (not e.g. grandfathered in from an older implementation)
-        args.cache.origin == location.origin // cache loaded from current domain (not e.g. from a test domain)
-       ) {
-        this.cache    = args.cache.cache;
-        needs_refresh = args.reload_interval &amp;&amp; args.cache.timestamp+args.reload_interval &lt; new Date().getTime();
-    } else {
-        this.cache    = {};
-        needs_refresh = true;
-    }
+<article>
+    <div class="container-overview">
 
-    if ( needs_refresh ) {
-        this.promise = this.refresh(args);
-    } else {
-        var dfd = new jQuery.Deferred();
-        this.promise = dfd.promise();
-        dfd.resolve();
-    }
 
-}
 
-Cacheable.prototype.constructor = Cacheable;
-Cacheable.prototype = Object.create(Object, {
 
-    cache        : { writable: true, configurable: false },
-    cache_updater: { writable: true, configurable: false },
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="SeveritySlider">
 
-    // will return when the cache is up-to-date:
-    promise      : { writable: true, configurable: false },
+            new SeveritySlider<span class="signature">(args)</span>
+        </h4>
 
-});
 
-/**
- * Update this.cache using the passed cache_updater() callback
- */
-Cacheable.prototype.update_cache = function() {
-    return this.cache_updater.call( null, {
-        timestamp: new Date().getTime(),
-        origin   : location.origin,
-        cache    : this.cache
-    });
-}
+        <div class="tag-source">
+            <a href="widgets_severity_slider.js.html">widgets/severity_slider.js</a>, <a href="widgets_severity_slider.js.html#line26">line 26</a>
+        </div>
 
-/**
- * Reload the cached values
- * @param {Object} args cacheable arguments (as passed to Cacheable())
- * @return {jQuery.Promise} promise that will return when the cache has been refreshed
- * @abstract
- */
-Cacheable.prototype.refresh = function(args) {/*
-    return $.get(...).then(function(html) {
+    </div>
+
+
+    <p class="summary">Slider to choose varying levels of severity for a rule violation</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>args</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                slider arguments</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h5>Example</h5>
+
+
+
+    <pre class="prettyprint"><code>var slider = new SeveritySlider({
+    levels: [
+        {
+            html: 'no action', // shown when this level is selected
+            type: 'none', // or "PM" or "warning" or "infraction"
+            data: ..., // optional
+        },
         ...
-        this.update_cache();
-    });
-*/}
-</code></pre>
-        </article>
-    </section>
+    ],
+    default: 0, // index of level selected by default
+    callback: function(level) { ... } // called with the current level object
+});</code></pre>
 
+
+
+</dd>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="val">
+
+            val<span class="signature">(value)</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="widgets_severity_slider.js.html">widgets/severity_slider.js</a>, <a href="widgets_severity_slider.js.html#line70">line 70</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">set the slider value</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>value</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                value to set</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dd>
+
+        </dl>
+
+
+
+
+
+</article>
+
+</section>
 
 
 
@@ -435,7 +635,7 @@ Cacheable.prototype.refresh = function(args) {/*
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Source: cacheable.js</title>
+    <title>Source: widgets/severity_slider.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -335,7 +335,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="cacheable.js.html">Source: cacheable.js</h1>
+        <h1 class="page-title" data-filename="widgets_severity_slider.js.html">Source: widgets/severity_slider.js</h1>
 
 
 
@@ -343,86 +343,90 @@
     <section>
         <article>
             <pre class="prettyprint source "><code>/**
- * @file Abstract "cacheable" object
+ * @file Severity Slider
  * @author Andrew Sayers
- * @description Manage storage to and retrieval from an arbitrary cache
+ * @summary slider indicating the severity of an issue
  */
 
 /**
- * @summary Base class for objects that can cache their contents
- * @param {Object} args cacheable arguments
+ * @summary Slider to choose varying levels of severity for a rule violation
  * @constructor
- * @abstract
- *
+ * @param {Object} args slider arguments
  * @example
- * var cacheable = new ChildOfCacheable({
- *     cache          : variable_retrieved_from_storage,
- *     cache_updater  : function(cache) { storage.store( cache ) },
- *     reload_interval: 60 * 60 * 1000, // optional
- *     ... // arguments to child object
+ *
+ * var slider = new SeveritySlider({
+ *     levels: [
+ *         {
+ *             html: 'no action', // shown when this level is selected
+ *             type: 'none', // or "PM" or "warning" or "infraction"
+ *             data: ..., // optional
+ *         },
+ *         ...
+ *     ],
+ *     default: 0, // index of level selected by default
+ *     callback: function(level) { ... } // called with the current level object
  * });
  */
-function Cacheable(args) {
+function SeveritySlider( args ) {
 
-    this.cache_updater = args.cache_updater;
+    this.input = $('&lt;input type="range" min="0" max="' + (args.levels.length-1) + '">' ).appendTo( $(args.container) );
 
-    var needs_refresh;
-    if (
-        args.cache &amp;&amp; // cache initialised
-        args.cache.cache &amp;&amp; // cache correctly initialised (not e.g. grandfathered in from an older implementation)
-        args.cache.origin == location.origin // cache loaded from current domain (not e.g. from a test domain)
-       ) {
-        this.cache    = args.cache.cache;
-        needs_refresh = args.reload_interval &amp;&amp; args.cache.timestamp+args.reload_interval &lt; new Date().getTime();
+    this.divs = $(
+        args.levels.map(function(level, index, array) {
+            var location = index / (array.length-1) * 100;
+            var style;
+            if ( location &lt;= 50 ) {
+                style =  'float: left; margin-left: '  + location + '%; transform: translateX(-' + location + '%)';
+            } else {
+                location = 100 - location;
+                style = 'float: right; margin-right: ' + location + '%; transform: translateX('  + location + '%)';
+            }
+            return '&lt;div class="severity-slider-level-text" style="' + style + '">' + level.html + '&lt;/div>'
+        }).join('')
+    );
+
+    this.levels = args.levels;
+
+    if ( args.extra_html ) {
+        this.extra_html = $(args.extra_html).insertAfter( this.input );
     } else {
-        this.cache    = {};
-        needs_refresh = true;
+        this.divs.insertAfter( this.input );
     }
 
-    if ( needs_refresh ) {
-        this.promise = this.refresh(args);
-    } else {
-        var dfd = new jQuery.Deferred();
-        this.promise = dfd.promise();
-        dfd.resolve();
-    }
+    var ss = this;
+    this.val( args.default );
+    var old_value = args.default;
+    this.input.on( 'input change', function() {
+        var value = $(this).val();
+        if ( old_value != value ) {
+            old_value = value;
+            ss.val( value );
+            args.callback( args.levels[ value ] );
+        }
+    });
 
 }
 
-Cacheable.prototype.constructor = Cacheable;
-Cacheable.prototype = Object.create(Object, {
-
-    cache        : { writable: true, configurable: false },
-    cache_updater: { writable: true, configurable: false },
-
-    // will return when the cache is up-to-date:
-    promise      : { writable: true, configurable: false },
-
-});
-
 /**
- * Update this.cache using the passed cache_updater() callback
+ * @summary set the slider value
+ * @param {Number} value value to set
  */
-Cacheable.prototype.update_cache = function() {
-    return this.cache_updater.call( null, {
-        timestamp: new Date().getTime(),
-        origin   : location.origin,
-        cache    : this.cache
-    });
+SeveritySlider.prototype.val = function(value) {
+    if ( arguments.length == 0 ) {
+        return this.input.val();
+    } else {
+        this.input.val( value ).attr( 'class', 'severity-slider-level severity-slider-type-' + this.levels[value].type );
+        this.divs.hide().eq( value ).show();
+        if ( this.extra_html ) {
+            if ( value &lt;= this.levels.length / 2 ) {
+                this.divs.insertAfter ( this.extra_html.css({ float: 'right' }).last() );
+            } else {
+                this.divs.insertBefore( this.extra_html.css({ float: 'left'  }).first() );
+            }
+        }
+        return;
+    }
 }
-
-/**
- * Reload the cached values
- * @param {Object} args cacheable arguments (as passed to Cacheable())
- * @return {jQuery.Promise} promise that will return when the cache has been refreshed
- * @abstract
- */
-Cacheable.prototype.refresh = function(args) {/*
-    return $.get(...).then(function(html) {
-        ...
-        this.update_cache();
-    });
-*/}
 </code></pre>
         </article>
     </section>

@@ -55,6 +55,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
 
                 <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
@@ -215,7 +217,13 @@
 
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
 
                 <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
 
@@ -255,6 +263,8 @@
 
                 <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
 
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
                 <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
 
                 <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
@@ -273,13 +283,21 @@
 
                 <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
 
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
                 <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
 
@@ -1191,7 +1209,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 '&lt;div class="thread_info block">' +
                     '&lt;div class="options_block_container">' +
                         '&lt;div class="options_block" style="width: 100%">' +
-                            '&lt;h4 class="collapse blockhead options_correct">Most recent post in &lt;a href="/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&amp;goto=newpost">the moderation thread&lt;/a>&lt;/h4>' +
+                            '&lt;h4 class="collapse blockhead options_correct">Most recent post in &lt;a href="/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&amp;goto=newpost">the moderation thread&lt;/a>&lt;/h4>' +
                             '&lt;table id="last_post_container" style="width: 100%">&lt;/table>' +
                             '&lt;input type="checkbox"' + (popup_on_mod_log_post?' checked="checked"':'') + ' id="popup-on-mod-log-post">&lt;label for="popup-on-mod-log-post"> Show popup notification when new posts appear in the moderation log&lt;/label>' +
                             stash.mark_read_html +
@@ -1271,7 +1289,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             });
             var last_post_container = stash.report_block.find('#last_post_container');
             last_post_container
-                .load( '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&amp;goto=newpost .postcontainer:last', function() {
+                .load( '/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&amp;goto=newpost .postcontainer:last', function() {
                     last_post_container.find('.posthead,.postfoot,.after_content').remove();
                     last_post_container.find('.postbitlegacy').css({ 'margin-bottom': 0 });
                     var new_mod_log_post_id = last_post_container.find('.postbitlegacy').attr('id').substr(4);
@@ -1291,7 +1309,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     if ( new_mod_log_post_id != popup_mod_log_post_id ) {
                         BabelExt.storage.set( 'popup_mod_log_post_id', new_mod_log_post_id );
                         if ( popup_on_mod_log_post &amp;&amp; confirm( 'New message in the moderation log.\n\nClick OK to view it, or cancel to hide this prompt.' ) )
-                            document.location = '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&amp;goto=newpost';
+                            document.location = '/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&amp;goto=newpost';
                     }
                 });
             newbies = JSON.parse( newbies || '[]' );
@@ -1419,7 +1437,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                 '\n/* END THREAD MERGE DATA */'
                         };
                         return bb.thread_reply({ // Notify/save all posts in thread
-                            thread_id: v.resolve('policy', 'merge log thread id'),
+                            thread_id: v.resolve('frequently used posts/threads', 'merge log'),
                             title    : v.resolve('report process', 'merge title', variable_data),
                             bbcode   : v.resolve('report process', 'merge body' , variable_data)
                         });
@@ -1427,7 +1445,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 });
             }
 
-            stash.merge_destinations = v.resolve('policy', 'frequent merge destinations', {}, 'array of items');
+            stash.merge_destinations = v.resolve('frequently used posts/threads', 'frequent merge destinations', {}, 'array of items');
 
             if ( parseInt(merge_timestamp||'0',10)+reload_interval*1000 &lt; new Date().getTime() ) {
 
@@ -1462,14 +1480,13 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
                 if ( get_requests.length )
                     $.when.apply( $, get_requests ).done(function() {
-                        if ( failed_gets.length &amp;&amp; confirm(
-                            'Some frequent merge destinations have changed recently.  Please fix the following issues:\n\n' +
+                        if ( failed_gets.length ) {
+                            alert(
+                                'Some frequent merge destinations have changed recently.  Please fix the following issues:\n\n' +
                                 failed_gets + "\n" +
-                                "To fix these issues, paste the above notes into a text editor then go to the variables thread and change the \"frequent merge destinations\" block.\n" +
-                                "\n" +
-                                "Would you like to go there now?"
-                        ))
-                            location = '/showthread.php?' + variable_thread_id; // TODO: update this now we have a whole variables forum
+                                "To fix these issues, paste the above notes into a text editor then go to the variables forum and change the \"frequent merge destinations\" block.\n"
+                            );
+                        };
                     });
             }
 
@@ -1514,7 +1531,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                     bb.thread_merge({
                                         forum_id  : forum_id,
                                         thread_ids: [ destination.thread_id, params.t ],
-                                        url       : '/showthread.php?goto=newpost&amp;t='+v.resolve('policy', 'mod log thread id'),
+                                        url       : '/showthread.php?goto=newpost&amp;t='+v.resolve('frequently used posts/threads', 'mod log'),
                                     });
                                 });
                             });
@@ -1803,7 +1820,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         // match_params: { t: mod_log_thread }, // doing this neatly would be an architectural hassle, TODO: consider said hassle some day
         match_elements: [ '#below_postlist' ],
         callback: function(stash, pathname, params) {
-            var merge_log = v.resolve('policy', 'merge log thread id');
+            var merge_log = v.resolve('frequently used posts/threads', 'merge log');
             if ( params.t == merge_log ) {
                 // Unmerge data in the merge log
                 $('.bbcode_code').each(function() {
@@ -1907,7 +1924,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         match_elements: [ '#breadcrumb .navbit a[href="forumdisplay.php?f=48"]', '#below_postlist' ],
         callback: function(stash, pathname, params) {
 
-            if ( $('a[href="forumdisplay.php?f=71"]').length ) return; // disable extras in the dupe account forum
+            if ( $('#breadcrumb a[href="forumdisplay.php?f=71"]').length ) return; // disable extras in the dupe account forum
 
             var pm_worthy_violations = {};
             var infraction_worthy_violations = {};
@@ -2052,7 +2069,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 common_actions.find('.postcontent').html(
                     '&lt;ul style="margin: 1em; padding-left: 1em">' +
                         '&lt;li>&lt;a href="/private.php?do=newpm&amp;u=' + report_owner_id + '">PM the report owner (' + report_owner +')&lt;/a>' +
-                        '&lt;li>&lt;a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log&lt;/a>' +
+                        '&lt;li>&lt;a href="/newreply.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '">Copy an appeal to the moderation log&lt;/a>' +
                         '&lt;li>&lt;a href="/infraction.php?do=report&amp;u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action&lt;/a>' +
                         '&lt;li>&lt;a href="/showgroups.php">Find an administrator&lt;/a> and PM them the post and user name if you want an infraction revoked' +
                         '&lt;li>&lt;a href="#handle">Handle it anyway&lt;/a>' +
@@ -2077,7 +2094,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     '&lt;ul style="margin: 1em; padding-left: 1em">' +
                         '&lt;li>&lt;a href="/usernote.php?do=newnote&amp;u=' + user_to_review_id + '">Post a new user note&lt;/a> for the reported user' +
                         '&lt;li>&lt;a href="/forumdisplay.php?f=47">Check the infractions/warnings forum&lt;/a>' +
-                        '&lt;li>&lt;a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log&lt;/a>' +
+                        '&lt;li>&lt;a href="/newreply.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '">Copy an appeal to the moderation log&lt;/a>' +
                         '&lt;li>&lt;a href="/infraction.php?do=report&amp;u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action&lt;/a>' +
                         '&lt;li>&lt;a href="/showgroups.php">Find an administrator&lt;/a> and PM them the post and user name if you want an infraction revoked' +
                     '&lt;/ul>'
@@ -2954,7 +2971,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                         ret.push(bb.infraction_give(args));
                                     } else if ( issues.length == 0 ) {
                                         alert("Please select an issue");
-                                        throw "Pleaese select an issue";
+                                        throw "Please select an issue";
                                     } else {
                                         args.reason  = issues.map(function() { return this.name }).get().join(', ');
                                         args.points  = [0].concat(issues.get()).reduce(function(a,b) { return a + b.points });
@@ -3058,7 +3075,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 24 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>

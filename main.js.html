@@ -55,6 +55,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
 
                 <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
@@ -215,7 +217,13 @@
 
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
 
                 <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
 
@@ -255,6 +263,8 @@
 
                 <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
 
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
                 <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
 
                 <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
@@ -273,13 +283,21 @@
 
                 <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
 
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
                 <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
 
@@ -407,7 +425,7 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
             });
 
-            var mod_log_thread_id = v.resolve('policy', 'mod log thread id');
+            var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
             var report_forum_id = 48;
             dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
             dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href', bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
@@ -464,27 +482,7 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
                 'Moderation tools',
                 'Browser extension',
                 'How to edit a variables thread',
-                'This thread contains variables used by the moderation tools.&lt;br>' +
-                '&lt;br>' +
-                'To edit an existing variable:&lt;br>' +
-                '&lt;ol>' +
-                    '&lt;li>Search for a [quote] block attributed to your variable name' +
-                    '&lt;li>Edit the post containing that block' +
-                    '&lt;li>Make your changes' +
-                    '&lt;li>Save the new post' +
-                    '&lt;li>Load a page that uses your variable, and make sure it works as expected' +
-                    '&lt;li>Bump this thread so others will see your change' +
-                '&lt;/ol>' +
-                '&lt;br>' +
-                'To create a new variable:' +
-                '&lt;ol>' +
-                    '&lt;li>Edit an existing post or create a new one' +
-                    '&lt;li>Add a new piece of text like [quote=(name of your variable)](contents of your variable)[/quote]' +
-                    '&lt;li>Save the new post' +
-                    '&lt;li>Load a page that uses your variable, and make sure it works as expected' +
-                    '&lt;li>Bump this thread so others will see your change' +
-                '&lt;/ol>' +
-                '&lt;div style="width: 100%; text-align: center; margin: 1em">&lt;a class="newcontent_textcontrol" href="#bump-thread" title="Click to bump this thread" style="float: none; display: inline; text-decoration: none; font-size: 200%">Bump&amp;nbsp;this&amp;nbsp;thread&lt;/a>&lt;/div>'
+                BabelExt.resources.get('res/variables_thread_post.html')
             );
             post.find('a.newcontent_textcontrol').click(function(event) {
                 bb.thread_bump(params.t).then(function() {
@@ -511,6 +509,75 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
                 }
             });
 
+        }
+    }
+)}
+
+/**
+ * @summary Handle threads where a form should be provided to produce replies
+ */
+function handle_thread_form( bb, v, error_callback ) {
+    function handle_form(editor, name, thread_id) {
+        var post_var = new VariablesFromFirstPost({
+            bb: bb,
+            thread_id: thread_id,
+            namespace: 'post',
+            cache_updater: function() {},
+            error_callback: error_callback
+        });
+        form_keys( bb, $(BabelExt.resources.get('res/' + name + '.html')).insertBefore(editor), function(keys) {
+            post_var.promise.then(function() {
+                bb.editor_set( post_var.resolve( 'post', 'recommended reply format', keys ) );
+            });
+            return false; // prevent form submission
+        });
+    }
+
+    var dispatchers = [];
+    [
+        'Moderation Chase-Up Thread',
+        'Account Merge Request Thread',
+        'Name Change Request Thread'
+    ].forEach(function(thread) {
+        var thread_id = v.resolve( 'frequently used posts/threads', thread );
+        BabelExt.utils.dispatch(
+            {
+                match_pathname: ['/newreply.php'],
+                match_elements: [ '.description a[href="showthread.php?t=' + thread_id + '"]', '#vB_Editor_001' ],
+                callback: function(stash, pathname, params, a, editor) { handle_form( editor, thread, thread_id ) }
+            },
+            {
+                match_pathname: ['/showthread.php'],
+                match_elements: [ 'link[rel="canonical"][href="showthread.php?t=' + thread_id + '"]', '#vB_Editor_QR' ],
+                callback: function(stash, pathname, params, a, editor) { handle_form( editor, thread, thread_id ) }
+            }
+        );
+    });
+
+}
+
+/**
+ * @summary CC user notes to other users
+ */
+function handle_usernotes_cc( bb ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: ['/usernote.php'],
+        match_elements: ['#vB_Editor_001'],
+        callback: function(stash, pathname, params, editor) {
+            var cc = null;
+            $(document.body).on( 'submit', '.vbform.block', function(event) {
+                if ( cc ) {
+                    var form = this, title = $('#titlefield').val(), bbcode = bb.editor_get();
+                    $.when.apply( $, cc.map(function(user_id) { bb.usernote_add( user_id, title, bbcode ) }) ).then(function() {
+                        cc = null;
+                        $(form).submit();
+                    });
+                    event.preventDefault();
+                }
+            });
+            form_keys( bb, $(BabelExt.resources.get('res/usernotes_cc.html')).insertBefore(editor), function(keys) {
+                cc = keys[ 'cc values' ];
+            });
         }
     }
 )}
@@ -593,27 +660,62 @@ BabelExt.utils.dispatch({ // initialise general stuff
     pass_storage    : ['variables', 'violations'],
     pass_preferences: [ 'language', 'reload_interval' ],
     callback: function( stash, pathname, params, variables, violations, user_language, reload_interval ) {
-        // First we retrieve storage and preferences needed everywhere
+
+        var bb = new VBulletin();
 
         /*
          * ERROR HANDLER
-         * We make a simple HTML error handler because Chrome doesn't let you copy/paste alert() boxes
          */
-        var handle_error_box = $(
-            '&lt;div style="display: none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 5px solid black; border-radius: 5px; background: white; color: black">' +
-                '&lt;h1 style="width: 100%; box-sizing: border-box; border-bottom: 1px solid black; padding: 1em; font-weight: bold">Error!&lt;/h1>' +
-                '&lt;table style="margin: 1em">&lt;thead style="font-weight: bold">&lt;tr>&lt;th>Message&lt;/th>&lt;th style="padding-left: 1em">Suggested resolutions&lt;/th>&lt;/tr>&lt;tbody>&lt;/tbody>&lt;/table>' +
-                '&lt;a style="float: right; padding: 1em" href="#close-error-box">close&lt;/a>' +
-            '&lt;/div>'
-        );
-        $(function() { handle_error_box.appendTo(document.body) });
-        handle_error_box.find('a').click(function(event) {
+        var maintainer_user_id = 18617, maintainer_name = 'Andrew Sayers';
+
+        var handle_error_box = $(BabelExt.resources.get('res/error_box.html'));
+        $(function() {
+            handle_error_box.appendTo(document.body);
+            $('&lt;a id="debug-log-show" href="#debug-log-show">(click here to show the moderators\' extension debug log)&lt;/a>')
+                .appendTo('#footer_morecopyright')
+                .before('&lt;br>')
+                .click(function(event) {
+                    debug_log.show();
+                    $(this).hide();
+                    event.preventDefault();
+                });
+        });
+        handle_error_box.find('a[href="#close-error-box"]').click(function(event) {
             handle_error_box.hide();
+            event.preventDefault();
+        });
+        handle_error_box.find('a[href="#pm-maintainer"]').click(function(event) {
+            bb.pm_send( maintainer_name, 'Debug log', debug_log.text() ).then(
+                function() {
+                    alert("PM sent :)");
+                },
+                function() {
+                    alert("Could not send message.  Please copy the text area at the bottom of the page to " + maintainer_name);
+                });
             event.preventDefault();
         });
         var previous_errors = {};
 
         function handle_error( message, resolutions ) {
+
+            debug_log.log( message, resolutions ).show();
+            $("#debug-log-show").hide();
+
+            if ( !$.isArray(resolutions) ) resolutions = [resolutions];
+            resolutions = resolutions.map(function(resolution) {
+                switch (resolution) {
+                case 'log in':
+                    if ( bb.user_current() ) {
+                        return { message: 'Contact the maintainer', href: '/private.php?do=newpm&amp;u=' + maintainer_user_id };
+                    } else {
+                        return {
+                            message: 'log in',
+                            href   : bb.url_for.login(),
+                        };
+                    }
+                default: return resolution;
+                }
+            });
 
             // ignore duplicate messages:
             if ( previous_errors[message] ) return;
@@ -630,14 +732,26 @@ BabelExt.utils.dispatch({ // initialise general stuff
 
         }
 
+        $( document ).ajaxError(function debug_ajax_errors( event, xhr, settings, error ) {
+            var messages = [];
+            try {
+                messages.push( error );
+                messages.push( settings );
+                messages.push( event );
+                messages.push( xhr.status );
+                messages.push( xhr.statusText );
+                messages.push( xhr.getAllResponseHeaders() );
+                messages.push( xhr.responseText );
+            } catch (error) {  messages.push('caught error while adding values:', error); };
+            debug_log.log.apply( debug_log, messages );
+        });
+
         /*
          * GENERAL VARIABLES
          */
 
         var loading_img  = '&lt;img src="images/misc/progress.gif" alt="loading, please wait">';
         var loading_html = loading_img + ' Loading';
-
-        var bb = new VBulletin();
 
         var next_week = new Date();
         next_week.setDate(next_week.getDate()+7);
@@ -673,6 +787,8 @@ BabelExt.utils.dispatch({ // initialise general stuff
             handle_moderation_links     ();
             handle_moderation_checkboxes();
             handle_modcp_user           ();
+            handle_thread_form          ( bb, v, handle_error );
+            handle_usernotes_cc         ( bb, v );
             handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
         });
 
@@ -691,7 +807,7 @@ BabelExt.utils.dispatch({ // initialise general stuff
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 24 February 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>

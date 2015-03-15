@@ -55,6 +55,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
 
                 <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
@@ -215,7 +217,13 @@
 
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
 
                 <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
 
@@ -255,6 +263,8 @@
 
                 <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
 
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
                 <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
 
                 <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
@@ -273,13 +283,21 @@
 
                 <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
 
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
                 <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
 
@@ -433,7 +451,7 @@
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line147">line 147</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line178">line 178</a>
         </div>
 
     </div>
@@ -798,7 +816,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line180">line 180</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line211">line 211</a>
         </div>
 
     </div>
@@ -937,6 +955,156 @@ bb.build_url(
 
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="get">
+
+            <span class="type-signature ">protected</span>get<span class="signature">(var_args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line103">line 103</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Send a message to the server as an AJAX request</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>var_args</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+
+
+
+                        <span class="repeatable">repeatable</span>
+
+
+                passed to $.get()</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last"></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="get_pages">
 
             <span class="type-signature ">abstract</span>get_pages<span class="signature">(doc)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Array.&lt;number>}</span>
@@ -944,7 +1112,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line155">line 155</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line186">line 186</a>
         </div>
 
     </div>
@@ -1093,7 +1261,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line163">line 163</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line194">line 194</a>
         </div>
 
     </div>
@@ -1242,7 +1410,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line105">line 105</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line132">line 132</a>
         </div>
 
     </div>
@@ -1431,7 +1599,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line171">line 171</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line202">line 202</a>
         </div>
 
     </div>
@@ -1574,7 +1742,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line193">line 193</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line224">line 224</a>
         </div>
 
     </div>
@@ -1719,7 +1887,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line221">line 221</a>
+            <a href="bulletin_board_api.js.html">bulletin_board_api.js</a>, <a href="bulletin_board_api.js.html#line252">line 252</a>
         </div>
 
     </div>
@@ -2050,7 +2218,7 @@ of Deferreds.</div>
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 24 February 2015
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
         </footer>
     </div>
 </div>
