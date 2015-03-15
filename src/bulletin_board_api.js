@@ -468,21 +468,23 @@ VBulletin.prototype._add_standard_data = function(data) {
         data.ajax = 1; // some URLs will serve a lightweight page if passed this
     }
 
-    data.securitytoken = $('input[name="securitytoken"]').val();
-    if ( !data.security_token ) {
+    function get_token() {
+        data.securitytoken = $('input[name="securitytoken"]').val();
+        if ( data.securitytoken ) return true;
         BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
         data.securitytoken = document.head.getAttribute('data-securitytoken');
         document.head.removeAttribute('data-securitytoken');
+        return data.securitytoken;
     }
 
-    if ( data.securitytoken ) {
+    if ( get_token() ) {
         dfd.resolve(data);
     } else {
         $(function() {
-            data.securitytoken = $('input[name="securitytoken"]').val();
-            if ( data.securitytoken ) {
+            if ( get_token() ) {
                 dfd.resolve(data);
             } else {
+                debug_log.log("Fatal: could not get securitytoken");
                 dfd.reject();
             }
         });
