@@ -121,17 +121,21 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                 type: "POST",
                 url: url,
                 data: data,
-            }).then(function(reply) {
-                var err = bb.detect_post_error( reply );
-                if ( err !== null ) {
-                    alert( "Couldn't load page " + url + "\n\nError:\n" + err );
-                    var dfd = new jQuery.Deferred();
-                    dfd.reject();
-                    return dfd;
-                } else {
-                    return reply;
-                }
-            });
+            }).then(
+                function(reply) {
+                    var err = bb.detect_post_error( reply );
+                    if ( err !== null ) {
+                        debug_log.log( "Couldn't load page", err );
+                        alert( "Couldn't load page " + url + "\n\nError:\n" + err );
+                        var dfd = new jQuery.Deferred();
+                        dfd.reject();
+                        return dfd;
+                    } else {
+                        return reply;
+                    }
+                },
+                debug_log.log
+            );
         }
     });
 
@@ -269,6 +273,7 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
             );
         },
         error: function() {
+            debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
             dfd.reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) );
         }
     });
@@ -616,6 +621,7 @@ VBulletin.prototype.infraction_give = function( data ) {
     return this.post( '/infraction.php?do=update', post_data ).then(function(html) {
         var errors = $(html).find( '.blockrow.error' );
         if ( errors.length && errors.text().length ) {
+            debug_log.log( "Could not give infraction", errors.text());
             alert("Could not give infraction:\n" + errors.text());
             var dfd = new jQuery.Deferred();
             dfd.reject();
