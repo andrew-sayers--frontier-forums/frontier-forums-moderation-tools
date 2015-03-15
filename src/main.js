@@ -267,16 +267,19 @@ BabelExt.utils.dispatch({ // initialise general stuff
     pass_storage    : ['variables', 'violations'],
     pass_preferences: [ 'language', 'reload_interval' ],
     callback: function( stash, pathname, params, variables, violations, user_language, reload_interval ) {
-        // First we retrieve storage and preferences needed everywhere
+
+        var bb = new VBulletin();
 
         /*
          * ERROR HANDLER
-         * We make a simple HTML error handler because Chrome doesn't let you copy/paste alert() boxes
          */
+        var maintainer_user_id = 18617, maintainer_name = 'Andrew Sayers';
+
         var handle_error_box = $(
             '<div style="display: none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 5px solid black; border-radius: 5px; background: white; color: black">' +
                 '<h1 style="width: 100%; box-sizing: border-box; border-bottom: 1px solid black; padding: 1em; font-weight: bold">Error!</h1>' +
                 '<table style="margin: 1em"><thead style="font-weight: bold"><tr><th>Message</th><th style="padding-left: 1em">Suggested resolutions</th></tr><tbody></tbody></table>' +
+                '<a style="float: left; padding: 1em" href="#pm-maintainer">Send debug log to the maintainer</a>' +
                 '<a style="float: right; padding: 1em" href="#close-error-box">close</a>' +
             '</div>'
         );
@@ -291,8 +294,18 @@ BabelExt.utils.dispatch({ // initialise general stuff
                     event.preventDefault();
                 });
         });
-        handle_error_box.find('a').click(function(event) {
+        handle_error_box.find('a[href="#close-error-box"]').click(function(event) {
             handle_error_box.hide();
+            event.preventDefault();
+        });
+        handle_error_box.find('a[href="#pm-maintainer"]').click(function(event) {
+            bb.pm_send( maintainer_name, 'Debug log', debug_log.text() ).then(
+                function() {
+                    alert("PM sent :)");
+                },
+                function() {
+                    alert("Could not send message.  Please copy the text area at the bottom of the page to " + maintainer_name);
+                });
             event.preventDefault();
         });
         var previous_errors = {};
@@ -307,7 +320,7 @@ BabelExt.utils.dispatch({ // initialise general stuff
                 switch (resolution) {
                 case 'log in':
                     if ( bb.user_current() ) {
-                        return { message: 'Contact the maintainer', href: '/private.php?do=newpm&u=18617' };
+                        return { message: 'Contact the maintainer', href: '/private.php?do=newpm&u=' + maintainer_user_id };
                     } else {
                         return {
                             message: 'log in',
@@ -353,8 +366,6 @@ BabelExt.utils.dispatch({ // initialise general stuff
 
         var loading_img  = '<img src="images/misc/progress.gif" alt="loading, please wait">';
         var loading_html = loading_img + ' Loading';
-
-        var bb = new VBulletin();
 
         var next_week = new Date();
         next_week.setDate(next_week.getDate()+7);
