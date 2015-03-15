@@ -409,6 +409,8 @@ VariablesFromForum.prototype.refresh = function(args) {
             return v.update_cache();
         });
 
+    }, function() {
+        args.error_callback( "Could not refresh the list of variables", 'log in');
     });
 
 }
