@@ -339,8 +339,8 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                                 ret += '<td style="padding:0 1em">' + stash.spam_list_links( address.ip, username_text, '' ).join('&nbsp;');
                                                 ret += '<td style="padding:0 1em">' +
                                                     address.users
-                                                    .filter(function(user) { return user.name != username_text && user.name != name })
-                                                    .map(function(user) { return '<a href="/member.php?u=' + user.user_id + '">' + BabelExt.utils.escapeHTML(user.name) + '</a>' }).join(', ');
+                                                    .filter(function(user) { return user.username != username_text && user.username != name })
+                                                    .map(function(user) { return '<a href="/member.php?u=' + user.user_id + '">' + BabelExt.utils.escapeHTML(user.username) + '</a>' }).join(', ');
                                                 return ret;
                                             }).join('') +
                                             '</tbody></table>'

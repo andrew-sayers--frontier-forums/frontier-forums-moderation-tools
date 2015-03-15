@@ -1439,7 +1439,7 @@ VBulletin.prototype.ip_users = function( ip ) {
                     if ( !previous_users.hasOwnProperty(user_id) ) {
                         previous_users[user_id] = 1;
                         return {
-                            name: $(this).text(),
+                            username: $(this).text(),
                             user_id: user_id
                         }
                     }
