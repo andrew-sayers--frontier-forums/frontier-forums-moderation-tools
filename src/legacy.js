@@ -865,7 +865,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 '<div class="thread_info block">' +
                     '<div class="options_block_container">' +
                         '<div class="options_block" style="width: 100%">' +
-                            '<h4 class="collapse blockhead options_correct">Most recent post in <a href="/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost">the moderation thread</a></h4>' +
+                            '<h4 class="collapse blockhead options_correct">Most recent post in <a href="/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&goto=newpost">the moderation thread</a></h4>' +
                             '<table id="last_post_container" style="width: 100%"></table>' +
                             '<input type="checkbox"' + (popup_on_mod_log_post?' checked="checked"':'') + ' id="popup-on-mod-log-post"><label for="popup-on-mod-log-post"> Show popup notification when new posts appear in the moderation log</label>' +
                             stash.mark_read_html +
@@ -945,7 +945,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             });
             var last_post_container = stash.report_block.find('#last_post_container');
             last_post_container
-                .load( '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost .postcontainer:last', function() {
+                .load( '/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&goto=newpost .postcontainer:last', function() {
                     last_post_container.find('.posthead,.postfoot,.after_content').remove();
                     last_post_container.find('.postbitlegacy').css({ 'margin-bottom': 0 });
                     var new_mod_log_post_id = last_post_container.find('.postbitlegacy').attr('id').substr(4);
@@ -965,7 +965,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     if ( new_mod_log_post_id != popup_mod_log_post_id ) {
                         BabelExt.storage.set( 'popup_mod_log_post_id', new_mod_log_post_id );
                         if ( popup_on_mod_log_post && confirm( 'New message in the moderation log.\n\nClick OK to view it, or cancel to hide this prompt.' ) )
-                            document.location = '/showthread.php?t=' + v.resolve('policy', 'mod log thread id') + '&goto=newpost';
+                            document.location = '/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&goto=newpost';
                     }
                 });
             newbies = JSON.parse( newbies || '[]' );
@@ -1093,7 +1093,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                 '\n/* END THREAD MERGE DATA */'
                         };
                         return bb.thread_reply({ // Notify/save all posts in thread
-                            thread_id: v.resolve('policy', 'merge log thread id'),
+                            thread_id: v.resolve('frequently used posts/threads', 'merge log'),
                             title    : v.resolve('report process', 'merge title', variable_data),
                             bbcode   : v.resolve('report process', 'merge body' , variable_data)
                         });
@@ -1101,7 +1101,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 });
             }
 
-            stash.merge_destinations = v.resolve('policy', 'frequent merge destinations', {}, 'array of items');
+            stash.merge_destinations = v.resolve('frequently used posts/threads', 'frequent merge destinations', {}, 'array of items');
 
             if ( parseInt(merge_timestamp||'0',10)+reload_interval*1000 < new Date().getTime() ) {
 
@@ -1136,14 +1136,13 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
                 if ( get_requests.length )
                     $.when.apply( $, get_requests ).done(function() {
-                        if ( failed_gets.length && confirm(
-                            'Some frequent merge destinations have changed recently.  Please fix the following issues:\n\n' +
+                        if ( failed_gets.length ) {
+                            alert(
+                                'Some frequent merge destinations have changed recently.  Please fix the following issues:\n\n' +
                                 failed_gets + "\n" +
-                                "To fix these issues, paste the above notes into a text editor then go to the variables thread and change the \"frequent merge destinations\" block.\n" +
-                                "\n" +
-                                "Would you like to go there now?"
-                        ))
-                            location = '/showthread.php?' + variable_thread_id; // TODO: update this now we have a whole variables forum
+                                "To fix these issues, paste the above notes into a text editor then go to the variables forum and change the \"frequent merge destinations\" block.\n"
+                            );
+                        };
                     });
             }
 
@@ -1188,7 +1187,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                     bb.thread_merge({
                                         forum_id  : forum_id,
                                         thread_ids: [ destination.thread_id, params.t ],
-                                        url       : '/showthread.php?goto=newpost&t='+v.resolve('policy', 'mod log thread id'),
+                                        url       : '/showthread.php?goto=newpost&t='+v.resolve('frequently used posts/threads', 'mod log'),
                                     });
                                 });
                             });
@@ -1477,7 +1476,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         // match_params: { t: mod_log_thread }, // doing this neatly would be an architectural hassle, TODO: consider said hassle some day
         match_elements: [ '#below_postlist' ],
         callback: function(stash, pathname, params) {
-            var merge_log = v.resolve('policy', 'merge log thread id');
+            var merge_log = v.resolve('frequently used posts/threads', 'merge log');
             if ( params.t == merge_log ) {
                 // Unmerge data in the merge log
                 $('.bbcode_code').each(function() {
@@ -1726,7 +1725,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 common_actions.find('.postcontent').html(
                     '<ul style="margin: 1em; padding-left: 1em">' +
                         '<li><a href="/private.php?do=newpm&u=' + report_owner_id + '">PM the report owner (' + report_owner +')</a>' +
-                        '<li><a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log</a>' +
+                        '<li><a href="/newreply.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '">Copy an appeal to the moderation log</a>' +
                         '<li><a href="/infraction.php?do=report&u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action</a>' +
                         '<li><a href="/showgroups.php">Find an administrator</a> and PM them the post and user name if you want an infraction revoked' +
                         '<li><a href="#handle">Handle it anyway</a>' +
@@ -1751,7 +1750,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     '<ul style="margin: 1em; padding-left: 1em">' +
                         '<li><a href="/usernote.php?do=newnote&u=' + user_to_review_id + '">Post a new user note</a> for the reported user' +
                         '<li><a href="/forumdisplay.php?f=47">Check the infractions/warnings forum</a>' +
-                        '<li><a href="/newreply.php?t=' + v.resolve('policy', 'mod log thread id') + '">Copy an appeal to the moderation log</a>' +
+                        '<li><a href="/newreply.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '">Copy an appeal to the moderation log</a>' +
                         '<li><a href="/infraction.php?do=report&u='+user_to_review_id+'">Give a warning or infraction for publicly contesting this action</a>' +
                         '<li><a href="/showgroups.php">Find an administrator</a> and PM them the post and user name if you want an infraction revoked' +
                     '</ul>'

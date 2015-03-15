@@ -81,7 +81,7 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
 
             });
 
-            var mod_log_thread_id = v.resolve('policy', 'mod log thread id');
+            var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
             var report_forum_id = 48;
             dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
             dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href', bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
