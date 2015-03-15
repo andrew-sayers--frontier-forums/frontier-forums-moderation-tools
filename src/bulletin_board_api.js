@@ -1649,7 +1649,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
         var additional_groups = html.find('[name="membergroup\\[\\]"]:checked' ).map(function() { return $(this.parentNode).text() }).get();
 
         return {
-            name      : html.find( '[name="user\\[username\\]"]'  ).val(),
+            username  : html.find( '[name="user\\[username\\]"]'  ).val(),
             user_id   : user_id,
             email     : html.find( '[name="user\\[email\\]"]'     ).val(),
             ip        : html.find( '[name="user\\[ipaddress\\]"]' ).val(),
@@ -1696,7 +1696,7 @@ VBulletin.prototype.users_list_new = function() {
         return $(html).find('#memberlist_table tr:not(.columnsort) a.username').map(function() {
             var $this = $(this);
             return {
-                name       : $this.text(),
+                username   : $this.text(),
                 user_id    : parseInt( $this.attr('href').split('?u=')[1], 10 ),
                 member_page: $this.attr('href')
             };
