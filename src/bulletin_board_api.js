@@ -95,6 +95,33 @@ BulletinBoard.prototype.when = function(promises) {
  */
 
 /**
+ * @summary Send a message to the server as an AJAX request
+ * @protected
+ * @param {...Object} var_args passed to $.get()
+ * @return {jQuery.Promise}
+ */
+BulletinBoard.prototype.get = function( url, data, use_form ) {
+
+    var bb = this;
+
+    return $.get.apply( $, Array.prototype.slice.call( arguments, 0 ) ).then(
+        function(reply) {
+            var err = bb.detect_post_error( reply );
+            if ( err !== null ) {
+                debug_log.log( "Couldn't load page", err );
+                var dfd = new jQuery.Deferred();
+                dfd.reject();
+                return dfd;
+            } else {
+                return reply;
+            }
+        },
+        debug_log.log
+    );
+
+}
+
+/**
  * @summary Send a message to the server as either an AJAX request or a form
  * @protected
  * @param {string}  url URL to send to
@@ -241,7 +268,7 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
         var pages = bb.get_pages(html);
         for ( var n=pages.current+1; n<=pages.total; ++n )
             more_pages.push(
-                $.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: n }))
+                bb.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: n }))
                     .then(function(html) {
                         return bb.process_posts(bb.get_posts(html));
                     })
@@ -502,6 +529,8 @@ VBulletin.prototype.detect_post_error = function(reply) {
     return (
         ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
         ? reply.getElementsByTagName('error')[0].textContent
+        : ( reply.search && reply.search(' class="standard_error"') != -1 ) // HTML error
+        ? $(reply).find('.standard_error').text()
         : null
     );
 }
@@ -684,7 +713,7 @@ VBulletin.prototype.infraction_give_custom = function( data ) {
  */
 VBulletin.prototype.infraction_ids = function( user_id ) {
 
-    return $.get( this.url_for.infraction({ action: 'report', user_id: user_id || 37 }) ).then(function(html) {
+    return this.get( this.url_for.infraction({ action: 'report', user_id: user_id || 37 }) ).then(function(html) {
         return $(html).find('input[name="infractionlevelid"]').map(function() {
             if ( $(this).val() != '0' ) {
                 var name = $.trim($(this).parent().text());
@@ -831,6 +860,8 @@ VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
  */
 VBulletin.prototype.post_info = function( post_id ) {
 
+    var bb = this;
+
     return this.post('/ajax.php?do=quickedit&p=' + post_id, {
         do: 'quickedit',
         p : post_id
@@ -854,7 +885,7 @@ VBulletin.prototype.post_info = function( post_id ) {
             'values[posthash]'     : ckeconfig.vbulletin.attachinfo.posthash
         };
 
-        return $.get( '/newattachment.php', {
+        return bb.get( '/newattachment.php', {
             do           : 'assetmanager',
             'values[p]'  : post_id,
             editpost     : 1,
@@ -1128,7 +1159,7 @@ VBulletin.prototype.thread_reply = function( data ) {
  * @description Note: this is quite inefficient for threads with over 2,500 posts
  */
 VBulletin.prototype.thread_whoposted = function( thread_id ) {
-    return $.get( '/misc.php?do=whoposted&t=' + thread_id ).then(function(html) {
+    return this.get( '/misc.php?do=whoposted&t=' + thread_id ).then(function(html) {
         html = $(html);
         return {
             total: html.find('.stats.total dd').text(),
@@ -1180,7 +1211,7 @@ VBulletin.prototype.user_ban = function( data ) {
  */
 VBulletin.prototype._get_ips_data = function() {
     if ( ! this._ips_data )
-        this._ips_data = $.get( '/modcp/user.php?do=doips' ).then(function(html) {
+        this._ips_data = this.get( '/modcp/user.php?do=doips' ).then(function(html) {
             html = $(html);
             return {
                 do           : 'doips',
@@ -1314,7 +1345,7 @@ VBulletin.prototype.user_current = function(user_id) {
  */
 VBulletin.prototype.user_moderation_info = function(user_id) {
 
-    return $.get( '/modcp/user.php?do=viewuser&u=' + user_id ).then(function(html) {
+    return this.get( '/modcp/user.php?do=viewuser&u=' + user_id ).then(function(html) {
         html = $(html);
 
         var name = html.find( '[name="user\\[username\\]"]'  ).val();
@@ -1361,7 +1392,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
  */
 VBulletin.prototype.users_list_new = function() {
 
-    return $.get( '/memberlist.php?order=desc&sort=joindate&pp=100' ).then(function(html) {
+    return this.get( '/memberlist.php?order=desc&sort=joindate&pp=100' ).then(function(html) {
         return $(html).find('#memberlist_table tr:not(.columnsort) a.username').map(function() {
             var $this = $(this);
             return {
@@ -1457,7 +1488,7 @@ VBulletin.prototype.forum_threads = function(forum_id) {
 
     var bb = this;
 
-    return $.get( '/forumdisplay.php?f=' + forum_id ).then(function(html) {
+    return bb.get( '/forumdisplay.php?f=' + forum_id ).then(function(html) {
 
         var is_moderator = html.search( '<script type="text/javascript" src="clientscript/vbulletin_inlinemod.js?' ) != -1;
 
@@ -1564,7 +1595,7 @@ VBulletin.prototype.css_add = function(page_types) {
  */
 VBulletin.prototype.posts_moderated = function() {
 
-    return $.get( '/modcp/moderate.php?do=posts' ).then(function(html) {
+    return this.get( '/modcp/moderate.php?do=posts' ).then(function(html) {
         html = $(html);
         var ret = {
             threads: [],
@@ -1699,7 +1730,7 @@ VBulletin.prototype.editor_get = function() {
  * @return {Object} one, five and fifteen minute load averages; total, logged-in and logged-out users online
  */
 VBulletin.prototype.server_stats = function( ) {
-    return $.get( '/modcp/index.php?do=home' ).then(function(html) {
+    return this.get( '/modcp/index.php?do=home' ).then(function(html) {
         var ret;
         $(html).find('.alt1').eq(1).text().replace(
             /^\s*([0-9.]+)\s*([0-9.]+)\s*([0-9.]+)\s*\|\s*([0-9,]+) Users Online \(([0-9,]+) members and ([0-9,]+) guests\)\s*$/,
