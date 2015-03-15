@@ -1930,8 +1930,8 @@ VBulletin.prototype.posts_moderated = function() {
         function parse_row() {
             $( 'a[href^="user.php"]', this ).each(function() { // User who created a post (first row of a block)
                 current_block.push(current = {
-                    user_id  : this.href.split('&u=')[1],
-                    user_name: $(this).text()
+                    user_id : this.href.split('&u=')[1],
+                    username: $(this).text()
                 });
             });
             $( 'a[href^="../showthread.php"]', this ).each(function() { // Thread (in post block)

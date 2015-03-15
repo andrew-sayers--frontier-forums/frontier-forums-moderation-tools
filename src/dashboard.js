@@ -371,7 +371,7 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
             links.eq(0).attr('href', dashboard.bb.url_for. forum_show({  forum_id: thread. forum_id }) ).text( thread.forum_name );
             links.eq(1).attr('href', dashboard.bb.url_for.thread_show({ thread_id: thread.thread_id }) ).text( thread.thread_title );
             links.eq(2).attr('href', dashboard.bb.url_for.thread_show({ thread_id: thread.thread_id }) ).text( '(first post)' );
-            links.eq(3).attr('href', dashboard.bb.url_for.  user_show({   user_id: thread.  user_id }) ).text( thread.user_name );
+            links.eq(3).attr('href', dashboard.bb.url_for.  user_show({   user_id: thread.  user_id }) ).text( thread.username );
             return ret;
         }).concat(posts.map(function(post) {
             var ret = $('<tr><td><a href=""></a><td><a href=""><td><a href=""><td><a href=""></a></a></tr>');
@@ -379,7 +379,7 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
             links.eq(0).attr('href', dashboard.bb.url_for. forum_show({  forum_id: post. forum_id }) ).text( post.forum_name );
             links.eq(1).attr('href', dashboard.bb.url_for.thread_show({ thread_id: post.thread_id }) ).text( post.thread_title );
             links.eq(2).attr('href', dashboard.bb.url_for.  post_show({ thread_id: post.thread_id, post_id: post.post_id }) ).text( post.  post_title || '(no title)' );
-            links.eq(3).attr('href', dashboard.bb.url_for.  user_show({   user_id: post.  user_id }) ).text( post.user_name );
+            links.eq(3).attr('href', dashboard.bb.url_for.  user_show({   user_id: post.  user_id }) ).text( post.username );
             return ret;
         }));
 
