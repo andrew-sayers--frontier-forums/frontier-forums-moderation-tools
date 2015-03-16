@@ -1963,20 +1963,8 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 ).appendTo( common_actions.find('.postcontent').empty() );
 
                 var slider_current_type = 'infraction';
-                var slider = new SeveritySlider({
-                    default: 2,
-                    levels: [
-                        { type: 'none'      , html: '<span>' + /* no icon */                               'no action</span>'       },
-                        { type: 'PM'        , html: '<span><img src="images/buttons/add-infraction_sm.png"> explanatory PM</span>' },
-                        { type: 'infraction', html: '<span><img src="images/buttons/red-card_sm.png">'  + ' infraction</span>' },
-                    ],
-                    extra_html: switch_mode,
-                    callback: function(level) {
-                        slider_current_type = level.type;
-                        refresh_actions();
-                    },
-                    container: form.find( '.useraction .posthead' )
-                });
+                // NOTE: slider used to be defined here, but was moved lower during refactoring.
+                // The callback is now called immediately, so the slider must not be initialised until ready.
 
                 promises.modcp.done(function() {
                     $('#need-modcp-login').remove();
@@ -2704,6 +2692,21 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 /*
                  * INITIALISATION
                  */
+
+                var slider = new SeveritySlider({
+                    value: '<span><img src="images/buttons/red-card_sm.png">'  + ' infraction</span>',
+                    levels: [
+                        { type: 'none'      , html: '<span>' + /* no icon */                               'no action</span>'       },
+                        { type: 'PM'        , html: '<span><img src="images/buttons/add-infraction_sm.png"> explanatory PM</span>' },
+                        { type: 'infraction', html: '<span><img src="images/buttons/red-card_sm.png">'  + ' infraction</span>' },
+                    ],
+                    extra_html: switch_mode,
+                    callback: function(level) {
+                        slider_current_type = level.type;
+                        refresh_actions();
+                    },
+                    container: form.find( '.useraction .posthead' )
+                });
 
                 if ( infraction_id )
                     $('input[name="issue-type"][value="' + infraction_id + '"]').click();
