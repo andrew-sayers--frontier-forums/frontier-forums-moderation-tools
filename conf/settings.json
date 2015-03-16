@@ -55,6 +55,7 @@
 
         /* Widgets */
         "src/widgets/severity_slider.js",
+        "src/widgets/notification_selector.js",
 
         /* Basic functionality */
         "src/variables.js",
@@ -73,6 +74,7 @@
     "contentStyleFiles": [
      /* widgets */
      "src/widgets/severity_slider.css",
+     "src/widgets/notification_selector.css",
 
      /* User-visible functionality */
      "src/main.css"
@@ -86,6 +88,8 @@
         "res/Name Change Request Thread.html",
 
         "res/usernotes_cc.html",
+
+        "res/widgets/notification_selector.html",
 
         "res/error_box.html",
         "res/variables_thread_post.html"

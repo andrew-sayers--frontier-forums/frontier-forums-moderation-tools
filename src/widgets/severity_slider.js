@@ -22,6 +22,10 @@
  *     default: 0, // index of level selected by default
  *     callback: function(level) { ... } // called with the current level object
  * });
+ *
+ * @description the container element will be set with a class of
+ * "slider-left" or "slider-right" depending on whether the slider is
+ * currently in the left- or right-hand side of the range.
  */
 function SeveritySlider( args ) {
 
@@ -43,6 +47,8 @@ function SeveritySlider( args ) {
 
     this.levels = args.levels;
 
+    $(args.container).addClass( ( args.default <= (args.levels.length-1)/2 ) ? 'slider-left' : 'slider-right' );
+
     if ( args.extra_html ) {
         this.extra_html = $(args.extra_html).insertAfter( this.input );
     } else {
@@ -58,6 +64,7 @@ function SeveritySlider( args ) {
             old_value = value;
             ss.val( value );
             args.callback( args.levels[ value ] );
+            $(args.container).removeClass('slider-left slider-right').addClass( ( value <= (args.levels.length-1)/2 ) ? 'slider-left' : 'slider-right' );
         }
     });
 

@@ -1,0 +1,39 @@
+.notification-selector .message {
+    opacity: 0.5;
+    white-space: pre-wrap;
+}
+
+.notification-selector.preview textarea,
+.notification-selector.edit    .preview,
+.notification-selector > :not(.missing-violation) > .missing-violation,
+.notification-selector >      .missing-violation  > .require-violation {
+    display: none;
+}
+
+.notification-selector .title, .notification-selector select {
+    min-width: 30em;
+}
+
+.notification-selector .title, .notification-selector .violation-details {
+    margin-bottom: 1em;
+}
+
+.notification-selector:not(.none      ) > .none      ,
+.notification-selector:not(.PM        ) > .PM        ,
+.notification-selector:not(.warning   ) > .warning   ,
+.notification-selector:not(.infraction) > .infraction {
+    display: none;
+}
+
+.notification-selector-button {
+    width: 14em;
+    margin: 0 0.25em;
+}
+
+.notification-selector .reset {
+    float: right;
+}
+
+.notification-selector .message-bottom {
+    clear: both;
+}
