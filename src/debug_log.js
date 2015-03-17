@@ -48,3 +48,14 @@ var debug_log = {
 };
 
 debug_log.textarea = debug_log.div.find('textarea')[0];
+debug_log.textarea.value +=
+    '================================================================================\n' +
+    'Frame: ' + ( (window.location == window.parent.location) ? 'main document' : 'iFrame' ) + "\n" +
+    'Start date: ' + new Date() + "\n" +
+    'URL: ' + location.toString() + "\n" +
+    'User agent: ' + navigator.userAgent + "\n" +
+    'Cookies: ' + (
+        ( typeof(navigator.cookieEnabled) == 'undefined' )
+        ? 'unknown'
+        : ( navigator.cookieEnabled ? 'enabled' : 'disabled' )
+    ) + "\n\n";
