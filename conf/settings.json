@@ -123,7 +123,7 @@
         },
     ],
 
-    "firefox_max_version": '34.*',
+    "firefox_max_version": '36.*',
 
     "safari_team_id": 'JPYV7E29ZX' // visible at https://developer.apple.com/membercenter/index.action#accountSummary
 
