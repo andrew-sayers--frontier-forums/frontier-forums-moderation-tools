@@ -310,9 +310,9 @@ function handle_moderation_links() {
 }
 
 /*
- * MAIN BLOCK
+ * MAIN BLOCK (not run in iFrames)
  */
-BabelExt.utils.dispatch({ // initialise general stuff
+if (window.location == window.parent.location) BabelExt.utils.dispatch({ // initialise general stuff
     pass_storage    : ['variables', 'violations'],
     pass_preferences: [ 'language', 'reload_interval' ],
     callback: function( stash, pathname, params, variables, violations, user_language, reload_interval ) {
