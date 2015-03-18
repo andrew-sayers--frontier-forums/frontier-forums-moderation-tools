@@ -72,12 +72,34 @@ VariablesFromForum.prototype.set_namespaces = function() {/*
 
 /**
  * @summary get a variable
- * @private
  * @param {string}                namespace namespace to find the variable in
  * @param {string|Array.<string>} names     name(s) of variable within the namespace
  * @param {Number=}               forum_id  ID of forum to instantiate for
  * @param {Number=}               thread_id ID of thread to instantiate for
- * @return {string|Object} variable (if found) or error information (otherwise)
+ * @return {Object} variable (if found) or error information (otherwise)
+ *
+ * @description
+ * Variables need to follow some fairly specific rules to produce useful results:
+ * Variables are defined per-language, then the language is decided based on the forum, thread, and default language.
+ * Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
+ * We always try to return the most specific name for the language, but can default to less-specific ones
+ *
+ * Variables can be set to special values to override normal handling:
+ *
+ * "OVERRIDE: pretend this variable exists but has no contents" treats a variable as an empty string.
+ * Use this when you want to define a variable as an empty string.  Some WYSIWYG editors will delete
+ * empty [quote] blocks - this is the recommended way to avoid those weird errors.
+ *
+ * "OVERRIDE: pretend this variable doesn't exist" treats a variable as if it didn't exist.
+ * Use this when you want to define a general variable, then un-define it again in a more
+ * specific variable.
+ *
+ * "NO OVERRIDE: ..." treats a variable as if the initial "NO OVERRIDE: " didn't exist.
+ * Use this to include the above strings literally in a variable.
+ *
+ * The return object contains 'text' and 'error', one null and one non-null.
+ * If there is an error, the object will also contain 'resolutions'.
+ * See the source of .resolve() for an example of how to use this output.
  */
 Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
 
@@ -103,7 +125,7 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
     target_namespace = namespace + ': ' + target_namespace;
 
     // STEP TWO: get the best matching variable given the target language
-    var variable = null, old_match_quality = 0, matching_namespaces = [];
+    var text = null, old_match_quality = 0, matching_namespaces = [];
     this.namespaces.forEach(function(namespace) {
         var match_quality = Math.max.apply( Math, namespace.names.map(function(namespace) {
             return (
@@ -121,11 +143,30 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
                 var new_name = root_name + ': ' + names.filter(function(value,index) { return n & (1<<index) }).join(': ');
                 if ( namespace.variables.hasOwnProperty(new_name.toLowerCase()) ) name = new_name;
             }
-            if ( namespace.variables.hasOwnProperty(name.toLowerCase()) ) variable = namespace.variables[name.toLowerCase()];
+            if ( namespace.variables.hasOwnProperty(name.toLowerCase()) ) text = namespace.variables[name.toLowerCase()];
         }
     });
 
-    return { target_namespace: target_namespace, matching_namespaces: matching_namespaces, name: [ root_name ].concat(names), variable: variable };
+    var full_name = [ root_name ].concat(names).join(': ');
+
+    if ( text === null ) {
+        return {
+            text: null,
+            error: "Couldn't find variable \"" + full_name + '" in namespace "' + target_namespace + '"',
+            resolutions: this.suggest_resolutions(matching_namespaces)
+        };
+    } else {
+        switch ( text ) {
+        case "OVERRIDE: pretend this variable exists but has no contents": return { text: ''  , error: null };
+        case "OVERRIDE: pretend this variable doesn't exist"             : return { text: null, error: 'variable overriden' };
+        case '': console.log(
+            'Warning: "' + full_name + '" in namespace "' + target_namespace + '" is an empty string.\n' +
+            'These are deprecated for compatibility, and will become an error in a future version of the moderators\' etension.'
+        );
+            // FALL THROUGH
+        default                                                          : return { text: text.replace( /^NO OVERRIDE: /, "" ), error: null };
+        };
+    }
 
 }
 
@@ -138,48 +179,49 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
  * @param {boolean}
  */
 Variables.prototype.check = function( namespace, names, forum_id, thread_id ) {
-    return this.get( namespace, names, forum_id, thread_id ).variable !== null;
+    return this.get( namespace, names, forum_id, thread_id ).text !== null;
 }
 
 /**
- * @summary resolve a variable
- * @param {string}                namespace namespace to find the variable in
- * @param {string|Array.<string>} names     name(s) of variable within the namespace
- * @param {Object.<string,*>=}    keys      keys used to instantiate the variable
- * @param {string=}               parser    parser used for the variable ('string', 'array of items' or 'hash of arrays', default: 'string')
- * @param {Number=}               forum_id  ID of forum to instantiate for
- * @param {Number=}               thread_id ID of thread to instantiate for
+ * @summary parse the contents of a variable
+ * @param {string}             text      string to parse
+ * @param {Object.<string,*>=} keys      keys used to instantiate the variable
+ * @param {string=}            parser    parser used for the variable ('string', 'array of items' or 'hash of arrays', default: 'string')
+ * @param {Number=}            forum_id  ID of forum to instantiate for
+ * @param {Number=}            thread_id ID of thread to instantiate for
+ * @return {string|Array|Object} parsed output
  *
  * @description
- * Variables need to follow some fairly specific rules to produce useful results:
- * Variables are defined per-language, then the language is decided based on the forum, thread, and default language.
- * Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
- * We always try to return the most specific name for the language, but can default to less-specific ones
+ * Parse a string as a variable.
  *
- * Note: keys should either be strings or arrays of strings.  Arrays are automatically converted to sentences,
+ * Keys should either be strings or arrays of strings.  Arrays are automatically converted to sentences,
  * e.g. [1,2,3] becomes "1, 2 and 3".
  *
+ * All parsers treat text {{between two curly brackets}} specially.  They're converted
+ * either to one of the keys passed in, or alternatively to another matching variable.
+ * Curly bracket blocks can be nested (e.g. {{variable for: {{key}}}}), and references
+ * within referenced variables are themselves parsed for references.
+ *
+ * See get() for special override values variables can have.
+ *
+ * The "string" parser returns plain string output, the "array of items" parser
+ * expects the variable to be a BBCode [list], and the "hash of arrays" parser
+ * expects the variable to be a BBCode [list] with a single [post], [thread] or [url]
+ * element per list item.
+ *
  * @example
- * v.resolve( 'policy', [ 'greeting message', 'newbie' ], { name: username }, 'string', 12, 345 );
+ * v.parse( 'Hello {{username}}', { username: 'some user' }, 'string', 12, 345 );
  */
-Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id, thread_id ) {
+Variables.prototype.parse = function( text, keys, parser, forum_id, thread_id ) {
 
     var v = this;
-
-    var variable = this.get(namespace, names, forum_id, thread_id);
-    if ( variable.variable === null ) { // actual return is error message, not variable
-        var message = "Couldn't find variable \"" + variable.name.join(': ') + '" in namespace "' + variable.target_namespace + '"';
-        this.error_callback( message, this.suggest_resolutions(variable.matching_namespaces) );
-        throw message;
-    }
-    variable = variable.variable;
 
     // resolve {{keys}}:
     keys = $.extend( {}, this.default_keys, keys || {} );
     var has_changed;
     do {
         has_changed = false;
-        variable = variable.replace( /{{([^{}\n]+)}}/g, function(match, key) {
+        text = text.replace( /{{([^{}\n]+)}}/g, function(match, key) {
             key = key.toLowerCase();
             if ( keys.hasOwnProperty(key) ) {
                 has_changed = true;
@@ -189,7 +231,13 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
                         return values[0];
                     } else {
                         var last = values.pop();
-                        return values.join(', ') + ' and ' + last;
+                        var last_joiner = v.get('other templates', 'localisation: list end joiner', forum_id, thread_id);
+                        if ( last_joiner.error ) {
+                            v.error_callback( last_joiner.error, last_joiner.resolutions );
+                            throw last_joiner.error;
+                        } else {
+                            return values.join(', ') + last_joiner.text + last;
+                        }
                     }
                 } else {
                     return values;
@@ -209,7 +257,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     // parse:
     function parse_array() {
         var array = [];
-        variable.replace( /\[list\]\s*\[\*\]\s*((?:.|\n)*?)\s*\[\/list\]/i, function(text, list) {
+        text.replace( /\[list\]\s*\[\*\]\s*((?:.|\n)*?)\s*\[\/list\]/i, function(text, list) {
             array = list.split( /\s*\[\*\]\s*/);
         });
         return array;
@@ -235,7 +283,7 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
     }
 
     switch ( parser || 'string' ) {
-    case 'string': return variable;
+    case 'string': return text;
     case 'array of items':
         return parse_array().map(parse_item);
     case 'hash of arrays':
@@ -249,6 +297,31 @@ Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id
         return ret;
     default:
         throw "Please pass a known parser, not '" + parser + '"';
+    }
+
+}
+
+/**
+ * @summary get() and parse() a variable
+ * @param {string}                namespace namespace to find the variable in
+ * @param {string|Array.<string>} names     name(s) of variable within the namespace
+ * @param {Object.<string,*>=}    keys      keys used to instantiate the variable
+ * @param {string=}               parser    parser used for the variable ('string', 'array of items' or 'hash of arrays', default: 'string')
+ * @param {Number=}               forum_id  ID of forum to instantiate for
+ * @param {Number=}               thread_id ID of thread to instantiate for
+ *
+ * @example
+ * v.resolve( 'policy', [ 'greeting message', 'newbie' ], { name: username }, 'string', 12, 345 );
+ */
+Variables.prototype.resolve = function( namespace, names, keys, parser, forum_id, thread_id ) {
+
+    var variable = this.get(namespace, names, forum_id, thread_id);
+
+    if ( variable.error ) {
+        this.error_callback( variable.error, variable.resolutions );
+        throw variable.error;
+    } else {
+        return this.parse( variable.text, keys, parser, forum_id, thread_id );
     }
 
 }
