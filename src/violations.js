@@ -9,7 +9,7 @@
  * @abstract
  * @description maintains a list of violations.
  * If the variables 'PM-worthy violations', 'warning-worthy violations' and/or 'infraction-worthy violations' exist,
- * the names in those lists are used to set the default_user_action for each variable.
+ * the names in those lists are used to set the default_user_action for each violation.
  *
  * @example
  * var vi = new Violations({
@@ -21,6 +21,9 @@
  *      error_callback     : handle_error,
  *      default_user_action: 'PM' // or 'warning' or 'infraction'
  * });
+ *
+ * // later...
+ * var violations = vi.violations.map(function(infraction) { ... infraction.name, infraction.value, infraction.default_user_action ... });
  */
 function Violations(args) {
     Cacheable.call( this, args );
