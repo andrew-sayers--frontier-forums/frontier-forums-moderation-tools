@@ -1831,6 +1831,31 @@ VBulletin.prototype.css_add = function(page_types) {
 }
 
 /**
+ * @summary Get keys for use in building dynamic CSS
+ * @return {Object.<string,string>} CSS keys and values
+ *
+ * @description Bulletin board software often uses theme-specific values
+ * to control various bits of CSS.  We retrieve those from the page,
+ * in a format compatible with Variables.parse()
+ */
+VBulletin.prototype.css_keys = function() {
+    var ret = {}, element;
+    element = $('<div></div>').appendTo(document.body);
+    ret['foreground colour'] =  element.css( 'color' );
+    element.remove();
+
+    element = $('<div class="body_wrapper"></div>').appendTo(document.body);
+    ret['body_wrapper background colour'] = element.css('background-color');
+    element.remove();
+
+    element = $('<div class="popupmenu"><a class="popupctrl"></a></div>').appendTo(document.body);
+    element.children().css('background-image').replace(/(?:^|\/)images\.([^\/]*)/, function(image, theme) { ret.theme = theme });
+    element.remove();
+
+    return ret;
+}
+
+/**
  * @summary Get posts in the moderation queue
  * @return {jQuery.Promise}
  */
