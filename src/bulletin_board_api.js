@@ -526,13 +526,16 @@ VBulletin.prototype._add_standard_data = function(data) {
 }
 
 VBulletin.prototype.detect_post_error = function(reply) {
-    return (
-        ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
-        ? reply.getElementsByTagName('error')[0].textContent
-        : ( reply.search && reply.search(' class="standard_error"') != -1 ) // HTML error
-        ? $(reply).find('.standard_error').text()
-        : null
-    );
+    if ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
+        return reply.getElementsByTagName('error')[0].textContent
+    else if ( reply.search && reply.search(' class="standard_error"') != -1 ) { // HTML error
+        reply.replace( /<body([^]*<\/)body>/, function(body, body_innerHTML) { reply = $('<div'+body_innerHTML+'div>') });
+        if ( reply.find( 'noscript' ).html().search( /http-equiv="refresh"/i ) == -1 )
+            return $.trim(reply.find('.standard_error').text());
+        else // Automatic page refreshes generally indicate success, even when the success message has class="standard_error"
+            return null;
+    } else
+        return null;
 }
 
 /*
