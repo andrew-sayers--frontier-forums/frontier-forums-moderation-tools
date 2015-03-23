@@ -1521,8 +1521,8 @@ VBulletin.prototype.forum_threads = function(forum_id) {
             var status = 'open';
             if      ( understate_text.search( /^Closed:/ ) == 0 ) status = 'closed';
             else if ( understate_text.search( /^Moved:/  ) == 0 ) status = 'moved';
-            else if ( $( '.prefix_closed' , this ).length ) status = 'closed'
-            else if ( $( '.prefix_deleted', this ).length ) status = 'deleted'
+            else if ( $( '.prefix_closed'          , this ).length ) status = 'closed'
+            else if ( $( '.prefix_deleted,.deleted', this ).length ) status = 'deleted'
             ;
 
             var ret = {
@@ -1535,7 +1535,7 @@ VBulletin.prototype.forum_threads = function(forum_id) {
                 status           : status,
                 is_sticky        : $('div.sticky', this).length ? true : false
             };
-            if ( status != 'moved' ) {
+            if ( status != 'moved' && status != 'deleted' ) {
                 ret = $.extend( ret, {
                     last_post_id : parseInt( $( 'a.lastpostdate', this ).attr('href').split('#post')[1] ),
                     reply_count  : parseInt( $('.threadstats a', this).text(), 10 ),
