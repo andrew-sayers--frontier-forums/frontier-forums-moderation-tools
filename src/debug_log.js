@@ -7,6 +7,8 @@ var debug_log = {
 
     div: $('<div style="width: 100%; text-align: center"><hr><h1>Debugging log - please send this to the maintainer if requested</h1><textarea style="width: 80em; max-width: 50%; height: 20em;" placeholder="Moderators\' extension debugging information"></textarea></div>'),
 
+    start_time: new Date().getTime(),
+
     /**
      * @summary Show the debugging log at the bottom of the current page
      * @description You might want to show the debugging log at page load, or only when a "severe" error occurs
@@ -30,7 +32,7 @@ var debug_log = {
         }
         debug_log.textarea.value +=
             '================================================================================\n' +
-            'Date: ' + new Date() + "\n" +
+            'Milliseconds since page start: ' + ( new Date().getTime() - debug_log.start_time ) + "\n" +
             'Caller: ' + caller + "\n" +
             'Data: ' + JSON.stringify(Array.prototype.slice.call(arguments, 0), null, '    ') + "\n" +
             "\n"
@@ -47,6 +49,7 @@ var debug_log = {
 
 };
 
+BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-js-is-enabled", "true" );' );
 debug_log.textarea = debug_log.div.find('textarea')[0];
 debug_log.textarea.value +=
     '================================================================================\n' +
@@ -58,4 +61,8 @@ debug_log.textarea.value +=
         ( typeof(navigator.cookieEnabled) == 'undefined' )
         ? 'unknown'
         : ( navigator.cookieEnabled ? 'enabled' : 'disabled' )
-    ) + "\n\n";
+    ) + "\n" +
+    'Javascript: ' + ( document.head.hasAttribute('data-js-is-enabled') ? 'enabled' : 'disabled' ) + "\n"
+    "\n"
+;
+document.head.removeAttribute('data-js-is-enabled');
