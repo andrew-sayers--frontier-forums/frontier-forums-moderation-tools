@@ -1476,17 +1476,18 @@ function maintain() {
 
     function maintain_resources() {
         update_settings();
-        if ( settings.resources )
+        if ( settings.resources ) {
             stat( [ 'lib/BabelExtResources.js' ].concat( settings.resources ), function(files) {
                 var resources_file = files.shift();
                 if ( files.filter(function(file) { return file.modified > resources_file.modified } ).length ) {
-                    console.log( 'Rebuilding ' + 'lib/BabelExtResources.js' );
+                    console.log( 'Rebuilding lib/BabelExtResources.js' );
                     build_resources();
                 }
                 maintain_content_files();
             });
-        else
+        } else {
             maintain_content_files();
+        }
     }
 
     function maintain_content_files() {
@@ -1536,7 +1537,8 @@ function usage() {
         'Usage: ' + args[0] + ' <command> <build|release> <firefox|chrome|safari>\n' +
         'Commands:\n' +
         '    build <target> - builds extensions for "amo" (Firefox) "chrome" or "safari"\n' +
-        '    release <target> - release extension to "amo" (addons.mozilla.org) "chrome" (Chrome store), "opera" (opera site) or "safari" (extensions gallery)'
+        '    release <target> - release extension to "amo" (addons.mozilla.org) "chrome" (Chrome store), "opera" (opera site) or "safari" (extensions gallery)\n' +
+        '    maintain - keep various files up-to-date'
     );
     phantom.exit(1);
 }
