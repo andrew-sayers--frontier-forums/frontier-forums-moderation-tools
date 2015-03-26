@@ -180,6 +180,10 @@
 
                 <li data-name="Variables#check"><a href="Variables.html#check">check</a></li>
 
+                <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
+
+                <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
+
                 <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
 
             </ul>
@@ -459,7 +463,7 @@ Variable values can include {{keys}}, which are resolved recursively.  So {{foo:
 
 
         <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line140">line 140</a>
+            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line181">line 181</a>
         </div>
 
     </div>
@@ -690,20 +694,20 @@ Variable values can include {{keys}}, which are resolved recursively.  So {{foo:
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="resolve">
+        <h4 class="name" id="get">
 
-            resolve<span class="signature">(namespace, names, <span class="optional">keys</span>, <span class="optional">parser</span>, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span>
+            get<span class="signature">(namespace, names, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line165">line 165</a>
+            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line104">line 104</a>
         </div>
 
     </div>
 
 
-    <p class="summary">resolve a variable</p>
+    <p class="summary">get a variable</p>
 
 </dt>
 <dd>
@@ -714,8 +718,560 @@ Variables are defined per-language, then the language is decided based on the fo
 Names are defined with sections split up by colons (e.g. "greeting message: newbie", "greeting message: old hand").
 We always try to return the most specific name for the language, but can default to less-specific ones
 
-Note: keys should either be strings or arrays of strings.  Arrays are automatically converted to sentences,
-e.g. [1,2,3] becomes "1, 2 and 3".</div>
+Variables can be set to special values to override normal handling:
+
+"OVERRIDE: pretend this variable exists but has no contents" treats a variable as an empty string.
+Use this when you want to define a variable as an empty string.  Some WYSIWYG editors will delete
+empty [quote] blocks - this is the recommended way to avoid those weird errors.
+
+"OVERRIDE: pretend this variable doesn't exist" treats a variable as if it didn't exist.
+Use this when you want to define a general variable, then un-define it again in a more
+specific variable.
+
+"NO OVERRIDE: ..." treats a variable as if the initial "NO OVERRIDE: " didn't exist.
+Use this to include the above strings literally in a variable.
+
+The return object contains 'text' and 'error', one null and one non-null.
+If there is an error, the object will also contain 'resolutions'.
+See the source of .resolve() for an example of how to use this output.</div>
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>namespace</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+
+
+
+
+                namespace to find the variable in</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>names</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+
+
+
+
+                name(s) of variable within the namespace</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>forum_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+                        <span class="optional">optional</span>
+
+
+
+
+
+                ID of forum to instantiate for</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>thread_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+                        <span class="optional">optional</span>
+
+
+
+
+
+                ID of thread to instantiate for</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">variable (if found) or error information (otherwise)</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="parse">
+
+            parse<span class="signature">(text, <span class="optional">keys</span>, <span class="optional">parser</span>, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string|Array|Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line215">line 215</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">parse the contents of a variable</p>
+
+</dt>
+<dd>
+
+
+    <div class="description">Parse a string as a variable.
+
+Keys should either be strings or arrays of strings.  Arrays are automatically converted to sentences,
+e.g. [1,2,3] becomes "1, 2 and 3".
+
+All parsers treat text {{between two curly brackets}} specially.  They're converted
+either to one of the keys passed in, or alternatively to another matching variable.
+Curly bracket blocks can be nested (e.g. {{variable for: {{key}}}}), and references
+within referenced variables are themselves parsed for references.
+
+See get() for special override values variables can have.
+
+The "string" parser returns plain string output, the "array of items" parser
+expects the variable to be a BBCode [list], and the "hash of arrays" parser
+expects the variable to be a BBCode [list] with a single [post], [thread] or [url]
+element per list item.</div>
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>text</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+
+
+
+
+                string to parse</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>keys</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object.&lt;string, *></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+                        <span class="optional">optional</span>
+
+
+
+
+
+                keys used to instantiate the variable</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>parser</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+                        <span class="optional">optional</span>
+
+
+
+
+
+                parser used for the variable ('string', 'array of items' or 'hash of arrays', default: 'string')</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>forum_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+                        <span class="optional">optional</span>
+
+
+
+
+
+                ID of forum to instantiate for</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>thread_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+
+                        <span class="optional">optional</span>
+
+
+
+
+
+                ID of thread to instantiate for</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        string
+                         |
+
+                        Array
+                         |
+
+                        Object
+
+
+            </td>
+            <td class="description last">parsed output</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+        <h5>Example</h5>
+
+
+
+    <pre class="prettyprint"><code>v.parse( 'Hello {{username}}', { username: 'some user' }, 'string', 12, 345 );</code></pre>
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="resolve">
+
+            resolve<span class="signature">(namespace, names, <span class="optional">keys</span>, <span class="optional">parser</span>, <span class="optional">forum_id</span>, <span class="optional">thread_id</span>)</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="variables.js.html">variables.js</a>, <a href="variables.js.html#line316">line 316</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">get() and parse() a variable</p>
+
+</dt>
+<dd>
+
 
 
 
@@ -989,7 +1545,7 @@ e.g. [1,2,3] becomes "1, 2 and 3".</div>
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 15 March 2015
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 26 March 2015
         </footer>
     </div>
 </div>

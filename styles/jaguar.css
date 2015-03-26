@@ -187,6 +187,9 @@ li {
   margin-top: 10px;
   font-size: 13px;
 }
+.main div.description {
+  white-space: pre-wrap;
+}
 .main .description ul,
 .main .description ol {
   margin-bottom: 15px;
