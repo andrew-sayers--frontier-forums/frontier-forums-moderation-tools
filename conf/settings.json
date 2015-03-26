@@ -52,6 +52,7 @@
         "src/action.js",
         "src/widgets/widget.js",
         "src/widgets/action_widget.js",
+        "src/available_users.js",
 
         /* Widgets */
         "src/widgets/extra_post.js",
