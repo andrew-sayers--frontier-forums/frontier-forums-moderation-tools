@@ -1522,7 +1522,7 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
  * @summary Get information about the current user
  * @return {Object} username and user_id
  */
-VBulletin.prototype.user_current = function(user_id) {
+VBulletin.prototype.user_current = function() {
     var link = $('.welcomelink a');
     return (
         link.length
