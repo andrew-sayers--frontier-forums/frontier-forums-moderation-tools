@@ -16,7 +16,7 @@
 function form_keys( bb, form, callback ) {
 
     function call_callback( event ) {
-        var keys = {};
+        var keys = {}, list = [];
         function add(name, value) {
             if ( !keys.hasOwnProperty(name) ) keys[ name ] = [];
             keys[ name ].push( value );
@@ -28,6 +28,7 @@ function form_keys( bb, form, callback ) {
                 if ( value == '' ) return;
                 value = value.replace(/^\s*([0-9]+)\s*$/, this.className.replace(/.*\b(user|thread|post)\b.*/, "$1") + ' #$1' );
                 var data_value = $(this).data( 'value' );
+                list.push({ element: this, text: value, value: data_value });
                 if ( typeof(data_value) == 'undefined' ) return;
                 var title, link;
                 switch ( this.className.replace(/.*\b(user|thread|post)\b.*/, "$1") ) {
@@ -47,13 +48,14 @@ function form_keys( bb, form, callback ) {
                 add(name, value);
             }
         });
-        return callback(keys, event);
+        return callback(keys, list, event);
     }
 
     function update_element( element, value ) {
         if ( value === null ) {
             element.attr( 'data-blocked', 'blocked' );
             form.find('[type="submit"]').prop( 'disabled', true );
+            element.removeData( 'value' );
         } else {
             element.removeAttr( 'data-blocked' );
             element.data( 'value', value );
