@@ -56,6 +56,7 @@
         /* Widgets */
         "src/widgets/severity_slider.js",
         "src/widgets/notification_selector.js",
+        "src/widgets/duplicate_account_list.js",
 
         /* Basic functionality */
         "src/variables.js",
@@ -72,12 +73,13 @@
         "src/main.js"
     ],
     "contentStyleFiles": [
-     /* widgets */
-     "src/widgets/severity_slider.css",
-     "src/widgets/notification_selector.css",
+         /* widgets */
+         "src/widgets/severity_slider.css",
+         "src/widgets/notification_selector.css",
+         "src/widgets/duplicate_account_list.css",
 
-     /* User-visible functionality */
-     "src/main.css"
+         /* User-visible functionality */
+         "src/main.css"
     ],
     "resources": [
 
@@ -90,6 +92,7 @@
         "res/usernotes_cc.html",
 
         "res/widgets/notification_selector.html",
+        "res/widgets/duplicate_account_list.html",
 
         "res/error_box.html",
         "res/variables_thread_post.html"

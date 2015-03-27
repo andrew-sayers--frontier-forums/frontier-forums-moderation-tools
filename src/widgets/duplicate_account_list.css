@@ -1,0 +1,17 @@
+.duplicate-account-list td.primary {
+    text-align: center;
+}
+
+.duplicate-account-list td.notes1 {
+    text-align: right;
+}
+
+.duplicate-account-list td.email-user  , .duplicate-account-list td.at { padding-right: 0 }
+.duplicate-account-list td.email-domain, .duplicate-account-list td.at { padding-left : 0 }
+
+.duplicate-account-list tr.dupe-unknown > td:not(.primary):not(.main):not(.dupe-unknown),
+.duplicate-account-list tr.dupe-loading > td:not(.primary):not(.main):not(.dupe-loading),
+.duplicate-account-list tr:not(.dupe-unknown) > td.dupe-unknown,
+.duplicate-account-list tr:not(.dupe-loading) > td.dupe-loading {
+    display: none;
+}
