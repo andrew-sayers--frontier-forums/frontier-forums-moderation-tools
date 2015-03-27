@@ -7,7 +7,7 @@ var debug_log = {
 
     div: $('<div style="width: 100%; text-align: center"><hr><h1>Debugging log - please send this to the maintainer if requested</h1><textarea style="width: 80em; max-width: 50%; height: 20em;" placeholder="Moderators\' extension debugging information"></textarea></div>'),
 
-    start_time: new Date().getTime(),
+    start_time: new Date(),
 
     /**
      * @summary Show the debugging log at the bottom of the current page
@@ -30,13 +30,24 @@ var debug_log = {
                 caller = caller.substr(0,100) + '...';
             }
         }
+        BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-js-is-enabled", "true" );' );
         debug_log.textarea.value +=
             '================================================================================\n' +
-            'Milliseconds since page start: ' + ( new Date().getTime() - debug_log.start_time ) + "\n" +
+            'Frame: ' + ( (window.location == window.parent.location) ? 'main document' : 'iFrame' ) + "\n" +
+            'Start date: ' + debug_log.start_time + " (" + ( new Date().getTime() - debug_log.start_time.getTime() )/1000 + " seconds ago)\n" +
+            'URL: ' + location.toString() + "\n" +
+            'User agent: ' + navigator.userAgent + "\n" +
+            'Cookies: ' + (
+                ( typeof(navigator.cookieEnabled) == 'undefined' )
+                    ? 'unknown'
+                    : ( navigator.cookieEnabled ? 'enabled' : 'disabled' )
+            ) + "\n" +
+            'Javascript: ' + ( document.head.hasAttribute('data-js-is-enabled') ? 'enabled' : 'disabled' ) + "\n" +
             'Caller: ' + caller + "\n" +
             'Data: ' + JSON.stringify(Array.prototype.slice.call(arguments, 0), null, '    ') + "\n" +
             "\n"
         ;
+        document.head.removeAttribute('data-js-is-enabled');
         return debug_log;
     },
 
@@ -49,20 +60,4 @@ var debug_log = {
 
 };
 
-BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-js-is-enabled", "true" );' );
 debug_log.textarea = debug_log.div.find('textarea')[0];
-debug_log.textarea.value +=
-    '================================================================================\n' +
-    'Frame: ' + ( (window.location == window.parent.location) ? 'main document' : 'iFrame' ) + "\n" +
-    'Start date: ' + new Date() + "\n" +
-    'URL: ' + location.toString() + "\n" +
-    'User agent: ' + navigator.userAgent + "\n" +
-    'Cookies: ' + (
-        ( typeof(navigator.cookieEnabled) == 'undefined' )
-        ? 'unknown'
-        : ( navigator.cookieEnabled ? 'enabled' : 'disabled' )
-    ) + "\n" +
-    'Javascript: ' + ( document.head.hasAttribute('data-js-is-enabled') ? 'enabled' : 'disabled' ) + "\n"
-    "\n"
-;
-document.head.removeAttribute('data-js-is-enabled');
