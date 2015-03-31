@@ -59,10 +59,11 @@ Violations.prototype.refresh = function(args) {
             var infraction_map = {};
             violations.forEach(function(infraction) {
                 infraction.default_user_action = args.default_user_action;
+                infraction.dupe_related = false;
                 infraction_map[ infraction.name.toLowerCase() ] = infraction;
             });
 
-            [ 'infraction', 'PM' ].forEach(function( default_user_action ) {
+            [ 'infraction', 'warning', 'PM' ].forEach(function( default_user_action ) {
                 if ( args.v.check( 'policy', default_user_action + '-worthy violations' ) ) {
                     args.v.resolve('policy', default_user_action + '-worthy violations', {}, 'array of items').forEach(function(violation) {
                         if ( infraction_map.hasOwnProperty(violation.value.toLowerCase()) ) {
@@ -76,6 +77,15 @@ Violations.prototype.refresh = function(args) {
                     });
                 }
             });
+
+            if ( args.v.check( 'policy', 'dupe-related violations' ) ) {
+                args.v.resolve('policy', 'dupe-related violations', {}, 'array of items').forEach(function(violation) {
+                    if ( infraction_map.hasOwnProperty(violation.value.toLowerCase()) ) {
+                        infraction_map[violation.value.toLowerCase()].dupe_related = true;
+                    }
+                    // No error callback, as we need to include old violation names that have now been retired
+                });
+            }
 
             vi.cache.violations = violations;
             vi.update_cache();
