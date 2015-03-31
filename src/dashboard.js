@@ -202,7 +202,7 @@ Dashboard.prototype.thread_refresh = function(container) {
                 container.data( 'done_id', posts[posts.length-1].post_id );
 
                 if ( read_post_id ) posts = posts.filter(function() { return this.post_id > read_post_id });
-                if ( container.data('filter') ) posts = posts.filter(container.data('filter'));
+                if ( container.data('filter') ) posts = container.data('filter')(posts);
 
                 return posts.map(function(post) { return this.container_element });
 
@@ -240,7 +240,7 @@ Dashboard.prototype.forum_refresh = function(container) {
         container.data( 'undone_id', read_post_id );
 
         if ( read_post_id ) threads = threads.filter(function(thread) { return thread.last_post_id > read_post_id });
-        if ( container.data('filter') ) threads = threads.filter(container.data('filter'));
+        if ( container.data('filter') ) threads = container.data('filter')(threads);
 
         return threads.map(function(thread) { return thread.container_element });
 
@@ -326,6 +326,10 @@ Dashboard.prototype.newbies_refresh = function(container) {
             }
             return ret;
         });
+
+        if ( container.data('filter') ) users = container.data('filter')(users);
+
+        return users.map(function(user) { return user.element });
 
     });
 
@@ -580,7 +584,7 @@ Dashboard.prototype.example_refresh = function(container) {
 
         // most monitors have use for some kind of filter:
         if ( id ) ret = ret.filter(function(thread) { return ret.id > id });
-        if ( container.data('filter') ) ret = ret.filter(container.data('filter'));
+        if ( container.data('filter') ) ret = container.data('filter')(ret);
 
         // return an array (or jQuery container) of elements to populate the body:
         return ret.map(function(thread) { /* ... */ });

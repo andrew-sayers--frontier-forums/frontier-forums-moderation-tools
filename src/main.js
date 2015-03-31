@@ -48,36 +48,38 @@ function handle_dashboard( bb, v, loading_img ) { BabelExt.utils.dispatch(
             var name = $('.welcomelink a').text();
 
             // Reported posts forum filter
-            dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(thread) {
+            dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(threads) {
 
-                if ( thread.is_sticky || thread.status != 'open' ) return false;
+                return threads.filter(function(thread) {
+                    if ( thread.is_sticky || thread.status != 'open' ) return false;
 
-                // modify the container elements to make moderation easier
-                $('.threadimod', thread.container_element).remove();
+                    // modify the container elements to make moderation easier
+                    $('.threadimod', thread.container_element).remove();
 
-                $( '.threadstatus', this )
-                    .css({ cursor: 'pointer' })
-                    .attr( 'title', 'double-click to close this thread' )
-                    .dblclick(function() {
-                        var threadbit = $(this).closest('.threadbit');
-                        bb.thread_openclose( thread.thread_id, $(this).closest('.threadbit').hasClass('lock') )
-                            .done(function() { threadbit.toggleClass('lock') });
-                    });
+                    $( '.threadstatus', this )
+                        .css({ cursor: 'pointer' })
+                        .attr( 'title', 'double-click to close this thread' )
+                        .dblclick(function() {
+                            var threadbit = $(this).closest('.threadbit');
+                            bb.thread_openclose( thread.thread_id, $(this).closest('.threadbit').hasClass('lock') )
+                                .done(function() { threadbit.toggleClass('lock') });
+                        });
 
-                var report = new Report({ v: v, bb: bb, thread_id: thread.thread_id, title: thread.title })
+                    var report = new Report({ v: v, bb: bb, thread_id: thread.thread_id, title: thread.title })
 
-                recently_reported_posts['#post_'+report.target_post_id] = report.target_thread_id;
+                    recently_reported_posts['#post_'+report.target_post_id] = report.target_thread_id;
 
-                if ( !report.assigned ) {
-                    $('<a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread.thread_id+'&noquote=1" style="float:right">Take this report</a>')
-                        .click(function(event) {
-                            report.take( name, false );
-                            event.preventDefault();
-                        })
-                        .insertAfter(thread.title_element);
-                }
+                    if ( !report.assigned ) {
+                        $('<a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread.thread_id+'&noquote=1" style="float:right">Take this report</a>')
+                            .click(function(event) {
+                                report.take( name, false );
+                                event.preventDefault();
+                            })
+                            .insertAfter(thread.title_element);
+                    }
 
-                return true;
+                    return true;
+                });
 
             });
 
