@@ -54,6 +54,7 @@
         "src/widgets/action_widget.js",
 
         /* Widgets */
+        "src/widgets/extra_post.js",
         "src/widgets/severity_slider.js",
         "src/widgets/notification_selector.js",
         "src/widgets/duplicate_account_list.js",
@@ -91,6 +92,7 @@
 
         "res/usernotes_cc.html",
 
+        "res/widgets/extra_post.html",
         "res/widgets/notification_selector.html",
         "res/widgets/duplicate_account_list.html",
 
