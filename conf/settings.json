@@ -50,6 +50,7 @@
         "src/cacheable.js",
         "src/misc_cache.js",
         "src/action.js",
+        "src/widgets/widget.js",
 
         /* Widgets */
         "src/widgets/severity_slider.js",
