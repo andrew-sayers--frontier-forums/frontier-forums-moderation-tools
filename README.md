@@ -3,7 +3,7 @@ frontier-forums-moderation-tools
 
 Tools to ease the moderation process on [The Frontier Forums](http://forums.frontier.co.uk/)
 
-Based on BabelExt.
+Based on BabelExt, see [the source code documentation](http://andrew-sayers--frontier-forums.github.io/frontier-forums-moderation-tools/).
 
 ### What is BabelExt? ###
 
