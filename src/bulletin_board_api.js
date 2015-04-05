@@ -939,19 +939,26 @@ VBulletin.prototype.post_delete_multi = function( post_ids, reason ) {
 
 /**
  * @summary Change the contents of a post
- * @param {Number} post_ID ID of post to retrieve
- * @param {string} bbcode  bbcode of new post body
- * @param {reason=} reason edit reason
+ * @param {Object} data
  * @return {jQuery.Promise}
+ *
+ * @example
+ * bb.post_edit({
+ *     post_id: 123,
+ *     bbcode : 'post [i]body[/i]',
+ *     reason : 'reason for change', // optional, default: keep old reason
+ * });
  */
-VBulletin.prototype.post_edit = function( post_id, bbcode, reason ) {
+VBulletin.prototype.post_edit = function( data ) {
     return this.post(
-        '/editpost.php?do=updatepost&postid=' + post_id,
+        '/editpost.php?do=updatepost&p=' + data.post_id,
         {
-            'do': 'updatepost',
-            postid: post_id,
-            reason: reason,
-            message: bbcode,
+            do            : 'updatepost',
+            p             : data.post_id,
+            reason        : data.reason,
+            //title         : data.title, // doesn't work - VBulletin is more reluctant to set this than I can be bothered to test
+            message       : data.bbcode,
+            message_backup: data.bbcode
         }
     );
 }

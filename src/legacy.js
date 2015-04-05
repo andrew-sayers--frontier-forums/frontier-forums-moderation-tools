@@ -2012,11 +2012,11 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                             })).concat(
                                 per_post_actions.edit.map(function(post) {
                                 return post.vbcode_promise.then(function() {
-                                    return bb.post_edit(
-                                        post.post_id,
-                                        post.replaced_vbcode,
-                                        v.resolve('report process', [ 'edit reason', post.is_reported_post ? 'reported post' : 'later post', resolution_variables.violation ], resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id)
-                                    );
+                                    return bb.post_edit({
+                                        post_id: post.post_id,
+                                        bbcode : post.replaced_vbcode,
+                                        reason : v.resolve('report process', [ 'edit reason', post.is_reported_post ? 'reported post' : 'later post', resolution_variables.violation ], resolution_variables, 'string', forum_to_review_id, stash.thread_to_review_id)
+                                    });
                                 });
                             }))
                         );
