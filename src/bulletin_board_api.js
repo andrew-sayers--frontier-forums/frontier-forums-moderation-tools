@@ -423,7 +423,7 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
                 '/showthread.php',
                 [
                     { key: 'thread_id'      , param: 't' },
-                    { key: 'posts_per_page' , param: 'pp', default: 50 },
+                    { key: 'posts_per_page' , param: 'pp', default: 1000 },
                     { key: 'post_id'        , param: 'p' },
                     { key: 'page_no'        , param: 'page' },
                     { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
