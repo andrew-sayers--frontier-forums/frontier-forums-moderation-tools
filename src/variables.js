@@ -201,7 +201,8 @@ Variables.prototype.check = function( namespace, names, forum_id, thread_id ) {
  * All parsers treat text {{between two curly brackets}} specially.  They're converted
  * either to one of the keys passed in, or alternatively to another matching variable.
  * Curly bracket blocks can be nested (e.g. {{variable for: {{key}}}}), and references
- * within referenced variables are themselves parsed for references.
+ * within referenced variables are themselves parsed for references.  To include a
+ * literal that resembles a variable, put brackets between the key {{(like this)}}.
  *
  * See get() for special override values variables can have.
  *
@@ -223,6 +224,7 @@ Variables.prototype.parse = function( text, keys, parser, forum_id, thread_id ) 
     do {
         has_changed = false;
         text = text.replace( /{{([^{}\n]+)}}/g, function(match, key) {
+            if ( !key.search( /^\(.*\)$/ ) ) return match;
             key = key.toLowerCase();
             if ( keys.hasOwnProperty(key) ) {
                 has_changed = true;
@@ -254,6 +256,9 @@ Variables.prototype.parse = function( text, keys, parser, forum_id, thread_id ) 
             return match;
         })
     } while ( has_changed );
+
+    text = text.replace( /{{\(([^{}\n]+)\)}}/g, "{{$1}}" );
+
 
     // parse:
     function parse_array() {
@@ -301,6 +306,19 @@ Variables.prototype.parse = function( text, keys, parser, forum_id, thread_id ) 
     }
 
 }
+
+/**
+ * @summary escape a string for use in .parse()
+ * @param {string} text string to escape
+ * @return {string} escaped output
+ *
+ * @description
+ * .parse() recursively parses keys passed to it.  If you want to include a key
+ * that includes literal text {{between two curly brackets}}, you will need to
+ * escape it.
+ *
+ */
+Variables.prototype.escape = function( value ) { return value.replace( /{{([^{}\n]+)}}/g, "{{($1)}}") }
 
 /**
  * @summary get() and parse() a variable
