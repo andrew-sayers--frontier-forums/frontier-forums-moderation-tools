@@ -69,6 +69,7 @@
         "src/form_keys.js",
         "src/email_highlighter.js",
         "src/ip_address_report.js",
+        "src/newbie_policy.js",
 
         /* User-visible functionality */
         "src/legacy.js",
