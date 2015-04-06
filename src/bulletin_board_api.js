@@ -324,6 +324,32 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
 
 }
 
+/**
+ * @summary Escape an object in a way that's safe to put in a forum post
+ * @param {string}   name   object name
+ * @param {Object}   object object to stringify
+ * @param {function} cmp    comparison function
+ * @return {string} text to include in a post
+ */
+BulletinBoard.prototype.stringify = function(name, object, cmp) {
+    return '[code]/* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' */\n' + stringify( object, cmp ) + '\n/* END DATA BLOCK: ' + name.toUpperCase() + ' */[/code]'
+}
+
+/**
+ * @summary Retrieve a string previously encoded with .stringify()
+ * @param {string} name object name
+ * @param {string} text post text
+ * @return {Object} parsed object
+ */
+BulletinBoard.prototype.parse = function(name, text) {
+    var ret = null;
+    text.replace(
+        new RegExp( '[code]/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/[/code]' ),
+        function( match, json ) { ret = JSON.parse(json) }
+    );
+    return ret;
+}
+
 
 
 
