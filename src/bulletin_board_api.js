@@ -628,14 +628,23 @@ VBulletin.prototype._add_standard_data = function(data) {
 VBulletin.prototype.detect_post_error = function(reply) {
     if ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
         return reply.getElementsByTagName('error')[0].textContent
-    else if ( reply.search && reply.search(' class="standard_error"') != -1 ) { // HTML error
-        reply.replace( /<body([^]*<\/)body>/, function(body, body_innerHTML) { reply = $('<div'+body_innerHTML+'div>') });
-        if ( reply.find( 'noscript' ).html().search( /http-equiv="refresh"/i ) == -1 )
-            return $.trim(reply.find('.standard_error').text());
-        else // Automatic page refreshes generally indicate success, even when the success message has class="standard_error"
-            return null;
-    } else
+    else if ( reply.search && !reply.search(/^\s*</) ) { // looks like HTML
+        if (  reply.search(' class="standard_error"') != -1 ) { // HTML error
+            reply.replace( /<body([^]*<\/)body>/, function(body, body_innerHTML) { reply = $('<div'+body_innerHTML+'div>') });
+            if ( reply.find( 'noscript' ).html().search( /http-equiv="refresh"/i ) == -1 )
+                return $.trim(reply.find('.standard_error').text());
+            else // Automatic page refreshes generally indicate success, even when the success message has class="standard_error"
+                return null;
+        } else {
+            var errors = $(reply).find( '.blockrow.error' );
+            if ( errors.length && errors.text().length )
+                return $.trim(errors.text());
+            else
+                return null;
+        }
+    } else {
         return null;
+    }
 }
 
 /*
@@ -750,16 +759,7 @@ VBulletin.prototype.infraction_give = function( data ) {
         u                : data.user_id,
     };
     if ( data.is_warning ) post_data['warning['+data.infraction_id+']'] = 1;
-    return this.post( '/infraction.php?do=update', post_data ).then(function(html) {
-        var errors = $(html).find( '.blockrow.error' );
-        if ( errors.length && errors.text().length ) {
-            debug_log.log( "Could not give infraction", errors.text());
-            alert("Could not give infraction:\n" + errors.text());
-            var dfd = new jQuery.Deferred();
-            dfd.reject();
-            return dfd.promise();
-        }
-    });
+    return this.post( '/infraction.php?do=update', post_data );
 }
 
 /**
