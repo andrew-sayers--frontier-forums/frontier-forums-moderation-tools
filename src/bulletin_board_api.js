@@ -569,22 +569,37 @@ VBulletin.prototype.process_posts = function(posts) {
     return (
         posts
             .map(function() {
-                return {
-                    container_element: this,
-                    post_id          : this.id.substr(5),
-                    date             : $('.date'       , this).text(),
-                    username         : $('.username'   , this).text(),
-                    user_id          : ( $('.username' , this).attr('href') || '             guest' ).substr(13),
-                    title            : $('.title'      , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                    message          : $('.content'    , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                    message_element  : $('.content'    , this),
-                    linking          : $('.postlinking', this),
-                    ip_element       : $('.ip'         , this),
-                    report_element   : $('.report'     , this),
-                    ip               : $('.ip'         , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                    cleardiv         : $('.cleardiv'   , this),
-                    is_deleted       : !!$('.deleted'  , this).length
-                };
+                var edited = {};
+                $( '.lastedited', this ).each(function() {
+                    var a = $('a', this);
+                    edited = {
+                        edit_username: a.text().substr(15),
+                        edit_user_id : a.attr('href').split('?p=')[1],
+                    };
+                    $(this).text().replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
+                        edited.time = time;
+                        edited.reason = reason;
+                    });
+                });
+                return $.extend(
+                    edited,
+                    {
+                        container_element: this,
+                        post_id          : this.id.substr(5),
+                        date             : $('.date'       , this).text(),
+                        username         : $('.username'   , this).text(),
+                        user_id          : ( $('.username' , this).attr('href') || '             guest' ).substr(13),
+                        title            : $('.title'      , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
+                        message          : $('.content'    , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
+                        message_element  : $('.content'    , this),
+                        linking          : $('.postlinking', this),
+                        ip_element       : $('.ip'         , this),
+                        report_element   : $('.report'     , this),
+                        ip               : $('.ip'         , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
+                        cleardiv         : $('.cleardiv'   , this),
+                        is_deleted       : !!$('.deleted'  , this).length
+                    }
+                );
             })
     );
 }
