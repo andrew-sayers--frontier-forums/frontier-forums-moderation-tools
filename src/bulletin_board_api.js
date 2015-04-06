@@ -1264,6 +1264,7 @@ VBulletin.prototype.thread_reply = function( data ) {
         '/newreply.php?do=postreply&t=' + data.thread_id,
         {
             do            : 'postreply',
+            t             : data.thread_id,
             title         : data.title,
             message       : data.bbcode,
             message_backup: data.bbcode,
