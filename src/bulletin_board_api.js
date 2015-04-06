@@ -398,8 +398,26 @@ BulletinBoard.prototype.parse = function(name, text) {
  * @extends BulletinBoard
  * @constructor
  */
-function VBulletin(args) { BulletinBoard.call(this, args) }
+function VBulletin(args) {
+    BulletinBoard.call(this, args);
 
+    var bb = this;
+
+    setInterval(
+        function() {
+            return bb.post(
+                '/ajax.php',
+                {
+	            do: 'securitytoken'
+                }
+            ).then(function(xml) {
+                $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
+            });
+        },
+        1000*60*30 // every 30 minutes
+    );
+
+}
 VBulletin.prototype.constructor = VBulletin;
 VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 
