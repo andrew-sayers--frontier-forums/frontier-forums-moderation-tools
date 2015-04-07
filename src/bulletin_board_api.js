@@ -765,7 +765,7 @@ VBulletin.prototype.bbcode_html_newthread = function( forum_id, bbcode ) {
  * @example
  * bb.infraction_give({
  *     administrative_note: 'administrative note',
- *     reason             : 'ban reason to show the user',
+ *     ban_reason         : 'reason to show the user if the infraction triggers a ban',
  *     bbcode             : 'message body',
  *     user_id            : 1234, // must pass user_id or post_id
  *     post_id            : 2345,
@@ -777,7 +777,7 @@ VBulletin.prototype.infraction_give = function( data ) {
     var post_data = {
         do               : 'update',
         note             : data.administrative_note,
-        banreason        : data.reason,
+        banreason        : data.ban_reason,
         message          : data.bbcode,
         message_backup   : data.bbcode,
         infractionlevelid: data.infraction_id,

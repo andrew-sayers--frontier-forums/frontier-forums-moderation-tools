@@ -2613,7 +2613,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                     var issues = get_issues();
                                     var args = {
                                         administrative_note: 'See ' + document.location.toString(),
-                                        reason             : v.resolve('report process', [ 'ban reason', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ),
+                                        ban_reason         : v.resolve('report process', [ 'ban reason', issue_count, issue_name ], variables, 'string', forum_to_review_id, stash.thread_to_review_id ),
                                         bbcode             : textarea.val(),
                                         user_id            : user_to_review_id,
                                         post_id            : post_to_review_id,
@@ -2629,10 +2629,10 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                         alert("Please select an issue");
                                         throw "Please select an issue";
                                     } else {
-                                        args.reason  = issues.map(function() { return this.name }).get().join(', ');
-                                        args.points  = [0].concat(issues.get()).reduce(function(a,b) { return a + b.points });
-                                        args.period  = 'M';
-                                        args.expires = 3;
+                                        args.ban_reason = issues.map(function() { return this.name }).get().join(', ');
+                                        args.points     = [0].concat(issues.get()).reduce(function(a,b) { return a + b.points });
+                                        args.period     = 'M';
+                                        args.expires    = 3;
                                         ret.push(bb.infraction_give_custom( args ));
                                     }
 
