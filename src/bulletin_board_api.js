@@ -1386,7 +1386,7 @@ VBulletin.prototype.user_ips = function( username, get_overlapping ) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),
-                used_ips       : html.find('#cpform_table td > ul > li' ).map(function() { var ip = $(this).children('a').first().text(); if ( ip != '127.0.0.1' ) return ip }),
+                used_ips       : html.find('#cpform_table td > ul > li' ).map(function() { var ip = $(this).children('a').first().text(); if ( ip != '127.0.0.1' ) return ip }).get(),
                 overlapping_users: {},
             }
             ret.unique_ip_count = ret.used_ip_count = ret.used_ips.length;

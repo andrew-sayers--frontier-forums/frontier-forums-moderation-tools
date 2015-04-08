@@ -282,13 +282,13 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                     var registration_message = '';
                                     if ( ip_data.registration_ip == user_data.registration_ip ) {
                                         registration_message = ', both registered from the same IP address';
-                                    } else if ( user_data.used_ips.filter(function() { return this == ip_data.registration_ip }).length ) {
-                                        if ( ip_data.used_ips.filter(function() { return this == user_data.registration_ip }).length ) {
+                                    } else if ( user_data.used_ips.filter(function(ip) { return ip == ip_data.registration_ip }).length ) {
+                                        if ( ip_data.used_ips.filter(function(ip) { return ip == user_data.registration_ip }).length ) {
                                             registration_message = ', both registered from addresses used by each other';
                                         } else {
                                             registration_message = ', registered from an address used by ' + username_html;
                                         }
-                                    } else if ( ip_data.used_ips.filter(function() { return this == user_data.registration_ip }).length ) {
+                                    } else if ( ip_data.used_ips.filter(function(ip) { return ip == user_data.registration_ip }).length ) {
                                         registration_message = ' including the address ' + username_html + ' registered from';
                                     }
                                     return '<li style="list-style:disc">' + member_info.summary +
@@ -311,9 +311,9 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                 var scored_addresses = {};
                                 [
                                     [ [ user_data.registration_ip, 8 ] ],
-                                    user_data                 .used_ips.map(function() { return [ [ this, 4 ] ] }).get(),
+                                    user_data                 .used_ips.map(function(ip) { return [ [ ip, 4 ] ] }).get(),
                                     [ [ overlapping_user_ips[name].registration_ip, 2 ] ],
-                                    overlapping_user_ips[name].used_ips.map(function() { return [ [ this, 1 ] ] }).get(),
+                                    overlapping_user_ips[name].used_ips.map(function(ip) { return [ [ ip, 1 ] ] }).get(),
                                 ].forEach(function(address_scores) {
                                     address_scores.forEach(function(address_score) {
                                         if ( !scored_addresses.hasOwnProperty(address_score[0]) ) scored_addresses[address_score[0]] = 0;
