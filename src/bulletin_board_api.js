@@ -1382,7 +1382,7 @@ VBulletin.prototype.user_ips = function( username, get_overlapping ) {
     var bb = this;
 
     return this._get_modcp_data().then(function(data) {
-        return $.post( '/modcp/user.php?do=doips', $.extend( data, { do: 'doips', username: username, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
+        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: username, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),
@@ -1425,7 +1425,7 @@ VBulletin.prototype.ip_users = function( ip ) {
 
     return this._get_modcp_data().then(function(data) {
 
-        return $.post( '/modcp/user.php?do=doips', $.extend( data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
+        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
             html = $(html);
             var domain_name = html.find('#cpform_table .alt1 b').first().text();
             if ( domain_name == 'Could Not Resolve Hostname' ) domain_name = ip;
