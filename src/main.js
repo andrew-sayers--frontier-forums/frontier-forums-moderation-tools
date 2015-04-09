@@ -303,6 +303,16 @@ function handle_modcp_user() { BabelExt.utils.dispatch(
 )}
 
 /**
+ * @summary Make it possible to share IP search URLs
+ */
+function handle_modcp_doips( bb ) {
+    BabelExt.utils.dispatch(
+        { match_pathname: '/modcp/user.php', match_params: { do: 'doips', ipaddress: true , username: false }, callback: function(s, p, params) { bb.redirect_modcp_ipsearch(params) } },
+        { match_pathname: '/modcp/user.php', match_params: { do: 'doips', ipaddress: false, username: true  }, callback: function(s, p, params) { bb.redirect_modcp_ipsearch(params) } }
+    );
+}
+
+/**
  * @summary Link to Moderated Posts page from moderation links
  */
 function handle_moderation_links() {
@@ -437,6 +447,7 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
         });
 
         $.when( vi.promise, v.promise ).then(function() {
+            handle_modcp_doips          ( bb );
             handle_dashboard            ( bb, v, loading_img );
             handle_variables_thread     ( bb, v );
             handle_post_edit            ( bb );
