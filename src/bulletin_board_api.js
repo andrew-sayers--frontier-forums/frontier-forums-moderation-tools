@@ -1369,7 +1369,7 @@ VBulletin.prototype._get_modcp_data = function() {
 
 /**
  * @summary get IP addresses used by an account
- * @param {string} username user to check
+ * @param {Object} user user to check (must contain "username" or "user_id")
  * @param {boolean} get_overlapping whether to also return the list of other accounts using those IPs
  * @return {jQuery.Promise}
  * @description
@@ -1377,12 +1377,13 @@ VBulletin.prototype._get_modcp_data = function() {
  * house, share an ISP which uses dynamic IP addresses, or just happen
  * to have used the same router one time.
  */
-VBulletin.prototype.user_ips = function( username, get_overlapping ) {
+VBulletin.prototype.user_ips = function( user, get_overlapping ) {
 
     var bb = this;
 
     return this._get_modcp_data().then(function(data) {
-        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: username, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
+        // Note: this page accepts a "userid" parameter, even though there's no such input in the form:
+        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),

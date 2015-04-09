@@ -225,7 +225,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                  */
                 modcp_promise.progress(function() {
                     // fired as soon as we've logged in
-                    bb.user_ips(username_text, true).then(function(user_data) {
+                    bb.user_ips({ username: username_text }, true).then(function(user_data) {
                         if ( user_data.unique_ip_count == user_data.used_ip_count ) {
                             container.find('#duplicate-account-info').html( '(no duplicate accounts detected)' );
                             return;
@@ -249,7 +249,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                 });
                             })).concat(
                             Object.keys(user_data.overlapping_users).map(function(user) {
-                                return bb.user_ips(user, false).done(function(user_data) {
+                                return bb.user_ips({ username: user }, false).done(function(user_data) {
                                     overlapping_user_ips[user] = user_data;
                                 });
                             })).concat(
