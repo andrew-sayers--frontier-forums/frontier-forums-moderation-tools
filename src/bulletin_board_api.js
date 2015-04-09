@@ -472,6 +472,19 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
             moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
             moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
 
+            // This is a fake URL - you will need to call redirect_modcp_ipsearch() on the page:
+            moderation_ipsearch: function(args) { return BulletinBoard.prototype.build_url(
+                '/modcp/user.php',
+                [
+                    { key: 'action'    , param: 'do', default: 'doips' },
+                    { key: 'ip_address', param: 'ipaddress' },
+                    { key: 'username'  , param: 'username' },
+                    { key: 'user_id'   , param: 'userid' },
+                    { key: 'depth'     , param: 'depth' }
+                ],
+                args
+            )},
+
             infraction: function(args) { return BulletinBoard.prototype.build_url(
                 '/infraction.php',
                 [
@@ -2011,5 +2024,29 @@ VBulletin.prototype.server_stats = function( ) {
                 };
             });
         return ret;
+    });
+}
+
+/**
+ * @summary Redirect from the "moderation_ipsearch" page to the right page
+ * @param {Object} params page parameters
+ * @description We would like to link to the IP search page, but it needs
+ * various extra parameters for authentication and CSRF protection.
+ * This function redirects from the fake page to the real one.
+ */
+VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
+    $.get( '/modcp/user.php?do=doips' ).then(function(html) {
+        function redirect() {
+            var form = $(html).find('#cpform').hide().appendTo(document.body);
+            [ 'ipaddress', 'username', 'depth' ].forEach(function(param) {
+                if ( params.hasOwnProperty(param) ) form.find( '[name="' + param + '"]' ).val( params[param] );
+            });
+            form.submit();
+        }
+        if ( document.body ) redirect();
+        else $(redirect);
+    });
+    $(function() {
+        $('blockquote').text( 'Redirecting...' );
     });
 }
