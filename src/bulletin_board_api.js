@@ -1444,6 +1444,45 @@ VBulletin.prototype.ip_users = function( ip ) {
 
 }
 
+/**
+ * @summary get users that have used the same IP address
+ * @param {string} username user to check
+ * @return {jQuery.Promise}
+ * @description
+ * Note: This includes any use of the same address (registration or posting)
+ */
+VBulletin.prototype.user_overlapping = function( user ) {
+
+    // VBulletin's "overlapping IP search" doesn't catch overlapping registration addresses,
+    // so we have to do quite a lot of requests.
+
+    var bb = this, users = {}, ret = [];
+
+    return bb.user_ips(user).then(function(user_ips) {
+        return $.when.apply( // Search for associated users
+            $,
+            [user_ips.registration_ip].concat(user_ips.used_ips).map(function(ip) {
+                return bb.ip_users(ip).then(function(ip_users) {
+                    ip_users.users.forEach(function(overlapping_user) {
+                        if (
+                            !( user.username && user.username == overlapping_user.username ) &&
+                            !( user.user_id  && user.user_id  == overlapping_user.user_id  )
+                        ) {
+                            if ( !users.hasOwnProperty(overlapping_user.user_id) ) {
+                                users[overlapping_user.user_id] = overlapping_user;
+                                ret.push(overlapping_user);
+                            }
+                        }
+                    });
+                });
+            })
+        ).then(function() {
+            return ret;
+        });
+    });
+
+}
+
 
 /**
  * @summary Add a note to a user's account
