@@ -210,7 +210,7 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                         debug_log.log( "Couldn't load page", err );
                         alert( "Couldn't load page " + url + "\n\nError:\n" + err );
                         var dfd = new jQuery.Deferred();
-                        dfd.reject();
+                        dfd.reject(err);
                         return dfd;
                     } else {
                         return reply;
