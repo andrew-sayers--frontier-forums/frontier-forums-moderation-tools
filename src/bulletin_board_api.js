@@ -1344,21 +1344,27 @@ VBulletin.prototype.user_ban = function( data ) {
 }
 
 /**
- * @summary get parameters to pass to a "doips" request
+ * @summary actually get paramaters to pass to a ModCP request
+ * @private
+ * @return {Object}
+ */
+VBulletin.prototype._parse_modcp_data = function(html) {
+    html = $(html);
+    return {
+        adminhash    : html.find('input[name="adminhash"]'    ).val(),
+        securitytoken: html.find('input[name="securitytoken"]').val()
+    };
+}
+
+/**
+ * @summary get parameters to pass to a ModCP request
  * @private
  * @return {jQuery.Promise}
  */
-VBulletin.prototype._get_ips_data = function() {
-    if ( ! this._ips_data )
-        this._ips_data = this.get( '/modcp/user.php?do=doips' ).then(function(html) {
-            html = $(html);
-            return {
-                do           : 'doips',
-                adminhash    : html.find('input[name="adminhash"]'    ).val(),
-                securitytoken: html.find('input[name="securitytoken"]').val()
-            };
-        });
-    return this._ips_data
+VBulletin.prototype._get_modcp_data = function() {
+    if ( ! this._modcp_data )
+        this._modcp_data = this.get( '/modcp/user.php?do=doips' ).then(this._parse_modcp_data);
+    return this._modcp_data;
 }
 
 /**
@@ -1375,8 +1381,8 @@ VBulletin.prototype.user_ips = function( username, get_overlapping ) {
 
     var bb = this;
 
-    return this._get_ips_data().then(function(data) {
-        return $.post( '/modcp/user.php?do=doips', $.extend( data, { username: username, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
+    return this._get_modcp_data().then(function(data) {
+        return $.post( '/modcp/user.php?do=doips', $.extend( data, { do: 'doips', username: username, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),
@@ -1417,9 +1423,9 @@ VBulletin.prototype.ip_users = function( ip ) {
 
     var bb = this;
 
-    return this._get_ips_data().then(function(data) {
+    return this._get_modcp_data().then(function(data) {
 
-        return $.post( '/modcp/user.php?do=doips', $.extend( data, { ipaddress: ip, depth: 1 } ) ).then(function(html) {
+        return $.post( '/modcp/user.php?do=doips', $.extend( data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
             html = $(html);
             var domain_name = html.find('#cpform_table .alt1 b').first().text();
             if ( domain_name == 'Could Not Resolve Hostname' ) domain_name = ip;
