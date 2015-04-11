@@ -1648,7 +1648,25 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
         var primary_group = html.find( '[name="user\\[usergroupid\\]"] :selected' ).text();
         var additional_groups = html.find('[name="membergroup\\[\\]"]:checked' ).map(function() { return $(this.parentNode).text() }).get();
 
-        return {
+        function get_date(type) {
+            var div = html.find('#ctrl_' + type);
+            var month = div.find('[name="' + type + '\\[month\\]"]').val();
+            if ( month == 0 ) return null;
+            return new Date(
+                div.find('[name="' + type + '\\[year\\]"]').val(),
+                parseInt(month,10)-1,
+                div.find('[name="' + type + '\\[day\\]"]').val(),
+                div.find('[name="' + type + '\\[hour\\]"]').val(),
+                div.find('[name="' + type + '\\[minute\\]"]').val()
+            );
+        }
+
+        var join_date = get_date('joindate'),
+           visit_date = get_date('lastvisit'),
+        activity_date = get_date('lastactivity'),
+            post_date = get_date('lastpost');
+
+        var ret = {
             username  : html.find( '[name="user\\[username\\]"]'  ).val(),
             user_id   : user_id,
             email     : html.find( '[name="user\\[email\\]"]'     ).val(),
@@ -1660,6 +1678,11 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
             groups    : [primary_group].concat(additional_groups),
 
             image     : ( image ? image.replace( /^\.\./, '' ) : null ),
+
+                join_date:               join_date.getTime(),
+               visit_date: visit_date ? visit_date.getTime() : null,
+            activity_date:           activity_date.getTime(),
+                post_date:   post_date ? post_date.getTime() : null,
 
             pm_notification: (
                 bb._config['unPMable user groups'].filter(function(group) { return group == primary_group }).length
@@ -1682,6 +1705,19 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
                 )
             )
         };
+
+        ret.summary = (
+            '(joined <time datetime="' +     join_date.toISOString() + '">' +     join_date.toISOString() + '</time>,' +
+            ' active <time datetime="' + activity_date.toISOString() + '">' + activity_date.toISOString() + '</time>'
+        );
+        var groups = ret.groups.filter(function(group) { return group != bb._config['default user group'] }).join(', ');
+        switch ( groups.length ) {
+        case 0 : ret.summary +=                         ')'; break;
+        case 1 : ret.summary += ', group: '  + groups + ')'; break;
+        default: ret.summary += ', groups: ' + groups + ')'; break;
+        }
+
+        return ret;
     });
 
 }
