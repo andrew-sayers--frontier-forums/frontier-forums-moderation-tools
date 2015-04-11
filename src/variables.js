@@ -130,21 +130,25 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
     this.namespaces.forEach(function(namespace) {
         var match_quality = Math.max.apply( Math, namespace.names.map(function(namespace) {
             return (
-                  ( target_namespace == namespace )                   ? 2 // exact match
-                : ( target_namespace.search( namespace + '-' ) == 0 ) ? 1 // want 'en-GB', have 'en'
-                : ( namespace.search( target_namespace + '-' ) == 0 ) ? 1 // want 'en', have 'en-GB'
+                  ( target_namespace == namespace )                   ? 3 // exact match
+                : ( target_namespace.search( namespace + '-' ) == 0 ) ? 2 // want 'en-GB', have 'en'
+                : ( namespace.search( target_namespace + '-' ) == 0 ) ? 2 // want 'en', have 'en-GB'
+                : ( namespace       .replace( /: default$/, ': ' ) ==
+                    target_namespace.replace( /: [-a-z]+$/, ': ' )  ) ? 1 // want 'en', have 'default'
                 : 0
             );
         }));
         if ( match_quality ) matching_namespaces.push(namespace);
         if ( old_match_quality < match_quality ) {
-            old_match_quality = match_quality;
             var name = root_name;
             for ( var n=1; n<Math.pow(2,names.length); ++n ) {
                 var new_name = root_name + ': ' + names.filter(function(value,index) { return n & (1<<index) }).join(': ');
                 if ( namespace.variables.hasOwnProperty(new_name.toLowerCase()) ) name = new_name;
             }
-            if ( namespace.variables.hasOwnProperty(name.toLowerCase()) ) text = namespace.variables[name.toLowerCase()];
+            if ( namespace.variables.hasOwnProperty(name.toLowerCase()) ) {
+                text = namespace.variables[name.toLowerCase()];
+                old_match_quality = match_quality;
+            }
         }
     });
 
