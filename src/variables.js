@@ -7,6 +7,7 @@
  * @summary Generic class for any type of bulletin board
  * @constructor
  * @abstract
+ * @extends Cacheable
  * @description
  * Each variable has a language, namespace and value.
  * Variable resolution is necessarily quite complex:
@@ -392,6 +393,8 @@ Variables.prototype.posts_namespace = function( posts, names ) {
 
 /**
  * @summary variables loaded from the first post in a thread
+ * @constructor
+ * @extends Variables
  */
 function VariablesFromFirstPost(args) {
     args.default_language = 'default';
@@ -414,6 +417,8 @@ VariablesFromFirstPost.prototype.refresh = function(args) {
 
 /**
  * @summary variables loaded from a forum full of variables
+ * @constructor
+ * @extends Variables
  */
 function VariablesFromForum(args) {
     Variables.prototype.constructor.call(this, args);

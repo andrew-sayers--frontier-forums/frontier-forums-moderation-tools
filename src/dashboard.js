@@ -10,6 +10,7 @@
 /**
  * @summary Dashboard displaying miscellaneous real-time information
  * @constructor
+ * @extends Cacheable
  * @example
  * var dashboard = new Dashboard({
  *     cache             : { ... }, // values previously passed to cache, or an empty object on first run

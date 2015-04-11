@@ -6,7 +6,7 @@
 /**
  * @summary List of known violations
  * @constructor
- * @abstract
+ * @extends Cacheable
  * @description maintains a list of violations.
  * If the variables 'PM-worthy violations', 'warning-worthy violations' and/or 'infraction-worthy violations' exist,
  * the names in those lists are used to set the default_user_action for each violation.
