@@ -1825,14 +1825,19 @@ VBulletin.prototype.spammer_delete = function( user_id, post_id ) {
  * @summary Get information about threads from the first page of a forum
  * @see {thread_posts}
  *
- * @param {number} forum_id ID of forum to get threads for
+ * @param {number}  forum_id ID of forum to get threads for
+ * @param {Boolean} recent   only download recently-changed threads (usually the past 24 hours)
  * @return {jQuery.Promise} Deferred object that will return when all pages have loaded
  */
-VBulletin.prototype.forum_threads = function(forum_id) {
+VBulletin.prototype.forum_threads = function(forum_id, recent) {
 
     var bb = this;
 
-    return bb.get( '/forumdisplay.php?f=' + forum_id ).then(function(html) {
+    return bb.get(
+        recent
+        ? '/forumdisplay.php?pp=200&sort=lastpost&order=desc&daysprune=1&f=' + forum_id
+        : '/forumdisplay.php?pp=200&sort=lastpost&order=desc&daysprune=-1&f=' + forum_id
+    ).then(function(html) {
 
         var is_moderator = html.search( '<script type="text/javascript" src="clientscript/vbulletin_inlinemod.js?' ) != -1;
 
