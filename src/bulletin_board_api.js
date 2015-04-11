@@ -1766,6 +1766,39 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 }
 
 /**
+ * @summary Get user's signature user from ModCP
+ * @param {Number} user_id ID of user to get signature for
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_signature_get = function(user_id) {
+    var bb = this;
+    return $.get( '/modcp/user.php?do=editsig&u=' + user_id ).then(function(html) {
+
+        if ( !this._modcp_data ) {
+            // populate _modcp_data without making an extra request
+            var dfd = new jQuery.Deferred();
+            dfd.resolve(bb._parse_modcp_data(html));
+            bb._modcp_data = dfd.promise();
+        }
+
+        return $(html).find('[name="signature"]').val();
+
+    });
+}
+
+/**
+ * @summary Set user's signature user through ModCP
+ * @param {Number} user_id   ID of user to set signature for
+ * @param {string} signature new signature text
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_signature_set = function(user_id, signature) {
+    return this._get_modcp_data().then(function(data) {
+        return $.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
+    });
+}
+
+/**
  * @summary Get new users
  * @return {jQuery.Promise}
  */
