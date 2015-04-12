@@ -1430,6 +1430,8 @@ VBulletin.prototype.user_current = function(user_id) {
  */
 VBulletin.prototype.user_moderation_info = function(user_id) {
 
+    var bb = this;
+
     return this.get( '/modcp/user.php?do=viewuser&u=' + user_id ).then(function(html) {
         html = $(html);
 
@@ -1438,6 +1440,9 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
         if ( !name.length ) return null; // user doesn't exist
 
         var image = html.find( 'img[src^="../image.php"]').attr( 'src' );
+
+        var primary_group = html.find( '[name="user\\[usergroupid\\]"] :selected' ).text();
+        var additional_groups = html.find('[name="membergroup\\[\\]"]:checked' ).map(function() { return $(this.parentNode).text() }).get();
 
         return {
             name      : html.find( '[name="user\\[username\\]"]'  ).val(),
@@ -1448,23 +1453,29 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
             signature : html.find( '[name="signature"]'           ).val(),
             post_count: html.find( '[name="user\\[posts\\]"]'     ).val(),
 
+            groups    : [primary_group].concat(additional_groups),
+
             image     : ( image ? image.replace( /^\.\./, '' ) : null ),
 
             pm_notification: (
-                ( html.find('input[id^="rb_1_options\\[receivepm\\]"]').is(':checked') ) // receive PMs
-                ? (
-                    ( html.find('input[id^="rb_1_options\\[emailonpm\\]"]').is(':checked') // notification e-mail
+                bb._config['unPMable user groups'].filter(function(group) { return group == primary_group }).length
+                ?             null                  // new users cannot receive messages
+                : (
+                    ( html.find('input[id^="rb_1_options\\[receivepm\\]"]').is(':checked') ) // receive PMs
                     ? (
-                        ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
-                        ? [ 'popup', 'e-mail' ] // will receive a popup and an e-mail
-                        : [          'e-mail' ] // will receive an e-mail
+                        ( html.find('input[id^="rb_1_options\\[emailonpm\\]"]').is(':checked') // notification e-mail
+                        ? (
+                            ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
+                            ? [ 'popup', 'e-mail' ] // will receive a popup and an e-mail
+                            : [          'e-mail' ] // will receive an e-mail
+                        )
+                        : ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
+                            ? [ 'popup'           ] // will receive a popup
+                            : [                   ] // will receive messages, but won't receive notification
+                        )
                     )
-                    : ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
-                        ? [ 'popup'           ] // will receive a popup
-                        : [                   ] // will receive messages, but won't receive notification
-                    )
+                    :         null                  // cannot receive messages
                 )
-                :         null                  // cannot receive messages
             )
         };
     });
