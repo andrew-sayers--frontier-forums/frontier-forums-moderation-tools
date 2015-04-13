@@ -110,6 +110,46 @@ BulletinBoard.prototype.when = function(promises) {
  */
 
 /**
+ * @summary Connect to the server and get some very basic information
+ * @protected
+ * @param {...Object} var_args passed to $.get()
+ * @return {jQuery.Promise}
+ * @description the return value contains 'results ('success' or 'fail'),
+ * 'duration' (milliseconds taken for the round trip), and 'offset'
+ * (number of milliseconds the server is ahead of the client,
+ * which can be negative)
+ */
+BulletinBoard.prototype.ping = function() {
+
+    var start_time = new Date();
+
+    function success(html, status, jqXHR) {
+        var end_time = new Date().getTime();
+        return {
+            result  : 'success',
+            duration:                                                                       end_time - start_time.getTime(),
+            // calculate the time offset between us and the server, assuming the server time was generated exactly halfway through the request:
+            offset  : new Date( jqXHR.getResponseHeader('Date') ).getTime() - Math.floor( ( end_time + start_time.getTime() ) / 2 )
+        };
+    }
+
+    // the actual page isn't important, but robots.txt seems like an innocuous enough choice:
+    return $.ajax({
+        url: '/robots.txt',
+        method: 'options'
+    }).then( success, function(jqXHR) {
+        var dfd = jQuery.Deferred();
+        if ( jqXHR.statusCode() == 404 ) {
+            dfd.resolve(success(null,null,jqXHR));
+        } else {
+            dfd.resolve({ result: 'fail', duration: new Date().getTime() - start_time.getTime() });
+        }
+        return dfd.promise();
+    });
+
+}
+
+/**
  * @summary Send a message to the server as an AJAX request
  * @protected
  * @param {...Object} var_args passed to $.get()
