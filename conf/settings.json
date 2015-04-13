@@ -48,6 +48,7 @@
         "src/debug_log.js",
         "src/bulletin_board_api.js",
         "src/cacheable.js",
+        "src/misc_cache.js",
 
         /* Widgets */
         "src/widgets/severity_slider.js",
