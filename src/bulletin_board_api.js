@@ -7,10 +7,16 @@
  * @summary Generic class for any type of bulletin board
  * @constructor
  * @abstract
+ * @description At the time of writing, the only configuration values are:
+ * + "unPMable user groups" (an array like [ 'group name', ... ] defining groups that cannot accept PMs)
+ * + "default user group" (a string defining the group most users belong to)
  */
-function BulletinBoard() {}
+function BulletinBoard(args) {
+    this._config = $.extend( { 'unPMable user groups': [], 'default user group': '' }, args ? args.config : {} );
+}
 BulletinBoard.prototype = Object.create(null, {
 
+    _config: { writable: true, configurable: false },
     url_for: { // construct product-specific URLs
         writable: false,
         configurable: false,
@@ -24,6 +30,15 @@ BulletinBoard.prototype = Object.create(null, {
 /*
  * GENERIC UTILITY FUNCTIONS
  */
+
+/**
+ * @summary add or change configuration values
+ * @param {Object} config new configuration values
+ * @return (updated) configuration
+ */
+BulletinBoard.prototype.config = function( config ) {
+    return $.extend( this._config, config );
+}
 
 /**
  * @summary Convenience function to construct a URL
@@ -317,7 +332,8 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
  * @extends BulletinBoard
  * @constructor
  */
-function VBulletin() { BulletinBoard.call(this) }
+function VBulletin(args) { BulletinBoard.call(this, args) }
+
 VBulletin.prototype.constructor = VBulletin;
 VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 
