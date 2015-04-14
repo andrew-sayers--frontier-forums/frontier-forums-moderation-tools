@@ -659,7 +659,8 @@ VBulletin.prototype.detect_post_error = function(reply) {
     else if ( reply.search && !reply.search(/^\s*</) ) { // looks like HTML
         if (  reply.search(' class="standard_error"') != -1 ) { // HTML error
             reply.replace( /<body([^]*<\/)body>/, function(body, body_innerHTML) { reply = $('<div'+body_innerHTML+'div>') });
-            if ( reply.find( 'noscript' ).html().search( /http-equiv="refresh"/i ) == -1 )
+            var noscript = reply.find( 'noscript' );
+            if ( noscript.length && noscript.html().search( /http-equiv="refresh"/i ) == -1 )
                 return $.trim(reply.find('.standard_error').text());
             else // Automatic page refreshes generally indicate success, even when the success message has class="standard_error"
                 return null;
