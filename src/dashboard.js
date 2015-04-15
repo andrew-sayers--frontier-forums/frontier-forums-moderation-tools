@@ -230,7 +230,7 @@ Dashboard.prototype.forum_refresh = function(container) {
     // forum pages are less expensive than thread pages, so we don't bother caching them:
     var read_post_id = dashboard.cache['forum-done-'+forum_id];
 
-    return dashboard.bb.forum_threads(forum_id).then(function(threads) {
+    return dashboard.bb.forum_threads(forum_id, true).then(function(threads) {
 
         var last_post_ids = threads.map(function(thread) { return thread.last_post_id });
 
