@@ -42,6 +42,7 @@
         "lib/selectionchange.js",
         "lib/Chart.js",
         "lib/json-stable-stringify.js",
+        "lib/jquery.timeago.js",
 
         /* Low-level libraries */
         "src/debug_log.js",
