@@ -81,6 +81,7 @@ function form_keys( bb, form, callback ) {
             if ( $(this).val() == '' ) {
                 // remove empty inputs, except the last one
                 $(this).closest('.multi').remove();
+                call_callback();
             }
         })
         .on( 'input change', '.multi:last-child input', function() {
@@ -91,6 +92,7 @@ function form_keys( bb, form, callback ) {
                     .insertAfter($(this).closest('.multi'))
                     .find('input').val('')
                 ;
+                call_callback();
             }
         })
 
@@ -147,16 +149,18 @@ function form_keys( bb, form, callback ) {
             timeout = setTimeout(function() {
                 type_handlers[type]( text ).then(function(values) {
                     timeout = null;
+                    var need_callback = false;
                     values.forEach(function(value) {
                         if ( !known_things.hasOwnProperty(value.name.toLowerCase()) ) {
                             datalist.append( $('<option>').text(value.name) );
                             known_things[value.name.toLowerCase()] = value.value;
                             if ( value.name.toLowerCase() == text.toLowerCase() ) {
                                 update_element( $this, value.value );
-                                call_callback();
+                                need_callback = true;
                             }
                         }
                     });
+                    if ( need_callback ) call_callback();
                 });
             }, 500 );
 
