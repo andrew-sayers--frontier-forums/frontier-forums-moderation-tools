@@ -101,6 +101,8 @@ function Dashboard( args ) {
             event.preventDefault();
         });
 
+        $(container).on( 'mouseover click', function() { done_time = new Date().getTime() });
+
         function refresh(force) {
             // don't change anything while people are looking:
             if ( force || ( done_time < new Date().getTime() - interval/2 && ! container.is(':hover') ) ) {
