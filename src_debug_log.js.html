@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Cacheable</title>
+    <title>Source: src/debug_log.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -739,390 +739,80 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Cacheable.html">Class: Cacheable</h1>
+        <h1 class="page-title" data-filename="src_debug_log.js.html">Source: src/debug_log.js</h1>
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>/**
+ * @file Simple Debugging Log
+ * @author Andrew Sayers
+ */
+
+var debug_log = {
+
+    div: $('&lt;div style="width: 100%; text-align: center">&lt;hr>&lt;h1>Debugging log - please send this to the maintainer if requested&lt;/h1>&lt;textarea style="width: 80em; max-width: 50%; height: 20em;" placeholder="Moderators\' extension debugging information">&lt;/textarea>&lt;/div>'),
+
+    start_time: new Date(),
+
+    /**
+     * @summary Show the debugging log at the bottom of the current page
+     * @description You might want to show the debugging log at page load, or only when a "severe" error occurs
+     */
+    show: function() {
+        $(function() { debug_log.div.appendTo(document.body) });
+        this.show = function() { return this };
+        return this;
+    },
+
+    /**
+     * @summary Add values to the debugging log
+     */
+    log: function() {
+        var caller = debug_log.log.caller.name;
+        if ( !caller ) {
+            caller = debug_log.log.caller.toString();
+            if ( caller.length > 110 ) {
+                caller = caller.substr(0,100) + '...';
+            }
+        }
+        BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-js-is-enabled", "true" );' );
+        debug_log.textarea.value +=
+            '================================================================================\n' +
+            'Frame: ' + ( (window.location == window.parent.location) ? 'main document' : 'iFrame' ) + "\n" +
+            'Start date: ' + debug_log.start_time + " (" + ( new Date().getTime() - debug_log.start_time.getTime() )/1000 + " seconds ago)\n" +
+            'URL: ' + location.toString() + "\n" +
+            'User agent: ' + navigator.userAgent + "\n" +
+            'Cookies: ' + (
+                ( typeof(navigator.cookieEnabled) == 'undefined' )
+                    ? 'unknown'
+                    : ( navigator.cookieEnabled ? 'enabled' : 'disabled' )
+            ) + "\n" +
+            'Javascript: ' + ( document.head.hasAttribute('data-js-is-enabled') ? 'enabled' : 'disabled' ) + "\n" +
+            'Caller: ' + caller + "\n" +
+            'Data: ' + JSON.stringify(Array.prototype.slice.call(arguments, 0), null, '    ') + "\n" +
+            "\n"
+        ;
+        document.head.removeAttribute('data-js-is-enabled');
+        return debug_log;
+    },
+
+    /**
+     * @summary Get the contents of the debug log
+     */
+    text: function() {
+        return '' + debug_log.textarea.value;
+    }
+
+};
+
+debug_log.textarea = debug_log.div.find('textarea')[0];
+</code></pre>
+        </article>
+    </section>
 
-
-
-
-<section>
-
-<header>
-    <h2>
-    Cacheable
-    </h2>
-
-</header>
-
-<article>
-    <div class="container-overview">
-
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="Cacheable">
-
-            <span class="type-signature ">abstract</span>new Cacheable<span class="signature">(args)</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line21">line 21</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">Base class for objects that can cache their contents</p>
-
-</dt>
-<dd>
-
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>args</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                cacheable arguments</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h5>Example</h5>
-
-
-
-    <pre class="prettyprint"><code>var cacheable = new ChildOfCacheable({
-    cache          : variable_retrieved_from_storage,
-    cache_updater  : function(cache) { storage.store( cache ) },
-    reload_interval: 60 * 60 * 1000, // optional
-    ... // arguments to child object
-});</code></pre>
-
-
-
-</dd>
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="refresh">
-
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line76">line 76</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Reload the cached values</div>
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>args</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                cacheable arguments (as passed to Cacheable())</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Returns:</h5>
-
-
-
-<table class="params">
-    <thead>
-    <tr>
-
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-
-            <td class="type">
-
-                        jQuery.Promise
-
-
-            </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
-        </tr>
-
-    </tbody>
-</table>
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="update_cache">
-
-            update_cache<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line62">line 62</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Update this.cache using the passed cache_updater() callback</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-        </dl>
-
-
-
-
-
-</article>
-
-</section>
 
 
 
@@ -1131,7 +821,7 @@
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 17 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 17 April 2015
         </footer>
     </div>
 </div>

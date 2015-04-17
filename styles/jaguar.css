@@ -349,6 +349,9 @@ li {
 .main .container-overview .description {
   white-space: pre-wrap;
 }
+.main .container-overview td.description {
+  white-space: normal;
+}
 footer {
   margin: 15px 0;
   padding-top: 15px;

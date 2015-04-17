@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Cacheable</title>
+    <title>Class: NewbiePolicy</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -739,7 +739,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Cacheable.html">Class: Cacheable</h1>
+        <h1 class="page-title" data-filename="NewbiePolicy.html">Class: NewbiePolicy</h1>
 
 
 
@@ -748,7 +748,7 @@
 
 <header>
     <h2>
-    Cacheable
+    NewbiePolicy
     </h2>
 
 </header>
@@ -761,20 +761,20 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Cacheable">
+        <h4 class="name" id="NewbiePolicy">
 
-            <span class="type-signature ">abstract</span>new Cacheable<span class="signature">(args)</span>
+            new NewbiePolicy<span class="signature">()</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line21">line 21</a>
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line18">line 18</a>
         </div>
 
     </div>
 
 
-    <p class="summary">Base class for objects that can cache their contents</p>
+    <p class="summary">manage policy for new accounts</p>
 
 </dt>
 <dd>
@@ -785,51 +785,6 @@
 
 
 
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>args</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                cacheable arguments</td>
-        </tr>
-
-
-	</tbody>
-</table>
 
 
 
@@ -873,11 +828,10 @@
 
 
 
-    <pre class="prettyprint"><code>var cacheable = new ChildOfCacheable({
-    cache          : variable_retrieved_from_storage,
-    cache_updater  : function(cache) { storage.store( cache ) },
-    reload_interval: 60 * 60 * 1000, // optional
-    ... // arguments to child object
+    <pre class="prettyprint"><code>var policy = new NewbiePolicy({
+    v : v, // Variables object
+    bb: bb, // BulletinBoard object
+    vi: vi, // Violations object
 });</code></pre>
 
 
@@ -906,24 +860,24 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="refresh">
+        <h4 class="name" id="_action_wrapper">
 
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+            _action_wrapper<span class="signature">(extra_action, action, violation)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="Action.html">Action</a>}</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line76">line 76</a>
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line400">line 400</a>
         </div>
 
     </div>
 
 
+    <p class="summary">Augment the action for an inappropriate username</p>
+
 </dt>
 <dd>
 
-
-    <div class="description">Reload the cached values</div>
 
 
 
@@ -953,7 +907,574 @@
 
         <tr>
 
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>extra_action</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="Action.html">Action</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                action associated with the extra post</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>action</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="Action.html">Action</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                action to augment</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>violation</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                name of rule that was violated</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        <a href="Action.html">Action</a>
+
+
+            </td>
+            <td class="description last">augmented action</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="action_duplicate_wrapper">
+
+            action_duplicate_wrapper<span class="signature">(extra_post, action)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="Action.html">Action</a>}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line453">line 453</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Augment the action for a duplicate account</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>extra_post</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="ExtraPost.html">ExtraPost</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                extra post object</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>action</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="Action.html">Action</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                action to augment</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        <a href="Action.html">Action</a>
+
+
+            </td>
+            <td class="description last">augmented action</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="action_inappropriate_wrapper">
+
+            action_inappropriate_wrapper<span class="signature">(extra_post, action)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="Action.html">Action</a>}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line442">line 442</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Augment the action for an inappropriate username</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>extra_post</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="ExtraPost.html">ExtraPost</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                extra post object</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>action</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="Action.html">Action</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                action to augment</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        <a href="Action.html">Action</a>
+
+
+            </td>
+            <td class="description last">augmented action</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="extra_post_duplicate">
+
+            extra_post_duplicate<span class="signature">(suspiciousness, level, user, all_users)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line337">line 337</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">values to initialise/update the extra_post widget for a set of duplicate accounts</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>suspiciousness</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                measure of suspiciousness</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>level</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                severity level for the violation</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>user</code></td>
 
 
             <td class="type">
@@ -969,7 +1490,362 @@
 
             <td class="description last">
 
-                cacheable arguments (as passed to Cacheable())</td>
+                user to notify</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>all_users</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array.&lt;Object></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                all affected users (e.g. other duplicate accounts)</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">extra_post arguments</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="extra_post_inappropriate">
+
+            extra_post_inappropriate<span class="signature">(level)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line292">line 292</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">values to initialise/update the extra_post widget for an inappropriate username</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>level</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                'honest mistake', 'deliberate', 'provocative' or 'malicious'</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">extra_post arguments</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="fire">
+
+            fire<span class="signature">(min_user_id, max_user_id, extra_notes)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line119">line 119</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Fire the actions</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>min_user_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                lowest user ID</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>max_user_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                highest user ID</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>extra_notes</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                text entered by the user</td>
         </tr>
 
 
@@ -1034,7 +1910,7 @@
 
 
             </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
+            <td class="description last">Promise representing the whole graph of actions</td>
         </tr>
 
     </tbody>
@@ -1049,24 +1925,24 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="update_cache">
+        <h4 class="name" id="get_base_user_id">
 
-            update_cache<span class="signature">()</span>
+            get_base_user_id<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Number}</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line62">line 62</a>
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line139">line 139</a>
         </div>
 
     </div>
 
 
+    <p class="summary">Get the highest user ID known to have previously been processed</p>
+
 </dt>
 <dd>
 
-
-    <div class="description">Update this.cache using the passed cache_updater() callback</div>
 
 
 
@@ -1108,6 +1984,940 @@
 
 
 
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Number
+
+
+            </td>
+            <td class="description last">user ID</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="notification_selector_duplicate">
+
+            notification_selector_duplicate<span class="signature">(level, user, all_users, suspiciousness)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line369">line 369</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">values to initialise/update the notification_selector widget for a set of duplicate accounts</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>level</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                severity level for the violation</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>user</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                user to notify</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>all_users</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array.&lt;Object></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                all affected users (e.g. other duplicate accounts)</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>suspiciousness</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                measure of suspiciousness</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">notification_selector arguments</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="notification_selector_inappropriate">
+
+            notification_selector_inappropriate<span class="signature">(level, user)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line321">line 321</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">values to initialise/update the notification_selector widget for an inappropriate username</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>level</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                severity level for the violation</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>user</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                user to notify</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">notification_selector arguments</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="set_actions">
+
+            set_actions<span class="signature">(actions)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{string}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line104">line 104</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Set the actions that will be fired</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>actions</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array.&lt;<a href="Action.html">Action</a>></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                actions to fire</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        string
+
+
+            </td>
+            <td class="description last">user-friendly description of actions</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="severity_slider_duplicate">
+
+            severity_slider_duplicate<span class="signature">(suspiciousness)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line351">line 351</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">values to initialise/update the severity_slider widget for a set of duplicate accounts</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>suspiciousness</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                measure of suspiciousness</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">severity_slider arguments</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="severity_slider_inappropriate">
+
+            severity_slider_inappropriate<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line305">line 305</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">values to initialise/update the severity_slider widget for an inappropriate username</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Object
+
+
+            </td>
+            <td class="description last">severity_slider arguments</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="suspiciousness_duplicate">
+
+            suspiciousness_duplicate<span class="signature">(user)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Number}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_newbie_policy.js.html">src/newbie_policy.js</a>, <a href="src_newbie_policy.js.html#line177">line 177</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">asses the relative suspiciousness of a user</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>user</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                account to measure</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        Number
+
+
+            </td>
+            <td class="description last">suspiciousness</td>
+        </tr>
+
+    </tbody>
+</table>
 
 
 

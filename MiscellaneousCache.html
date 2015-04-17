@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Cacheable</title>
+    <title>Class: MiscellaneousCache</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -739,7 +739,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Cacheable.html">Class: Cacheable</h1>
+        <h1 class="page-title" data-filename="MiscellaneousCache.html">Class: MiscellaneousCache</h1>
 
 
 
@@ -748,7 +748,7 @@
 
 <header>
     <h2>
-    Cacheable
+    MiscellaneousCache
     </h2>
 
 </header>
@@ -761,75 +761,32 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Cacheable">
+        <h4 class="name" id="MiscellaneousCache">
 
-            <span class="type-signature ">abstract</span>new Cacheable<span class="signature">(args)</span>
+            new MiscellaneousCache<span class="signature">()</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line21">line 21</a>
+            <a href="src_misc_cache.js.html">src/misc_cache.js</a>, <a href="src_misc_cache.js.html#line22">line 22</a>
         </div>
 
     </div>
 
 
-    <p class="summary">Base class for objects that can cache their contents</p>
+    <p class="summary">Various Frontier Forums-specific cached values</p>
 
 </dt>
 <dd>
 
 
+    <div class="description">Cache a set of values with no pattern other than the forum they're specific to</div>
 
 
 
 
 
 
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>args</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                cacheable arguments</td>
-        </tr>
-
-
-	</tbody>
-</table>
 
 
 
@@ -873,11 +830,12 @@
 
 
 
-    <pre class="prettyprint"><code>var cacheable = new ChildOfCacheable({
-    cache          : variable_retrieved_from_storage,
-    cache_updater  : function(cache) { storage.store( cache ) },
-    reload_interval: 60 * 60 * 1000, // optional
-    ... // arguments to child object
+    <pre class="prettyprint"><code>var mc = new MiscellaneousCache({
+     v                  : v,
+     bb                 : bb,
+     cache              : misc_cache,
+     cache_updater      : function(cache) { ... },
+     reload_interval    : 60 * 1000,
 });</code></pre>
 
 
@@ -887,6 +845,12 @@
 
     </div>
 
+
+        <h3 class="subsection-title">Extends</h3>
+
+        <ul>
+            <li><a href="Cacheable.html">Cacheable</a></li>
+        </ul>
 
 
 
@@ -908,22 +872,24 @@
     <div class="nameContainer">
         <h4 class="name" id="refresh">
 
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+            refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.promise}</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line76">line 76</a>
+            <a href="src_misc_cache.js.html">src/misc_cache.js</a>, <a href="src_misc_cache.js.html#line39">line 39</a>
         </div>
 
     </div>
 
 
+    <p class="summary">Refresh the list</p>
+
 </dt>
 <dd>
 
 
-    <div class="description">Reload the cached values</div>
+    <div class="description">downloads the list and convert to metadata</div>
 
 
 
@@ -969,7 +935,7 @@
 
             <td class="description last">
 
-                cacheable arguments (as passed to Cacheable())</td>
+                arguments passed to the constructor</td>
         </tr>
 
 
@@ -1030,11 +996,11 @@
 
             <td class="type">
 
-                        jQuery.Promise
+                        jQuery.promise
 
 
             </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
+            <td class="description last"></td>
         </tr>
 
     </tbody>
@@ -1048,8 +1014,10 @@
 
 
 <dt>
-    <div class="nameContainer">
+    <div class="nameContainer inherited">
         <h4 class="name" id="update_cache">
+
+                <span class="inherited"><a href="Cacheable.html#update_cache">inherited</a></span>
 
             update_cache<span class="signature">()</span>
         </h4>
