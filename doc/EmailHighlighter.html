@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Cacheable</title>
+    <title>Class: EmailHighlighter</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -739,7 +739,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Cacheable.html">Class: Cacheable</h1>
+        <h1 class="page-title" data-filename="EmailHighlighter.html">Class: EmailHighlighter</h1>
 
 
 
@@ -748,7 +748,7 @@
 
 <header>
     <h2>
-    Cacheable
+    EmailHighlighter
     </h2>
 
 </header>
@@ -761,20 +761,20 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Cacheable">
+        <h4 class="name" id="EmailHighlighter">
 
-            <span class="type-signature ">abstract</span>new Cacheable<span class="signature">(args)</span>
+            new EmailHighlighter<span class="signature">(args)</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line21">line 21</a>
+            <a href="src_email_highlighter.js.html">src/email_highlighter.js</a>, <a href="src_email_highlighter.js.html#line17">line 17</a>
         </div>
 
     </div>
 
 
-    <p class="summary">Base class for objects that can cache their contents</p>
+    <p class="summary">Highlight similar e-mail addresses</p>
 
 </dt>
 <dd>
@@ -824,7 +824,7 @@
 
             <td class="description last">
 
-                cacheable arguments</td>
+                address arguments</td>
         </tr>
 
 
@@ -873,11 +873,9 @@
 
 
 
-    <pre class="prettyprint"><code>var cacheable = new ChildOfCacheable({
-    cache          : variable_retrieved_from_storage,
-    cache_updater  : function(cache) { storage.store( cache ) },
-    reload_interval: 60 * 60 * 1000, // optional
-    ... // arguments to child object
+    <pre class="prettyprint"><code>var highlighter = new EmailHighlighter({
+    v: v, // Variables object
+    source_address: 'a@b.cd'
 });</code></pre>
 
 
@@ -906,24 +904,24 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="refresh">
+        <h4 class="name" id="highlight">
 
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+            highlight<span class="signature">(target_address)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line76">line 76</a>
+            <a href="src_email_highlighter.js.html">src/email_highlighter.js</a>, <a href="src_email_highlighter.js.html#line42">line 42</a>
         </div>
 
     </div>
 
 
+    <p class="summary">Return highlighted values</p>
+
 </dt>
 <dd>
 
-
-    <div class="description">Reload the cached values</div>
 
 
 
@@ -953,13 +951,13 @@
 
         <tr>
 
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>target_address</code></td>
 
 
             <td class="type">
 
 
-<span class="param-type">Object</span>
+<span class="param-type">string</span>
 
 
 
@@ -969,7 +967,7 @@
 
             <td class="description last">
 
-                cacheable arguments (as passed to Cacheable())</td>
+                E-mail address to highlight</td>
         </tr>
 
 
@@ -1030,16 +1028,25 @@
 
             <td class="type">
 
-                        jQuery.Promise
+                        Object
 
 
             </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
+            <td class="description last">highlighted sections for name and domain</td>
         </tr>
 
     </tbody>
 </table>
 
+
+
+
+        <h5>Example</h5>
+
+
+
+    <pre class="prettyprint"><code>new EmailHighlighter({ name: 'b@c.de', v: v }).highlight( 'abc@c.de' )
+// returns { name: [ 'a', 'b', 'c' ], domain: [ '', 'c.de', '' ] }</code></pre>
 
 
 
@@ -1049,30 +1056,121 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="update_cache">
+        <h4 class="name" id="highlight_to_element">
 
-            update_cache<span class="signature">()</span>
+            highlight_to_element<span class="signature">(target_address, name_container, domain_container)</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line62">line 62</a>
+            <a href="src_email_highlighter.js.html">src/email_highlighter.js</a>, <a href="src_email_highlighter.js.html#line95">line 95</a>
         </div>
 
     </div>
 
 
+    <p class="summary">convenience function to populate elements with a highlighted e-mail</p>
+
 </dt>
 <dd>
 
 
-    <div class="description">Update this.cache using the passed cache_updater() callback</div>
 
 
 
 
 
 
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>target_address</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                E-mail address to highlight</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>name_container</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">jQuery</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Element to place the user's name in</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>domain_container</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">jQuery</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Element to place the user's domain in</td>
+        </tr>
+
+
+	</tbody>
+</table>
 
 
 

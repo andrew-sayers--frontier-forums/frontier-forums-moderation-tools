@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Cacheable</title>
+    <title>Class: DuplicateAccountList</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -739,7 +739,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Cacheable.html">Class: Cacheable</h1>
+        <h1 class="page-title" data-filename="DuplicateAccountList.html">Class: DuplicateAccountList</h1>
 
 
 
@@ -748,7 +748,7 @@
 
 <header>
     <h2>
-    Cacheable
+    DuplicateAccountList
     </h2>
 
 </header>
@@ -761,20 +761,20 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Cacheable">
+        <h4 class="name" id="DuplicateAccountList">
 
-            <span class="type-signature ">abstract</span>new Cacheable<span class="signature">(args)</span>
+            new DuplicateAccountList<span class="signature">(args)</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line21">line 21</a>
+            <a href="src_widgets_duplicate_account_list.js.html">src/widgets/duplicate_account_list.js</a>, <a href="src_widgets_duplicate_account_list.js.html#line27">line 27</a>
         </div>
 
     </div>
 
 
-    <p class="summary">Base class for objects that can cache their contents</p>
+    <p class="summary">Select a list of accounts you believe to be duplicates for the same user</p>
 
 </dt>
 <dd>
@@ -824,7 +824,7 @@
 
             <td class="description last">
 
-                cacheable arguments</td>
+                duplicate account arguments</td>
         </tr>
 
 
@@ -873,11 +873,17 @@
 
 
 
-    <pre class="prettyprint"><code>var cacheable = new ChildOfCacheable({
-    cache          : variable_retrieved_from_storage,
-    cache_updater  : function(cache) { storage.store( cache ) },
-    reload_interval: 60 * 60 * 1000, // optional
-    ... // arguments to child object
+    <pre class="prettyprint"><code>var dupe_list = new DuplicateAccountList({
+
+    required: [{ username: ..., user_id: ..., email: ..., notes: ... }, ...], // Accounts that must be included in the list
+    default : [{ username: ..., user_id: ..., email: ..., notes: ... }, ...], // Accounts that will be suggested by default
+
+    // other data needed for the list to function:
+    bb          : bb, // BulletinBoard object
+    v           : v, // Variables object
+    callback    : function(users) { ... }, // called with the current data
+    container   : dupes_appended_to_this
+
 });</code></pre>
 
 
@@ -887,6 +893,12 @@
 
     </div>
 
+
+        <h3 class="subsection-title">Extends</h3>
+
+        <ul>
+            <li><a href="Widget.html">Widget</a></li>
+        </ul>
 
 
 
@@ -906,24 +918,24 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="refresh">
+        <h4 class="name" id="val">
 
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+            val<span class="signature">(value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line76">line 76</a>
+            <a href="src_widgets_duplicate_account_list.js.html">src/widgets/duplicate_account_list.js</a>, <a href="src_widgets_duplicate_account_list.js.html#line162">line 162</a>
         </div>
 
     </div>
 
 
+    <p class="summary">Get/set widget's values</p>
+
 </dt>
 <dd>
 
-
-    <div class="description">Reload the cached values</div>
 
 
 
@@ -953,7 +965,7 @@
 
         <tr>
 
-                <td class="name"><code>args</code></td>
+                <td class="name"><code>value</code></td>
 
 
             <td class="type">
@@ -969,7 +981,7 @@
 
             <td class="description last">
 
-                cacheable arguments (as passed to Cacheable())</td>
+                new value</td>
         </tr>
 
 
@@ -1030,11 +1042,11 @@
 
             <td class="type">
 
-                        jQuery.Promise
+                        Object
 
 
             </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
+            <td class="description last">(new) value</td>
         </tr>
 
     </tbody>
@@ -1043,72 +1055,14 @@
 
 
 
-</dd>
+        <h5>Example</h5>
 
 
 
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="update_cache">
-
-            update_cache<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line62">line 62</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Update this.cache using the passed cache_updater() callback</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
+    <pre class="prettyprint"><code>ns.val({
+    required: [{ username: ..., user_id: ... }, ...], // Accounts that must be included in the list
+    default : [{ username: ..., user_id: ... }, ...], // Accounts that will be suggested by default
+});</code></pre>
 
 
 
