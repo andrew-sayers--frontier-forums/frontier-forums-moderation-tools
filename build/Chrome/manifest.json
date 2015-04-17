@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.7",
+	"version": "4.8",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -22,21 +22,35 @@
 				"lib/jquery-2.1.1.min.js",
 				"lib/selectionchange.js",
 				"lib/Chart.js",
+				"lib/json-stable-stringify.js",
+				"lib/jquery.timeago.js",
 				"src/debug_log.js",
 				"src/bulletin_board_api.js",
 				"src/cacheable.js",
+				"src/misc_cache.js",
+				"src/action.js",
+				"src/widgets/widget.js",
+				"src/widgets/action_widget.js",
+				"src/widgets/extra_post.js",
 				"src/widgets/severity_slider.js",
+				"src/widgets/notification_selector.js",
+				"src/widgets/duplicate_account_list.js",
 				"src/variables.js",
 				"src/violations.js",
 				"src/dashboard.js",
 				"src/report.js",
 				"src/form_keys.js",
+				"src/email_highlighter.js",
+				"src/ip_address_report.js",
+				"src/newbie_policy.js",
 				"src/legacy.js",
 				"src/main.js"
 			],
 			"run_at": "document_start",
 			"css": [
 				"src/widgets/severity_slider.css",
+				"src/widgets/notification_selector.css",
+				"src/widgets/duplicate_account_list.css",
 				"src/main.css"
 			]
 		}

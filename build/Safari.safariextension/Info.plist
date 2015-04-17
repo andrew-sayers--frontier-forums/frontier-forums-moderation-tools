@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.7</string>
+	<string>4.8</string>
 	<key>CFBundleVersion</key>
-	<string>4.7</string>
+	<string>4.8</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -65,15 +65,27 @@
 				<string>lib/jquery-2.1.1.min.js</string>
 				<string>lib/selectionchange.js</string>
 				<string>lib/Chart.js</string>
+				<string>lib/json-stable-stringify.js</string>
+				<string>lib/jquery.timeago.js</string>
 				<string>src/debug_log.js</string>
 				<string>src/bulletin_board_api.js</string>
 				<string>src/cacheable.js</string>
+				<string>src/misc_cache.js</string>
+				<string>src/action.js</string>
+				<string>src/widgets/widget.js</string>
+				<string>src/widgets/action_widget.js</string>
+				<string>src/widgets/extra_post.js</string>
 				<string>src/widgets/severity_slider.js</string>
+				<string>src/widgets/notification_selector.js</string>
+				<string>src/widgets/duplicate_account_list.js</string>
 				<string>src/variables.js</string>
 				<string>src/violations.js</string>
 				<string>src/dashboard.js</string>
 				<string>src/report.js</string>
 				<string>src/form_keys.js</string>
+				<string>src/email_highlighter.js</string>
+				<string>src/ip_address_report.js</string>
+				<string>src/newbie_policy.js</string>
 				<string>src/legacy.js</string>
 				<string>src/main.js</string>
 			</array>
@@ -81,6 +93,8 @@
 		<key>Stylesheets</key>
 		<array>
 			<string>src/widgets/severity_slider.css</string>
+			<string>src/widgets/notification_selector.css</string>
+			<string>src/widgets/duplicate_account_list.css</string>
 			<string>src/main.css</string>
 		</array>
 	</dict>
