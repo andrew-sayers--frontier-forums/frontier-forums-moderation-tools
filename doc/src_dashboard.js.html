@@ -1007,6 +1007,11 @@ Dashboard.prototype.newbies_init = function(container) {
 
     container.data( 'template', container.find( '.template' ).removeClass( 'template' ).detach() );
 
+    if ( (dashboard.cache['newbies-data-version']||0) != 1 ) {
+        delete dashboard.cache['newbies-next'];
+        dashboard.cache['newbies-data-version'] = 1;
+    }
+
     if ( !dashboard.cache['newbies-next'] ) {
         // first run - get min_user_id if possible, else set it to the next user ID that will be created:
         return $.when( container.data('min_user_id')(), dashboard.bb.users_list_new() )
