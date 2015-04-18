@@ -692,7 +692,8 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
 
         function handle_error( message, resolutions ) {
 
-            debug_log.log( message, resolutions ).show();
+            debug_log.log( message, resolutions )
+            debug_log.show();
             $("#debug-log-show").hide();
 
             if ( !$.isArray(resolutions) ) resolutions = [resolutions];

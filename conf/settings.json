@@ -111,7 +111,6 @@
     "xhr_patterns": [
         // allowed URL patterns for cross-site/mixed content XMLHttpRequests
         // See https://developer.chrome.com/extensions/match_patterns
-        "http://www.w3.org/*"
     ],
 
     "maintenanceInterval": 5 * 1000, // the 'maintain' command will pause for this long between updates
