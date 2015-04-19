@@ -453,6 +453,8 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
         writable: false,
         configurable: false,
         value: {
+            activity: function() { return BulletinBoard.prototype.build_url( '/activity.php' ) },
+
             forum_show: function(args) { return BulletinBoard.prototype.build_url(
                 '/forumdisplay.php',
                 [
@@ -1967,6 +1969,47 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
 }
 
 /**
+ * @summary get recent threads/posts on the forum
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.activity = function(min_date) {
+    return this.post(
+        '/activity.php',
+        {
+            mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60*24 ) ),
+            minid      : 1,
+            minscore   : 0,
+            pp         : 200,
+            show       : 'all',
+            sortby     : 'recent',
+            time       : 'anytime'
+        }
+    ).then(function(xml) {
+        var posts = [], elements = xml.getElementsByTagName('bit');
+        for ( var n=0; n!=elements.length; ++n ) {
+            var $element = $(elements[n].textContent);
+            var links = $element.find('a');
+            posts.push({
+                container_element: $element,
+                  post_id        : parseInt( links.last().attr('href').split('#post')[1], 10 ),
+                thread_id        : parseInt( links.eq(1) .attr('href').split('?t='  )[1], 10 ),
+                 forum_id        : parseInt( links.eq(2) .attr('href').split('?f='  )[1], 10 ),
+                date             : $element.find('.date').text(),
+                username         : links.first().text(),
+                user_id          : ( links.first().attr('href') || '             guest' ).substr(13),
+                title            : links.eq(1).text(),
+                message          : $element.find('.excerpt').text(),
+                message_element  : $element.find('.excerpt'),
+            });
+        }
+        return {
+            max_date: parseInt( xml.getElementsByTagName('maxdateline')[0].textContent, 10 ),
+            posts: posts
+        }
+    });
+}
+
+/**
  * @summary add CSS for different page types to the current page
  * @param {Array.<string>} page_types types of page to add CSS for
  *
@@ -1980,7 +2023,8 @@ VBulletin.prototype.css_add = function(page_types) {
     var sheet_names = {
          forum_show: 'threadlist.css',
           user_show: 'member.css',
-        thread_show: 'postbit.css'
+        thread_show: 'postbit.css',
+        activity   : 'activitystream.css'
     };
 
     var extra_types = [];
