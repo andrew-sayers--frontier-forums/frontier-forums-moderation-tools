@@ -1878,7 +1878,7 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
             var ret = {
                 container_element: this,
                 forum_id         : forum_id,
-                thread_id        : thread_id,
+                thread_id        : parseInt(thread_id,10),
                 orig_thread_id   : this.id.substr(7), // for moved threads
                 title_element    : title,
                 title            : title.text(),
