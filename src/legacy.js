@@ -823,7 +823,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     dfd.resolve( html, html.find( '#post_' + post_id ) );
                 });
                 stash.review_post_contents_promise = bb.post_info( post_id );
-                stash.report_block.filter('.block.vbform').hide(); // no-one cares about the thread management log for report threads
             });
         }
     },
@@ -943,7 +942,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         }
     },
 
-    { // start downloading some data if this looks like it's going to be a report thread
+    { // quick merge
         match_pathname: '/showthread.php',
         match_elements: '#threadtools',
         pass_preferences: [ 'reload_interval' ],
