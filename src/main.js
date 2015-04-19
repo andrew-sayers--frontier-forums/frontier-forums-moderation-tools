@@ -57,13 +57,32 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
             var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
             var report_forum_id = 48;
+            var introductions_forum_id = 16;
             dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
             dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href'  , bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
             dashboard.find( '[data-forum="reported-posts"]'        ).data( 'forum' , report_forum_id );
             dashboard.find( 'a[href="#insert-reported-posts-link"]').attr( 'href'  , bb.url_for.forum_show({ forum_id: report_forum_id }) );
+            dashboard.find( '[data-forum="introductions"]'         ).data( 'forum' , introductions_forum_id );
+            dashboard.find( 'a[href="#insert-introductions-link"]' ).attr( 'href'  , bb.url_for.forum_show({ forum_id: introductions_forum_id }) );
             dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href'  , bb.url_for.moderation_posts() );
             dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
 
+
+            function progress_bar(button, promise, complete_message) {
+                var progress_bar = $(button).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                return promise
+                    .progress(function(percent) {
+                        progress_bar.css({ width: percent + '%' });
+                    })
+                    .always(function() {
+                        progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                    })
+                    .done(function() {
+                        $(button).closest('.dashboard-section').find( '.dashboard-done .done').click();
+                        button.prop( 'disabled', true ).val( complete_message );
+                    })
+                ;
+            }
 
             /*
              * REPORTED POSTS FORUM
@@ -100,6 +119,65 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
                     return true;
                 });
+
+            });
+
+
+            /*
+             * INTRODUCTIONS FORUM
+             */
+
+            var replied_thread_id = 0;
+            ss.change(function(data) { replied_thread_id = data.intro_forum_thread_id || 0 });
+
+            dashboard.find('[data-forum="introductions"]').data( 'filter', function(threads) {
+                return threads.filter(function(thread) {
+                    if ( thread.is_sticky || thread.status != 'open' || thread.thread_id <= replied_thread_id ) return false;
+                    $('.threadimod input', thread.container_element).prop( 'checked', true );
+                    return true;
+                });
+            });
+
+            dashboard.find('[data-monitor="forum"] .blocksubfoot input').click(function() {
+
+                var max_thread_id = 0;
+
+                var reply_action = new Action(
+                    'welcome newbies',
+                    dashboard.find('[data-forum="introductions"] .threadimod input').map(function() {
+                        var reply_keys = { 'thread starter': $(this).closest('.threadbit').find('.username').first().text() };
+                        var thread_id = parseInt(this.id.substr(21),10);
+                        if ( max_thread_id < thread_id ) max_thread_id = thread_id;
+                        if ( $(this).is(':checked') ) return {
+                            fire: function(keys) {
+                                if ( thread_id > keys.replied_thread_id ) {
+                                    return bb.thread_reply({
+                                        thread_id: thread_id,
+                                        title    : v.resolve('other templates', 'post title: welcome', reply_keys, 'string', introductions_forum_id),
+                                        bbcode   : v.resolve('other templates',  'post body: welcome', reply_keys, 'string', introductions_forum_id)
+                                    });
+                                }
+                            }
+                        }
+                    }).get()
+                );
+
+                var update_action = new Action(
+                    'update shared store',
+                    {
+                        fire: function() {
+                            return ss.transaction(function(data) {
+                                replied_thread_id = data.intro_forum_thread_id || 0;
+                                data.intro_forum_thread_id = max_thread_id;
+                                return replied_thread_id != max_thread_id
+                            }).then(function(data) {
+                                return { keys: { replied_thread_id: replied_thread_id, max_thread_id: data.intro_forum_thread_id } };
+                            });
+                        }
+                    }
+                );
+
+                progress_bar(this, update_action.then(reply_action).fire(bb), 'welcomed!');
 
             });
 
@@ -312,21 +390,8 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             var min_user_id, max_user_id;
 
             dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
-                var progress_bar = $(this).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
-                newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '[name="extra-notes"]' ).val() )
-                    .progress(function(percent) {
-                        progress_bar.css({ width: percent + '%' });
-                    })
-                    .always(function() {
-                        progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
-                    })
-                    .done(function() {
-                        dashboard.find( '.dashboard-newbies .dashboard-done .done').click();
-                        dashboard.find( '.dashboard-newbies-result input').prop( 'disabled', true ).val( 'validated!' );
-                    })
-                ;
-            })
-            ;
+                progress_bar(this, newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val() ), 'validated!');
+            });
 
             var widget_args = {
                 v               : v,

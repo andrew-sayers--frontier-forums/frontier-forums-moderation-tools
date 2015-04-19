@@ -46,6 +46,25 @@
         <table><thead><tr><th>Forum<th>Thread<th>Title<th>author</thead><tbody class="dashboard-body"></tbody></table>
     </div>
 
+    <div class="options_block_container"><div class="options_block dashboard-section" data-monitor="forum" data-forum="introductions">
+        <h4 class="collapse blockhead options_correct">
+            <span class="loading">Loading <a href="#insert-introductions-link">new introductions</a> <img src="images/misc/progress.gif" alt="loading, please wait"></span>
+            <span class="empty">No unchecked threads in <a href="#insert-introductions-link">the introductions forum</a> <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>
+            <span class="nonempty">Please welcome newbies in <a href="#insert-introductions-link">the introductions forum</a> <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>
+            <a href="#mark-done" class="dashboard-done"><!-- we need to click these programatically, but don't want users to see them -->
+                <span class="done">Unmark newbies introduced</span>
+                <span class="undone">Mark newbies introduced</span>
+            </a>
+        </h4>
+        <ol class="threads dashboard-body"></ol>
+        <div class="blocksubfoot actionbuttons">
+          <div class="group">
+            <div class="mod-friend-progress"><div class="mod-friend-percent">&nbsp;</div></div>
+            <input type="submit" value="Welcome newbies" class="button">
+          </div>
+        </div>
+    </div></div>
+
     <div class="dashboard-section dashboard-newbies" data-monitor="newbies">
         <h4 class="collapse blockhead options_correct">
             <span class="loading">Loading <a href="#insert-newbies-link">the member list</a> <img src="images/misc/progress.gif" alt="loading, please wait"></span>

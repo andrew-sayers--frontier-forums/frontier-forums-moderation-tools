@@ -765,49 +765,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         }
     },
 
-    /*
-     * "WELCOME" LINK ON SEARCH AND FORUM PAGES
-     */
-    {
-        callback: function(stash) {
-            stash.add_welcome_button = function(selector) {
-                $('<a style="float: right" title="click here to send a generic &ldquo;welcome to the forums&rdquo; message" href="#welcome-response">send "welcome" response</a>')
-                    .insertAfter(selector)
-                    .click(function(event) {
-                        var $this = $(this)
-                        var thread_starter = $this.closest('.inner').find('.username').text();
-                        $this.html( loading_html );
-                        bb.thread_reply({
-                            thread_id: $this.siblings('.title').attr('id').substr(13), // thread_title_12345
-                            title    : v.resolve('other templates', 'post title: welcome', { 'thread starter': thread_starter }, 'string', 16),
-                            bbcode   : v.resolve('other templates',  'post body: welcome', { 'thread starter': thread_starter }, 'string', 16)
-                        })
-                            .done(function() { $this.replaceWith( '<span style="float: right">reply sent</span>' ) });
-                        event.preventDefault();
-                    });
-            }
-        }
-    },
-    {
-        match_pathname: '/forumdisplay.php',
-        match_params: {
-            f: 16
-        },
-        match_elements: [ '#inlinemod_formctrls' ],
-        callback: function(stash, pathname, params) {
-            stash.add_welcome_button('.threadinfo .inner .title');
-        }
-    },
-    {
-        match_pathname: '/search.php',
-        match_elements: [ '#inlinemod_formctrls' ],
-        callback: function(stash, pathname, params) {
-            stash.add_welcome_button(
-                $('.threadpostedin a[href="forumdisplay.php?f=16"]').closest('li').find('.threadinfo .inner .title')
-            );
-        }
-    },
-
 
     { // start downloading some data if this looks like it's going to be a report thread
         match_pathname: '/showthread.php',
