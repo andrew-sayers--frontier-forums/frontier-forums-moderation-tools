@@ -108,6 +108,12 @@
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
     "match_secure_domain": true,
 
+    "xhr_patterns": [
+        // allowed URL patterns for cross-site/mixed content XMLHttpRequests
+        // See https://developer.chrome.com/extensions/match_patterns
+        "http://www.w3.org/*"
+    ],
+
     "maintenanceInterval": 5 * 1000, // the 'maintain' command will pause for this long between updates
 
     "environment_specific": {
@@ -116,7 +122,19 @@
          * variables from the relevant block will be used:
          */
         "development": {
+
             "contentScriptFiles": [],
+
+            /*
+             * Reloads unpacked extensions as frequently as possible.  Currently only supports
+             * Chrome/Opera, which can be forced to reload extensions so long as we avoid their
+             * "fast reload" protection.  Note that Firefox reloads unpacked extensions automatically.
+             *
+             * Valid values:
+             * + 'timeout' - reload as frequently as possible without triggering fast reloads
+             */
+            "autoReload": 'timeout',
+
         },
 
         "test": {

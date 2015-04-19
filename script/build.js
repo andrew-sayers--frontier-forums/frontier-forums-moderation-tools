@@ -19,6 +19,11 @@ var fs           = require('fs');
 var system       = require('system');
 var webPage      = require('webpage');
 
+/*
+ * OS INTERACTION
+ * improve PhantomJS' ability to interact with the operating system
+ */
+
 var chrome_command =
     ( system.os.name == 'windows' )
     ? 'chrome.exe'
@@ -132,26 +137,8 @@ function stat( files, callback ) {
 }
 
 /*
- * Build a resources.js file
- */
-function build_resources() {
-    if ( settings.resources ) {
-        var resources = {};
-        settings.resources.forEach(function(filename) {
-            resources[filename] = fs.open(filename, 'r').read();
-        });
-        fs.write(
-            'lib/BabelExtResources.js', "BabelExt.resources._resources = " +
-                // prettify our JavaScript a bit, for the benefit of reviewers:
-                JSON.stringify(resources, null, ' ').replace( /\\n(?!")/g, "\\n\" +\n    \"" ) + ";\n",
-            'w'
-        );
-        return true;
-    }
-}
-
-/*
- * Utility functions for pages
+ * PAGE UTILITIES
+ * Functions to better interact with web pages
  */
 
 function _waitForEvent( test, callback ) { // low-level interface - see waitFor* below
@@ -372,6 +359,10 @@ function page( url, callback ) {
 }
 
 /*
+ * MISCELLANEOUS BABELEXT-SPECIFIC UTILITIES
+ */
+
+/*
  * Keep track of asynchronous jobs, and exit when the last one finishes:
  */
 
@@ -384,6 +375,33 @@ AsyncCounter.prototype.begin = function(      ) {                               
 AsyncCounter.prototype.end   = function(errors) { this.errors += (errors||0); if ( !--this.count ) this.zero_callback(this.errors) };
 
 var program_counter = new AsyncCounter(function(errors) { phantom.exit(errors||0) });
+
+/*
+ * Build a resources.js file
+ */
+function build_resources() {
+    var about = "BabelExt.about = " + JSON.stringify({
+        version   : settings.version,
+        build_time: new Date().toString()
+    }) + ";\n";
+    var xhr_regexp = "BabelExt._xhr_regexp = new RegExp('" + ( settings.xhr_regexp || '(?!)' ) + "');\n";
+
+    if ( settings.resources ) {
+        var resources = {};
+        settings.resources.forEach(function(filename) {
+            resources[filename] = fs.open(filename, 'r').read();
+        });
+        fs.write(
+            'lib/BabelExtResources.js', "BabelExt.resources._resources = " +
+                // prettify our JavaScript a bit, for the benefit of reviewers:
+                JSON.stringify(resources, null, ' ').replace( /\\n(?!")/g, "\\n\" +\n    \"" ) + ";\n" +
+                about + xhr_regexp,
+            'w'
+        );
+    } else {
+        fs.write( 'lib/BabelExtResources.js', about + xhr_regexp, 'w' );
+    }
+}
 
 /*
  * Load settings from conf/settings.json
@@ -437,6 +455,28 @@ function update_settings() {
         );
         phantom.exit(1);
     }
+
+    if ( settings.xhr_patterns ) {
+        /*
+         * Convert a "match pattern" to a regular expression
+         * Different browsers implement this differently.
+         * We treat Chrome's implementation as canonical: https://developer.chrome.com/extensions/match_patterns
+         */
+        var regexps = [];
+        settings.xhr_patterns.forEach(function(pattern) {
+            if ( pattern.replace( /^(\*|https?|file|ftp):\/\/(\*|(?:\*\.)?[^\/*]*)\/(.*)$/, function( url, protocol, domain, path ) {
+                protocol = ( protocol == '*' ) ? 'https?' : protocol.replace( /[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g , "\\$&");
+                domain   = domain.replace( /[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g , "\\$&").replace( '*', '[^/]*' );
+                path     = path  .replace( /[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g , "\\$&").replace( '*', '.*' );
+                regexps.push( protocol + '://' + domain + '/' + path );
+                return url + ' ';
+            }) == pattern ) {
+                console.log( 'Ignoring invalid match pattern: ' + pattern );
+            }
+        });
+        settings.xhr_regexp = '^(?:' + regexps.join('|') + ')$';
+    }
+
 
     settings.preferences.forEach(function(preference) {
         /*
@@ -978,6 +1018,9 @@ function build_chrome() {
 
     var extra_files = [];
 
+    if ( settings.xhr_patterns )
+        manifest.permissions = settings.xhr_patterns.concat(manifest.permissions);
+
     if ( settings.preferences ) {
         manifest.options_page = "options.html";
         manifest.permissions.push('storage');
@@ -994,6 +1037,8 @@ function build_chrome() {
                 fs.remove    ('build/Chrome/' + file);
         });
 
+        if ( settings.autoReload ) manifest.permissions.push('webNavigation');
+
         fs.write(
             'build/Chrome/' + manifest.background.scripts[0],
             "var default_preferences = {" +
@@ -1004,7 +1049,8 @@ function build_chrome() {
                 default       : return "'" + preference.name + "':" +  JSON.stringify(preference.value);
                 }
             }).join(', ') +
-            "};\n",
+            "};\n" +
+            "var auto_reload = " + (settings.autoReload == 'timeout') + ";\n",
             'w'
         );
 
@@ -1549,11 +1595,13 @@ switch ( args[1] || '' ) {
 
 case 'build':
     if ( args.length != 3 ) usage();
-    if ( build_resources() ) settings.contentScriptFiles.splice(1, 0, 'lib/BabelExtResources.js');
+    build_resources();
+    settings.contentScriptFiles.splice(1, 0, 'lib/BabelExtResources.js');
     switch ( args[2] ) {
     case 'firefox': build_firefox(local_settings.   amo_login_info); break;
     case 'chrome' : build_chrome (local_settings.chrome_login_info); break;
     case 'safari' : build_safari (local_settings.safari_login_info); break;
+    default       : console.log( "Please specify 'firefox', 'chrome' or 'safari', not '" + args[2] + "'" ); break;
     }
     break;
 
@@ -1564,6 +1612,7 @@ case 'release':
     case 'chrome': release_chrome(local_settings.chrome_login_info); break;
     case 'opera' : release_opera (local_settings. opera_login_info); break;
     case 'safari': release_safari(local_settings.safari_login_info); break;
+    default       : console.log( "Please specify 'amo', 'chrome', 'opera' or 'safari', not '" + args[2] + "'" ); break;
     }
     break;
 

@@ -12,19 +12,22 @@ chrome.runtime.onMessage.addListener(
 		switch(request.requestType) {
 			case 'xmlhttpRequest':
 				var xhr = new XMLHttpRequest();
-				xhr.open(request.method, request.url, true);
+				xhr.open(request.method, request.url, true, request.user, request.password);
 				if (request.method === "POST") {
 					xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 					// xhr.setRequestHeader("Content-length", request.data.length);
 					// xhr.setRequestHeader("Connection", "close");
 				}
-				xhr.onreadystatechange = function() {
-					if (xhr.readyState === 4) {
-						// Only store 'status' and 'responseText' fields and send them back.
-						var response = {status: xhr.status, responseText: xhr.responseText};
-						sendResponse(response);
-					}
-				};
+				Object.keys(request.headers).forEach(function(header) { xhr.setRequestHeader(header, request.headers[header]) });
+				if ( typeof(request.overrideMimeType) != 'undefined' ) xhr.overrideMimeType = request.overrideMimeType;
+				xhr.onload = function() {
+					var response = {status: xhr.status, statusText: xhr.statusText, responseText: xhr.responseText, _response_headers: xhr.getAllResponseHeaders()};
+					sendResponse(response);
+				}
+				xhr.onerror = function() {
+					var response = {status: xhr.status, statusText: xhr.statusText, responseText: xhr.responseText, _response_headers: xhr.getAllResponseHeaders(), error: true};
+					sendResponse(response);
+				}
 				xhr.send(request.data);
 				return true; // true must be returned here to indicate successful XHR
 				break;
@@ -153,3 +156,19 @@ chrome.runtime.onConnect.addListener(function(port) {
 		});
 	}
 });
+
+if ( auto_reload ) {
+	// Chrome defines a "fast reload" as a reload within 10 seconds of the previous one.
+	// Five consecutive fast reloads and the extension is disabled for a little while.
+	// Ideally we'd allow a small burst, but that would require us to store the burst count across reloads
+	var reload_timeout = new Date().getTime() + 10000;
+	chrome.webNavigation.onBeforeNavigate.addListener(function(data) {
+		var time = reload_timeout - new Date().getTime()
+		if ( time < 0 ) {
+			chrome.runtime.reload();
+			reload_timeout = new Date().getTime() + 10000;
+		} else {
+			console.log( 'Fast reload detected - must wait ' + (time/1000) + ' seconds before reloading the extension again' );
+		}
+	});
+}
