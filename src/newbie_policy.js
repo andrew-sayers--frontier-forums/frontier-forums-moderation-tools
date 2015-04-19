@@ -13,11 +13,13 @@
  *     v : v, // Variables object
  *     bb: bb, // BulletinBoard object
  *     vi: vi, // Violations object
+ *     ss: ss // SharedStore object
  * });
  */
 function NewbiePolicy(args) {
     this.v  = args.v ;
     this.bb = args.bb;
+    this.ss = args.ss;
 
     this._extra_post_values.chase    .thread_id = this.v.resolve('frequently used posts/threads', this._extra_post_values.chase    .thread_id );
     this._extra_post_values['ip ban'].thread_id = this.v.resolve('frequently used posts/threads', this._extra_post_values['ip ban'].thread_id );
@@ -35,7 +37,9 @@ NewbiePolicy.prototype = Object.create(null, {
 
     v : { writable: true, configurable: false },
     bb: { writable: true, configurable: false },
+    ss: { writable: true, configurable: false },
     root_action: { writable: true, configurable: false },
+    has_actions: { writable: true, configurable: false },
 
     _namespace: { writable: false, configurable: false, value: 'newbie actions' },
     _widget_values: { writable: true, configurable: false },
@@ -103,7 +107,15 @@ NewbiePolicy.prototype.constructor = NewbiePolicy;
  */
 NewbiePolicy.prototype.set_actions = function(actions) {
     this.root_action = new Action( 'root action', actions );
+    var ss = this.ss;
+    this.root_action.then(new Action( 'update shared store', {
+        fire: function(data) {
+            var max_user_id = data['max user id'];
+            return ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id });
+        }
+    }));
     var title = this.root_action.title();
+    this.has_actions = title.length;
     if ( !title.length ) return null;
     title[0] = title[0][0].toUpperCase() + title[0].slice(1);
     return title.length && title.join(', ') + ' and mark users validated';
@@ -117,18 +129,22 @@ NewbiePolicy.prototype.set_actions = function(actions) {
  * @return {jQuery.Promise} Promise representing the whole graph of actions
  */
 NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, extra_notes) {
-    return this.root_action.fire_with_journal(
-        this.bb,
-        {
-            'min user id': min_user_id,
-            'max user id': max_user_id,
-            'extra notes': extra_notes
-        },
-        this.v,
-        this.v.resolve('frequently used posts/threads', 'newbie management log' ),
-        this._namespace,
-        'log'
-    );
+    if ( this.has_actions ) {
+        return this.root_action.fire_with_journal(
+            this.bb,
+            {
+                'min user id': min_user_id,
+                'max user id': max_user_id,
+                'extra notes': extra_notes
+            },
+            this.v,
+            this.v.resolve('frequently used posts/threads', 'newbie management log' ),
+            this._namespace,
+            'log'
+        );
+    } else {
+        return this.ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id; return true });
+    }
 }
 
 
@@ -137,36 +153,7 @@ NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, extra_notes) {
  * @return {Number} user ID
  */
 NewbiePolicy.prototype.get_base_user_id  = function() {
-    var thread_id = this.v.resolve('frequently used posts/threads', 'newbie management log' );
-
-    var title_re = new RegExp( '^' + this.v.resolve(this._namespace, [ 'log title', 'after' ], { 'min user id': '[0-9]+', 'max user id': '([0-9]+)' }) + '$' );
-
-    var policy = this;
-
-    // get the last page:
-    return $.get( this.bb.url_for.thread_show({ thread_id: thread_id, goto: 'newpost' }) ).then(function(html) {
-        return policy.bb.thread_posts( thread_id, html ).then(function(posts) {
-            posts = posts.get();
-            while ( posts.length ) {
-                var post = posts.pop();
-                if ( ( post.reason || '' ) == 'action succeeded' ) {
-                    return parseInt( post.title.replace( title_re, "$1" ), 10 ) + 1;
-                }
-            }
-            // No valid posts on this page (extremely rare edge case):
-            return policy.bb.thread_posts( thread_id ).then(function(posts) {
-                posts = posts.get();
-                while ( posts.length ) { // look for valid posts in all pages
-                    var post = posts.pop();
-                    if ( ( post.reason || '' ) == 'action succeeded' )
-                        return parseInt( post.title.replace( title_re, "$1" ), 10 ) + 1;
-                }
-                // Thread is empty:
-                return 0;
-            });
-        });
-    });
-
+    return this.ss.change().then(function(data) { return data.newbie_policy_base_user_id || 0 });
 }
 
 /**

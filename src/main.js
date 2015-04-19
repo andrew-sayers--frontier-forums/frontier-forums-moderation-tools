@@ -25,13 +25,14 @@
 
 /**
  * @summary Handle the dashboard page
- * @param {BulletinBoard} bb           Bulletin Board to manipulate
- * @param {Variables}     v            Variables to use
- * @param {Violations}    vi           Violations to use
- * @param {MiscellaneousCache} mc      Miscellaneous Cache to use
+ * @param {BulletinBoard}      bb Bulletin Board to manipulate
+ * @param {Variables}          v  Variables to use
+ * @param {Violations}         vi Violations to use
+ * @param {SharedStore}        ss Shared Store to use
+ * @param {MiscellaneousCache} mc Miscellaneous Cache to use
  * @param {string}        loading_html HTML to show while loading
  */
-function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispatch(
+function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.dispatch(
     {
         match_pathname: '/',
         match_params: {
@@ -110,7 +111,8 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
             var newbie_policy = new NewbiePolicy({
                 v : v,
                 bb: bb,
-                vi: vi
+                vi: vi,
+                ss: ss
             });
 
             var update_timer = null;
@@ -123,7 +125,7 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
                     var title = newbie_policy.set_actions(
                         dashboard.find('.dashboard-newbies [name="issue"]:checked').map(function() { return $(this).data('action') }).get()
                     );
-                    dashboard.find('.dashboard-newbies-result input').prop( 'disabled', !title ).val( title || '(nothing to do)' );
+                    dashboard.find('.dashboard-newbies-result input').prop( 'disabled', false ).val( title || 'Validate all users' );
                 }, 100 );
 
             }
@@ -323,7 +325,7 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
                         dashboard.find( '.dashboard-newbies-result input').prop( 'disabled', true ).val( 'validated!' );
                     })
                 ;
-                })
+            })
             ;
 
             var widget_args = {
@@ -772,6 +774,27 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
 
         v.promise.then(function() { return handle_variables_thread( bb, v ) }).then(function() {
 
+            var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
+            var ss = new SharedStore({
+                lock_url: v.resolve( 'policy', 'shared store lock URL' ),
+                store   : function(data) {
+                    return bb.usernote_edit(
+                        shared_store_note_id,
+                        'Shared store for moderator actions - do not edit', "Do not edit this note.  It is managed automatically by the moderators' extension.\n\n" +
+                        '[code]' + data + '[/code]'
+                    );
+                },
+                retrieve: function() {
+                    return bb.usernote_info(
+                        shared_store_note_id
+                    ).then(function(info) {
+                        var ret = null;
+                        info.bbcode.replace( /\[code\](.*)\[\/code\]$/, function(match,data) { ret = data });
+                        return ret;
+                    });
+                }
+            });
+
             bb.config({
                 'unPMable user groups': v.resolve( 'policy', 'unpmable user groups', undefined, 'array of items' ).map(function(g) { return g.value }),
                 'default user group'  : v.resolve( 'policy', 'default user group' )
@@ -795,7 +818,7 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
                 handle_modcp_user           ();
                 handle_thread_form          ( bb, v, handle_error );
                 handle_usernotes_cc         ( bb, v );
-                handle_dashboard            ( bb, v, vi, mc, loading_html );
+                handle_dashboard            ( bb, v, vi, ss, mc, loading_html );
                 handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
             });
 

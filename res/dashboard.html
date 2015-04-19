@@ -51,7 +51,7 @@
             <span class="loading">Loading <a href="#insert-newbies-link">the member list</a> <img src="images/misc/progress.gif" alt="loading, please wait"></span>
             <span class="empty">No unvalidated newbies in <a href="#insert-newbies-link">the member list</a> <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>
             <span class="nonempty">Please validate newbie names in <a href="#insert-newbies-link">the member list</a> <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>
-            <a href="#mark-done" class="dashboard-done">
+            <a href="#mark-done" class="dashboard-done" style="display: none"><!-- we need to click these programatically, but don't want users to see them -->
                 <span class="done">Unmark newbies valid</span>
                 <span class="undone">Mark newbies valid</span>
             </a>
@@ -95,7 +95,7 @@
         <div class="blocksubfoot actionbuttons">
           <div class="dashboard-newbies-result group">
             <div class="mod-friend-progress"><div class="mod-friend-percent">&nbsp;</div></div>
-            <input type="submit" value="(nothing to do)" disabled="disabled" class="button">
+            <input type="submit" value="Validate all users" class="button">
           </div>
         </div>
 	<datalist id="dashboard-usernames"></datalist>
