@@ -250,6 +250,35 @@ Dashboard.prototype.forum_refresh = function(container) {
 }
 
 /*
+ * RECENT ACTIVITY MONITORING
+ */
+
+Dashboard.prototype.activity_done = function(container, undo) {
+    this.cache['activity-done'] = container.data( undo ? 'undone_id' : 'done_id' );
+}
+
+Dashboard.prototype.activity_refresh = function(container) {
+
+    var dashboard = this, activity_id = container.data('activity');
+
+    // activity pages are less expensive than thread pages, so we don't bother caching them:
+    var read_date = dashboard.cache['activity-done'] || 0;
+
+    return dashboard.bb.activity(read_date+1).then(function(activity_data) {
+
+        new_date = activity_data.max_date || read_date;
+        container.data( 'undone_id', read_date );
+
+        var posts = activity_data.posts;
+        if ( container.data('filter') ) posts = container.data('filter')(posts);
+
+        return posts.map(function(post) { return post.container_element });
+
+    });
+
+}
+
+/*
  * NEWBIE MONITORING
  */
 
