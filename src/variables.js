@@ -66,7 +66,7 @@ Variables.prototype.constructor = Variables;
  * @summary update the complete list of variables, grouped by namespace
  * @return {Array.<Object>}
  */
-VariablesFromForum.prototype.set_namespaces = function() {/*
+Variables.prototype.set_namespaces = function() {/*
     this.namespaces = this.cache.namespaces; // or however the child class builds namespaces
 */}
 
