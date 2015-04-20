@@ -120,6 +120,19 @@
 	<datalist id="dashboard-usernames"></datalist>
     </div>
 
+    <div class="options_block_container"><div class="options_block dashboard-section" data-monitor="activity">
+        <h4 class="collapse blockhead options_correct">
+            <span class="loading">Loading <a href="#insert-activity-link">recent activity</a> <img src="images/misc/progress.gif" alt="loading, please wait"></span>
+            <span class="empty">No unchecked posts on <a href="#insert-activity-link">your suggested patrol route</a> <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>
+            <span class="nonempty">Please read posts on <a href="#insert-activity-link">your suggested patrol route</a> <a href="#refresh" class="dashboard-refresh">&nbsp;</a></span>
+            <a href="#mark-done" class="dashboard-done">
+                <span class="done">Mark all posts unread</span>
+                <span class="undone">Mark all posts read</span>
+            </a>
+        </h4>
+        <ol id="activitylist" class="threads dashboard-body"></ol>
+    </div></div>
+
     <div class="dashboard-section" data-monitor="server_stats">
         <h4 class="collapse blockhead options_correct">
             <span class="loading">Loading server stats <img src="images/misc/progress.gif" alt="loading, please wait"></span>

@@ -32,7 +32,25 @@
  * @param {MiscellaneousCache} mc Miscellaneous Cache to use
  * @param {string}        loading_html HTML to show while loading
  */
-function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.dispatch(
+function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.utils.dispatch(
+
+    {
+        match_pathname: '/',
+        match_params: {
+            do: 'dashboard',
+        },
+        match_elements: '.welcomelink a',
+        pass_preferences: [ 'language' ],
+        callback: function( stash, pathname, params, welcome_link, user_language ) {
+            au = new AvailableUsers({
+                ss: ss,
+                bb: bb,
+                language: user_language
+            });
+            au.active(true);
+        }
+    },
+
     {
         match_pathname: '/',
         match_params: {
@@ -40,10 +58,10 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
         },
         match_elements: '.below_body',
         pass_storage: ['dashboard_cache', 'dashboard-newbie-actions'],
-        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) {
+        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) { au.promise.then(function() {
 
             // Dashboard CSS
-            bb.css_add([ 'user_show', 'forum_show', 'thread_show' ]);
+            bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity' ]);
             $("head").append(
                 "<style type='text/css'>" +
                 v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
@@ -66,6 +84,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             dashboard.find( 'a[href="#insert-introductions-link"]' ).attr( 'href'  , bb.url_for.forum_show({ forum_id: introductions_forum_id }) );
             dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href'  , bb.url_for.moderation_posts() );
             dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
+            dashboard.find( 'a[href="#insert-activity-link"]'      ).attr( 'href'  , bb.url_for.activity() );
 
 
             function progress_bar(button, promise, complete_message) {
@@ -181,6 +200,13 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
             });
 
+
+            /*
+             * ACTIVITY
+             */
+            dashboard.find('[data-monitor="activity"]').data( 'filter', function(posts) {
+                return posts.filter(function(post) { return au.is_ours(post.thread_id, v.get_language( post.thread_id, post.forum_id )) });
+            });
 
             /*
              * NEWBIE LIST
@@ -502,7 +528,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
             });
 
-        }
+        })}
     },
 
     {
