@@ -63,6 +63,23 @@ Variables.prototype = Object.create(Cacheable.prototype, {
 Variables.prototype.constructor = Variables;
 
 /**
+ * @summary get the target language
+ * @param {Number} thread_id thread ID
+ * @param {Number}  forum_id forum ID
+ * @description thread language overrides forum language, which overrides user language,
+ * EXCEPT when the user language is a specialism of the other language.
+ * So a user language 'en-GB' overrides a thread language 'en',
+ * but a user language 'en-GB' is overridden by a thread language 'fr'.
+ */
+Variables.prototype.get_language = function(thread_id, forum_id) {
+    var language = this.default_language, thread_languages = this.thread_languages, forum_languages = this.forum_languages;
+    if      ( thread_id && thread_languages.hasOwnProperty(thread_id) && language.search(thread_languages[thread_id]+'-')!=0 ) language = thread_languages[thread_id];
+    else if (  forum_id &&  forum_languages.hasOwnProperty( forum_id) && language.search( forum_languages[ forum_id]+'-')!=0 ) language =  forum_languages[ forum_id];
+    return language;
+}
+
+
+/**
  * @summary update the complete list of variables, grouped by namespace
  * @return {Array.<Object>}
  */
@@ -113,17 +130,7 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
         names = names.slice(1);
     }
 
-    /*
-     * STEP ONE: get the target language
-     * Rules: thread language overrides forum language overrides user language,
-     * EXCEPT when the user language is a specialism of the other language.
-     * So a user language 'en-GB' overrides a thread language 'en',
-     * but a user language 'en-GB' is overridden by a thread language 'fr'.
-     */
-    var target_namespace = this.default_language, thread_languages = this.thread_languages, forum_languages = this.forum_languages;
-    if      ( thread_id && thread_languages.hasOwnProperty(thread_id) && target_namespace.search(thread_languages[thread_id]+'-')!=0 ) target_namespace = thread_languages[thread_id];
-    else if (  forum_id &&  forum_languages.hasOwnProperty( forum_id) && target_namespace.search( forum_languages[ forum_id]+'-')!=0 ) target_namespace =  forum_languages[ forum_id];
-    target_namespace = namespace + ': ' + target_namespace;
+    target_namespace = namespace + ': ' + this.get_language( thread_id, forum_id );
 
     // STEP TWO: get the best matching variable given the target language
     var text = null, old_match_quality = 0, matching_namespaces = [];
