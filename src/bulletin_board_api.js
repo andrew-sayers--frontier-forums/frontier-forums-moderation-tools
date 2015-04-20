@@ -876,7 +876,7 @@ VBulletin.prototype.on_posts_modified = function( callback ) {
             edited     : [],
         }, has_modifications = false;
         mutations.forEach(function(mutation) {
-            var post_id = $(mutation.target).closest('li').attr('id');
+            var post_id = $(mutation.target).closest('li').attr('id') || $(mutation.target).children('li').attr('id');
             if ( !post_id ) return;
             post_id = post_id.substr(5);
             if ( $(mutation.target).find('blockquote').length ) {
