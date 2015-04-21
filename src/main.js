@@ -42,6 +42,10 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
         match_elements: '.welcomelink a',
         pass_preferences: [ 'language' ],
         callback: function( stash, pathname, params, welcome_link, user_language ) {
+
+            stash.replied_thread_id = 0;
+            ss.change(function(data) { stash.replied_thread_id = data.intro_forum_thread_id || 0 });
+
             au = new AvailableUsers({
                 ss: ss,
                 bb: bb,
@@ -147,12 +151,9 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
              * INTRODUCTIONS FORUM
              */
 
-            var replied_thread_id = 0;
-            ss.change(function(data) { replied_thread_id = data.intro_forum_thread_id || 0 });
-
             dashboard.find('[data-forum="introductions"]').data( 'filter', function(threads) {
                 return threads.filter(function(thread) {
-                    if ( thread.is_sticky || thread.status != 'open' || thread.thread_id <= replied_thread_id ) return false;
+                    if ( thread.is_sticky || thread.status != 'open' || thread.thread_id <= stash.replied_thread_id ) return false;
                     $('.threadimod input', thread.container_element).prop( 'checked', true );
                     return true;
                 });
@@ -187,11 +188,11 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                     {
                         fire: function() {
                             return ss.transaction(function(data) {
-                                replied_thread_id = data.intro_forum_thread_id || 0;
+                                stash.replied_thread_id = data.intro_forum_thread_id || 0;
                                 data.intro_forum_thread_id = max_thread_id;
-                                return replied_thread_id != max_thread_id
+                                return stash.replied_thread_id != max_thread_id
                             }).then(function(data) {
-                                return { keys: { replied_thread_id: replied_thread_id, max_thread_id: data.intro_forum_thread_id } };
+                                return { keys: { replied_thread_id: stash.replied_thread_id, max_thread_id: data.intro_forum_thread_id } };
                             });
                         }
                     }
