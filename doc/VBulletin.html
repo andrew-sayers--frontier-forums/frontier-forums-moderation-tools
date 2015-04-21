@@ -92,6 +92,31 @@
             </ul>
         </li>
 
+        <li class="item" data-name="AvailableUsers">
+            <span class="title">
+                <a href="AvailableUsers.html">AvailableUsers</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AvailableUsers#active"><a href="AvailableUsers.html#active">active</a></li>
+
+                <li data-name="AvailableUsers#is_ours"><a href="AvailableUsers.html#is_ours">is_ours</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="BulletinBoard">
             <span class="title">
                 <a href="BulletinBoard.html">BulletinBoard</a>
@@ -442,6 +467,35 @@
             </ul>
         </li>
 
+        <li class="item" data-name="SharedStore">
+            <span class="title">
+                <a href="SharedStore.html">SharedStore</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SharedStore#change"><a href="SharedStore.html#change">change</a></li>
+
+                <li data-name="SharedStore#interval_transaction"><a href="SharedStore.html#interval_transaction">interval_transaction</a></li>
+
+                <li data-name="SharedStore#transaction"><a href="SharedStore.html#transaction">transaction</a></li>
+
+                <li data-name="SharedStore#val"><a href="SharedStore.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Variables">
             <span class="title">
                 <a href="Variables.html">Variables</a>
@@ -463,11 +517,15 @@
 
                 <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
 
+                <li data-name="Variables#get_language"><a href="Variables.html#get_language">get_language</a></li>
+
                 <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
 
                 <li data-name="Variables#refresh"><a href="Variables.html#refresh">refresh</a></li>
 
                 <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
+
+                <li data-name="Variables#set_namespaces"><a href="Variables.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="Variables#update_cache"><a href="Variables.html#update_cache">update_cache</a></li>
 
@@ -498,11 +556,15 @@
 
                 <li data-name="VariablesFromFirstPost#get"><a href="VariablesFromFirstPost.html#get">get</a></li>
 
+                <li data-name="VariablesFromFirstPost#get_language"><a href="VariablesFromFirstPost.html#get_language">get_language</a></li>
+
                 <li data-name="VariablesFromFirstPost#parse"><a href="VariablesFromFirstPost.html#parse">parse</a></li>
 
                 <li data-name="VariablesFromFirstPost#refresh"><a href="VariablesFromFirstPost.html#refresh">refresh</a></li>
 
                 <li data-name="VariablesFromFirstPost#resolve"><a href="VariablesFromFirstPost.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromFirstPost#set_namespaces"><a href="VariablesFromFirstPost.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="VariablesFromFirstPost#update_cache"><a href="VariablesFromFirstPost.html#update_cache">update_cache</a></li>
 
@@ -532,6 +594,8 @@
                 <li data-name="VariablesFromForum#escape"><a href="VariablesFromForum.html#escape">escape</a></li>
 
                 <li data-name="VariablesFromForum#get"><a href="VariablesFromForum.html#get">get</a></li>
+
+                <li data-name="VariablesFromForum#get_language"><a href="VariablesFromForum.html#get_language">get_language</a></li>
 
                 <li data-name="VariablesFromForum#parse"><a href="VariablesFromForum.html#parse">parse</a></li>
 
@@ -567,6 +631,8 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
 
                 <li data-name="VBulletin#attachments_delete"><a href="VBulletin.html#attachments_delete">attachments_delete</a></li>
 
@@ -674,7 +740,15 @@
 
                 <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
 
+                <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
+
+                <li data-name="VBulletin#user_signature_set"><a href="VBulletin.html#user_signature_set">user_signature_set</a></li>
+
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#usernote_edit"><a href="VBulletin.html#usernote_edit">usernote_edit</a></li>
+
+                <li data-name="VBulletin#usernote_info"><a href="VBulletin.html#usernote_info">usernote_info</a></li>
 
                 <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
@@ -999,6 +1073,104 @@
 
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="activity">
+
+            activity<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1975">line 1975</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">get recent threads/posts on the forum</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last"></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="attachments_delete">
 
             attachments_delete<span class="signature">(attachments)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
@@ -1006,7 +1178,7 @@
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line688">line 688</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line690">line 690</a>
         </div>
 
     </div>
@@ -1149,7 +1321,7 @@
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line716">line 716</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line718">line 718</a>
         </div>
 
     </div>
@@ -1315,7 +1487,7 @@
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line739">line 739</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line741">line 741</a>
         </div>
 
     </div>
@@ -1830,7 +2002,7 @@ bb.build_url(
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1911">line 1911</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2021">line 2021</a>
         </div>
 
     </div>
@@ -1949,7 +2121,7 @@ pages, we need to include the extra files by hand.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1950">line 1950</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2061">line 2061</a>
         </div>
 
     </div>
@@ -2199,7 +2371,7 @@ in a format compatible with Variables.parse()</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2095">line 2095</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2206">line 2206</a>
         </div>
 
     </div>
@@ -2297,7 +2469,7 @@ in a format compatible with Variables.parse()</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2085">line 2085</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2196">line 2196</a>
         </div>
 
     </div>
@@ -2411,7 +2583,7 @@ in a format compatible with Variables.parse()</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1833">line 1833</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1902">line 1902</a>
         </div>
 
     </div>
@@ -3038,7 +3210,7 @@ in a format compatible with Variables.parse()</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line777">line 777</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line779">line 779</a>
         </div>
 
     </div>
@@ -3197,7 +3369,7 @@ in a format compatible with Variables.parse()</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line812">line 812</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line814">line 814</a>
         </div>
 
     </div>
@@ -3358,7 +3530,7 @@ in a format compatible with Variables.parse()</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line846">line 846</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line848">line 848</a>
         </div>
 
     </div>
@@ -3514,7 +3686,7 @@ a different ID if the above isn't true of your user #37</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1432">line 1432</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1434">line 1434</a>
         </div>
 
     </div>
@@ -3657,7 +3829,7 @@ a different ID if the above isn't true of your user #37</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2031">line 2031</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2142">line 2142</a>
         </div>
 
     </div>
@@ -3896,7 +4068,7 @@ This function pops up an iframe with login details if necessary.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line871">line 871</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line873">line 873</a>
         </div>
 
     </div>
@@ -4335,7 +4507,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1097">line 1097</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1099">line 1099</a>
         </div>
 
     </div>
@@ -4760,7 +4932,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line908">line 908</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line910">line 910</a>
         </div>
 
     </div>
@@ -4995,7 +5167,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line939">line 939</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line941">line 941</a>
         </div>
 
     </div>
@@ -5173,7 +5345,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line981">line 981</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line983">line 983</a>
         </div>
 
     </div>
@@ -5328,7 +5500,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1000">line 1000</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1002">line 1002</a>
         </div>
 
     </div>
@@ -5471,7 +5643,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1077">line 1077</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1079">line 1079</a>
         </div>
 
     </div>
@@ -5660,7 +5832,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1971">line 1971</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2082">line 2082</a>
         </div>
 
     </div>
@@ -5758,7 +5930,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1057">line 1057</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1059">line 1059</a>
         </div>
 
     </div>
@@ -6187,7 +6359,7 @@ which can be negative)</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2133">line 2133</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2244">line 2244</a>
         </div>
 
     </div>
@@ -6305,7 +6477,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2107">line 2107</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line2218">line 2218</a>
         </div>
 
     </div>
@@ -6403,7 +6575,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1802">line 1802</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1871">line 1871</a>
         </div>
 
     </div>
@@ -6760,7 +6932,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1122">line 1122</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1124">line 1124</a>
         </div>
 
     </div>
@@ -6903,7 +7075,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1162">line 1162</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1164">line 1164</a>
         </div>
 
     </div>
@@ -7092,7 +7264,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1190">line 1190</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1192">line 1192</a>
         </div>
 
     </div>
@@ -7250,7 +7422,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1217">line 1217</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1219">line 1219</a>
         </div>
 
     </div>
@@ -7405,7 +7577,7 @@ This function redirects from the fake page to the real one.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1249">line 1249</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1251">line 1251</a>
         </div>
 
     </div>
@@ -7753,7 +7925,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1278">line 1278</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1280">line 1280</a>
         </div>
 
     </div>
@@ -7916,7 +8088,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1309">line 1309</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1311">line 1311</a>
         </div>
 
     </div>
@@ -8061,7 +8233,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1137">line 1137</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1139">line 1139</a>
         </div>
 
     </div>
@@ -8204,7 +8376,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1783">line 1783</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1852">line 1852</a>
         </div>
 
     </div>
@@ -8352,7 +8524,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1345">line 1345</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1347">line 1347</a>
         </div>
 
     </div>
@@ -8555,7 +8727,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1526">line 1526</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1562">line 1562</a>
         </div>
 
     </div>
@@ -8653,7 +8825,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1540">line 1540</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1576">line 1576</a>
         </div>
 
     </div>
@@ -8796,7 +8968,7 @@ that one to be loaded.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1389">line 1389</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1391">line 1391</a>
         </div>
 
     </div>
@@ -8966,7 +9138,7 @@ to have used the same router one time.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1644">line 1644</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1680">line 1680</a>
         </div>
 
     </div>
@@ -9109,7 +9281,7 @@ to have used the same router one time.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1470">line 1470</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1472">line 1472</a>
         </div>
 
     </div>
@@ -9247,6 +9419,315 @@ to have used the same router one time.</div>
 
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="user_signature_get">
+
+            user_signature_get<span class="signature">(user_id)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1775">line 1775</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Get user's signature user from ModCP</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>user_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                ID of user to get signature for</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last"></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="user_signature_set">
+
+            user_signature_set<span class="signature">(user_id, signature)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1797">line 1797</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Set user's signature user through ModCP</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>user_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Number</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                ID of user to set signature for</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>signature</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                new signature text</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last"></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="usernote_add">
 
             usernote_add<span class="signature">(user_id, title, bbcode)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
@@ -9254,7 +9735,7 @@ to have used the same router one time.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1510">line 1510</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1512">line 1512</a>
         </div>
 
     </div>
@@ -9436,6 +9917,338 @@ to have used the same router one time.</div>
 
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="usernote_edit">
+
+            usernote_edit<span class="signature">(note_id, title, bbcode)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1546">line 1546</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Change the contents of a user note</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>note_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                ID of the note</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>title</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                message title</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>bbcode</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                message body</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last"></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="usernote_info">
+
+            usernote_info<span class="signature">(note_id)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1529">line 1529</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Get information about a user note</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>note_id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                ID of the note</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last"></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="users_complete">
 
             users_complete<span class="signature">(prefix)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Array.&lt;Object>}</span>
@@ -9443,7 +10256,7 @@ to have used the same router one time.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1758">line 1758</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1827">line 1827</a>
         </div>
 
     </div>
@@ -9586,7 +10399,7 @@ to have used the same router one time.</div>
 
 
         <div class="tag-source">
-            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1738">line 1738</a>
+            <a href="src_bulletin_board_api.js.html">src/bulletin_board_api.js</a>, <a href="src_bulletin_board_api.js.html#line1807">line 1807</a>
         </div>
 
     </div>
@@ -9840,7 +10653,7 @@ of Deferreds.</div>
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 18 April 2015
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 21 April 2015
         </footer>
     </div>
 </div>

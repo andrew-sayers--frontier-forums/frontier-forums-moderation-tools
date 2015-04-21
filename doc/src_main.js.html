@@ -92,6 +92,31 @@
             </ul>
         </li>
 
+        <li class="item" data-name="AvailableUsers">
+            <span class="title">
+                <a href="AvailableUsers.html">AvailableUsers</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AvailableUsers#active"><a href="AvailableUsers.html#active">active</a></li>
+
+                <li data-name="AvailableUsers#is_ours"><a href="AvailableUsers.html#is_ours">is_ours</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="BulletinBoard">
             <span class="title">
                 <a href="BulletinBoard.html">BulletinBoard</a>
@@ -442,6 +467,35 @@
             </ul>
         </li>
 
+        <li class="item" data-name="SharedStore">
+            <span class="title">
+                <a href="SharedStore.html">SharedStore</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SharedStore#change"><a href="SharedStore.html#change">change</a></li>
+
+                <li data-name="SharedStore#interval_transaction"><a href="SharedStore.html#interval_transaction">interval_transaction</a></li>
+
+                <li data-name="SharedStore#transaction"><a href="SharedStore.html#transaction">transaction</a></li>
+
+                <li data-name="SharedStore#val"><a href="SharedStore.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Variables">
             <span class="title">
                 <a href="Variables.html">Variables</a>
@@ -463,11 +517,15 @@
 
                 <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
 
+                <li data-name="Variables#get_language"><a href="Variables.html#get_language">get_language</a></li>
+
                 <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
 
                 <li data-name="Variables#refresh"><a href="Variables.html#refresh">refresh</a></li>
 
                 <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
+
+                <li data-name="Variables#set_namespaces"><a href="Variables.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="Variables#update_cache"><a href="Variables.html#update_cache">update_cache</a></li>
 
@@ -498,11 +556,15 @@
 
                 <li data-name="VariablesFromFirstPost#get"><a href="VariablesFromFirstPost.html#get">get</a></li>
 
+                <li data-name="VariablesFromFirstPost#get_language"><a href="VariablesFromFirstPost.html#get_language">get_language</a></li>
+
                 <li data-name="VariablesFromFirstPost#parse"><a href="VariablesFromFirstPost.html#parse">parse</a></li>
 
                 <li data-name="VariablesFromFirstPost#refresh"><a href="VariablesFromFirstPost.html#refresh">refresh</a></li>
 
                 <li data-name="VariablesFromFirstPost#resolve"><a href="VariablesFromFirstPost.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromFirstPost#set_namespaces"><a href="VariablesFromFirstPost.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="VariablesFromFirstPost#update_cache"><a href="VariablesFromFirstPost.html#update_cache">update_cache</a></li>
 
@@ -532,6 +594,8 @@
                 <li data-name="VariablesFromForum#escape"><a href="VariablesFromForum.html#escape">escape</a></li>
 
                 <li data-name="VariablesFromForum#get"><a href="VariablesFromForum.html#get">get</a></li>
+
+                <li data-name="VariablesFromForum#get_language"><a href="VariablesFromForum.html#get_language">get_language</a></li>
 
                 <li data-name="VariablesFromForum#parse"><a href="VariablesFromForum.html#parse">parse</a></li>
 
@@ -567,6 +631,8 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
 
                 <li data-name="VBulletin#attachments_delete"><a href="VBulletin.html#attachments_delete">attachments_delete</a></li>
 
@@ -674,7 +740,15 @@
 
                 <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
 
+                <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
+
+                <li data-name="VBulletin#user_signature_set"><a href="VBulletin.html#user_signature_set">user_signature_set</a></li>
+
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#usernote_edit"><a href="VBulletin.html#usernote_edit">usernote_edit</a></li>
+
+                <li data-name="VBulletin#usernote_info"><a href="VBulletin.html#usernote_info">usernote_info</a></li>
 
                 <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
@@ -773,13 +847,32 @@
 
 /**
  * @summary Handle the dashboard page
- * @param {BulletinBoard} bb           Bulletin Board to manipulate
- * @param {Variables}     v            Variables to use
- * @param {Violations}    vi           Violations to use
- * @param {MiscellaneousCache} mc      Miscellaneous Cache to use
+ * @param {BulletinBoard}      bb Bulletin Board to manipulate
+ * @param {Variables}          v  Variables to use
+ * @param {Violations}         vi Violations to use
+ * @param {SharedStore}        ss Shared Store to use
+ * @param {MiscellaneousCache} mc Miscellaneous Cache to use
  * @param {string}        loading_html HTML to show while loading
  */
-function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispatch(
+function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.utils.dispatch(
+
+    {
+        match_pathname: '/',
+        match_params: {
+            do: 'dashboard',
+        },
+        match_elements: '.welcomelink a',
+        pass_preferences: [ 'language' ],
+        callback: function( stash, pathname, params, welcome_link, user_language ) {
+            au = new AvailableUsers({
+                ss: ss,
+                bb: bb,
+                language: user_language
+            });
+            au.active(true);
+        }
+    },
+
     {
         match_pathname: '/',
         match_params: {
@@ -787,10 +880,10 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
         },
         match_elements: '.below_body',
         pass_storage: ['dashboard_cache', 'dashboard-newbie-actions'],
-        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) {
+        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) { au.promise.then(function() {
 
             // Dashboard CSS
-            bb.css_add([ 'user_show', 'forum_show', 'thread_show' ]);
+            bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity' ]);
             $("head").append(
                 "&lt;style type='text/css'>" +
                 v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
@@ -804,13 +897,33 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
 
             var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
             var report_forum_id = 48;
+            var introductions_forum_id = 16;
             dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
             dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href'  , bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
             dashboard.find( '[data-forum="reported-posts"]'        ).data( 'forum' , report_forum_id );
             dashboard.find( 'a[href="#insert-reported-posts-link"]').attr( 'href'  , bb.url_for.forum_show({ forum_id: report_forum_id }) );
+            dashboard.find( '[data-forum="introductions"]'         ).data( 'forum' , introductions_forum_id );
+            dashboard.find( 'a[href="#insert-introductions-link"]' ).attr( 'href'  , bb.url_for.forum_show({ forum_id: introductions_forum_id }) );
             dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href'  , bb.url_for.moderation_posts() );
             dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
+            dashboard.find( 'a[href="#insert-activity-link"]'      ).attr( 'href'  , bb.url_for.activity() );
 
+
+            function progress_bar(button, promise, complete_message) {
+                var progress_bar = $(button).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                return promise
+                    .progress(function(percent) {
+                        progress_bar.css({ width: percent + '%' });
+                    })
+                    .always(function() {
+                        progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                    })
+                    .done(function() {
+                        $(button).closest('.dashboard-section').find( '.dashboard-done .done').click();
+                        button.prop( 'disabled', true ).val( complete_message );
+                    })
+                ;
+            }
 
             /*
              * REPORTED POSTS FORUM
@@ -852,13 +965,80 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
 
 
             /*
+             * INTRODUCTIONS FORUM
+             */
+
+            var replied_thread_id = 0;
+            ss.change(function(data) { replied_thread_id = data.intro_forum_thread_id || 0 });
+
+            dashboard.find('[data-forum="introductions"]').data( 'filter', function(threads) {
+                return threads.filter(function(thread) {
+                    if ( thread.is_sticky || thread.status != 'open' || thread.thread_id &lt;= replied_thread_id ) return false;
+                    $('.threadimod input', thread.container_element).prop( 'checked', true );
+                    return true;
+                });
+            });
+
+            dashboard.find('[data-monitor="forum"] .blocksubfoot input').click(function() {
+
+                var max_thread_id = 0;
+
+                var reply_action = new Action(
+                    'welcome newbies',
+                    dashboard.find('[data-forum="introductions"] .threadimod input').map(function() {
+                        var reply_keys = { 'thread starter': $(this).closest('.threadbit').find('.username').first().text() };
+                        var thread_id = parseInt(this.id.substr(21),10);
+                        if ( max_thread_id &lt; thread_id ) max_thread_id = thread_id;
+                        if ( $(this).is(':checked') ) return {
+                            fire: function(keys) {
+                                if ( thread_id > keys.replied_thread_id ) {
+                                    return bb.thread_reply({
+                                        thread_id: thread_id,
+                                        title    : v.resolve('other templates', 'post title: welcome', reply_keys, 'string', introductions_forum_id),
+                                        bbcode   : v.resolve('other templates',  'post body: welcome', reply_keys, 'string', introductions_forum_id)
+                                    });
+                                }
+                            }
+                        }
+                    }).get()
+                );
+
+                var update_action = new Action(
+                    'update shared store',
+                    {
+                        fire: function() {
+                            return ss.transaction(function(data) {
+                                replied_thread_id = data.intro_forum_thread_id || 0;
+                                data.intro_forum_thread_id = max_thread_id;
+                                return replied_thread_id != max_thread_id
+                            }).then(function(data) {
+                                return { keys: { replied_thread_id: replied_thread_id, max_thread_id: data.intro_forum_thread_id } };
+                            });
+                        }
+                    }
+                );
+
+                progress_bar(this, update_action.then(reply_action).fire(bb), 'welcomed!');
+
+            });
+
+
+            /*
+             * ACTIVITY
+             */
+            dashboard.find('[data-monitor="activity"]').data( 'filter', function(posts) {
+                return posts.filter(function(post) { return au.is_ours(post.thread_id, v.get_language( post.thread_id, post.forum_id )) });
+            });
+
+            /*
              * NEWBIE LIST
              */
 
             var newbie_policy = new NewbiePolicy({
                 v : v,
                 bb: bb,
-                vi: vi
+                vi: vi,
+                ss: ss
             });
 
             var update_timer = null;
@@ -871,7 +1051,7 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
                     var title = newbie_policy.set_actions(
                         dashboard.find('.dashboard-newbies [name="issue"]:checked').map(function() { return $(this).data('action') }).get()
                     );
-                    dashboard.find('.dashboard-newbies-result input').prop( 'disabled', !title ).val( title || '(nothing to do)' );
+                    dashboard.find('.dashboard-newbies-result input').prop( 'disabled', false ).val( title || 'Validate all users' );
                 }, 100 );
 
             }
@@ -1058,21 +1238,8 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
             var min_user_id, max_user_id;
 
             dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
-                var progress_bar = $(this).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
-                newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '[name="extra-notes"]' ).val() )
-                    .progress(function(percent) {
-                        progress_bar.css({ width: percent + '%' });
-                    })
-                    .always(function() {
-                        progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
-                    })
-                    .done(function() {
-                        dashboard.find( '.dashboard-newbies .dashboard-done .done').click();
-                        dashboard.find( '.dashboard-newbies-result input').prop( 'disabled', true ).val( 'validated!' );
-                    })
-                ;
-                })
-            ;
+                progress_bar(this, newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val() ), 'validated!');
+            });
 
             var widget_args = {
                 v               : v,
@@ -1183,7 +1350,7 @@ function handle_dashboard( bb, v, vi, mc, loading_html ) { BabelExt.utils.dispat
 
             });
 
-        }
+        })}
     },
 
     {
@@ -1440,7 +1607,8 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
 
         function handle_error( message, resolutions ) {
 
-            debug_log.log( message, resolutions ).show();
+            debug_log.log( message, resolutions )
+            debug_log.show();
             $("#debug-log-show").hide();
 
             if ( !$.isArray(resolutions) ) resolutions = [resolutions];
@@ -1519,6 +1687,27 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
 
         v.promise.then(function() { return handle_variables_thread( bb, v ) }).then(function() {
 
+            var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
+            var ss = new SharedStore({
+                lock_url: v.resolve( 'policy', 'shared store lock URL' ),
+                store   : function(data) {
+                    return bb.usernote_edit(
+                        shared_store_note_id,
+                        'Shared store for moderator actions - do not edit', "Do not edit this note.  It is managed automatically by the moderators' extension.\n\n" +
+                        '[code]' + data + '[/code]'
+                    );
+                },
+                retrieve: function() {
+                    return bb.usernote_info(
+                        shared_store_note_id
+                    ).then(function(info) {
+                        var ret = null;
+                        info.bbcode.replace( /\[code\](.*)\[\/code\]$/, function(match,data) { ret = data });
+                        return ret;
+                    });
+                }
+            });
+
             bb.config({
                 'unPMable user groups': v.resolve( 'policy', 'unpmable user groups', undefined, 'array of items' ).map(function(g) { return g.value }),
                 'default user group'  : v.resolve( 'policy', 'default user group' )
@@ -1542,7 +1731,7 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
                 handle_modcp_user           ();
                 handle_thread_form          ( bb, v, handle_error );
                 handle_usernotes_cc         ( bb, v );
-                handle_dashboard            ( bb, v, vi, mc, loading_html );
+                handle_dashboard            ( bb, v, vi, ss, mc, loading_html );
                 handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
             });
 
@@ -1563,7 +1752,7 @@ if (window.location == window.parent.location) BabelExt.utils.dispatch({ // init
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 18 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 21 April 2015
         </footer>
     </div>
 </div>

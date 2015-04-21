@@ -92,6 +92,31 @@
             </ul>
         </li>
 
+        <li class="item" data-name="AvailableUsers">
+            <span class="title">
+                <a href="AvailableUsers.html">AvailableUsers</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AvailableUsers#active"><a href="AvailableUsers.html#active">active</a></li>
+
+                <li data-name="AvailableUsers#is_ours"><a href="AvailableUsers.html#is_ours">is_ours</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="BulletinBoard">
             <span class="title">
                 <a href="BulletinBoard.html">BulletinBoard</a>
@@ -442,6 +467,35 @@
             </ul>
         </li>
 
+        <li class="item" data-name="SharedStore">
+            <span class="title">
+                <a href="SharedStore.html">SharedStore</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SharedStore#change"><a href="SharedStore.html#change">change</a></li>
+
+                <li data-name="SharedStore#interval_transaction"><a href="SharedStore.html#interval_transaction">interval_transaction</a></li>
+
+                <li data-name="SharedStore#transaction"><a href="SharedStore.html#transaction">transaction</a></li>
+
+                <li data-name="SharedStore#val"><a href="SharedStore.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Variables">
             <span class="title">
                 <a href="Variables.html">Variables</a>
@@ -463,11 +517,15 @@
 
                 <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
 
+                <li data-name="Variables#get_language"><a href="Variables.html#get_language">get_language</a></li>
+
                 <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
 
                 <li data-name="Variables#refresh"><a href="Variables.html#refresh">refresh</a></li>
 
                 <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
+
+                <li data-name="Variables#set_namespaces"><a href="Variables.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="Variables#update_cache"><a href="Variables.html#update_cache">update_cache</a></li>
 
@@ -498,11 +556,15 @@
 
                 <li data-name="VariablesFromFirstPost#get"><a href="VariablesFromFirstPost.html#get">get</a></li>
 
+                <li data-name="VariablesFromFirstPost#get_language"><a href="VariablesFromFirstPost.html#get_language">get_language</a></li>
+
                 <li data-name="VariablesFromFirstPost#parse"><a href="VariablesFromFirstPost.html#parse">parse</a></li>
 
                 <li data-name="VariablesFromFirstPost#refresh"><a href="VariablesFromFirstPost.html#refresh">refresh</a></li>
 
                 <li data-name="VariablesFromFirstPost#resolve"><a href="VariablesFromFirstPost.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromFirstPost#set_namespaces"><a href="VariablesFromFirstPost.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="VariablesFromFirstPost#update_cache"><a href="VariablesFromFirstPost.html#update_cache">update_cache</a></li>
 
@@ -532,6 +594,8 @@
                 <li data-name="VariablesFromForum#escape"><a href="VariablesFromForum.html#escape">escape</a></li>
 
                 <li data-name="VariablesFromForum#get"><a href="VariablesFromForum.html#get">get</a></li>
+
+                <li data-name="VariablesFromForum#get_language"><a href="VariablesFromForum.html#get_language">get_language</a></li>
 
                 <li data-name="VariablesFromForum#parse"><a href="VariablesFromForum.html#parse">parse</a></li>
 
@@ -567,6 +631,8 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
 
                 <li data-name="VBulletin#attachments_delete"><a href="VBulletin.html#attachments_delete">attachments_delete</a></li>
 
@@ -674,7 +740,15 @@
 
                 <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
 
+                <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
+
+                <li data-name="VBulletin#user_signature_set"><a href="VBulletin.html#user_signature_set">user_signature_set</a></li>
+
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#usernote_edit"><a href="VBulletin.html#usernote_edit">usernote_edit</a></li>
+
+                <li data-name="VBulletin#usernote_info"><a href="VBulletin.html#usernote_info">usernote_info</a></li>
 
                 <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
@@ -761,11 +835,13 @@
  *     v : v, // Variables object
  *     bb: bb, // BulletinBoard object
  *     vi: vi, // Violations object
+ *     ss: ss // SharedStore object
  * });
  */
 function NewbiePolicy(args) {
     this.v  = args.v ;
     this.bb = args.bb;
+    this.ss = args.ss;
 
     this._extra_post_values.chase    .thread_id = this.v.resolve('frequently used posts/threads', this._extra_post_values.chase    .thread_id );
     this._extra_post_values['ip ban'].thread_id = this.v.resolve('frequently used posts/threads', this._extra_post_values['ip ban'].thread_id );
@@ -783,7 +859,9 @@ NewbiePolicy.prototype = Object.create(null, {
 
     v : { writable: true, configurable: false },
     bb: { writable: true, configurable: false },
+    ss: { writable: true, configurable: false },
     root_action: { writable: true, configurable: false },
+    has_actions: { writable: true, configurable: false },
 
     _namespace: { writable: false, configurable: false, value: 'newbie actions' },
     _widget_values: { writable: true, configurable: false },
@@ -851,7 +929,15 @@ NewbiePolicy.prototype.constructor = NewbiePolicy;
  */
 NewbiePolicy.prototype.set_actions = function(actions) {
     this.root_action = new Action( 'root action', actions );
+    var ss = this.ss;
+    this.root_action.then(new Action( 'update shared store', {
+        fire: function(data) {
+            var max_user_id = data['max user id'];
+            return ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id });
+        }
+    }));
     var title = this.root_action.title();
+    this.has_actions = title.length;
     if ( !title.length ) return null;
     title[0] = title[0][0].toUpperCase() + title[0].slice(1);
     return title.length &amp;&amp; title.join(', ') + ' and mark users validated';
@@ -865,18 +951,22 @@ NewbiePolicy.prototype.set_actions = function(actions) {
  * @return {jQuery.Promise} Promise representing the whole graph of actions
  */
 NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, extra_notes) {
-    return this.root_action.fire_with_journal(
-        this.bb,
-        {
-            'min user id': min_user_id,
-            'max user id': max_user_id,
-            'extra notes': extra_notes
-        },
-        this.v,
-        this.v.resolve('frequently used posts/threads', 'newbie management log' ),
-        this._namespace,
-        'log'
-    );
+    if ( this.has_actions ) {
+        return this.root_action.fire_with_journal(
+            this.bb,
+            {
+                'min user id': min_user_id,
+                'max user id': max_user_id,
+                'extra notes': extra_notes
+            },
+            this.v,
+            this.v.resolve('frequently used posts/threads', 'newbie management log' ),
+            this._namespace,
+            'log'
+        );
+    } else {
+        return this.ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id; return true });
+    }
 }
 
 
@@ -885,36 +975,7 @@ NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, extra_notes) {
  * @return {Number} user ID
  */
 NewbiePolicy.prototype.get_base_user_id  = function() {
-    var thread_id = this.v.resolve('frequently used posts/threads', 'newbie management log' );
-
-    var title_re = new RegExp( '^' + this.v.resolve(this._namespace, [ 'log title', 'after' ], { 'min user id': '[0-9]+', 'max user id': '([0-9]+)' }) + '$' );
-
-    var policy = this;
-
-    // get the last page:
-    return $.get( this.bb.url_for.thread_show({ thread_id: thread_id, goto: 'newpost' }) ).then(function(html) {
-        return policy.bb.thread_posts( thread_id, html ).then(function(posts) {
-            posts = posts.get();
-            while ( posts.length ) {
-                var post = posts.pop();
-                if ( ( post.reason || '' ) == 'action succeeded' ) {
-                    return parseInt( post.title.replace( title_re, "$1" ), 10 ) + 1;
-                }
-            }
-            // No valid posts on this page (extremely rare edge case):
-            return policy.bb.thread_posts( thread_id ).then(function(posts) {
-                posts = posts.get();
-                while ( posts.length ) { // look for valid posts in all pages
-                    var post = posts.pop();
-                    if ( ( post.reason || '' ) == 'action succeeded' )
-                        return parseInt( post.title.replace( title_re, "$1" ), 10 ) + 1;
-                }
-                // Thread is empty:
-                return 0;
-            });
-        });
-    });
-
+    return this.ss.change().then(function(data) { return data.newbie_policy_base_user_id || 0 });
 }
 
 /**
@@ -1213,7 +1274,7 @@ NewbiePolicy.prototype.action_duplicate_wrapper = function(extra_post, action, u
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 18 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 21 April 2015
         </footer>
     </div>
 </div>
