@@ -97,8 +97,9 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                         progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
                     })
                     .done(function() {
-                        $(button).closest('.dashboard-section').find( '.dashboard-done .done').click();
-                        button.prop( 'disabled', true ).val( complete_message );
+                        $(button)
+                            .prop( 'disabled', true ).val( complete_message )
+                            .closest('.dashboard-section').find( '.dashboard-done .done').click();;
                     })
                 ;
             }
