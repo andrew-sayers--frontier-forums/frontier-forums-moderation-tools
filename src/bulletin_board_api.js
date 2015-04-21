@@ -1520,6 +1520,40 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
 }
 
 /**
+ * @summary Get information about a user note
+ * @param {string} note_id ID of the note
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.usernote_info = function( note_id ) {
+    return this.get( '/usernote.php?do=editnote&usernoteid=' + note_id ).then(function(html) {
+        html = $(html);
+        return {
+            title : html.find('#titlefield').val(),
+            bbcode: html.find('#vB_Editor_001_editor').val()
+        }
+    });
+}
+
+/**
+ * @summary Change the contents of a user note
+ * @param {string} note_id ID of the note
+ * @param {string} title  message title
+ * @param {string} bbcode message body
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.usernote_edit = function( note_id, title, bbcode ) {
+    return this.post(
+        '/usernote.php?do=donote&usernoteid=' + note_id,
+        {
+            do            : 'donote',
+            title         : title,
+            message       : bbcode,
+            message_backup: bbcode,
+        }
+    );
+}
+
+/**
  * @summary Get information about the current user
  * @return {Object} username and user_id
  */
