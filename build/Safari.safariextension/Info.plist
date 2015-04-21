@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.8.2</string>
+	<string>4.9</string>
 	<key>CFBundleVersion</key>
-	<string>4.8.2</string>
+	<string>4.9</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -62,7 +62,7 @@
 			<array>
 				<string>lib/BabelExt.js</string>
 				<string>lib/BabelExtResources.js</string>
-				<string>lib/jquery-2.1.1.min.js</string>
+				<string>lib/jquery-2.1.3.min.js</string>
 				<string>lib/selectionchange.js</string>
 				<string>lib/Chart.js</string>
 				<string>lib/json-stable-stringify.js</string>
@@ -74,6 +74,8 @@
 				<string>src/action.js</string>
 				<string>src/widgets/widget.js</string>
 				<string>src/widgets/action_widget.js</string>
+				<string>src/shared_store.js</string>
+				<string>src/available_users.js</string>
 				<string>src/widgets/extra_post.js</string>
 				<string>src/widgets/severity_slider.js</string>
 				<string>src/widgets/notification_selector.js</string>
