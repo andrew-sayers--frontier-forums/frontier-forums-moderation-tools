@@ -1976,7 +1976,7 @@ VBulletin.prototype.activity = function(min_date) {
     return this.post(
         '/activity.php',
         {
-            mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60*24 ) ),
+            mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60 ) ),
             minid      : 1,
             minscore   : 0,
             pp         : 200,
