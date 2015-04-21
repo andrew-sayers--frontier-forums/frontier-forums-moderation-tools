@@ -438,7 +438,10 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                 max_user_id = 0;
 
                 // Need to fire this after the elements have been inserted into the DOM:
-                setTimeout(function() { dashboard.find('[data-monitor="newbies"] time').timeago() }, 0 );
+                setTimeout(function() {
+                    dashboard.find('[data-monitor="newbies"] time').timeago();
+                    update_actions();
+                }, 0 );
 
                 return users.filter(function(user) {
 
