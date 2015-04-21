@@ -23,8 +23,11 @@
 # publicly available, but an attacker has to guess the path prefix
 # in order to start getting locks.  Note: getting locks just lets
 # you DOS other users of the service, i.e. reveal your existence.
-# Make sure to set the PATH_PREFIX environment variable to something
-# hard to guess.
+#
+# You will need a config file "lock.yml" that looks something like:
+# config:
+# 	path_prefix: ...
+# 	port: ...
 
 require 'rack'
 
@@ -32,16 +35,33 @@ require 'webrick'
 require 'webrick/https'
 include WEBrick
 
+require 'yaml'
+
 lock_time = 0;
 max_lock_time = 0;
 lock_id = 1;
 
-if !ENV.has_key?('PATH_PREFIX')
-then
-  raise "Please set a 'PATH_PREFIX' environment variable"
+$config = {}
+$path_prefix = ''
+def get_config()
+  $config = YAML.load_file('lock.yml')['config']
+  if !$config.has_key?('path_prefix')
+  then
+    raise "Please set a 'path_prefix' environment variable"
+  end
+  if $config['path_prefix'].include?('/')
+  then
+    raise "Please set a path_prefix without slashes"
+  end
+  $path_prefix = $config['path_prefix']
 end
-
-path_prefix = ENV['PATH_PREFIX']
+get_config()
+Signal.trap("HUP") do
+  get_config()
+end
+Signal.trap("TERM") do
+  Rack::Handler::WEBrick.shutdown
+end
 
 app = Proc.new do |env|
 
@@ -49,7 +69,7 @@ app = Proc.new do |env|
 
   result = ""
 
-  if ( path[1] == path_prefix )
+  if ( path[1] == $path_prefix )
   then
     case path[2]
 
@@ -105,5 +125,5 @@ Rack::Handler::WEBrick.run(
     app,
     :Logger => WEBrick::Log.new("/dev/null",WEBrick::Log::FATAL),
     :AccessLog => [[File.open("/dev/null",'w'),WEBrick::AccessLog::COMBINED_LOG_FORMAT]],
-    :Port => 1234
+    :Port => $config['port']
 )
