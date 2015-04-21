@@ -92,6 +92,31 @@
             </ul>
         </li>
 
+        <li class="item" data-name="AvailableUsers">
+            <span class="title">
+                <a href="AvailableUsers.html">AvailableUsers</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AvailableUsers#active"><a href="AvailableUsers.html#active">active</a></li>
+
+                <li data-name="AvailableUsers#is_ours"><a href="AvailableUsers.html#is_ours">is_ours</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="BulletinBoard">
             <span class="title">
                 <a href="BulletinBoard.html">BulletinBoard</a>
@@ -442,6 +467,35 @@
             </ul>
         </li>
 
+        <li class="item" data-name="SharedStore">
+            <span class="title">
+                <a href="SharedStore.html">SharedStore</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SharedStore#change"><a href="SharedStore.html#change">change</a></li>
+
+                <li data-name="SharedStore#interval_transaction"><a href="SharedStore.html#interval_transaction">interval_transaction</a></li>
+
+                <li data-name="SharedStore#transaction"><a href="SharedStore.html#transaction">transaction</a></li>
+
+                <li data-name="SharedStore#val"><a href="SharedStore.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Variables">
             <span class="title">
                 <a href="Variables.html">Variables</a>
@@ -463,11 +517,15 @@
 
                 <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
 
+                <li data-name="Variables#get_language"><a href="Variables.html#get_language">get_language</a></li>
+
                 <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
 
                 <li data-name="Variables#refresh"><a href="Variables.html#refresh">refresh</a></li>
 
                 <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
+
+                <li data-name="Variables#set_namespaces"><a href="Variables.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="Variables#update_cache"><a href="Variables.html#update_cache">update_cache</a></li>
 
@@ -498,11 +556,15 @@
 
                 <li data-name="VariablesFromFirstPost#get"><a href="VariablesFromFirstPost.html#get">get</a></li>
 
+                <li data-name="VariablesFromFirstPost#get_language"><a href="VariablesFromFirstPost.html#get_language">get_language</a></li>
+
                 <li data-name="VariablesFromFirstPost#parse"><a href="VariablesFromFirstPost.html#parse">parse</a></li>
 
                 <li data-name="VariablesFromFirstPost#refresh"><a href="VariablesFromFirstPost.html#refresh">refresh</a></li>
 
                 <li data-name="VariablesFromFirstPost#resolve"><a href="VariablesFromFirstPost.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromFirstPost#set_namespaces"><a href="VariablesFromFirstPost.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="VariablesFromFirstPost#update_cache"><a href="VariablesFromFirstPost.html#update_cache">update_cache</a></li>
 
@@ -532,6 +594,8 @@
                 <li data-name="VariablesFromForum#escape"><a href="VariablesFromForum.html#escape">escape</a></li>
 
                 <li data-name="VariablesFromForum#get"><a href="VariablesFromForum.html#get">get</a></li>
+
+                <li data-name="VariablesFromForum#get_language"><a href="VariablesFromForum.html#get_language">get_language</a></li>
 
                 <li data-name="VariablesFromForum#parse"><a href="VariablesFromForum.html#parse">parse</a></li>
 
@@ -567,6 +631,8 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
 
                 <li data-name="VBulletin#attachments_delete"><a href="VBulletin.html#attachments_delete">attachments_delete</a></li>
 
@@ -674,7 +740,15 @@
 
                 <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
 
+                <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
+
+                <li data-name="VBulletin#user_signature_set"><a href="VBulletin.html#user_signature_set">user_signature_set</a></li>
+
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#usernote_edit"><a href="VBulletin.html#usernote_edit">usernote_edit</a></li>
+
+                <li data-name="VBulletin#usernote_info"><a href="VBulletin.html#usernote_info">usernote_info</a></li>
 
                 <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
@@ -1306,34 +1380,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
     },
 
 
-    { // retrieve the list of posts awaiting moderation
-        pass_storage: [ 'moderated_posts', 'moderated_posts_timestamp' ],
-        callback: function(stash, pathname, params, moderated_posts, moderated_posts_timestamp) {
-            stash.moderated_posts = moderated_posts || '(log in to see the moderation queue)';
-            function update_moderated_posts( html ) {
-                html = $(html);
-                if ( html.find('#threads_table').length ) { // logged in
-                    var posts = {};
-                    html.find( 'a[href^="user.php"]').each(function() { if ( posts.hasOwnProperty(this.outerHTML) ) ++posts[this.outerHTML]; else posts[this.outerHTML]=1 });
-                    posts = Object.keys(posts).map(function(post) { return post + ( ( posts[post] == 1 ) ? '' : ' x ' + posts[post] ); }).join(', ');
-                    BabelExt.storage.set( 'moderated_posts', posts );
-                    BabelExt.storage.set( 'moderated_posts_timestamp', new Date().getTime() );
-                } else {
-                    BabelExt.storage.set( 'moderated_posts', '' );
-                }
-            }
-            if ( pathname == '/modcp/moderate.php' &amp;&amp; params.do == 'posts' ) {
-                $(function() { update_moderated_posts(document.body) });
-            } else if ( parseInt(moderated_posts_timestamp||'0',10)+600*1000 &lt; new Date().getTime() ) {
-                $.ajax({
-                    url: stash.modcp_url( 'moderate.php?do=posts' ),
-                    dataType: "html",
-                    success: update_moderated_posts
-                });
-            }
-        }
-    },
-
     /*
      * MODERATION QUEUE PAGE
      */
@@ -1541,227 +1587,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         }
     },
 
-    /*
-     * "WELCOME" LINK ON SEARCH AND FORUM PAGES
-     */
-    {
-        callback: function(stash) {
-            stash.add_welcome_button = function(selector) {
-                $('&lt;a style="float: right" title="click here to send a generic &amp;ldquo;welcome to the forums&amp;rdquo; message" href="#welcome-response">send "welcome" response&lt;/a>')
-                    .insertAfter(selector)
-                    .click(function(event) {
-                        var $this = $(this)
-                        var thread_starter = $this.closest('.inner').find('.username').text();
-                        $this.html( loading_html );
-                        bb.thread_reply({
-                            thread_id: $this.siblings('.title').attr('id').substr(13), // thread_title_12345
-                            title    : v.resolve('other templates', 'post title: welcome', { 'thread starter': thread_starter }, 'string', 16),
-                            bbcode   : v.resolve('other templates',  'post body: welcome', { 'thread starter': thread_starter }, 'string', 16)
-                        })
-                            .done(function() { $this.replaceWith( '&lt;span style="float: right">reply sent&lt;/span>' ) });
-                        event.preventDefault();
-                    });
-            }
-        }
-    },
-    {
-        match_pathname: '/forumdisplay.php',
-        match_params: {
-            f: 16
-        },
-        match_elements: [ '#inlinemod_formctrls' ],
-        callback: function(stash, pathname, params) {
-            stash.add_welcome_button('.threadinfo .inner .title');
-        }
-    },
-    {
-        match_pathname: '/search.php',
-        match_elements: [ '#inlinemod_formctrls' ],
-        callback: function(stash, pathname, params) {
-            stash.add_welcome_button(
-                $('.threadpostedin a[href="forumdisplay.php?f=16"]').closest('li').find('.threadinfo .inner .title')
-            );
-        }
-    },
-
-
-    /*
-     * MODERATION TOOLS SECTION ON THREAD PAGES
-     */
-    {
-        match_pathname: '/showthread.php',
-        pass_storage: [ 'newbies', 'max_newbie_id', 'mod_log_post_id', 'popup_mod_log_post_id', 'popup_on_mod_log_post' ],
-        callback: function(stash, pathname, params, newbies, max_newbie_id, mod_log_post_id, popup_mod_log_post_id, popup_on_mod_log_post) {
-
-            // Fix conflicts created by adding the above CSS:
-            $("head").append(
-                "&lt;style type='text/css'>" +
-                    '.thread-management-log div.blockbody, .thread-management-log div.section, .thread-management-log li.blockrow { padding: 0 }' +
-                    '.thread-management-log li div { display: inline-block }' +
-                "&lt;/style>"
-            );
-            stash.report_block = $(
-                '&lt;div class="thread-management-log">&lt;/div>' +
-                '&lt;div class="thread_info block">' +
-                    '&lt;div class="options_block_container">' +
-                        '&lt;div class="options_block" style="width: 100%">' +
-                            '&lt;h4 class="collapse blockhead options_correct">Active threads in &lt;a href="/forumdisplay.php?f=48">the reported posts forum&lt;/a>&lt;/h4>' +
-                            '&lt;div id="threadbits_forum_48_container" class="threadlist" style="width: 100%">&lt;/div>' +
-                        '&lt;/div>' +
-                    '&lt;/div>' +
-                '&lt;/div>' +
-                '&lt;div class="thread_info block">' +
-                    '&lt;div class="options_block_container">' +
-                        '&lt;div class="options_block" style="width: 100%">' +
-                            '&lt;h4 class="collapse blockhead options_correct">Most recent post in &lt;a href="/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&amp;goto=newpost">the moderation thread&lt;/a>&lt;/h4>' +
-                            '&lt;table id="last_post_container" style="width: 100%">&lt;/table>' +
-                            '&lt;input type="checkbox"' + (popup_on_mod_log_post?' checked="checked"':'') + ' id="popup-on-mod-log-post">&lt;label for="popup-on-mod-log-post"> Show popup notification when new posts appear in the moderation log&lt;/label>' +
-                            stash.mark_read_html +
-                        '&lt;/div>' +
-                    '&lt;/div>' +
-                '&lt;/div>' +
-                '&lt;div class="thread_info block" style="margin-bottom: 2.5em">' +
-                    '&lt;div class="options_block_container">' +
-                        '&lt;div class="options_block" style="width: 100%">' +
-                            '&lt;h4 class="collapse blockhead options_correct">Users registered since yesterday - please check and infract inappropriate usernames&lt;/h4>' +
-                            '&lt;div id="memberlist">&lt;/div>' +
-                        '&lt;/div>' +
-                    '&lt;/div>' +
-                '&lt;/div>' +
-                '&lt;div class="thread_info block" style="margin-bottom: 2.5em">' +
-                    '&lt;div class="options_block_container">' +
-                        '&lt;div class="options_block" style="width: 100%">' +
-                            '&lt;h4 class="collapse blockhead options_correct">Users with posts waiting in &lt;a href="/modcp/moderate.php?do=posts">the moderation queue&lt;/a>&lt;/h4>' +
-                            '&lt;div id="moderatedlist">' + stash.moderated_posts + '&lt;/div>' +
-                        '&lt;/div>' +
-                    '&lt;/div>' +
-                '&lt;/div>'
-            );
-            var dfd = new jQuery.Deferred();
-            stash.recently_reported_posts_promise = dfd.promise();
-            $.get( '/postings.php?do=editthread&amp;t=' + params.t, function(html) {
-                html = $(html);
-                if ( html.find('input[name=notes]').val() != '' )
-                    html.find('div.vbform .blockhead')
-                      .append( ' - &lt;b>note:&lt;/b> &lt;i>&lt;/i>' )
-                      .find('i').text(html.find('input[name=notes]').val())
-                ;
-                var moderation_events = html.find('div.vbform');
-                moderation_events.find('h2.blockhead').html( '&lt;a href="/postings.php?do=editthread&amp;t=' + params.t + '">Thread management log&lt;/a>' );
-                var info = moderation_events.find('.summaryinfo');
-                moderation_events.find('ul').append( info.detach().get().reverse() );
-                if ( info.length > 5 ) info.slice( 0, info.length - 5 ).remove();
-                moderation_events.find('.blockhead').wrapInner( '&lt;a href="/postings.php?do=editthread&amp;t=' + params.t + '">&lt;/a>' );
-                stash.report_block.filter('.thread-management-log').append( moderation_events );
-            });
-            stash.report_block.find('#popup-on-mod-log-post').change(function() {
-                BabelExt.storage.set( 'popup_on_mod_log_post', $(this).prop('checked') ? 1 : '' );
-            });
-            stash.report_block.find('#threadbits_forum_48_container').load( '/forumdisplay.php?f=48 #threads', function() {
-                var recently_reported_posts = {};
-                stash.report_block.find('#threadbits_forum_48_container a.title').each(function() {
-                    var href = this.href;
-                    $(this).text().replace( /\[PID: ([0-9]*)\]/, function(match, pid) {
-                        recently_reported_posts['#post_'+pid] = href;
-                    });
-                });
-                stash.report_block.find('.prefix_closed,.prefix_deleted').closest('li').remove();
-                stash.report_block.find('.prefix.understate').filter(function() { return $(this).text().search(/^\s*(?:Closed|Moved):\s*$/) != -1 }).closest('li').remove();
-                stash.report_block.find('.threadstatus')
-                    .css({ cursor: 'pointer' })
-                    .attr( 'title', 'double-click to close this thread' )
-                    .dblclick(function() {
-                        var threadbit = $(this).closest('.threadbit');
-                        bb.thread_openclose( threadbit.attr('id').substr(7), $(this).closest('.threadbit').hasClass('lock') )
-                            .done(function() { threadbit.toggleClass('lock') });
-                });
-                var title_suffix =
-                    v.resolve('report process', 'report title suffix', { moderator: 'ANY_MODERATOR' })
-                    .replace( /([.*+?^${}()|\[\]\/\\])/g, "\\$1" )
-                    .replace( 'ANY_MODERATOR', '.*' )
-                stash.report_block.find('#threadbits_forum_48_container a.title').filter(function() { return $(this).text().search( title_suffix ) == -1 }).each(function() {
-                    var thread_id = this.href.split(/\?t=/)[1];
-                    $('&lt;a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread_id+'&amp;noquote=1" style="float:right">Take this report&lt;/a>')
-                        .click(function(event) {
-                            stash.take_thread_and_go( this.href, thread_id );
-                            event.preventDefault();
-                        })
-                        .insertAfter(this);
-                });
-
-                dfd.resolve(recently_reported_posts);
-            });
-            var last_post_container = stash.report_block.find('#last_post_container');
-            last_post_container
-                .load( '/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&amp;goto=newpost .postcontainer:last', function() {
-                    last_post_container.find('.posthead,.postfoot,.after_content').remove();
-                    last_post_container.find('.postbitlegacy').css({ 'margin-bottom': 0 });
-                    var new_mod_log_post_id = last_post_container.find('.postbitlegacy').attr('id').substr(4);
-                    last_post_container.next().next().next().click(function() {
-                        if ( last_post_container.is(':visible') ) { // mark read
-                            last_post_container.hide();
-                            BabelExt.storage.set( 'mod_log_post_id', new_mod_log_post_id );
-                            this.value = 'mark unread';
-                        } else {
-                            last_post_container.show();
-                            BabelExt.storage.set( 'mod_log_post_id', '' );
-                            this.value = 'mark read';
-                        }
-                    });
-                    if ( new_mod_log_post_id == mod_log_post_id )
-                        last_post_container.next().next().next().click();
-                    if ( new_mod_log_post_id != popup_mod_log_post_id ) {
-                        BabelExt.storage.set( 'popup_mod_log_post_id', new_mod_log_post_id );
-                        if ( popup_on_mod_log_post &amp;&amp; confirm( 'New message in the moderation log.\n\nClick OK to view it, or cancel to hide this prompt.' ) )
-                            document.location = '/showthread.php?t=' + v.resolve('frequently used posts/threads', 'mod log') + '&amp;goto=newpost';
-                    }
-                });
-            newbies = JSON.parse( newbies || '[]' );
-            max_newbie_id = parseInt( max_newbie_id || '0' );
-            var memberlist_pageno = 0, memberlist = stash.report_block.find('#memberlist'), new_max_newbie_id = 0;
-            function get_memberlist(html) {
-                html = $(html);
-                var has_old_members = false;
-                html.find('#memberlist_table tr:not(.columnsort)').each(function() {
-                    if ( $(this).children('td').filter(function() { return $(this).text().search( /^(?:Today|Yesterday)$/ ) != -1 }).length == 0 ) {
-                        has_old_members = true;
-                    } else {
-                        var a = $( 'a.username', this );
-                        var user_id = parseInt( a.attr('href').split('?u=')[1], 10 );
-                        if ( user_id > max_newbie_id ) {
-                            newbies.push(a.prop('outerHTML'));
-                            new_max_newbie_id = Math.max( new_max_newbie_id, user_id );
-                        } else {
-                            has_old_members = true;
-                        }
-                    }
-                });
-                if ( has_old_members || memberlist_pageno++ == 10 ) {
-                    if ( new_max_newbie_id ) {
-                        BabelExt.storage.set( 'newbies', JSON.stringify( newbies ) );
-                        BabelExt.storage.set( 'max_newbie_id', new_max_newbie_id );
-                    };
-                    stash.report_block.find('#memberlist')
-                        .html( '&lt;div style="margin-bottom: 0.5em">' + newbies.join(', ') + '&lt;/div>' + stash.mark_read_html )
-                        .find( 'input' ).click(function() {
-                            var usernames = $(this.previousElementSibling);
-                            if ( usernames.is(':visible') ) { // mark read
-                                usernames.hide();
-                                BabelExt.storage.set( 'newbies', '[]' );
-                                this.value = 'mark unread';
-                            } else {
-                                usernames.show();
-                                BabelExt.storage.set( 'newbies', JSON.stringify( newbies ) );
-                                this.value = 'mark read';
-                            }
-                        });
-                } else {
-                    $.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=100&amp;page=' + memberlist_pageno, get_memberlist );
-                }
-            }
-            get_memberlist('&lt;html>&lt;/html>');
-        }
-    },
 
     { // start downloading some data if this looks like it's going to be a report thread
         match_pathname: '/showthread.php',
@@ -1777,7 +1602,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     dfd.resolve( html, html.find( '#post_' + post_id ) );
                 });
                 stash.review_post_contents_promise = bb.post_info( post_id );
-                stash.report_block.filter('.block.vbform').hide(); // no-one cares about the thread management log for report threads
             });
         }
     },
@@ -1897,7 +1721,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         }
     },
 
-    { // start downloading some data if this looks like it's going to be a report thread
+    { // quick merge
         match_pathname: '/showthread.php',
         match_elements: '#threadtools',
         pass_preferences: [ 'reload_interval' ],
@@ -1979,15 +1803,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         match_pathname: '/showthread.php',
         match_elements: ['#thread_info'],
         callback: function( stash, pathname, params, thread_info) {
-            stash.report_block.insertBefore( thread_info );
-            stash.recently_reported_posts_promise.done(function(recently_reported_posts) {
-                $(Object.keys(recently_reported_posts).join()).each(function() {
-                    $(this).find('.report')
-                        .attr( 'href', recently_reported_posts['#'+this.id] )
-                        .attr( 'title', 'Go to report thread')
-                        .text('Already reported');
-                });
-            });
 
             var infractions = vi.violations.map(function(infraction) { return '&lt;li>&lt;a href="">&amp;nbsp;Take report: ' + infraction.name + '&amp;nbsp;' }).join('');
 
@@ -3482,7 +3297,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 18 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 21 April 2015
         </footer>
     </div>
 </div>

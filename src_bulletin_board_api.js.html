@@ -92,6 +92,31 @@
             </ul>
         </li>
 
+        <li class="item" data-name="AvailableUsers">
+            <span class="title">
+                <a href="AvailableUsers.html">AvailableUsers</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AvailableUsers#active"><a href="AvailableUsers.html#active">active</a></li>
+
+                <li data-name="AvailableUsers#is_ours"><a href="AvailableUsers.html#is_ours">is_ours</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="BulletinBoard">
             <span class="title">
                 <a href="BulletinBoard.html">BulletinBoard</a>
@@ -442,6 +467,35 @@
             </ul>
         </li>
 
+        <li class="item" data-name="SharedStore">
+            <span class="title">
+                <a href="SharedStore.html">SharedStore</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SharedStore#change"><a href="SharedStore.html#change">change</a></li>
+
+                <li data-name="SharedStore#interval_transaction"><a href="SharedStore.html#interval_transaction">interval_transaction</a></li>
+
+                <li data-name="SharedStore#transaction"><a href="SharedStore.html#transaction">transaction</a></li>
+
+                <li data-name="SharedStore#val"><a href="SharedStore.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Variables">
             <span class="title">
                 <a href="Variables.html">Variables</a>
@@ -463,11 +517,15 @@
 
                 <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
 
+                <li data-name="Variables#get_language"><a href="Variables.html#get_language">get_language</a></li>
+
                 <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
 
                 <li data-name="Variables#refresh"><a href="Variables.html#refresh">refresh</a></li>
 
                 <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
+
+                <li data-name="Variables#set_namespaces"><a href="Variables.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="Variables#update_cache"><a href="Variables.html#update_cache">update_cache</a></li>
 
@@ -498,11 +556,15 @@
 
                 <li data-name="VariablesFromFirstPost#get"><a href="VariablesFromFirstPost.html#get">get</a></li>
 
+                <li data-name="VariablesFromFirstPost#get_language"><a href="VariablesFromFirstPost.html#get_language">get_language</a></li>
+
                 <li data-name="VariablesFromFirstPost#parse"><a href="VariablesFromFirstPost.html#parse">parse</a></li>
 
                 <li data-name="VariablesFromFirstPost#refresh"><a href="VariablesFromFirstPost.html#refresh">refresh</a></li>
 
                 <li data-name="VariablesFromFirstPost#resolve"><a href="VariablesFromFirstPost.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromFirstPost#set_namespaces"><a href="VariablesFromFirstPost.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="VariablesFromFirstPost#update_cache"><a href="VariablesFromFirstPost.html#update_cache">update_cache</a></li>
 
@@ -532,6 +594,8 @@
                 <li data-name="VariablesFromForum#escape"><a href="VariablesFromForum.html#escape">escape</a></li>
 
                 <li data-name="VariablesFromForum#get"><a href="VariablesFromForum.html#get">get</a></li>
+
+                <li data-name="VariablesFromForum#get_language"><a href="VariablesFromForum.html#get_language">get_language</a></li>
 
                 <li data-name="VariablesFromForum#parse"><a href="VariablesFromForum.html#parse">parse</a></li>
 
@@ -567,6 +631,8 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
 
                 <li data-name="VBulletin#attachments_delete"><a href="VBulletin.html#attachments_delete">attachments_delete</a></li>
 
@@ -674,7 +740,15 @@
 
                 <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
 
+                <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
+
+                <li data-name="VBulletin#user_signature_set"><a href="VBulletin.html#user_signature_set">user_signature_set</a></li>
+
                 <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#usernote_edit"><a href="VBulletin.html#usernote_edit">usernote_edit</a></li>
+
+                <li data-name="VBulletin#usernote_info"><a href="VBulletin.html#usernote_info">usernote_info</a></li>
 
                 <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
 
@@ -1132,7 +1206,7 @@ BulletinBoard.prototype.stringify = function(name, object, cmp) {
 BulletinBoard.prototype.parse = function(name, text) {
     var ret = null;
     text.replace(
-        new RegExp( '[code]/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/[/code]' ),
+        new RegExp( '\\[code\\]/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\[/code\\]' ),
         function( match, json ) { ret = JSON.parse(json) }
     );
     return ret;
@@ -1201,6 +1275,8 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
         writable: false,
         configurable: false,
         value: {
+            activity: function() { return BulletinBoard.prototype.build_url( '/activity.php' ) },
+
             forum_show: function(args) { return BulletinBoard.prototype.build_url(
                 '/forumdisplay.php',
                 [
@@ -1624,7 +1700,7 @@ VBulletin.prototype.on_posts_modified = function( callback ) {
             edited     : [],
         }, has_modifications = false;
         mutations.forEach(function(mutation) {
-            var post_id = $(mutation.target).closest('li').attr('id');
+            var post_id = $(mutation.target).closest('li').attr('id') || $(mutation.target).children('li').attr('id');
             if ( !post_id ) return;
             post_id = post_id.substr(5);
             if ( $(mutation.target).find('blockquote').length ) {
@@ -2268,6 +2344,40 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
 }
 
 /**
+ * @summary Get information about a user note
+ * @param {string} note_id ID of the note
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.usernote_info = function( note_id ) {
+    return this.get( '/usernote.php?do=editnote&amp;usernoteid=' + note_id ).then(function(html) {
+        html = $(html);
+        return {
+            title : html.find('#titlefield').val(),
+            bbcode: html.find('#vB_Editor_001_editor').val()
+        }
+    });
+}
+
+/**
+ * @summary Change the contents of a user note
+ * @param {string} note_id ID of the note
+ * @param {string} title  message title
+ * @param {string} bbcode message body
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.usernote_edit = function( note_id, title, bbcode ) {
+    return this.post(
+        '/usernote.php?do=donote&amp;usernoteid=' + note_id,
+        {
+            do            : 'donote',
+            title         : title,
+            message       : bbcode,
+            message_backup: bbcode,
+        }
+    );
+}
+
+/**
  * @summary Get information about the current user
  * @return {Object} username and user_id
  */
@@ -2480,6 +2590,39 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 }
 
 /**
+ * @summary Get user's signature user from ModCP
+ * @param {Number} user_id ID of user to get signature for
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_signature_get = function(user_id) {
+    var bb = this;
+    return $.get( '/modcp/user.php?do=editsig&amp;u=' + user_id ).then(function(html) {
+
+        if ( !this._modcp_data ) {
+            // populate _modcp_data without making an extra request
+            var dfd = new jQuery.Deferred();
+            dfd.resolve(bb._parse_modcp_data(html));
+            bb._modcp_data = dfd.promise();
+        }
+
+        return $(html).find('[name="signature"]').val();
+
+    });
+}
+
+/**
+ * @summary Set user's signature user through ModCP
+ * @param {Number} user_id   ID of user to set signature for
+ * @param {string} signature new signature text
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_signature_set = function(user_id, signature) {
+    return this._get_modcp_data().then(function(data) {
+        return $.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
+    });
+}
+
+/**
  * @summary Get new users
  * @return {jQuery.Promise}
  */
@@ -2626,7 +2769,7 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
             var ret = {
                 container_element: this,
                 forum_id         : forum_id,
-                thread_id        : thread_id,
+                thread_id        : parseInt(thread_id,10),
                 orig_thread_id   : this.id.substr(7), // for moved threads
                 title_element    : title,
                 title            : title.text(),
@@ -2648,6 +2791,47 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
 }
 
 /**
+ * @summary get recent threads/posts on the forum
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.activity = function(min_date) {
+    return this.post(
+        '/activity.php',
+        {
+            mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60*24 ) ),
+            minid      : 1,
+            minscore   : 0,
+            pp         : 200,
+            show       : 'all',
+            sortby     : 'recent',
+            time       : 'anytime'
+        }
+    ).then(function(xml) {
+        var posts = [], elements = xml.getElementsByTagName('bit');
+        for ( var n=0; n!=elements.length; ++n ) {
+            var $element = $(elements[n].textContent);
+            var links = $element.find('a');
+            posts.push({
+                container_element: $element,
+                  post_id        : parseInt( links.last().attr('href').split('#post')[1], 10 ),
+                thread_id        : parseInt( links.eq(1) .attr('href').split('?t='  )[1], 10 ),
+                 forum_id        : parseInt( links.eq(2) .attr('href').split('?f='  )[1], 10 ),
+                date             : $element.find('.date').text(),
+                username         : links.first().text(),
+                user_id          : ( links.first().attr('href') || '             guest' ).substr(13),
+                title            : links.eq(1).text(),
+                message          : $element.find('.excerpt').text(),
+                message_element  : $element.find('.excerpt'),
+            });
+        }
+        return {
+            max_date: parseInt( xml.getElementsByTagName('maxdateline')[0].textContent, 10 ),
+            posts: posts
+        }
+    });
+}
+
+/**
  * @summary add CSS for different page types to the current page
  * @param {Array.&lt;string>} page_types types of page to add CSS for
  *
@@ -2661,7 +2845,8 @@ VBulletin.prototype.css_add = function(page_types) {
     var sheet_names = {
          forum_show: 'threadlist.css',
           user_show: 'member.css',
-        thread_show: 'postbit.css'
+        thread_show: 'postbit.css',
+        activity   : 'activitystream.css'
     };
 
     var extra_types = [];
@@ -2906,7 +3091,7 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 18 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 21 April 2015
         </footer>
     </div>
 </div>
