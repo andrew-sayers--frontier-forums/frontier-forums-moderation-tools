@@ -1084,14 +1084,23 @@ Dashboard.prototype.activity_refresh = function(container) {
     var dashboard = this, activity_id = container.data('activity');
 
     // activity pages are less expensive than thread pages, so we don't bother caching them:
-    var read_date = dashboard.cache['activity-done'] || 0;
+    var max_read = dashboard.cache['activity-done'] || [ 0, 0, 0 ];
+    if ( !$.isArray(max_read) ) max_read = [ max_read, 0, 0 ]; // upgrade old values, can be deleted after 2015-10-21
 
-    return dashboard.bb.activity(read_date+1).then(function(activity_data) {
+    return dashboard.bb.activity(max_read[0]+1).then(function(activity_data) {
 
-        new_date = activity_data.max_date || read_date;
-        container.data( 'undone_id', read_date );
+        container.data( 'undone_id', max_read );
+        container.data(   'done_id', [
+            Math.max( max_read[0], activity_data.max_date      ),
+            Math.max( max_read[1], activity_data.max_post_id   ),
+            Math.max( max_read[2], activity_data.max_thread_id ),
+        ]);
 
         var posts = activity_data.posts;
+
+        // Activity filter may not remove all posts, so we have to filter ourselves:
+        posts = posts.filter(function(post) { return post.post_id ? post.post_id > max_read[1] : post.thread_id > max_read[2] });
+
         if ( container.data('filter') ) posts = container.data('filter')(posts);
 
         return posts.map(function(post) { return post.container_element });
