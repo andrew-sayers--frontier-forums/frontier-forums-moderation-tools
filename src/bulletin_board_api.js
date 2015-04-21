@@ -1986,13 +1986,21 @@ VBulletin.prototype.activity = function(min_date) {
         }
     ).then(function(xml) {
         var posts = [], elements = xml.getElementsByTagName('bit');
+        var max_post_id = 0, max_thread_id = 0;
         for ( var n=0; n!=elements.length; ++n ) {
             var $element = $(elements[n].textContent);
             var links = $element.find('a');
+            var   post_id = parseInt( links.last().attr('href').split('#post')[1], 10 );
+            var thread_id = parseInt( links.eq(1) .attr('href').split('?t='  )[1], 10 );
+            if ( post_id ) {
+                if ( max_post_id   <   post_id ) max_post_id   =   post_id;
+            } else {
+                if ( max_thread_id < thread_id ) max_thread_id = thread_id;
+            }
             posts.push({
                 container_element: $element,
-                  post_id        : parseInt( links.last().attr('href').split('#post')[1], 10 ),
-                thread_id        : parseInt( links.eq(1) .attr('href').split('?t='  )[1], 10 ),
+                  post_id        :   post_id,
+                thread_id        : thread_id,
                  forum_id        : parseInt( links.eq(2) .attr('href').split('?f='  )[1], 10 ),
                 date             : $element.find('.date').text(),
                 username         : links.first().text(),
@@ -2003,7 +2011,9 @@ VBulletin.prototype.activity = function(min_date) {
             });
         }
         return {
-            max_date: parseInt( xml.getElementsByTagName('maxdateline')[0].textContent, 10 ),
+            max_date     : parseInt( xml.getElementsByTagName('maxdateline')[0].textContent, 10 ),
+            max_post_id  : max_post_id,
+            max_thread_id: max_thread_id,
             posts: posts
         }
     });
