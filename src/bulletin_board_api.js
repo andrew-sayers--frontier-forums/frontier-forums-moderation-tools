@@ -384,7 +384,7 @@ BulletinBoard.prototype.stringify = function(name, object, cmp) {
 BulletinBoard.prototype.parse = function(name, text) {
     var ret = null;
     text.replace(
-        new RegExp( '[code]/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/[/code]' ),
+        new RegExp( '\\[code\\]/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\[/code\\]' ),
         function( match, json ) { ret = JSON.parse(json) }
     );
     return ret;
