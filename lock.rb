@@ -103,6 +103,9 @@ app = Proc.new do |env|
         result = "0"
       end
 
+    when nil # so we can point people at the root URL to check the site's working
+      result = "You have successfully connected to the lock server :)\n"
+
     end
   end
 
