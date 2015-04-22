@@ -285,6 +285,8 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                             update_actions();
                         }
 
+                        var user = block.data('user');
+
                         var inappropriate = block.find('.inappropriate');
                         inappropriate.find( '.search .username' ).text( user.username );
                         inappropriate.find( '.search a' ).each(function() { this.href += encodeURIComponent(user.username) });
