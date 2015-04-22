@@ -261,13 +261,21 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                      * Building this at creation time would be incredibly slow.
                      */
 
-                    if ( this.value == 'inappropriate' && !block.hasClass('inappropriate-built') ) {
+                    if ( this.value == 'valid' && !block.hasClass('valid-built') ) {
+
+                        var user = block.data('user');
+
+                        var valid = block.find('.valid');
+                        valid.find( '.username').text( user.username ).attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) );
+                        valid.find( '.search a' ).each(function() { this.href += encodeURIComponent(user.username) });
+
+                        block.addClass('valid-built');
+
+                    } else if ( this.value == 'inappropriate' && !block.hasClass('inappropriate-built') ) {
 
                         /*
                          * Initialise the inappropriate username block
                          */
-
-                        var user = block.data('user');
 
                         function update_inappropriate() {
                             if ( !extra_post ) return; // ignore the callback during construction
@@ -278,9 +286,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
 
                         var inappropriate = block.find('.inappropriate');
                         inappropriate.find( '.search .username' ).text( user.username );
-                        inappropriate.find( '.search a' ).each(function() {
-                            this.href += encodeURIComponent(user.username);
-                        });
+                        inappropriate.find( '.search a' ).each(function() { this.href += encodeURIComponent(user.username) });
                         var notification = new NotificationSelector($.extend(
                             newbie_policy.notification_selector_inappropriate(undefined, user),
                             widget_args,
