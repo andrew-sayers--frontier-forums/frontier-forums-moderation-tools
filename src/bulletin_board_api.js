@@ -470,6 +470,14 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
                 ]
             )},
 
+            folder_show: function(args) { return BulletinBoard.prototype.build_url(
+                '/private.php',
+                [
+                    { key: 'folder_id', param: 'folderid' },
+                ],
+                args
+            )},
+
             moderation_inline: function() { return BulletinBoard.prototype.build_url( '/inlinemod.php' ) },
             moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
             moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
@@ -1110,6 +1118,27 @@ VBulletin.prototype.pm_send = function( to, title, bbcode, request_receipt ) {
             receipt       : request_receipt ? 1 : undefined
         }
     );
+}
+
+/**
+ * @summary Get recent private messages in a folder
+ * @param {Number} folder_id folder to download
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.folder_pms = function( folder_id ) {
+    return $.get( '/private.php?folderid=' + folder_id ).then(function(html) {
+        return $(html).find('.pmbit').map(function() {
+            var $this = $(this);
+            return {
+                container_element: $this,
+                pm_id    : parseInt( this.id.substr(3), 10 ),
+                date     : $.trim($this.find( '.datetime' ).text()),
+                user_id  : parseInt( $this.find('.username').attr('href').split('?u=')[1], 10 ),
+                user_name: $this.find('.username').text(),
+                title    : $this.find('.title').text()
+            }
+        }).get();
+    });
 }
 
 /*
@@ -2034,7 +2063,8 @@ VBulletin.prototype.css_add = function(page_types) {
          forum_show: 'threadlist.css',
           user_show: 'member.css',
         thread_show: 'postbit.css',
-        activity   : 'activitystream.css'
+        activity   : 'activitystream.css',
+        folder_show: 'private.css'
     };
 
     var extra_types = [];
