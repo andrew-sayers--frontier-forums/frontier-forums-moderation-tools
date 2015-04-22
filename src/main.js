@@ -65,7 +65,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
         callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) { au.promise.then(function() {
 
             // Dashboard CSS
-            bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity' ]);
+            bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity', 'folder_show' ]);
             $("head").append(
                 "<style type='text/css'>" +
                 v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
@@ -89,6 +89,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
             dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href'  , bb.url_for.moderation_posts() );
             dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
             dashboard.find( 'a[href="#insert-activity-link"]'      ).attr( 'href'  , bb.url_for.activity() );
+            dashboard.find( 'a[href="#insert-inbox-link"]'         ).attr( 'href'  , bb.url_for.folder_show({folder_id: 0}) );
 
 
             function progress_bar(button, promise, complete_message) {
