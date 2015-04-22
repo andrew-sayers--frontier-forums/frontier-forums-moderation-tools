@@ -27,6 +27,7 @@ ol.dashboard-body {
 .dashboard-section.nonempty .nonempty, .dashboard-section.empty .empty, .dashboard-section.loading .loading, .dashboard-section.done .done, .dashboard-section.undone .undone { display: inline }
 .dashboard-section h4 { clear: both }
 .dashboard-section.done .dashboard-body, .dashboard-section.done table { display: none }
+.dashboard-section.empty .actionbuttons { display: none }
 
 .dashboard-newbies .options_block {
     margin: 0 1em 1em;
