@@ -654,6 +654,8 @@
 
                 <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
 
+                <li data-name="VBulletin#folder_pms"><a href="VBulletin.html#folder_pms">folder_pms</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
 
                 <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
@@ -1460,6 +1462,52 @@ Dashboard.prototype.server_stats_refresh = function(container) {
 
         loadavg.addData( [ stats.one_minute_loadavg, stats.five_minute_loadavg, stats.fifteen_minute_loadavg ], time );
         online .addData( [ stats.members_online, stats.guests_online                                         ], time );
+
+    });
+
+}
+
+/*
+ * PM FOLDER MONITORING
+ */
+
+Dashboard.prototype.folder_init = function(container) {
+
+    if ( !this.cache['folder-done-'+container.data('folder')] ) {
+        var dashboard = this;
+        var folder_id = container.data('folder');
+        return this.bb.folder_pms(folder_id).then(function(pms) {
+            dashboard.cache['folder-done-'+container.data('folder')] = pms.length ? pms[0].pm_id : 0;
+            dashboard.update_cache();
+        });
+    }
+
+}
+
+// called when the user clicks the "done" or "undone" button:
+Dashboard.prototype.folder_done = function(container, undo) {
+    // update the cache so future calls to refresh() act as if the monitor has been (un)done
+    this.cache['folder-done-'+container.data('folder')] = container.data( undo ? 'undone_id' : 'done_id' );
+}
+
+// called when it's time to refresh the list:
+Dashboard.prototype.folder_refresh = function(container) {
+
+    var dashboard = this, folder_id = container.data('folder');
+
+    var done_id = dashboard.cache['folder-done-'+folder_id];
+
+    return dashboard.bb.folder_pms(folder_id).then(function(pms) {
+
+        if ( done_id == pms[0].pm_id ) return;
+
+        container.data( 'undone_id', done_id );
+        container.data( 'done_id', pms[0].pm_id );
+
+        pms = pms.filter(function(pm) { return pm.pm_id > done_id });
+        if ( container.data('filter') ) pms = container.data('filter')(pms);
+
+        return pms.map(function(pm) { return pm.container_element });
 
     });
 
