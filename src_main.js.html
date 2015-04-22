@@ -654,6 +654,8 @@
 
                 <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
 
+                <li data-name="VBulletin#folder_pms"><a href="VBulletin.html#folder_pms">folder_pms</a></li>
+
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
 
                 <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
@@ -887,7 +889,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
         callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) { au.promise.then(function() {
 
             // Dashboard CSS
-            bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity' ]);
+            bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity', 'folder_show' ]);
             $("head").append(
                 "&lt;style type='text/css'>" +
                 v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
@@ -911,6 +913,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
             dashboard.find( 'a[href="#insert-mod-queue-link"]'     ).attr( 'href'  , bb.url_for.moderation_posts() );
             dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
             dashboard.find( 'a[href="#insert-activity-link"]'      ).attr( 'href'  , bb.url_for.activity() );
+            dashboard.find( 'a[href="#insert-inbox-link"]'         ).attr( 'href'  , bb.url_for.folder_show({folder_id: 0}) );
 
 
             function progress_bar(button, promise, complete_message) {
@@ -1083,13 +1086,21 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                      * Building this at creation time would be incredibly slow.
                      */
 
-                    if ( this.value == 'inappropriate' &amp;&amp; !block.hasClass('inappropriate-built') ) {
+                    if ( this.value == 'valid' &amp;&amp; !block.hasClass('valid-built') ) {
+
+                        var user = block.data('user');
+
+                        var valid = block.find('.valid');
+                        valid.find( '.username').text( user.username ).attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) );
+                        valid.find( '.search a' ).each(function() { this.href += encodeURIComponent(user.username) });
+
+                        block.addClass('valid-built');
+
+                    } else if ( this.value == 'inappropriate' &amp;&amp; !block.hasClass('inappropriate-built') ) {
 
                         /*
                          * Initialise the inappropriate username block
                          */
-
-                        var user = block.data('user');
 
                         function update_inappropriate() {
                             if ( !extra_post ) return; // ignore the callback during construction
@@ -1100,9 +1111,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
 
                         var inappropriate = block.find('.inappropriate');
                         inappropriate.find( '.search .username' ).text( user.username );
-                        inappropriate.find( '.search a' ).each(function() {
-                            this.href += encodeURIComponent(user.username);
-                        });
+                        inappropriate.find( '.search a' ).each(function() { this.href += encodeURIComponent(user.username) });
                         var notification = new NotificationSelector($.extend(
                             newbie_policy.notification_selector_inappropriate(undefined, user),
                             widget_args,
