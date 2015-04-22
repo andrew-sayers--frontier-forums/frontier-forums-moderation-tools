@@ -644,6 +644,52 @@ Dashboard.prototype.server_stats_refresh = function(container) {
 }
 
 /*
+ * PM FOLDER MONITORING
+ */
+
+Dashboard.prototype.folder_init = function(container) {
+
+    if ( !this.cache['folder-done-'+container.data('folder')] ) {
+        var dashboard = this;
+        var folder_id = container.data('folder');
+        return this.bb.folder_pms(folder_id).then(function(pms) {
+            dashboard.cache['folder-done-'+container.data('folder')] = pms.length ? pms[0].pm_id : 0;
+            dashboard.update_cache();
+        });
+    }
+
+}
+
+// called when the user clicks the "done" or "undone" button:
+Dashboard.prototype.folder_done = function(container, undo) {
+    // update the cache so future calls to refresh() act as if the monitor has been (un)done
+    this.cache['folder-done-'+container.data('folder')] = container.data( undo ? 'undone_id' : 'done_id' );
+}
+
+// called when it's time to refresh the list:
+Dashboard.prototype.folder_refresh = function(container) {
+
+    var dashboard = this, folder_id = container.data('folder');
+
+    var done_id = dashboard.cache['folder-done-'+folder_id];
+
+    return dashboard.bb.folder_pms(folder_id).then(function(pms) {
+
+        if ( done_id == pms[0].pm_id ) return;
+
+        container.data( 'undone_id', done_id );
+        container.data( 'done_id', pms[0].pm_id );
+
+        pms = pms.filter(function(pm) { return pm.pm_id > done_id });
+        if ( container.data('filter') ) pms = container.data('filter')(pms);
+
+        return pms.map(function(pm) { return pm.container_element });
+
+    });
+
+}
+
+/*
  * EXAMPLE MONITORING
  */
 // Copy/paste this monitor to make your own monitor
