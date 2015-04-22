@@ -2825,12 +2825,12 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
  * @summary get recent threads/posts on the forum
  * @return {jQuery.Promise}
  */
-VBulletin.prototype.activity = function(min_date) {
+VBulletin.prototype.activity = function(min_date, min_post_id) {
     return this.post(
         '/activity.php',
         {
             mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60 ) ),
-            minid      : 1,
+            minid      : min_post_id || 1,
             minscore   : 0,
             pp         : 200,
             show       : 'all',
