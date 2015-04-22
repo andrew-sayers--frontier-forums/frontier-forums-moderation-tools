@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.10",
+	"version": "4.11",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -66,7 +66,7 @@
 	},
 	"permissions": [
 		"http://altairvista.com:1234/*",
-		"http://frontiermods.replayirc.com:48213/*",
+		"http://frontiermods.replayirc.com:443/*",
 		"*://forums.frontier.co.uk/*",
 		"*://forumstest.frontier.co.uk/*",
 		"contextMenus",
