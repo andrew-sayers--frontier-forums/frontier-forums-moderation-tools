@@ -175,6 +175,22 @@ function add_notification( title, notification_html, body_html ) {
  * THREAD MONITORING
  */
 
+Dashboard.prototype.thread_init = function(container) {
+
+    if ( !this.cache['thread-done-'+container.data('thread')] ) {
+        var dashboard = this;
+        var thread_id = container.data('thread');
+        return $.get(dashboard.bb.url_for.thread_show({ thread_id: thread_id, goto: 'newpost' })).then(function(html) {
+            // first run - get highest post ID:
+            return dashboard.bb.thread_posts( thread_id, html ).then(function(posts) {
+                dashboard.cache['thread-done-'+thread_id] = posts[posts.length-1].post_id;
+                dashboard.update_cache();
+            });
+        });
+    }
+
+}
+
 Dashboard.prototype.thread_done = function(container, undo) {
     this.cache['thread-done-'+container.data('thread')] = container.data( undo ? 'undone_id' : 'done_id' );
 }
@@ -193,17 +209,13 @@ Dashboard.prototype.thread_refresh = function(container) {
         var read_post_id = dashboard.cache['thread-done-'+thread_id];
         container.data( 'undone_id', read_post_id );
 
-        return $.get(dashboard.bb.url_for.thread_show( // get unread posts (or the most recent page)
-            read_post_id
-            ? { thread_id: thread_id, post_id: read_post_id }
-            : { thread_id: thread_id, goto   : 'newpost'    }
-        )).then(function(html) {
+        return $.get(dashboard.bb.url_for.thread_show({ thread_id: thread_id, post_id: read_post_id })).then(function(html) {
             return dashboard.bb.thread_posts( thread_id, html ).then(function(posts) {
 
                 container.data( 'signature', signature );
                 container.data( 'done_id', posts[posts.length-1].post_id );
 
-                if ( read_post_id ) posts = posts.filter(function() { return this.post_id > read_post_id });
+                posts = posts.filter(function() { return this.post_id > read_post_id });
                 if ( container.data('filter') ) posts = container.data('filter')(posts);
 
                 return posts.map(function(post) { return this.container_element });
