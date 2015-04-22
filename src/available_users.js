@@ -124,7 +124,7 @@ AvailableUsers.prototype.is_ours = function( id, language ) {
     if ( language ) language = language.substr(0,2);
 
     for (;;) { // no need for an end condition - we know at least one user (us) is available
-        var user = users.splice(id % this.users.length, 1)[0];
+        var user = users.splice(id % users.length, 1)[0];
         if (
             user.active_time >= activity_cutoff &&
             ( !language || language == user.language.substr(0,2) ) // users with another language are treated as offline
