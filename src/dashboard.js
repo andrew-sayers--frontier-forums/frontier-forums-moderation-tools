@@ -244,16 +244,19 @@ Dashboard.prototype.forum_refresh = function(container) {
 
     return dashboard.bb.forum_threads(forum_id, true).then(function(threads) {
 
+        var min_thread_id = container.data('min_thread_id') || 0;
         var last_post_ids = threads.map(function(thread) { return thread.last_post_id });
 
         // ignore if unchanged
-        if ( container.data('signature') == last_post_ids.join() ) return;
+        if ( dashboard.cache['forum-min-thread-'+forum_id] == min_thread_id && container.data('signature') == last_post_ids.join() ) return;
         container.data( 'signature',  last_post_ids.join() );
 
-        container.data( 'done_id', Math.max.apply( Math, last_post_ids ) );
+        container.data(   'done_id', Math.max.apply( Math, last_post_ids ) );
         container.data( 'undone_id', read_post_id );
+        dashboard.cache['forum-min-thread-'+forum_id] = min_thread_id;
 
         if ( read_post_id ) threads = threads.filter(function(thread) { return thread.last_post_id > read_post_id });
+        if ( min_thread_id ) threads = threads.filter(function(thread) { return thread.thread_id >= min_thread_id });
         if ( container.data('filter') ) threads = container.data('filter')(threads);
 
         return threads.map(function(thread) { return thread.container_element });
@@ -315,13 +318,18 @@ Dashboard.prototype.newbies_init = function(container) {
     }
 
     if ( !dashboard.cache['newbies-next'] ) {
-        // first run - get min_user_id if possible, else set it to the next user ID that will be created:
-        return $.when( container.data('min_user_id')(), dashboard.bb.users_list_new() )
-            .then(function(min_user_id, users) {
-                dashboard.cache['newbies-next'] = min_user_id  || users[0].user_id + 1;
-                dashboard.cache['newbies-current'] = [];
-                dashboard.update_cache();
-            });
+        dashboard.cache['newbies-current'] = [];
+        if ( container.data('min_user_id') ) {
+            dashboard.cache['newbies-next'] = container.data('min_user_id') + 1;
+            dashboard.update_cache();
+        } else {
+            // first run - get min_user_id if possible, else set it to the next user ID that will be created:
+            return dashboard.bb.users_list_new().then
+                .then(function(min_user_id, users) {
+                    dashboard.cache['newbies-next'] = users[0].user_id + 1;
+                    dashboard.update_cache();
+                });
+        }
     }
 
 }
@@ -395,6 +403,7 @@ Dashboard.prototype.newbies_refresh = function(container) {
         if ( dashboard.cache['newbies-next'] < user_id ) {
             dashboard.cache['newbies-next'] = user_id;
             current_users = current_users.filter(function(user) { user.user_id >= user_id });
+            container.data( 'signature', false );
         }
 
         return $.when(
@@ -431,10 +440,7 @@ Dashboard.prototype.newbies_refresh = function(container) {
 
     }
 
-    if ( container.data('min_user_id') )
-        return container.data('min_user_id')().then(get_newbies);
-    else
-        return get_newbies(0);
+    return get_newbies( container.data('min_user_id') || 0 );
 
 }
 
