@@ -108,7 +108,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                     .done(function() {
                         $(button)
                             .prop( 'disabled', true ).val( complete_message )
-                            .closest('.dashboard-section').find( '.dashboard-done .done').click();;
+                            .closest('.dashboard-section').data( 'empty' )();
                     })
                 ;
             }
