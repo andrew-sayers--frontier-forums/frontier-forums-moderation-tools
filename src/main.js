@@ -32,7 +32,7 @@
  * @param {MiscellaneousCache} mc Miscellaneous Cache to use
  * @param {string}        loading_html HTML to show while loading
  */
-function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.utils.dispatch(
+function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.dispatch(
 
     {
         match_pathname: '/',
@@ -43,15 +43,19 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
         pass_preferences: [ 'language' ],
         callback: function( stash, pathname, params, welcome_link, user_language ) {
 
-            stash.replied_thread_id = 0;
-            ss.change(function(data) { stash.replied_thread_id = data.intro_forum_thread_id || 0 });
+            stash.intro = stash.newbies = $('<div>'); // placeholder, will be filled in later
 
-            au = new AvailableUsers({
+            ss.change(function(data) {
+                stash.intro.data( 'min_thread_id', data.intro_forum_thread_id+1 );
+                stash.newbies.data( 'min_user_id', data.newbie_policy_base_user_id );
+            });
+
+            stash.au = new AvailableUsers({
                 ss: ss,
                 bb: bb,
                 language: user_language
             });
-            au.active(true);
+            stash.au.active(true);
         }
     },
 
@@ -62,7 +66,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
         },
         match_elements: '.below_body',
         pass_storage: ['dashboard_cache', 'dashboard-newbie-actions'],
-        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) { au.promise.then(function() {
+        callback: function( stash, pathname, params, below_body, dashboard_cache, dashboard_newbie_actions ) { stash.au.promise.then(function() {
 
             // Dashboard CSS
             bb.css_add([ 'user_show', 'forum_show', 'thread_show', 'activity', 'folder_show' ]);
@@ -154,15 +158,18 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
 
             dashboard.find('[data-forum="introductions"]').data( 'filter', function(threads) {
                 return threads.filter(function(thread) {
-                    if ( thread.is_sticky || thread.status != 'open' || thread.thread_id <= stash.replied_thread_id ) return false;
+                    if ( thread.is_sticky || thread.status != 'open' ) return false;
                     $('.threadimod input', thread.container_element).prop( 'checked', true );
                     return true;
                 });
-            });
+            })
+                .data( 'min_thread_id', stash.intro.data( 'min_thread_id' ) );
+            stash.intro = dashboard.find('[data-forum="introductions"]');
 
-            dashboard.find('[data-monitor="forum"] .blocksubfoot input').click(function() {
+            dashboard.find('[data-forum="introductions"] .blocksubfoot input').click(function() {
 
-                var max_thread_id = 0;
+                var max_thread_id = 0; // populated when reply_action is built
+                var min_thread_id; // populated when update_action is fired
 
                 var reply_action = new Action(
                     'welcome newbies',
@@ -172,7 +179,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                         if ( max_thread_id < thread_id ) max_thread_id = thread_id;
                         if ( $(this).is(':checked') ) return {
                             fire: function(keys) {
-                                if ( thread_id > keys.replied_thread_id ) {
+                                if ( thread_id > min_thread_id ) {
                                     return bb.thread_reply({
                                         thread_id: thread_id,
                                         title    : v.resolve('other templates', 'post title: welcome', reply_keys, 'string', introductions_forum_id),
@@ -189,11 +196,12 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                     {
                         fire: function() {
                             return ss.transaction(function(data) {
-                                stash.replied_thread_id = data.intro_forum_thread_id || 0;
-                                data.intro_forum_thread_id = max_thread_id;
-                                return stash.replied_thread_id != max_thread_id
-                            }).then(function(data) {
-                                return { keys: { replied_thread_id: stash.replied_thread_id, max_thread_id: data.intro_forum_thread_id } };
+                                min_thread_id = data.intro_forum_thread_id;
+                                stash.intro.data( 'min_thread_id', max_thread_id+1 );
+                                if ( data.intro_forum_thread_id != max_thread_id ) {
+                                    data.intro_forum_thread_id = max_thread_id;
+                                    return true
+                                }
                             });
                         }
                     }
@@ -208,7 +216,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
              * ACTIVITY
              */
             dashboard.find('[data-monitor="activity"]').data( 'filter', function(posts) {
-                return posts.filter(function(post) { return au.is_ours(post.thread_id, v.get_language( post.thread_id, post.forum_id )) });
+                return posts.filter(function(post) { return stash.au.is_ours(post.thread_id, v.get_language( post.thread_id, post.forum_id )) });
             });
 
             /*
@@ -427,7 +435,9 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
             var min_user_id, max_user_id;
 
             dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
-                progress_bar(this, newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val() ), 'validated!');
+                progress_bar(this, newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val() ), 'validated!').then(function() {
+                    stash.newbies.data( 'min_user_id', max_user_id );
+                });
             });
 
             var widget_args = {
@@ -438,7 +448,8 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { var au; BabelExt.
                 loading_html    : loading_html,
             };
 
-            dashboard.find('[data-monitor="newbies"]').data( 'min_user_id', function(users) { return newbie_policy.get_base_user_id() });
+            dashboard.find('[data-monitor="newbies"]').data( 'min_user_id', stash.newbies.data('min_user_id') );
+            stash.newbies = dashboard.find('[data-monitor="newbies"]');
 
             dashboard.find('[data-monitor="newbies"]').data( 'filter', function(users) {
 

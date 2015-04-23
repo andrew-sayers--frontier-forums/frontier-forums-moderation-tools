@@ -149,14 +149,6 @@ NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, extra_notes) {
 
 
 /**
- * @summary Get the highest user ID known to have previously been processed
- * @return {Number} user ID
- */
-NewbiePolicy.prototype.get_base_user_id  = function() {
-    return this.ss.change().then(function(data) { return data.newbie_policy_base_user_id || 0 });
-}
-
-/**
  * @summary asses the relative suspiciousness of a user
  * @param {Object} user account to measure
  * @return {Number} suspiciousness
