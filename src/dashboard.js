@@ -101,6 +101,16 @@ function Dashboard( args ) {
             event.preventDefault();
         });
 
+        // empty the container in a non-undoable way:
+        container.data('empty', function(event) {
+            done_time = new Date().getTime();
+
+            dashboard[monitor+'_done']( container, container.hasClass('done') );
+            dashboard.update_cache();
+
+            container.removeClass('undone nonempty').addClass( 'done empty' );
+        });
+
         $(container).on( 'mouseover click', function() { done_time = new Date().getTime() });
 
         function refresh(force) {
