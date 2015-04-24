@@ -7,29 +7,48 @@
  * @summary Generic class for any type of bulletin board
  * @constructor
  * @abstract
+ *
+ * @example
+ * var bb = new ChildOfBulletinBoard({
+ *     config: { ... },
+ *     origin: 'http://www.example.com' // default: current site
+ * });
+ *
  * @description At the time of writing, the only configuration values are:
  * + "unPMable user groups" (an array like [ 'group name', ... ] defining groups that cannot accept PMs)
  * + "default user group" (a string defining the group most users belong to)
  */
 function BulletinBoard(args) {
     this._config = $.extend( { 'unPMable user groups': [], 'default user group': '' }, args ? args.config : {} );
+    this._origin = ( args ? args.origin : '' ) || location.origin;
+    this.url_for = {};
 }
 BulletinBoard.prototype = Object.create(null, {
 
     _config: { writable: true, configurable: false },
-    url_for: { // construct product-specific URLs
-        writable: false,
-        configurable: false,
-        value: {
-            // concrete implementations should add functions here to build URLs
-        }
-    }
+    _origin: { writable: true, configurable: false },
+    // construct product-specific URLs - concrete implementations should add functions here
+    url_for: { writable: true, configurable: false }
 
 });
 
 /*
  * GENERIC UTILITY FUNCTIONS
  */
+
+/**
+ * @summary convert a relative URL to use the correct origin
+ * @param {string} url URL to translate
+ * @return {string} absolute URL
+ * @description BulletinBoards can have an origin other than the site we're currently on
+ * (so we can e.g. browse as one user and post as another)
+ */
+BulletinBoard.prototype.fix_url = function(url) {
+    if ( !this._origin ) return url;
+    if ( url.search( /^[a-z]*:/ ) == 0 ) return                 url;   // http://www.example.com/foo.html
+    if ( url.search( /^\// )      == 0 ) return this._origin +  url;   // /foo.html
+    return this._origin + location.pathname.replace( /[^\/]*$/, url ); // foo.html
+}
 
 /**
  * @summary add or change configuration values
@@ -75,7 +94,7 @@ BulletinBoard.prototype.build_url = function( url, valid_args, args, hash ) {
         });
     }
     if ( hash ) url += '#' + hash;
-    return url;
+    return this.fix_url(url);
 }
 
 /**
@@ -135,8 +154,9 @@ BulletinBoard.prototype.ping = function() {
 
     // the actual page isn't important, but robots.txt seems like an innocuous enough choice:
     return $.ajax({
-        url: '/robots.txt',
-        method: 'options'
+        url : this.fix_url( '/robots.txt' ),
+        xhr : function() { return new BabelExt.XMLHttpRequest() },
+        type: 'OPTIONS'
     }).then( success, function(jqXHR) {
         var dfd = jQuery.Deferred();
         if ( jqXHR.statusCode() == 404 ) {
@@ -152,14 +172,20 @@ BulletinBoard.prototype.ping = function() {
 /**
  * @summary Send a message to the server as an AJAX request
  * @protected
- * @param {...Object} var_args passed to $.get()
+ * @param {string} url  URL to get
+ * @param {Object} data parameters
  * @return {jQuery.Promise}
  */
-BulletinBoard.prototype.get = function( url, data, use_form ) {
+BulletinBoard.prototype.get = function( url, data ) {
 
     var bb = this;
 
-    return $.get.apply( $, Array.prototype.slice.call( arguments, 0 ) ).then(
+    return $.ajax({
+        url : this.fix_url(url),
+        xhr : function() { return new BabelExt.XMLHttpRequest() },
+        type: 'GET',
+        data: data
+    }).then(
         function(reply) {
             var err = bb.detect_post_error( reply );
             if ( err !== null ) {
@@ -188,6 +214,8 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
 
     var bb = this;
 
+    var url = this.fix_url(url);
+
     return this._add_standard_data(data).then(function(data) {
         if ( use_form ) {
             var form = $('<form method="post"></form>')
@@ -202,6 +230,7 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
             return $.ajax({
                 type: "POST",
                 url : url,
+                xhr : function() { return new BabelExt.XMLHttpRequest() },
                 data: data
             }).then(
                 function(reply) {
@@ -399,10 +428,134 @@ function VBulletin(args) {
 	            do: 'securitytoken'
                 }
             ).then(function(xml) {
-                $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
+                if ( this.origin )
+                    this.security_token                = xml.getElementsByTagName('securitytoken')[0].textContent;
+                else
+                    $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
             });
         },
         1000*60*30 // every 30 minutes
+    );
+
+    $.extend(
+        this.url_for,
+        {
+            activity: function() { return bb.build_url( '/activity.php' ) },
+
+            forum_show: function(args) { return bb.build_url(
+                '/forumdisplay.php',
+                [
+                    { key: 'forum_id', param: 'f' }
+                ],
+                args
+            )},
+
+            login: function() { return bb.build_url(
+                '/login.php',
+                [
+                    { key: 'do', param: 'do', default: 'login' }
+                ]
+            )},
+
+            folder_show: function(args) { return bb.build_url(
+                '/private.php',
+                [
+                    { key: 'folder_id', param: 'folderid' },
+                ],
+                args
+            )},
+
+            moderation_inline: function() { return bb.build_url( '/inlinemod.php' ) },
+            moderation_posts : function() { return bb.build_url( '/modcp/moderate.php?do=posts' ) },
+            moderation_user  : function() { return bb.build_url( '/modcp/user.php' ) },
+
+            // This is a fake URL - you will need to call redirect_modcp_ipsearch() on the page:
+            moderation_ipsearch: function(args) { return bb.build_url(
+                '/modcp/user.php',
+                [
+                    { key: 'action'    , param: 'do', default: 'doips' },
+                    { key: 'ip_address', param: 'ipaddress' },
+                    { key: 'username'  , param: 'username' },
+                    { key: 'user_id'   , param: 'userid' },
+                    { key: 'depth'     , param: 'depth' }
+                ],
+                args
+            )},
+
+            infraction: function(args) { return bb.build_url(
+                '/infraction.php',
+                [
+                    { key: 'user_id', param: 'u' },
+                    { key: 'post_id', param: 'p' },
+                    { key: 'action' , param: 'do', 'default': 'view' },
+                ],
+                args
+            )},
+
+            user_notes: function(args) { return bb.build_url(
+                '/usernote.php',
+                [
+                    { key: 'user_id', param: 'u' }
+                ],
+                args
+            )},
+
+            user_show: function(args) { return bb.build_url(
+                '/member.php',
+                [
+                    { key: 'user_id', param: 'u' }
+                ],
+                args
+            )},
+
+            users_show: function(args) { return bb.build_url(
+                '/memberlist.php',
+                [
+                    { key: 'order'   , param: 'order', 'default': 'desc' },
+                    { key: 'sort'    , param: 'sort' , 'default': 'joindate' },
+                    { key: 'per_page', param: 'pp'   , 'default': '100' },
+                    { key: 'page_no' , param: 'page' }
+                ],
+                args
+            )},
+
+            search: function() { return bb.build_url( '/search.php' ) },
+
+            thread_edit: function(args) { return bb.build_url(
+                '/postings.php',
+                [
+                    { key: 'action'   , param: 'do' },
+                    { key: 'thread_id', param: 't' }
+                ],
+                args
+            )},
+            thread_show: function(args) { return bb.build_url(
+                '/showthread.php',
+                [
+                    { key: 'thread_id'      , param: 't' },
+                    { key: 'posts_per_page' , param: 'pp', default: 1000 },
+                    { key: 'post_id'        , param: 'p' },
+                    { key: 'page_no'        , param: 'page' },
+                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
+                    { key: 'goto'           , param: 'goto' }, // usually 'newpost'
+                ],
+                args,
+                args.post_id ? 'post' + args.post_id : undefined // hash
+            )},
+
+            post_edit: function() { return bb.build_url( '/editpost.php' ) },
+            post_show: function(args) { return bb.build_url(
+                '/showthread.php',
+                [
+                    { key: 'thread_id'      , param: 't' },
+                    { key: 'post_id'        , param: 'p' },
+                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
+                ],
+                args,
+                args.post_id ? 'post' + args.post_id : undefined // hash
+            )},
+
+        }
     );
 
 }
@@ -435,128 +588,6 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
         writable: true,
         configurable: false,
         value: 0
-    },
-
-    url_for: { // construct product-specific URLs
-        writable: false,
-        configurable: false,
-        value: {
-            activity: function() { return BulletinBoard.prototype.build_url( '/activity.php' ) },
-
-            forum_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/forumdisplay.php',
-                [
-                    { key: 'forum_id', param: 'f' }
-                ],
-                args
-            )},
-
-            login: function() { return BulletinBoard.prototype.build_url(
-                '/login.php',
-                [
-                    { key: 'do', param: 'do', default: 'login' }
-                ]
-            )},
-
-            folder_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/private.php',
-                [
-                    { key: 'folder_id', param: 'folderid' },
-                ],
-                args
-            )},
-
-            moderation_inline: function() { return BulletinBoard.prototype.build_url( '/inlinemod.php' ) },
-            moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
-            moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
-
-            // This is a fake URL - you will need to call redirect_modcp_ipsearch() on the page:
-            moderation_ipsearch: function(args) { return BulletinBoard.prototype.build_url(
-                '/modcp/user.php',
-                [
-                    { key: 'action'    , param: 'do', default: 'doips' },
-                    { key: 'ip_address', param: 'ipaddress' },
-                    { key: 'username'  , param: 'username' },
-                    { key: 'user_id'   , param: 'userid' },
-                    { key: 'depth'     , param: 'depth' }
-                ],
-                args
-            )},
-
-            infraction: function(args) { return BulletinBoard.prototype.build_url(
-                '/infraction.php',
-                [
-                    { key: 'user_id', param: 'u' },
-                    { key: 'post_id', param: 'p' },
-                    { key: 'action' , param: 'do', 'default': 'view' },
-                ],
-                args
-            )},
-
-            user_notes: function(args) { return BulletinBoard.prototype.build_url(
-                '/usernote.php',
-                [
-                    { key: 'user_id', param: 'u' }
-                ],
-                args
-            )},
-
-            user_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/member.php',
-                [
-                    { key: 'user_id', param: 'u' }
-                ],
-                args
-            )},
-
-            users_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/memberlist.php',
-                [
-                    { key: 'order'   , param: 'order', 'default': 'desc' },
-                    { key: 'sort'    , param: 'sort' , 'default': 'joindate' },
-                    { key: 'per_page', param: 'pp'   , 'default': '100' },
-                    { key: 'page_no' , param: 'page' }
-                ],
-                args
-            )},
-
-            search: function() { return BulletinBoard.prototype.build_url( '/search.php' ) },
-
-            thread_edit: function(args) { return BulletinBoard.prototype.build_url(
-                '/postings.php',
-                [
-                    { key: 'action'   , param: 'do' },
-                    { key: 'thread_id', param: 't' }
-                ],
-                args
-            )},
-            thread_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/showthread.php',
-                [
-                    { key: 'thread_id'      , param: 't' },
-                    { key: 'posts_per_page' , param: 'pp', default: 1000 },
-                    { key: 'post_id'        , param: 'p' },
-                    { key: 'page_no'        , param: 'page' },
-                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
-                    { key: 'goto'           , param: 'goto' }, // usually 'newpost'
-                ],
-                args,
-                args.post_id ? 'post' + args.post_id : undefined // hash
-            )},
-
-            post_edit: function() { return BulletinBoard.prototype.build_url( '/editpost.php' ) },
-            post_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/showthread.php',
-                [
-                    { key: 'thread_id'      , param: 't' },
-                    { key: 'post_id'        , param: 'p' },
-                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
-                ],
-                args,
-                args.post_id ? 'post' + args.post_id : undefined // hash
-            )},
-
-        }
     }
 
 });
