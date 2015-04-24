@@ -201,8 +201,8 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
         } else {
             return $.ajax({
                 type: "POST",
-                url: url,
-                data: data,
+                url : url,
+                data: data
             }).then(
                 function(reply) {
                     var err = bb.detect_post_error( reply );
@@ -344,23 +344,11 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
     if ( first_page )
         return get_later_pages(first_page);
 
-    var dfd = new jQuery.Deferred();
-    $.ajax({
-        url: bb.url_for.thread_show({ thread_id: thread_id }),
-        dataType: 'html',
-        success: function(html) {
-            get_later_pages(html).then(
-                function(posts) { dfd.resolve(posts) },
-                function(arg  ) { dfd.reject (arg  ) }
-            );
-        },
-        error: function() {
+    return this.get( bb.url_for.thread_show({ thread_id: thread_id }) )
+        .then(get_later_pages, function() {
             debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
             dfd.reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) );
-        }
-    });
-
-    return dfd.promise();
+        });
 
 }
 
@@ -710,7 +698,8 @@ VBulletin.prototype.attachments_delete = function( attachments ) {
         if ( !requests.hasOwnProperty(attachment.info.posthash) ) requests[attachment.info.posthash] = $.extend( info, attachment.info );
         requests[attachment.info.posthash][ 'delete['+attachment.id+']' ] = 1;
     });
-    return this.when(Object.keys(requests).map(function(key) { return $.post( '/newattachment.php', requests[key] ) }));
+    var bb = this;
+    return this.when(Object.keys(requests).map(function(key) { return bb.post( '/newattachment.php', requests[key] ) }));
 }
 
 /*
@@ -1126,7 +1115,7 @@ VBulletin.prototype.pm_send = function( to, title, bbcode, request_receipt ) {
  * @return {jQuery.Promise}
  */
 VBulletin.prototype.folder_pms = function( folder_id ) {
-    return $.get( '/private.php?folderid=' + folder_id ).then(function(html) {
+    return this.get( '/private.php?folderid=' + folder_id ).then(function(html) {
         return $(html).find('.pmbit').map(function() {
             var $this = $(this);
             return {
@@ -1423,7 +1412,7 @@ VBulletin.prototype.user_ips = function( user, get_overlapping ) {
 
     return this._get_modcp_data().then(function(data) {
         // Note: this page accepts a "userid" parameter, even though there's no such input in the form:
-        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
+        return bb.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),
@@ -1466,7 +1455,7 @@ VBulletin.prototype.ip_users = function( ip ) {
 
     return this._get_modcp_data().then(function(data) {
 
-        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
+        return bb.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
             html = $(html);
             var domain_name = html.find('#cpform_table .alt1 b').first().text();
             if ( domain_name == 'Could Not Resolve Hostname' ) domain_name = ip;
@@ -1603,7 +1592,8 @@ VBulletin.prototype.user_current = function() {
  * @return {jQuery.Promise}
  */
 VBulletin.prototype.user_info = function(user_id) {
-    return $.get('/member.php?u='+user_id+'&tab=infractions&pp=50').then(function(html) {
+    var bb = this;
+    return this.get('/member.php?u='+user_id+'&tab=infractions&pp=50').then(function(html) {
         html = $(html);
 
         var join_date = $.trim(html.find( '.userinfo dd' ).first().text());
@@ -1687,7 +1677,7 @@ VBulletin.prototype.user_info = function(user_id) {
         }
 
         if ( html.find('#usermenu a[href^="modcp/banning.php?do=liftban"]').length ) {
-            return $.get( '/modcp/banning.php?do=editreason&userid=' + user_id ).then(function(html) {
+            return bb.get( '/modcp/banning.php?do=editreason&userid=' + user_id ).then(function(html) {
                 ret.is_banned = true;
                 // ignore warnings/infractions/notes for banned users:
                 ret.infraction_summary = '<span style="color: red">BANNED: ' + $('<div/>').text($.trim($(html).find( '#it_reason_1' ).val())).html() + '</span>';
@@ -1803,7 +1793,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
  */
 VBulletin.prototype.user_signature_get = function(user_id) {
     var bb = this;
-    return $.get( '/modcp/user.php?do=editsig&u=' + user_id ).then(function(html) {
+    return bb.get( '/modcp/user.php?do=editsig&u=' + user_id ).then(function(html) {
 
         if ( !this._modcp_data ) {
             // populate _modcp_data without making an extra request
@@ -1824,8 +1814,9 @@ VBulletin.prototype.user_signature_get = function(user_id) {
  * @return {jQuery.Promise}
  */
 VBulletin.prototype.user_signature_set = function(user_id, signature) {
+    var bb = this;
     return this._get_modcp_data().then(function(data) {
-        return $.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
+        return bb.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
     });
 }
 
@@ -2290,7 +2281,7 @@ VBulletin.prototype.server_stats = function( ) {
  * This function redirects from the fake page to the real one.
  */
 VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
-    $.get( '/modcp/user.php?do=doips' ).then(function(html) {
+    bb.get( '/modcp/user.php?do=doips' ).then(function(html) {
         function redirect() {
             var form = $(html).find('#cpform').hide().appendTo(document.body);
             [ 'ipaddress', 'username', 'depth' ].forEach(function(param) {
