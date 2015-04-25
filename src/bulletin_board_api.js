@@ -562,6 +562,10 @@ function VBulletin(args) {
 VBulletin.prototype.constructor = VBulletin;
 VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 
+    // only used if "origin" is set:
+    session_id    : { writable: true, configurable: false },
+    security_token: { writable: true, configurable: false },
+
     standard_post_data: {
         writable: false,
         configurable: false,
@@ -595,6 +599,13 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 /*
  * UTILITY FUNCTIONS
  */
+
+VBulletin.prototype.fix_url = function(url) {
+    url = BulletinBoard.prototype.fix_url.call(this, url);
+    if ( this.session_id )
+        url += ( ( url.search(/\?/) == -1 ) ? '?s=' : '&s=' ) + this.session_id;
+    return url;
+}
 
 VBulletin.prototype.get_posts = function(doc) { return $( doc || document ).find('#posts').children() }
 
@@ -658,7 +669,7 @@ VBulletin.prototype._add_standard_data = function(data) {
     }
 
     function get_token() {
-        data.securitytoken = $('input[name="securitytoken"]').val();
+        data.securitytoken = this.security_token || $('input[name="securitytoken"]').val();
         if ( data.securitytoken ) return true;
         BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
         data.securitytoken = document.head.getAttribute('data-securitytoken');
@@ -2257,6 +2268,127 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 
     return dfd.promise();
 
+}
+
+/**
+ * @summary log in to the site
+ * @param {jQuery} iframe iframe element to use
+ * @param {jQuery.Promise}
+ *
+ * @description
+ * This function pops up an iframe with login details for the main site.
+ * Note: for security reasons, the calling code must ensure that
+ * VBulletin.iframe_callbacks() is called in the iframe page.
+ * (this could be done automatically when logging in to the current site,
+ * but not when logging in to another domain)
+ */
+VBulletin.prototype.login = function( iframe, default_user ) {
+
+    var dfd = new jQuery.Deferred();
+    var title = document.title; // iframes tend to overwrite the document title
+
+    var bb = this;
+
+    function listen(event) {
+        if (event.origin !== bb._origin) return;
+        if ( event.data == 'BulletinBoard VBulletin get default user' ) {
+            document.title = title;
+            iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
+            event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+        } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+            iframe.css({ display: 'block', width: '450px', height: '2em' });
+        } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
+            iframe.hide();
+        } else {
+            event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
+            event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
+                bb.security_token = security_token;
+                document.title = title;
+                iframe.hide();
+                window.removeEventListener("message", listen, false);
+                dfd.resolve(iframe);
+            });
+        }
+    }
+
+    window.addEventListener("message", listen, false);
+
+    iframe
+        .css({ overflow: 'hidden', display: 'none' })
+        .attr( 'src', this._origin )
+    ;
+
+    return dfd.promise();
+
+}
+
+/**
+ * @summary communicate from an iframe to the parent window
+ * @param {string} target_origin expected origin of the parent window
+ * @param {Array.<string>} cookie_domains domains that cookies are normally set for (default: do not delete cookies)
+ *
+ * @description For security reasons, .login() cannot inject JavaScript
+ * into iframes in different origins.  Instead, the calling code must
+ * arrange for this function to be called.
+ *
+ * It's sometimes useful to use VBulletin's no-cookie fallback mode
+ * (e.g. using the "trailing dot" domain on a site that hard-codes
+ * the cookie domain).  Passing cookie_domain ensures cookies are deleted
+ * to resemble a cookieless browser
+ */
+VBulletin.iframe_callbacks = function(target_origin, cookie_domains) {
+    BabelExt.utils.dispatch(
+        {
+            match_pathname: '/login.php',
+            match_params: { do: 'login' },
+            callback: function( stash, pathname, params, a ) {
+                window.parent.postMessage( 'BulletinBoard VBulletin progress', target_origin );
+            }
+        },
+        {
+            match_pathname: '/login.php',
+            match_params: { do: 'login' },
+            match_elements: '#redirect_button a.textcontrol',
+            callback: function( stash, pathname, params, a ) {
+                window.parent.postMessage( 'BulletinBoard VBulletin session ' + a.href.split( /\?s=|&/ )[1], target_origin );
+            }
+        },
+        {
+            match_elements: 'input[name="securitytoken"]',
+            callback: function( stash, pathname, params, input) {
+                if ( input.value == 'guest' ) $(function() {
+                    window.addEventListener("message", function(event) {
+                        if (event.origin !== target_origin) return;
+                        event.data.replace( /^BulletinBoard VBulletin default user (.*)/, function(match, default_user) {
+                            if ( default_user.length ) $('#navbar_username').val( default_user );
+                            setTimeout(function() {
+                                if ( document.getElementById('navbar_password').value.length )
+                                    $('.loginbutton').click();
+                                else
+                                    window.parent.postMessage( 'BulletinBoard VBulletin show', target_origin );
+                            }, 50 );
+                        });
+                    }, false);
+                    window.parent.postMessage( 'BulletinBoard VBulletin get default user', target_origin );
+                    $(document.body)
+                        .css({ overflow: 'hidden' }).html( $('#navbar_loginform')[0].outerHTML )
+                        .children().css({ 'text-align': 'center', 'width': '450px' });
+                    $('#navbar_password_hint,#remember').hide();
+                    $('#navbar_password').show().focus().attr( 'placeholder', 'password' );
+                    $('.loginbutton').click(function() {
+                        document.cookie.split(/; /).forEach(function(cookie) {
+                            ( cookie_domains || [] ).forEach(function(cookie_domain) {
+                                document.cookie = cookie.replace(/($|=.*)/, '=; domain='+cookie_domain+'; expires=Thu, 01-Jan-1970 00:00:01 GMT');
+                            });
+                        });
+                    });
+                });
+                else {
+                    window.parent.postMessage( 'BulletinBoard VBulletin success ' + input.value, target_origin );
+                }
+            }
+        }
+    );
 }
 
 /**
