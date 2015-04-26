@@ -76,6 +76,10 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                 "</style>"
             );
 
+            // Because of an obscure legacy DNS feature, you can append a '.' to a domain and connect to the same server
+            // this is treated as a different server for cookie purposes, allowing us to manage a second account:
+            var mod_team_bb = new VBulletin({ origin: location.origin + '.' });
+
             var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
             var recently_reported_posts = {};
@@ -94,6 +98,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             dashboard.find( 'a[href="#insert-newbies-link"]'       ).attr( 'href'  , bb.url_for.users_show() );
             dashboard.find( 'a[href="#insert-activity-link"]'      ).attr( 'href'  , bb.url_for.activity() );
             dashboard.find( 'a[href="#insert-inbox-link"]'         ).attr( 'href'  , bb.url_for.folder_show({folder_id: 0}) );
+            // #insert-mod-team-inbox-link is handled later, once we know the mod team's login details
 
 
             function progress_bar(button, promise, complete_message) {
@@ -211,6 +216,19 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
             });
 
+            /*
+             * MOD TEAM INBOX
+             */
+            dashboard.find( '.mod-team-inbox' )
+                .data( 'bb', mod_team_bb )
+                .data( 'filter', function(pms) {
+                    pms.forEach(function(pm) {
+                        pm.container_element.find('a.title').each(function() {
+                            this.setAttribute( 'href', mod_team_bb.fix_url('/'+this.getAttribute('href')) );
+                        });
+                    });
+                    return pms;
+                });
 
             /*
              * ACTIVITY
@@ -537,8 +555,14 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
              */
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
-            body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe>' );
-            bb.moderation_page( body_wrapper.find('iframe'), '/modcp/index.php?do=nav', '.navlink', '.navlink' ).then(function() {
+            body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe><iframe style="margin:auto"></iframe>' );
+            $.when(
+                bb.moderation_page( body_wrapper.find('iframe').first(), '/modcp/index.php?do=nav', '.navlink', '.navlink' ),
+                mod_team_bb.login( body_wrapper.find('iframe').last(), 'Frontier Moderation Team' )
+            ).then(function() {
+
+                // delayed from the top of the function, because we need the mod team's session ID:
+                dashboard.find( 'a[href="#insert-mod-team-inbox-link"]').attr( 'href'  , mod_team_bb.url_for.folder_show({folder_id: 0}) );
 
                 document.title = 'Dashboard';
                 body_wrapper.empty().append(dashboard);
@@ -768,178 +792,187 @@ function handle_moderation_links() {
 /*
  * MAIN BLOCK (not run in iFrames)
  */
-if (window.location == window.parent.location) BabelExt.utils.dispatch({ // initialise general stuff
-    pass_storage    : ['variables', 'violations', 'misc'],
-    pass_preferences: [ 'language', 'reload_interval' ],
-    callback: function( stash, pathname, params, variables, violations, misc, user_language, reload_interval ) {
+if (window.location == window.parent.location ) {
+    // in the root window
+    if ( location.hostname.search(/\.$/)==-1) BabelExt.utils.dispatch({ // initialise general stuff
+        pass_storage    : ['variables', 'violations', 'misc'],
+        pass_preferences: [ 'language', 'reload_interval' ],
+        callback: function( stash, pathname, params, variables, violations, misc, user_language, reload_interval ) {
 
-        var bb = new VBulletin();
+            var bb = new VBulletin();
 
-        /*
-         * ERROR HANDLER
-         */
-        var maintainer_user_id = 18617, maintainer_name = 'Andrew Sayers';
+            /*
+             * ERROR HANDLER
+             */
+            var maintainer_user_id = 18617, maintainer_name = 'Andrew Sayers';
 
-        var handle_error_box = $(BabelExt.resources.get('res/error_box.html'));
-        $(function() {
-            handle_error_box.appendTo(document.body);
-            $('<a id="debug-log-show" href="#debug-log-show">(click here to show the moderators\' extension debug log)</a>')
-                .appendTo('#footer_morecopyright')
-                .before('<br>')
-                .click(function(event) {
-                    debug_log.show();
-                    $(this).hide();
-                    event.preventDefault();
-                });
-        });
-        handle_error_box.find('a[href="#close-error-box"]').click(function(event) {
-            handle_error_box.hide();
-            event.preventDefault();
-        });
-        handle_error_box.find('a[href="#pm-maintainer"]').click(function(event) {
-            bb.pm_send( maintainer_name, 'Debug log', debug_log.text() ).then(
-                function() {
-                    alert("PM sent :)");
-                },
-                function() {
-                    alert("Could not send message.  Please copy the text area at the bottom of the page to " + maintainer_name);
-                });
-            event.preventDefault();
-        });
-        var previous_errors = {};
-
-        function handle_error( message, resolutions ) {
-
-            debug_log.log( message, resolutions )
-            debug_log.show();
-            $("#debug-log-show").hide();
-
-            if ( !$.isArray(resolutions) ) resolutions = [resolutions];
-            resolutions = resolutions.map(function(resolution) {
-                switch (resolution) {
-                case 'log in':
-                    if ( bb.user_current() ) {
-                        return { message: 'Contact the maintainer', href: '/private.php?do=newpm&u=' + maintainer_user_id };
-                    } else {
-                        return {
-                            message: 'log in',
-                            href   : bb.url_for.login(),
-                        };
-                    }
-                default: return resolution;
-                }
-            });
-
-            // ignore duplicate messages:
-            if ( previous_errors[message] ) return;
-            previous_errors[message] = true;
-
-            var row = $('<tr><td><td style="padding-left: 1em"></tr>').appendTo(handle_error_box.find('tbody'));
-            row.children('td').first().text( message );
-            row.children('td'). last().html(
-                ( resolutions || [] ).map(function(resolution) {
-                    return $('<a>').text( resolution.message ).attr( 'href', resolution.href );
-                })
-            ).children(':not(:last-child)').after(', ');
-            $(function() { handle_error_box.show() });
-
-        }
-
-        $( document ).ajaxError(function debug_ajax_errors( event, xhr, settings, error ) {
-            var messages = [];
-            try {
-                messages.push( error );
-                messages.push( settings );
-                messages.push( event );
-                messages.push( xhr.status );
-                messages.push( xhr.statusText );
-                messages.push( xhr.getAllResponseHeaders() );
-                messages.push( xhr.responseText );
-            } catch (error) {  messages.push('caught error while adding values:', error); };
-            debug_log.log.apply( debug_log, messages );
-        });
-
-        /*
-         * GENERAL VARIABLES
-         */
-
-        var loading_img  = '<img src="images/misc/progress.gif" alt="loading, please wait">';
-        var loading_html = loading_img + ' Loading';
-
-        var next_week = new Date();
-        next_week.setDate(next_week.getDate()+7);
-
-        function cacheable_args(cache, name, args) {
-            return $.extend({
-                bb             : bb,
-                cache          : JSON.parse( cache || '{}' ),
-                cache_updater  : function(cache) { BabelExt.storage.set( name, JSON.stringify( cache ) ) },
-                reload_interval: reload_interval * 1000,
-                error_callback : handle_error,
-            }, args );
-        }
-
-        var v = new VariablesFromForum(cacheable_args( variables, 'variables', {
-            forum_id        : 70,
-            default_language: user_language,
-            default_keys    : {
-                origin     : location.origin,
-                'next week': next_week.toUTCString().replace(/:[0-9][0-9] /, ' ' )
-            }
-        }));
-
-        v.promise.then(function() { return handle_variables_thread( bb, v ) }).then(function() {
-
-            var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
-            var ss = new SharedStore({
-                lock_url: v.resolve( 'policy', 'shared store lock URL' ),
-                store   : function(data) {
-                    return bb.usernote_edit(
-                        shared_store_note_id,
-                        'Shared store for moderator actions - do not edit', "Do not edit this note.  It is managed automatically by the moderators' extension.\n\n" +
-                        '[code]' + data + '[/code]'
-                    );
-                },
-                retrieve: function() {
-                    return bb.usernote_info(
-                        shared_store_note_id
-                    ).then(function(info) {
-                        var ret = null;
-                        info.bbcode.replace( /\[code\](.*)\[\/code\]$/, function(match,data) { ret = data });
-                        return ret;
+            var handle_error_box = $(BabelExt.resources.get('res/error_box.html'));
+            $(function() {
+                handle_error_box.appendTo(document.body);
+                $('<a id="debug-log-show" href="#debug-log-show">(click here to show the moderators\' extension debug log)</a>')
+                    .appendTo('#footer_morecopyright')
+                    .before('<br>')
+                    .click(function(event) {
+                        debug_log.show();
+                        $(this).hide();
+                        event.preventDefault();
                     });
+            });
+            handle_error_box.find('a[href="#close-error-box"]').click(function(event) {
+                handle_error_box.hide();
+                event.preventDefault();
+            });
+            handle_error_box.find('a[href="#pm-maintainer"]').click(function(event) {
+                bb.pm_send( maintainer_name, 'Debug log', debug_log.text() ).then(
+                    function() {
+                        alert("PM sent :)");
+                    },
+                    function() {
+                        alert("Could not send message.  Please copy the text area at the bottom of the page to " + maintainer_name);
+                    });
+                event.preventDefault();
+            });
+            var previous_errors = {};
+
+            function handle_error( message, resolutions ) {
+
+                debug_log.log( message, resolutions )
+                debug_log.show();
+                $("#debug-log-show").hide();
+
+                if ( !$.isArray(resolutions) ) resolutions = [resolutions];
+                resolutions = resolutions.map(function(resolution) {
+                    switch (resolution) {
+                    case 'log in':
+                        if ( bb.user_current() ) {
+                            return { message: 'Contact the maintainer', href: '/private.php?do=newpm&u=' + maintainer_user_id };
+                        } else {
+                            return {
+                                message: 'log in',
+                                href   : bb.url_for.login(),
+                            };
+                        }
+                    default: return resolution;
+                    }
+                });
+
+                // ignore duplicate messages:
+                if ( previous_errors[message] ) return;
+                previous_errors[message] = true;
+
+                var row = $('<tr><td><td style="padding-left: 1em"></tr>').appendTo(handle_error_box.find('tbody'));
+                row.children('td').first().text( message );
+                row.children('td'). last().html(
+                    ( resolutions || [] ).map(function(resolution) {
+                        return $('<a>').text( resolution.message ).attr( 'href', resolution.href );
+                    })
+                ).children(':not(:last-child)').after(', ');
+                $(function() { handle_error_box.show() });
+
+            }
+
+            $( document ).ajaxError(function debug_ajax_errors( event, xhr, settings, error ) {
+                var messages = [];
+                try {
+                    messages.push( error );
+                    messages.push( settings );
+                    messages.push( event );
+                    messages.push( xhr.status );
+                    messages.push( xhr.statusText );
+                    messages.push( xhr.getAllResponseHeaders() );
+                    messages.push( xhr.responseText );
+                } catch (error) {  messages.push('caught error while adding values:', error); };
+                debug_log.log.apply( debug_log, messages );
+            });
+
+            /*
+             * GENERAL VARIABLES
+             */
+
+            var loading_img  = '<img src="images/misc/progress.gif" alt="loading, please wait">';
+            var loading_html = loading_img + ' Loading';
+
+            var next_week = new Date();
+            next_week.setDate(next_week.getDate()+7);
+
+            function cacheable_args(cache, name, args) {
+                return $.extend({
+                    bb             : bb,
+                    cache          : JSON.parse( cache || '{}' ),
+                    cache_updater  : function(cache) { BabelExt.storage.set( name, JSON.stringify( cache ) ) },
+                    reload_interval: reload_interval * 1000,
+                    error_callback : handle_error,
+                }, args );
+            }
+
+            var v = new VariablesFromForum(cacheable_args( variables, 'variables', {
+                forum_id        : 70,
+                default_language: user_language,
+                default_keys    : {
+                    origin     : location.origin,
+                    'next week': next_week.toUTCString().replace(/:[0-9][0-9] /, ' ' )
                 }
-            });
-
-            bb.config({
-                'unPMable user groups': v.resolve( 'policy', 'unpmable user groups', undefined, 'array of items' ).map(function(g) { return g.value }),
-                'default user group'  : v.resolve( 'policy', 'default user group' )
-            });
-
-            var vi = new Violations(cacheable_args( violations, 'violations', {
-                v: v,
-                default_user_action: 'warning',
             }));
 
-            var mc = new MiscellaneousCache(cacheable_args( misc, 'misc', {
-                v : v,
-                vi: vi
-            }));
+            v.promise.then(function() { return handle_variables_thread( bb, v ) }).then(function() {
 
-            $.when( vi.promise, mc.promise ).then(function() {
-                handle_modcp_doips          ( bb );
-                handle_post_edit            ( bb );
-                handle_moderation_links     ();
-                handle_moderation_checkboxes();
-                handle_modcp_user           ();
-                handle_thread_form          ( bb, v, handle_error );
-                handle_usernotes_cc         ( bb, v );
-                handle_dashboard            ( bb, v, vi, ss, mc, loading_html );
-                handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
+                var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
+                var ss = new SharedStore({
+                    lock_url: v.resolve( 'policy', 'shared store lock URL' ),
+                    store   : function(data) {
+                        return bb.usernote_edit(
+                            shared_store_note_id,
+                            'Shared store for moderator actions - do not edit', "Do not edit this note.  It is managed automatically by the moderators' extension.\n\n" +
+                            '[code]' + data + '[/code]'
+                        );
+                    },
+                    retrieve: function() {
+                        return bb.usernote_info(
+                            shared_store_note_id
+                        ).then(function(info) {
+                            var ret = null;
+                            info.bbcode.replace( /\[code\](.*)\[\/code\]$/, function(match,data) { ret = data });
+                            return ret;
+                        });
+                    }
+                });
+
+                bb.config({
+                    'unPMable user groups': v.resolve( 'policy', 'unpmable user groups', undefined, 'array of items' ).map(function(g) { return g.value }),
+                    'default user group'  : v.resolve( 'policy', 'default user group' )
+                });
+
+                var vi = new Violations(cacheable_args( violations, 'violations', {
+                    v: v,
+                    default_user_action: 'warning',
+                }));
+
+                var mc = new MiscellaneousCache(cacheable_args( misc, 'misc', {
+                    v : v,
+                    vi: vi
+                }));
+
+                $.when( vi.promise, mc.promise ).then(function() {
+                    handle_modcp_doips          ( bb );
+                    handle_post_edit            ( bb );
+                    handle_moderation_links     ();
+                    handle_moderation_checkboxes();
+                    handle_modcp_user           ();
+                    handle_thread_form          ( bb, v, handle_error );
+                    handle_usernotes_cc         ( bb, v );
+                    handle_dashboard            ( bb, v, vi, ss, mc, loading_html );
+                    handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
+                });
+
             });
 
-        });
+        }
 
-    }
-
-});
+    })
+} else {
+    // in an iframe
+    if ( location.origin == 'https://forums.frontier.co.uk.' )
+        VBulletin.iframe_callbacks( 'https://forums.frontier.co.uk', [ '.frontier.co.uk.', 'frontier.co.uk.' ] );
+    if ( location.origin == 'https://forumstest.frontier.co.uk.' )
+        VBulletin.iframe_callbacks( 'https://forumstest.frontier.co.uk', [ '.frontier.co.uk.', 'frontier.co.uk.' ] );
+}

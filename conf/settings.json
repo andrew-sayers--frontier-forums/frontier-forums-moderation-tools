@@ -107,14 +107,17 @@
         "res/variables_thread_post.html"
 
     ],
-    "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk" ],
+    // an obscure legacy DNS feature lets you append a "." to a domain name to access a server in in a way that's considered sepearate for cookie resolution:
+    "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk", "forums.frontier.co.uk.", "forumstest.frontier.co.uk." ],
     "match_secure_domain": true,
 
     "xhr_patterns": [
         // allowed URL patterns for cross-site/mixed content XMLHttpRequests
         // See https://developer.chrome.com/extensions/match_patterns
         "http://altairvista.com:1234/*",
-        "http://frontiermods.replayirc.com:443/*"
+        "http://frontiermods.replayirc.com:443/*",
+        "https://forums.frontier.co.uk./*",
+        "https://forumstest.frontier.co.uk./*"
     ],
 
     "maintenanceInterval": 5 * 1000, // the 'maintain' command will pause for this long between updates
