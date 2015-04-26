@@ -140,6 +140,8 @@
 
                 <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
 
+                <li data-name="BulletinBoard#fix_url"><a href="BulletinBoard.html#fix_url">fix_url</a></li>
+
                 <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
 
                 <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
@@ -628,6 +630,8 @@
 
             <span class="subtitle">Methods</span>
 
+                <li data-name="VBulletin.iframe_callbacks"><a href="VBulletin.html#.iframe_callbacks">iframe_callbacks</a></li>
+
                 <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
 
                 <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
@@ -652,6 +656,8 @@
 
                 <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
 
+                <li data-name="VBulletin#fix_url"><a href="VBulletin.html#fix_url">fix_url</a></li>
+
                 <li data-name="VBulletin#folder_pms"><a href="VBulletin.html#folder_pms">folder_pms</a></li>
 
                 <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
@@ -669,6 +675,8 @@
                 <li data-name="VBulletin#infraction_ids"><a href="VBulletin.html#infraction_ids">infraction_ids</a></li>
 
                 <li data-name="VBulletin#ip_users"><a href="VBulletin.html#ip_users">ip_users</a></li>
+
+                <li data-name="VBulletin#login"><a href="VBulletin.html#login">login</a></li>
 
                 <li data-name="VBulletin#moderation_page"><a href="VBulletin.html#moderation_page">moderation_page</a></li>
 
@@ -829,29 +837,48 @@
  * @summary Generic class for any type of bulletin board
  * @constructor
  * @abstract
+ *
+ * @example
+ * var bb = new ChildOfBulletinBoard({
+ *     config: { ... },
+ *     origin: 'http://www.example.com' // default: current site
+ * });
+ *
  * @description At the time of writing, the only configuration values are:
  * + "unPMable user groups" (an array like [ 'group name', ... ] defining groups that cannot accept PMs)
  * + "default user group" (a string defining the group most users belong to)
  */
 function BulletinBoard(args) {
     this._config = $.extend( { 'unPMable user groups': [], 'default user group': '' }, args ? args.config : {} );
+    this._origin = ( args ? args.origin : '' ) || location.origin;
+    this.url_for = {};
 }
 BulletinBoard.prototype = Object.create(null, {
 
     _config: { writable: true, configurable: false },
-    url_for: { // construct product-specific URLs
-        writable: false,
-        configurable: false,
-        value: {
-            // concrete implementations should add functions here to build URLs
-        }
-    }
+    _origin: { writable: true, configurable: false },
+    // construct product-specific URLs - concrete implementations should add functions here
+    url_for: { writable: true, configurable: false }
 
 });
 
 /*
  * GENERIC UTILITY FUNCTIONS
  */
+
+/**
+ * @summary convert a relative URL to use the correct origin
+ * @param {string} url URL to translate
+ * @return {string} absolute URL
+ * @description BulletinBoards can have an origin other than the site we're currently on
+ * (so we can e.g. browse as one user and post as another)
+ */
+BulletinBoard.prototype.fix_url = function(url) {
+    if ( !this._origin ) return url;
+    if ( url.search( /^[a-z]*:/ ) == 0 ) return                 url;   // http://www.example.com/foo.html
+    if ( url.search( /^\// )      == 0 ) return this._origin +  url;   // /foo.html
+    return this._origin + location.pathname.replace( /[^\/]*$/, url ); // foo.html
+}
 
 /**
  * @summary add or change configuration values
@@ -897,7 +924,7 @@ BulletinBoard.prototype.build_url = function( url, valid_args, args, hash ) {
         });
     }
     if ( hash ) url += '#' + hash;
-    return url;
+    return this.fix_url(url);
 }
 
 /**
@@ -957,8 +984,9 @@ BulletinBoard.prototype.ping = function() {
 
     // the actual page isn't important, but robots.txt seems like an innocuous enough choice:
     return $.ajax({
-        url: '/robots.txt',
-        method: 'options'
+        url : this.fix_url( '/robots.txt' ),
+        xhr : function() { return new BabelExt.XMLHttpRequest() },
+        type: 'OPTIONS'
     }).then( success, function(jqXHR) {
         var dfd = jQuery.Deferred();
         if ( jqXHR.statusCode() == 404 ) {
@@ -974,14 +1002,20 @@ BulletinBoard.prototype.ping = function() {
 /**
  * @summary Send a message to the server as an AJAX request
  * @protected
- * @param {...Object} var_args passed to $.get()
+ * @param {string} url  URL to get
+ * @param {Object} data parameters
  * @return {jQuery.Promise}
  */
-BulletinBoard.prototype.get = function( url, data, use_form ) {
+BulletinBoard.prototype.get = function( url, data ) {
 
     var bb = this;
 
-    return $.get.apply( $, Array.prototype.slice.call( arguments, 0 ) ).then(
+    return $.ajax({
+        url : this.fix_url(url),
+        xhr : function() { return new BabelExt.XMLHttpRequest() },
+        type: 'GET',
+        data: data
+    }).then(
         function(reply) {
             var err = bb.detect_post_error( reply );
             if ( err !== null ) {
@@ -1010,6 +1044,8 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
 
     var bb = this;
 
+    var url = this.fix_url(url);
+
     return this._add_standard_data(data).then(function(data) {
         if ( use_form ) {
             var form = $('&lt;form method="post">&lt;/form>')
@@ -1023,8 +1059,9 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
         } else {
             return $.ajax({
                 type: "POST",
-                url: url,
-                data: data,
+                url : url,
+                xhr : function() { return new BabelExt.XMLHttpRequest() },
+                data: data
             }).then(
                 function(reply) {
                     var err = bb.detect_post_error( reply );
@@ -1166,23 +1203,11 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
     if ( first_page )
         return get_later_pages(first_page);
 
-    var dfd = new jQuery.Deferred();
-    $.ajax({
-        url: bb.url_for.thread_show({ thread_id: thread_id }),
-        dataType: 'html',
-        success: function(html) {
-            get_later_pages(html).then(
-                function(posts) { dfd.resolve(posts) },
-                function(arg  ) { dfd.reject (arg  ) }
-            );
-        },
-        error: function() {
+    return this.get( bb.url_for.thread_show({ thread_id: thread_id }) )
+        .then(get_later_pages, function() {
             debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
             dfd.reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) );
-        }
-    });
-
-    return dfd.promise();
+        });
 
 }
 
@@ -1233,15 +1258,143 @@ function VBulletin(args) {
 	            do: 'securitytoken'
                 }
             ).then(function(xml) {
-                $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
+                if ( this.origin )
+                    this.security_token                = xml.getElementsByTagName('securitytoken')[0].textContent;
+                else
+                    $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
             });
         },
         1000*60*30 // every 30 minutes
     );
 
+    $.extend(
+        this.url_for,
+        {
+            activity: function() { return bb.build_url( '/activity.php' ) },
+
+            forum_show: function(args) { return bb.build_url(
+                '/forumdisplay.php',
+                [
+                    { key: 'forum_id', param: 'f' }
+                ],
+                args
+            )},
+
+            login: function() { return bb.build_url(
+                '/login.php',
+                [
+                    { key: 'do', param: 'do', default: 'login' }
+                ]
+            )},
+
+            folder_show: function(args) { return bb.build_url(
+                '/private.php',
+                [
+                    { key: 'folder_id', param: 'folderid' },
+                ],
+                args
+            )},
+
+            moderation_inline: function() { return bb.build_url( '/inlinemod.php' ) },
+            moderation_posts : function() { return bb.build_url( '/modcp/moderate.php?do=posts' ) },
+            moderation_user  : function() { return bb.build_url( '/modcp/user.php' ) },
+
+            // This is a fake URL - you will need to call redirect_modcp_ipsearch() on the page:
+            moderation_ipsearch: function(args) { return bb.build_url(
+                '/modcp/user.php',
+                [
+                    { key: 'action'    , param: 'do', default: 'doips' },
+                    { key: 'ip_address', param: 'ipaddress' },
+                    { key: 'username'  , param: 'username' },
+                    { key: 'user_id'   , param: 'userid' },
+                    { key: 'depth'     , param: 'depth' }
+                ],
+                args
+            )},
+
+            infraction: function(args) { return bb.build_url(
+                '/infraction.php',
+                [
+                    { key: 'user_id', param: 'u' },
+                    { key: 'post_id', param: 'p' },
+                    { key: 'action' , param: 'do', 'default': 'view' },
+                ],
+                args
+            )},
+
+            user_notes: function(args) { return bb.build_url(
+                '/usernote.php',
+                [
+                    { key: 'user_id', param: 'u' }
+                ],
+                args
+            )},
+
+            user_show: function(args) { return bb.build_url(
+                '/member.php',
+                [
+                    { key: 'user_id', param: 'u' }
+                ],
+                args
+            )},
+
+            users_show: function(args) { return bb.build_url(
+                '/memberlist.php',
+                [
+                    { key: 'order'   , param: 'order', 'default': 'desc' },
+                    { key: 'sort'    , param: 'sort' , 'default': 'joindate' },
+                    { key: 'per_page', param: 'pp'   , 'default': '100' },
+                    { key: 'page_no' , param: 'page' }
+                ],
+                args
+            )},
+
+            search: function() { return bb.build_url( '/search.php' ) },
+
+            thread_edit: function(args) { return bb.build_url(
+                '/postings.php',
+                [
+                    { key: 'action'   , param: 'do' },
+                    { key: 'thread_id', param: 't' }
+                ],
+                args
+            )},
+            thread_show: function(args) { return bb.build_url(
+                '/showthread.php',
+                [
+                    { key: 'thread_id'      , param: 't' },
+                    { key: 'posts_per_page' , param: 'pp', default: 1000 },
+                    { key: 'post_id'        , param: 'p' },
+                    { key: 'page_no'        , param: 'page' },
+                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
+                    { key: 'goto'           , param: 'goto' }, // usually 'newpost'
+                ],
+                args,
+                args.post_id ? 'post' + args.post_id : undefined // hash
+            )},
+
+            post_edit: function() { return bb.build_url( '/editpost.php' ) },
+            post_show: function(args) { return bb.build_url(
+                '/showthread.php',
+                [
+                    { key: 'thread_id'      , param: 't' },
+                    { key: 'post_id'        , param: 'p' },
+                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
+                ],
+                args,
+                args.post_id ? 'post' + args.post_id : undefined // hash
+            )},
+
+        }
+    );
+
 }
 VBulletin.prototype.constructor = VBulletin;
 VBulletin.prototype = Object.create(BulletinBoard.prototype, {
+
+    // only used if "origin" is set:
+    session_id    : { writable: true, configurable: false },
+    security_token: { writable: true, configurable: false },
 
     standard_post_data: {
         writable: false,
@@ -1269,128 +1422,6 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
         writable: true,
         configurable: false,
         value: 0
-    },
-
-    url_for: { // construct product-specific URLs
-        writable: false,
-        configurable: false,
-        value: {
-            activity: function() { return BulletinBoard.prototype.build_url( '/activity.php' ) },
-
-            forum_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/forumdisplay.php',
-                [
-                    { key: 'forum_id', param: 'f' }
-                ],
-                args
-            )},
-
-            login: function() { return BulletinBoard.prototype.build_url(
-                '/login.php',
-                [
-                    { key: 'do', param: 'do', default: 'login' }
-                ]
-            )},
-
-            folder_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/private.php',
-                [
-                    { key: 'folder_id', param: 'folderid' },
-                ],
-                args
-            )},
-
-            moderation_inline: function() { return BulletinBoard.prototype.build_url( '/inlinemod.php' ) },
-            moderation_posts : function() { return BulletinBoard.prototype.build_url( '/modcp/moderate.php?do=posts' ) },
-            moderation_user  : function() { return BulletinBoard.prototype.build_url( '/modcp/user.php' ) },
-
-            // This is a fake URL - you will need to call redirect_modcp_ipsearch() on the page:
-            moderation_ipsearch: function(args) { return BulletinBoard.prototype.build_url(
-                '/modcp/user.php',
-                [
-                    { key: 'action'    , param: 'do', default: 'doips' },
-                    { key: 'ip_address', param: 'ipaddress' },
-                    { key: 'username'  , param: 'username' },
-                    { key: 'user_id'   , param: 'userid' },
-                    { key: 'depth'     , param: 'depth' }
-                ],
-                args
-            )},
-
-            infraction: function(args) { return BulletinBoard.prototype.build_url(
-                '/infraction.php',
-                [
-                    { key: 'user_id', param: 'u' },
-                    { key: 'post_id', param: 'p' },
-                    { key: 'action' , param: 'do', 'default': 'view' },
-                ],
-                args
-            )},
-
-            user_notes: function(args) { return BulletinBoard.prototype.build_url(
-                '/usernote.php',
-                [
-                    { key: 'user_id', param: 'u' }
-                ],
-                args
-            )},
-
-            user_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/member.php',
-                [
-                    { key: 'user_id', param: 'u' }
-                ],
-                args
-            )},
-
-            users_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/memberlist.php',
-                [
-                    { key: 'order'   , param: 'order', 'default': 'desc' },
-                    { key: 'sort'    , param: 'sort' , 'default': 'joindate' },
-                    { key: 'per_page', param: 'pp'   , 'default': '100' },
-                    { key: 'page_no' , param: 'page' }
-                ],
-                args
-            )},
-
-            search: function() { return BulletinBoard.prototype.build_url( '/search.php' ) },
-
-            thread_edit: function(args) { return BulletinBoard.prototype.build_url(
-                '/postings.php',
-                [
-                    { key: 'action'   , param: 'do' },
-                    { key: 'thread_id', param: 't' }
-                ],
-                args
-            )},
-            thread_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/showthread.php',
-                [
-                    { key: 'thread_id'      , param: 't' },
-                    { key: 'posts_per_page' , param: 'pp', default: 1000 },
-                    { key: 'post_id'        , param: 'p' },
-                    { key: 'page_no'        , param: 'page' },
-                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
-                    { key: 'goto'           , param: 'goto' }, // usually 'newpost'
-                ],
-                args,
-                args.post_id ? 'post' + args.post_id : undefined // hash
-            )},
-
-            post_edit: function() { return BulletinBoard.prototype.build_url( '/editpost.php' ) },
-            post_show: function(args) { return BulletinBoard.prototype.build_url(
-                '/showthread.php',
-                [
-                    { key: 'thread_id'      , param: 't' },
-                    { key: 'post_id'        , param: 'p' },
-                    { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
-                ],
-                args,
-                args.post_id ? 'post' + args.post_id : undefined // hash
-            )},
-
-        }
     }
 
 });
@@ -1398,6 +1429,13 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 /*
  * UTILITY FUNCTIONS
  */
+
+VBulletin.prototype.fix_url = function(url) {
+    url = BulletinBoard.prototype.fix_url.call(this, url);
+    if ( this.session_id )
+        url += ( ( url.search(/\?/) == -1 ) ? '?s=' : '&amp;s=' ) + this.session_id;
+    return url;
+}
 
 VBulletin.prototype.get_posts = function(doc) { return $( doc || document ).find('#posts').children() }
 
@@ -1461,7 +1499,7 @@ VBulletin.prototype._add_standard_data = function(data) {
     }
 
     function get_token() {
-        data.securitytoken = $('input[name="securitytoken"]').val();
+        data.securitytoken = this.security_token || $('input[name="securitytoken"]').val();
         if ( data.securitytoken ) return true;
         BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
         data.securitytoken = document.head.getAttribute('data-securitytoken');
@@ -1498,7 +1536,7 @@ VBulletin.prototype.detect_post_error = function(reply) {
                 return null;
         } else {
             var errors = $(reply).find( '.blockrow.error' );
-            if ( errors.length &amp;&amp; errors.text().length )
+            if ( errors.length &amp;&amp; errors.text().search(/\S/)!=-1 )
                 return $.trim(errors.text());
             else
                 return null;
@@ -1532,7 +1570,8 @@ VBulletin.prototype.attachments_delete = function( attachments ) {
         if ( !requests.hasOwnProperty(attachment.info.posthash) ) requests[attachment.info.posthash] = $.extend( info, attachment.info );
         requests[attachment.info.posthash][ 'delete['+attachment.id+']' ] = 1;
     });
-    return this.when(Object.keys(requests).map(function(key) { return $.post( '/newattachment.php', requests[key] ) }));
+    var bb = this;
+    return this.when(Object.keys(requests).map(function(key) { return bb.post( '/newattachment.php', requests[key] ) }));
 }
 
 /*
@@ -1948,7 +1987,7 @@ VBulletin.prototype.pm_send = function( to, title, bbcode, request_receipt ) {
  * @return {jQuery.Promise}
  */
 VBulletin.prototype.folder_pms = function( folder_id ) {
-    return $.get( '/private.php?folderid=' + folder_id ).then(function(html) {
+    return this.get( '/private.php?folderid=' + folder_id ).then(function(html) {
         return $(html).find('.pmbit').map(function() {
             var $this = $(this);
             return {
@@ -2245,7 +2284,7 @@ VBulletin.prototype.user_ips = function( user, get_overlapping ) {
 
     return this._get_modcp_data().then(function(data) {
         // Note: this page accepts a "userid" parameter, even though there's no such input in the form:
-        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
+        return bb.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),
@@ -2288,7 +2327,7 @@ VBulletin.prototype.ip_users = function( ip ) {
 
     return this._get_modcp_data().then(function(data) {
 
-        return $.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
+        return bb.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
             html = $(html);
             var domain_name = html.find('#cpform_table .alt1 b').first().text();
             if ( domain_name == 'Could Not Resolve Hostname' ) domain_name = ip;
@@ -2425,7 +2464,8 @@ VBulletin.prototype.user_current = function() {
  * @return {jQuery.Promise}
  */
 VBulletin.prototype.user_info = function(user_id) {
-    return $.get('/member.php?u='+user_id+'&amp;tab=infractions&amp;pp=50').then(function(html) {
+    var bb = this;
+    return this.get('/member.php?u='+user_id+'&amp;tab=infractions&amp;pp=50').then(function(html) {
         html = $(html);
 
         var join_date = $.trim(html.find( '.userinfo dd' ).first().text());
@@ -2509,7 +2549,7 @@ VBulletin.prototype.user_info = function(user_id) {
         }
 
         if ( html.find('#usermenu a[href^="modcp/banning.php?do=liftban"]').length ) {
-            return $.get( '/modcp/banning.php?do=editreason&amp;userid=' + user_id ).then(function(html) {
+            return bb.get( '/modcp/banning.php?do=editreason&amp;userid=' + user_id ).then(function(html) {
                 ret.is_banned = true;
                 // ignore warnings/infractions/notes for banned users:
                 ret.infraction_summary = '&lt;span style="color: red">BANNED: ' + $('&lt;div/>').text($.trim($(html).find( '#it_reason_1' ).val())).html() + '&lt;/span>';
@@ -2625,7 +2665,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
  */
 VBulletin.prototype.user_signature_get = function(user_id) {
     var bb = this;
-    return $.get( '/modcp/user.php?do=editsig&amp;u=' + user_id ).then(function(html) {
+    return bb.get( '/modcp/user.php?do=editsig&amp;u=' + user_id ).then(function(html) {
 
         if ( !this._modcp_data ) {
             // populate _modcp_data without making an extra request
@@ -2646,8 +2686,9 @@ VBulletin.prototype.user_signature_get = function(user_id) {
  * @return {jQuery.Promise}
  */
 VBulletin.prototype.user_signature_set = function(user_id, signature) {
+    var bb = this;
     return this._get_modcp_data().then(function(data) {
-        return $.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
+        return bb.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
     });
 }
 
@@ -3006,39 +3047,47 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
     var dfd = new jQuery.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
 
+    var login_attempt_count = 0;
+
     iframe
         .css({ overflow: 'hidden', display: 'none' })
         .attr( 'src', url )
         .one( 'load', function() {
             document.title = title;
             if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) { // need to log in
-                $(iframe[0].contentDocument.body).css({ overflow: 'hidden' }).find('p').remove();
-                iframe.css({ display: 'block', width: '450px', height: '200px' }); // set the desired size
-                var form = $(iframe[0].contentDocument.body).find('form');
-                iframe.css({ width: form.outerWidth() + 'px', height: form.outerHeight() + 'px' }); // fit based on the computed size
-                var has_progressed = false;
-                var interval = setInterval(function() {
-                    if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) {
-                        // still on the login page
-                    } else if ( $('#redirect_button,#vb_login_username,.standard_error', iframe[0].contentDocument.body).length &amp;&amp; !has_progressed ) {
-                        // on the redirect page
-                        has_progressed = true;
-                        iframe.hide();
-                        dfd.notify();
-                    } else if ( $( page_top_selector || '#cpform', iframe[0].contentDocument.body ).length ) {
-                        // on the user page
-                        iframe.hide();
-                        clearInterval(interval);
-                        if ( !has_progressed ) dfd.notify();
-                        document.title = title;
-                        interval = setInterval(function() {
-                            if ( $( page_bottom_selector || '.copyright', iframe[0].contentDocument.body ).length ) {
-                                dfd.resolve(iframe[0]);
-                                clearInterval(interval);
-                            }
-                        }, 50);
-                    } // else page is loading
-                }, 50);
+                setTimeout(function() {
+                    if ( !login_attempt_count++ &amp;&amp; document.getElementsByTagName('iframe')[0].contentDocument.getElementById('vb_login_password').value.length ) {
+                        $(iframe[0].contentDocument.body).find('form').submit();
+                    } else {
+                        $(iframe[0].contentDocument.body).css({ overflow: 'hidden' }).find('p').remove();
+                        iframe.css({ display: 'block', width: '450px', height: '200px' }); // set the desired size
+                        var form = $(iframe[0].contentDocument.body).find('form');
+                        iframe.css({ width: form.outerWidth() + 'px', height: form.outerHeight() + 'px' }); // fit based on the computed size
+                    }
+                    var has_progressed = false;
+                    var interval = setInterval(function() {
+                        if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) {
+                            // still on the login page
+                        } else if ( $('#redirect_button,#vb_login_username,.standard_error', iframe[0].contentDocument.body).length &amp;&amp; !has_progressed ) {
+                            // on the redirect page
+                            has_progressed = true;
+                            iframe.hide();
+                            dfd.notify();
+                        } else if ( $( page_top_selector || '#cpform', iframe[0].contentDocument.body ).length ) {
+                            // on the user page
+                            iframe.hide();
+                            clearInterval(interval);
+                            if ( !has_progressed ) dfd.notify();
+                            document.title = title;
+                            interval = setInterval(function() {
+                                if ( $( page_bottom_selector || '.copyright', iframe[0].contentDocument.body ).length ) {
+                                    dfd.resolve(iframe[0]);
+                                    clearInterval(interval);
+                                }
+                            }, 50);
+                        } // else page is loading
+                    }, 50);
+                }, 0 );
             } else { // already logged in
                 dfd.notify();
                 document.title = title;
@@ -3049,6 +3098,127 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 
     return dfd.promise();
 
+}
+
+/**
+ * @summary log in to the site
+ * @param {jQuery} iframe iframe element to use
+ * @param {jQuery.Promise}
+ *
+ * @description
+ * This function pops up an iframe with login details for the main site.
+ * Note: for security reasons, the calling code must ensure that
+ * VBulletin.iframe_callbacks() is called in the iframe page.
+ * (this could be done automatically when logging in to the current site,
+ * but not when logging in to another domain)
+ */
+VBulletin.prototype.login = function( iframe, default_user ) {
+
+    var dfd = new jQuery.Deferred();
+    var title = document.title; // iframes tend to overwrite the document title
+
+    var bb = this;
+
+    function listen(event) {
+        if (event.origin !== bb._origin) return;
+        if ( event.data == 'BulletinBoard VBulletin get default user' ) {
+            document.title = title;
+            iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
+            event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+        } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+            iframe.css({ display: 'block', width: '450px', height: '2em' });
+        } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
+            iframe.hide();
+        } else {
+            event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
+            event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
+                bb.security_token = security_token;
+                document.title = title;
+                iframe.hide();
+                window.removeEventListener("message", listen, false);
+                dfd.resolve(iframe);
+            });
+        }
+    }
+
+    window.addEventListener("message", listen, false);
+
+    iframe
+        .css({ overflow: 'hidden', display: 'none' })
+        .attr( 'src', this._origin )
+    ;
+
+    return dfd.promise();
+
+}
+
+/**
+ * @summary communicate from an iframe to the parent window
+ * @param {string} target_origin expected origin of the parent window
+ * @param {Array.&lt;string>} cookie_domains domains that cookies are normally set for (default: do not delete cookies)
+ *
+ * @description For security reasons, .login() cannot inject JavaScript
+ * into iframes in different origins.  Instead, the calling code must
+ * arrange for this function to be called.
+ *
+ * It's sometimes useful to use VBulletin's no-cookie fallback mode
+ * (e.g. using the "trailing dot" domain on a site that hard-codes
+ * the cookie domain).  Passing cookie_domain ensures cookies are deleted
+ * to resemble a cookieless browser
+ */
+VBulletin.iframe_callbacks = function(target_origin, cookie_domains) {
+    BabelExt.utils.dispatch(
+        {
+            match_pathname: '/login.php',
+            match_params: { do: 'login' },
+            callback: function( stash, pathname, params, a ) {
+                window.parent.postMessage( 'BulletinBoard VBulletin progress', target_origin );
+            }
+        },
+        {
+            match_pathname: '/login.php',
+            match_params: { do: 'login' },
+            match_elements: '#redirect_button a.textcontrol',
+            callback: function( stash, pathname, params, a ) {
+                window.parent.postMessage( 'BulletinBoard VBulletin session ' + a.href.split( /\?s=|&amp;/ )[1], target_origin );
+            }
+        },
+        {
+            match_elements: 'input[name="securitytoken"]',
+            callback: function( stash, pathname, params, input) {
+                if ( input.value == 'guest' ) $(function() {
+                    window.addEventListener("message", function(event) {
+                        if (event.origin !== target_origin) return;
+                        event.data.replace( /^BulletinBoard VBulletin default user (.*)/, function(match, default_user) {
+                            if ( default_user.length ) $('#navbar_username').val( default_user );
+                            setTimeout(function() {
+                                if ( document.getElementById('navbar_password').value.length )
+                                    $('.loginbutton').click();
+                                else
+                                    window.parent.postMessage( 'BulletinBoard VBulletin show', target_origin );
+                            }, 50 );
+                        });
+                    }, false);
+                    window.parent.postMessage( 'BulletinBoard VBulletin get default user', target_origin );
+                    $(document.body)
+                        .css({ overflow: 'hidden' }).html( $('#navbar_loginform')[0].outerHTML )
+                        .children().css({ 'text-align': 'center', 'width': '450px' });
+                    $('#navbar_password_hint,#remember').hide();
+                    $('#navbar_password').show().focus().attr( 'placeholder', 'password' );
+                    $('.loginbutton').click(function() {
+                        document.cookie.split(/; /).forEach(function(cookie) {
+                            ( cookie_domains || [] ).forEach(function(cookie_domain) {
+                                document.cookie = cookie.replace(/($|=.*)/, '=; domain='+cookie_domain+'; expires=Thu, 01-Jan-1970 00:00:01 GMT');
+                            });
+                        });
+                    });
+                });
+                else {
+                    window.parent.postMessage( 'BulletinBoard VBulletin success ' + input.value, target_origin );
+                }
+            }
+        }
+    );
 }
 
 /**
@@ -3104,7 +3274,7 @@ VBulletin.prototype.server_stats = function( ) {
  * This function redirects from the fake page to the real one.
  */
 VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
-    $.get( '/modcp/user.php?do=doips' ).then(function(html) {
+    bb.get( '/modcp/user.php?do=doips' ).then(function(html) {
         function redirect() {
             var form = $(html).find('#cpform').hide().appendTo(document.body);
             [ 'ipaddress', 'username', 'depth' ].forEach(function(param) {
@@ -3131,7 +3301,7 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 23 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 26 April 2015
         </footer>
     </div>
 </div>
