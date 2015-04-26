@@ -20,7 +20,7 @@
  */
 function BulletinBoard(args) {
     this._config = $.extend( { 'unPMable user groups': [], 'default user group': '' }, args ? args.config : {} );
-    this._origin = ( args ? args.origin : '' ) || location.origin;
+    this._origin = args ? args.origin : '';
     this.url_for = {};
 }
 BulletinBoard.prototype = Object.create(null, {
