@@ -31,6 +31,7 @@
  * Elements with class "dashboard-done" are treated as buttons to (un)mark a section done
  *
  * Section elements have classes "loading", "empty", "nonempty", "done" and "undone" set as appropriate.
+ * Section elements can have a 'bb' data item if they need to access a different bulletin board
  */
 function Dashboard( args ) {
 
@@ -82,7 +83,7 @@ function Dashboard( args ) {
 
     sections.each(function() {
 
-        var container = $(this), monitor = container.data('monitor');
+        var container = $(this), monitor = container.data('monitor'), bb = container.data('bb') || dashboard.bb;
 
         if ( !monitor || !Dashboard.prototype.hasOwnProperty(monitor+'_refresh') ) {
             console.log("Ignoring unknown dashboard monitor: " + monitor);
@@ -94,7 +95,7 @@ function Dashboard( args ) {
         container.find('.dashboard-done').click(function(event) {
             done_time = new Date().getTime();
 
-            dashboard[monitor+'_done']( container, container.hasClass('done') );
+            dashboard[monitor+'_done']( bb, container, container.hasClass('done') );
             dashboard.update_cache();
 
             container.toggleClass('done undone');
@@ -105,7 +106,7 @@ function Dashboard( args ) {
         container.data('empty', function(event) {
             done_time = new Date().getTime();
 
-            dashboard[monitor+'_done']( container, container.hasClass('done') );
+            dashboard[monitor+'_done']( bb, container, container.hasClass('done') );
             dashboard.update_cache();
 
             container.removeClass('undone nonempty').addClass( 'done empty' );
@@ -124,7 +125,7 @@ function Dashboard( args ) {
                 if ( container.hasClass('done') ) container.addClass('empty');
                 container.removeClass( 'nonempty done undone' ).addClass( 'loading' );
 
-                dashboard[monitor+'_refresh'](container).then(function(contents) {
+                dashboard[monitor+'_refresh'](bb, container).then(function(contents) {
                     container.removeClass( 'empty loading' )
                     if ( typeof(contents) == 'undefined' ) {
                         container.attr( 'class', old_class );
@@ -150,7 +151,7 @@ function Dashboard( args ) {
         // initialise the section:
         container.addClass( 'empty' );
         container.data( 'signature', '' );
-        var promise = Dashboard.prototype.hasOwnProperty(monitor+'_init') ? dashboard[monitor+'_init'](container) : false;
+        var promise = Dashboard.prototype.hasOwnProperty(monitor+'_init') ? dashboard[monitor+'_init'](bb, container) : false;
         if ( promise ) {
             done_time = new Date().getTime(); + Math.pow( 10, 10 ); // disable refreshes until initialised
             promise.then(function() { refresh(true) });
@@ -185,14 +186,14 @@ function add_notification( title, notification_html, body_html ) {
  * THREAD MONITORING
  */
 
-Dashboard.prototype.thread_init = function(container) {
+Dashboard.prototype.thread_init = function(bb, container) {
 
     if ( !this.cache['thread-done-'+container.data('thread')] ) {
         var dashboard = this;
         var thread_id = container.data('thread');
-        return $.get(dashboard.bb.url_for.thread_show({ thread_id: thread_id, goto: 'newpost' })).then(function(html) {
+        return $.get(bb.url_for.thread_show({ thread_id: thread_id, goto: 'newpost' })).then(function(html) {
             // first run - get highest post ID:
-            return dashboard.bb.thread_posts( thread_id, html ).then(function(posts) {
+            return bb.thread_posts( thread_id, html ).then(function(posts) {
                 dashboard.cache['thread-done-'+thread_id] = posts[posts.length-1].post_id;
                 dashboard.update_cache();
             });
@@ -201,15 +202,15 @@ Dashboard.prototype.thread_init = function(container) {
 
 }
 
-Dashboard.prototype.thread_done = function(container, undo) {
+Dashboard.prototype.thread_done = function(bb, container, undo) {
     this.cache['thread-done-'+container.data('thread')] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
-Dashboard.prototype.thread_refresh = function(container) {
+Dashboard.prototype.thread_refresh = function(bb, container) {
 
     var dashboard = this, thread_id = container.data( 'thread' );
 
-    return dashboard.bb.thread_whoposted(thread_id).then(function(who_posted) {
+    return bb.thread_whoposted(thread_id).then(function(who_posted) {
 
         // thread pages are very expensive to load - we use the "who posted" page as a cheaper way to generate a signature:
         var signature = who_posted.total + ',' + who_posted.users.map(function(user) { return user.post_count }).join();
@@ -219,8 +220,8 @@ Dashboard.prototype.thread_refresh = function(container) {
         var read_post_id = dashboard.cache['thread-done-'+thread_id];
         container.data( 'undone_id', read_post_id );
 
-        return $.get(dashboard.bb.url_for.thread_show({ thread_id: thread_id, post_id: read_post_id })).then(function(html) {
-            return dashboard.bb.thread_posts( thread_id, html ).then(function(posts) {
+        return $.get(bb.url_for.thread_show({ thread_id: thread_id, post_id: read_post_id })).then(function(html) {
+            return bb.thread_posts( thread_id, html ).then(function(posts) {
 
                 container.data( 'signature', signature );
                 container.data( 'done_id', posts[posts.length-1].post_id );
@@ -241,18 +242,18 @@ Dashboard.prototype.thread_refresh = function(container) {
  * FORUM MONITORING
  */
 
-Dashboard.prototype.forum_done = function(container, undo) {
+Dashboard.prototype.forum_done = function(bb, container, undo) {
     this.cache['forum-done-'+container.data('forum')] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
-Dashboard.prototype.forum_refresh = function(container) {
+Dashboard.prototype.forum_refresh = function(bb, container) {
 
     var dashboard = this, forum_id = container.data('forum');
 
     // forum pages are less expensive than thread pages, so we don't bother caching them:
     var read_post_id = dashboard.cache['forum-done-'+forum_id];
 
-    return dashboard.bb.forum_threads(forum_id, true).then(function(threads) {
+    return bb.forum_threads(forum_id, true).then(function(threads) {
 
         var min_thread_id = container.data('min_thread_id') || 0;
         var last_post_ids = threads.map(function(thread) { return thread.last_post_id });
@@ -278,11 +279,11 @@ Dashboard.prototype.forum_refresh = function(container) {
  * RECENT ACTIVITY MONITORING
  */
 
-Dashboard.prototype.activity_done = function(container, undo) {
+Dashboard.prototype.activity_done = function(bb, container, undo) {
     this.cache['activity-done'] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
-Dashboard.prototype.activity_refresh = function(container) {
+Dashboard.prototype.activity_refresh = function(bb, container) {
 
     var dashboard = this, activity_id = container.data('activity');
 
@@ -290,7 +291,7 @@ Dashboard.prototype.activity_refresh = function(container) {
     var max_read = dashboard.cache['activity-done'] || [ 0, 0, 0 ];
     if ( !$.isArray(max_read) ) max_read = [ max_read, 0, 0 ]; // upgrade old values, can be deleted after 2015-10-21
 
-    return dashboard.bb.activity(max_read[0]+1, max_read[1]+1).then(function(activity_data) {
+    return bb.activity(max_read[0]+1, max_read[1]+1).then(function(activity_data) {
 
         container.data( 'undone_id', max_read );
         container.data(   'done_id', [
@@ -316,7 +317,7 @@ Dashboard.prototype.activity_refresh = function(container) {
  * NEWBIE MONITORING
  */
 
-Dashboard.prototype.newbies_init = function(container) {
+Dashboard.prototype.newbies_init = function(bb, container) {
 
     var dashboard = this;
 
@@ -334,7 +335,7 @@ Dashboard.prototype.newbies_init = function(container) {
             dashboard.update_cache();
         } else {
             // first run - get min_user_id if possible, else set it to the next user ID that will be created:
-            return dashboard.bb.users_list_new().then
+            return bb.users_list_new().then
                 .then(function(min_user_id, users) {
                     dashboard.cache['newbies-next'] = users[0].user_id + 1;
                     dashboard.update_cache();
@@ -344,11 +345,11 @@ Dashboard.prototype.newbies_init = function(container) {
 
 }
 
-Dashboard.prototype.newbies_done = function(container, undo) {
+Dashboard.prototype.newbies_done = function(bb, container, undo) {
     this.cache['newbies-current'] = undo ? container.data( 'newbies-current' ) : [];
 }
 
-Dashboard.prototype.newbies_refresh = function(container) {
+Dashboard.prototype.newbies_refresh = function(bb, container) {
 
     var dashboard = this;
 
@@ -366,7 +367,7 @@ Dashboard.prototype.newbies_refresh = function(container) {
 
             return $.when.apply( $, // get user info about suspected duplicate accounts
                 users.map(function(user) {
-                    return dashboard.bb.user_info(user.user_id).then(function(info) {
+                    return bb.user_info(user.user_id).then(function(info) {
                         user.suspiciousness = (
                             ( info.is_banned        && 8 ) | // same IP as a currently-banned user - DODGEY!
                             ( info.infraction_count && 4 ) | // same IP as an infracted user - probably dodgey
@@ -377,7 +378,7 @@ Dashboard.prototype.newbies_refresh = function(container) {
                     });
                 }).concat(
                     users.map(function(user) {
-                        return dashboard.bb.user_moderation_info(user.user_id).then(function(info) {
+                        return bb.user_moderation_info(user.user_id).then(function(info) {
                             user.moderation_info = info;
                         });
                     })
@@ -398,8 +399,8 @@ Dashboard.prototype.newbies_refresh = function(container) {
                 if ( new Date().getTime() < end_time ) {
                     // get another account
                     return $.when(
-                        dashboard.bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
-                        dashboard.bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
+                        bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
+                        bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
                     ).then(get_user);
                 }
             });
@@ -417,8 +418,8 @@ Dashboard.prototype.newbies_refresh = function(container) {
         }
 
         return $.when(
-            dashboard.bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
-            dashboard.bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
+            bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
+            bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
         ).then(get_user).then(function() {
 
             // If the section has already been initialised and there are no new users, return unchanged:
@@ -458,19 +459,19 @@ Dashboard.prototype.newbies_refresh = function(container) {
  * POST QUEUE MONITORING
  */
 
-Dashboard.prototype.mod_queue_done = function(container, undo) {
+Dashboard.prototype.mod_queue_done = function(bb, container, undo) {
     this.cache['moderated-next-post'  ] = container.data( undo ?   'post-undone' :   'post-done' );
     this.cache['moderated-next-thread'] = container.data( undo ? 'thread-undone' : 'thread-done' );
 }
 
-Dashboard.prototype.mod_queue_refresh = function(container) {
+Dashboard.prototype.mod_queue_refresh = function(bb, container) {
 
     var dashboard = this;
 
     var read_post_id   = dashboard.cache['moderated-next-post'  ];
     var read_thread_id = dashboard.cache['moderated-next-thread'];
 
-    return dashboard.bb.posts_moderated().then(function(posts_and_threads) {
+    return bb.posts_moderated().then(function(posts_and_threads) {
 
         var posts = posts_and_threads.posts, threads = posts_and_threads.threads;
 
@@ -491,18 +492,18 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
         return threads.map(function(thread) {
             var ret = $('<tr><td><a href=""></a><td><a href=""></a><td><a href=""></a><td><a href=""></a></a></tr>');
             var links = ret.find('a');
-            links.eq(0).attr('href', dashboard.bb.url_for. forum_show({  forum_id: thread. forum_id }) ).text( thread.forum_name );
-            links.eq(1).attr('href', dashboard.bb.url_for.thread_show({ thread_id: thread.thread_id }) ).text( thread.thread_title );
-            links.eq(2).attr('href', dashboard.bb.url_for.thread_show({ thread_id: thread.thread_id }) ).text( '(first post)' );
-            links.eq(3).attr('href', dashboard.bb.url_for.  user_show({   user_id: thread.  user_id }) ).text( thread.username );
+            links.eq(0).attr('href', bb.url_for. forum_show({  forum_id: thread. forum_id }) ).text( thread.forum_name );
+            links.eq(1).attr('href', bb.url_for.thread_show({ thread_id: thread.thread_id }) ).text( thread.thread_title );
+            links.eq(2).attr('href', bb.url_for.thread_show({ thread_id: thread.thread_id }) ).text( '(first post)' );
+            links.eq(3).attr('href', bb.url_for.  user_show({   user_id: thread.  user_id }) ).text( thread.username );
             return ret;
         }).concat(posts.map(function(post) {
             var ret = $('<tr><td><a href=""></a><td><a href=""><td><a href=""><td><a href=""></a></a></tr>');
             var links = ret.find('a');
-            links.eq(0).attr('href', dashboard.bb.url_for. forum_show({  forum_id: post. forum_id }) ).text( post.forum_name );
-            links.eq(1).attr('href', dashboard.bb.url_for.thread_show({ thread_id: post.thread_id }) ).text( post.thread_title );
-            links.eq(2).attr('href', dashboard.bb.url_for.  post_show({ thread_id: post.thread_id, post_id: post.post_id }) ).text( post.  post_title || '(no title)' );
-            links.eq(3).attr('href', dashboard.bb.url_for.  user_show({   user_id: post.  user_id }) ).text( post.username );
+            links.eq(0).attr('href', bb.url_for. forum_show({  forum_id: post. forum_id }) ).text( post.forum_name );
+            links.eq(1).attr('href', bb.url_for.thread_show({ thread_id: post.thread_id }) ).text( post.thread_title );
+            links.eq(2).attr('href', bb.url_for.  post_show({ thread_id: post.thread_id, post_id: post.post_id }) ).text( post.  post_title || '(no title)' );
+            links.eq(3).attr('href', bb.url_for.  user_show({   user_id: post.  user_id }) ).text( post.username );
             return ret;
         }));
 
@@ -511,7 +512,7 @@ Dashboard.prototype.mod_queue_refresh = function(container) {
 }
 
 // Some monitors need more than the default initialisation:
-Dashboard.prototype.server_stats_init = function(container) {
+Dashboard.prototype.server_stats_init = function(bb, container) {
 
     function make_chart( name, data, settings ) {
         var chart = new Chart( container.find('.dashboard-server_stats-'+name+' canvas')[0].getContext("2d") );
@@ -616,10 +617,10 @@ Dashboard.prototype.server_stats_init = function(container) {
 
 }
 
-Dashboard.prototype.server_stats_done = function(container, undo) {}
+Dashboard.prototype.server_stats_done = function(bb, container, undo) {}
 
 // called when it's time to refresh the list:
-Dashboard.prototype.server_stats_refresh = function(container) {
+Dashboard.prototype.server_stats_refresh = function(bb, container) {
 
     var dashboard = this;
 
@@ -663,7 +664,7 @@ Dashboard.prototype.server_stats_refresh = function(container) {
  * PM FOLDER MONITORING
  */
 
-Dashboard.prototype.folder_init = function(container) {
+Dashboard.prototype.folder_init = function(bb, container) {
 
     if ( !this.cache['folder-done-'+container.data('folder')] ) {
         var dashboard = this;
@@ -677,19 +678,19 @@ Dashboard.prototype.folder_init = function(container) {
 }
 
 // called when the user clicks the "done" or "undone" button:
-Dashboard.prototype.folder_done = function(container, undo) {
+Dashboard.prototype.folder_done = function(bb, container, undo) {
     // update the cache so future calls to refresh() act as if the monitor has been (un)done
     this.cache['folder-done-'+container.data('folder')] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
 // called when it's time to refresh the list:
-Dashboard.prototype.folder_refresh = function(container) {
+Dashboard.prototype.folder_refresh = function(bb, container) {
 
     var dashboard = this, folder_id = container.data('folder');
 
     var done_id = dashboard.cache['folder-done-'+folder_id];
 
-    return dashboard.bb.folder_pms(folder_id).then(function(pms) {
+    return bb.folder_pms(folder_id).then(function(pms) {
 
         if ( done_id == pms[0].pm_id ) return;
 
@@ -714,7 +715,7 @@ Dashboard.prototype.folder_refresh = function(container) {
 /*
 
 // Some monitors need more than the default initialisation:
-Dashboard.prototype.example_init = function(container) {
+Dashboard.prototype.example_init = function(bb, container) {
     // init() can optionally return a Deferred object:
     return $.get(...).then(function(html) {
         // 'signature' is set to '' by default, but you can override it:
@@ -725,19 +726,19 @@ Dashboard.prototype.example_init = function(container) {
 */
 
 // called when the user clicks the "done" or "undone" button:
-Dashboard.prototype.example_done = function(container, undo) {
+Dashboard.prototype.example_done = function(bb, container, undo) {
     // update the cache so future calls to refresh() act as if the monitor has been (un)done
     this.cache['example-data'] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
 // called when it's time to refresh the list:
-Dashboard.prototype.example_refresh = function(container) {
+Dashboard.prototype.example_refresh = function(bb, container) {
 
     var dashboard = this, example_id = container.data('example');
 
     var id = dashboard.cache['example-data'];
 
-    return dashboard.bb.example(/*...*/).then(function(ret) {
+    return bb.example(/*...*/).then(function(ret) {
 
         // return an undefined value to indicate the state hasn't changed:
         if ( container.data('signature') == ret.signature ) return;
