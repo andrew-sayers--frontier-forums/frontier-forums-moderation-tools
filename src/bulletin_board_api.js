@@ -2289,34 +2289,60 @@ VBulletin.prototype.login = function( iframe, default_user ) {
 
     var bb = this;
 
-    function listen(event) {
-        if (event.origin !== bb._origin) return;
-        if ( event.data == 'BulletinBoard VBulletin get default user' ) {
-            document.title = title;
-            iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
-            event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
-        } else if ( event.data == 'BulletinBoard VBulletin show' ) {
-            iframe.css({ display: 'block', width: '450px', height: '2em' });
-        } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
-            iframe.hide();
-        } else {
-            event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
-            event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
-                bb.security_token = security_token;
-                document.title = title;
-                iframe.hide();
-                window.removeEventListener("message", listen, false);
-                dfd.resolve(iframe);
-            });
-        }
-    }
-
-    window.addEventListener("message", listen, false);
-
     iframe
         .css({ overflow: 'hidden', display: 'none' })
         .attr( 'src', this._origin )
     ;
+
+    function get_login() {
+        function listen(event) {
+            if (event.origin !== bb._origin) return;
+            if ( event.data == 'BulletinBoard VBulletin get default user' ) {
+                document.title = title;
+                iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
+                event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+            } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+                iframe.css({ display: 'block', width: '450px', height: '2em' });
+            } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
+                iframe.hide();
+            } else {
+                event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
+                event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
+                    bb.security_token = security_token;
+                    document.title = title;
+                    iframe.hide();
+                    window.removeEventListener("message", listen, false);
+                    BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
+                        creation_time : new Date().getTime(),
+                        session_id    : bb.session_id,
+                        security_token: bb.security_token
+                    }));
+                    dfd.resolve(iframe);
+                });
+            }
+        }
+
+        window.addEventListener("message", listen, false);
+    }
+
+    if ( default_user ) {
+        BabelExt.memoryStorage.get( 'VBulletin login ' + bb._origin + ' ' + default_user, function(data) {
+            if ( data.value ) {
+                var credentials = JSON.parse(data.value);
+                if ( credentials.creation_time + 60*60*1000 > new Date().getTime() ) {
+                    bb.session_id     = credentials.session_id;
+                    bb.security_token = credentials.security_token;
+                    dfd.resolve(iframe);
+                } else {
+                    get_login();
+                }
+            } else {
+                get_login();
+            }
+        })
+    } else {
+        get_login();
+    }
 
     return dfd.promise();
 
