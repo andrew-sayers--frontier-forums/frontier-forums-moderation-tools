@@ -2184,39 +2184,47 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
     var dfd = new jQuery.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
 
+    var login_attempt_count = 0;
+
     iframe
         .css({ overflow: 'hidden', display: 'none' })
         .attr( 'src', url )
         .one( 'load', function() {
             document.title = title;
             if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) { // need to log in
-                $(iframe[0].contentDocument.body).css({ overflow: 'hidden' }).find('p').remove();
-                iframe.css({ display: 'block', width: '450px', height: '200px' }); // set the desired size
-                var form = $(iframe[0].contentDocument.body).find('form');
-                iframe.css({ width: form.outerWidth() + 'px', height: form.outerHeight() + 'px' }); // fit based on the computed size
-                var has_progressed = false;
-                var interval = setInterval(function() {
-                    if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) {
-                        // still on the login page
-                    } else if ( $('#redirect_button,#vb_login_username,.standard_error', iframe[0].contentDocument.body).length && !has_progressed ) {
-                        // on the redirect page
-                        has_progressed = true;
-                        iframe.hide();
-                        dfd.notify();
-                    } else if ( $( page_top_selector || '#cpform', iframe[0].contentDocument.body ).length ) {
-                        // on the user page
-                        iframe.hide();
-                        clearInterval(interval);
-                        if ( !has_progressed ) dfd.notify();
-                        document.title = title;
-                        interval = setInterval(function() {
-                            if ( $( page_bottom_selector || '.copyright', iframe[0].contentDocument.body ).length ) {
-                                dfd.resolve(iframe[0]);
-                                clearInterval(interval);
-                            }
-                        }, 50);
-                    } // else page is loading
-                }, 50);
+                setTimeout(function() {
+                    if ( !login_attempt_count++ && document.getElementsByTagName('iframe')[0].contentDocument.getElementById('vb_login_password').value.length ) {
+                        $(iframe[0].contentDocument.body).find('form').submit();
+                    } else {
+                        $(iframe[0].contentDocument.body).css({ overflow: 'hidden' }).find('p').remove();
+                        iframe.css({ display: 'block', width: '450px', height: '200px' }); // set the desired size
+                        var form = $(iframe[0].contentDocument.body).find('form');
+                        iframe.css({ width: form.outerWidth() + 'px', height: form.outerHeight() + 'px' }); // fit based on the computed size
+                    }
+                    var has_progressed = false;
+                    var interval = setInterval(function() {
+                        if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) {
+                            // still on the login page
+                        } else if ( $('#redirect_button,#vb_login_username,.standard_error', iframe[0].contentDocument.body).length && !has_progressed ) {
+                            // on the redirect page
+                            has_progressed = true;
+                            iframe.hide();
+                            dfd.notify();
+                        } else if ( $( page_top_selector || '#cpform', iframe[0].contentDocument.body ).length ) {
+                            // on the user page
+                            iframe.hide();
+                            clearInterval(interval);
+                            if ( !has_progressed ) dfd.notify();
+                            document.title = title;
+                            interval = setInterval(function() {
+                                if ( $( page_bottom_selector || '.copyright', iframe[0].contentDocument.body ).length ) {
+                                    dfd.resolve(iframe[0]);
+                                    clearInterval(interval);
+                                }
+                            }, 50);
+                        } // else page is loading
+                    }, 50);
+                }, 0 );
             } else { // already logged in
                 dfd.notify();
                 document.title = title;
