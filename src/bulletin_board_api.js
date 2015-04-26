@@ -676,7 +676,7 @@ VBulletin.prototype.detect_post_error = function(reply) {
                 return null;
         } else {
             var errors = $(reply).find( '.blockrow.error' );
-            if ( errors.length && errors.text().length )
+            if ( errors.length && errors.text().search(/\S/)!=-1 )
                 return $.trim(errors.text());
             else
                 return null;
