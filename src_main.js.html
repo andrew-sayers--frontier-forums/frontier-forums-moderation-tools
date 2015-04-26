@@ -1557,7 +1557,7 @@ function handle_post_edit( bb ) { BabelExt.utils.dispatch(
         callback: function(stash, pathname, params, button) {
             bb.on_posts_modified(function(modifications) {
                 if ( modifications.edited.length ) {
-                    $('#deltype_soft').prop( 'checked', true )
+                    $('#deltype_soft').click()
                         .parent().css({ width: '400px' }).append(' (recommended)');
                 }
             });
