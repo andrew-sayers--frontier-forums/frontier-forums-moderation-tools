@@ -1496,11 +1496,10 @@ Dashboard.prototype.server_stats_refresh = function(bb, container) {
 
 Dashboard.prototype.folder_init = function(bb, container) {
 
-    if ( !this.cache['folder-done-'+container.data('folder')] ) {
+    if ( !this.cache['folder-done-'+container.data('id')] ) {
         var dashboard = this;
-        var folder_id = container.data('folder');
-        return this.bb.folder_pms(folder_id).then(function(pms) {
-            dashboard.cache['folder-done-'+container.data('folder')] = pms.length ? pms[0].pm_id : 0;
+        return this.bb.folder_pms(container.data('folder')).then(function(pms) {
+            dashboard.cache['folder-done-'+container.data('id')] = pms.length ? pms[0].pm_id : 0;
             dashboard.update_cache();
         });
     }
@@ -1510,13 +1509,13 @@ Dashboard.prototype.folder_init = function(bb, container) {
 // called when the user clicks the "done" or "undone" button:
 Dashboard.prototype.folder_done = function(bb, container, undo) {
     // update the cache so future calls to refresh() act as if the monitor has been (un)done
-    this.cache['folder-done-'+container.data('folder')] = container.data( undo ? 'undone_id' : 'done_id' );
+    this.cache['folder-done-'+container.data('id')] = container.data( undo ? 'undone_id' : 'done_id' );
 }
 
 // called when it's time to refresh the list:
 Dashboard.prototype.folder_refresh = function(bb, container) {
 
-    var dashboard = this, folder_id = container.data('folder');
+    var dashboard = this, folder_id = container.data('id');
 
     var done_id = dashboard.cache['folder-done-'+folder_id];
 
