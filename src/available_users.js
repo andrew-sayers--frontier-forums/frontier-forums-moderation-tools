@@ -92,10 +92,12 @@ AvailableUsers.prototype.active = function(val) {
     if ( typeof(val) != 'undefined' && val != this.active ) {
         this.active = val;
         if ( this.active ) {
-            $(document.body).on ( 'mousemove', this._available );
+            $(window       ).on ( 'focus scroll'      , this._available );
+            $(document.body).on ( 'mousemove keypress', this._available );
             this._available();
         } else {
-            $(document.body).off( 'mousemove', this._available );
+            $(window       ).off( 'focus scroll'      , this._available );
+            $(document.body).off( 'mousemove keypress', this._available );
         }
     }
     return this.active;
