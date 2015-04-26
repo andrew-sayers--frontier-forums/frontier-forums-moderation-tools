@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.12.2",
+	"version": "4.13",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -14,7 +14,9 @@
 		{
 			"matches": [
 				"*://forums.frontier.co.uk/*",
-				"*://forumstest.frontier.co.uk/*"
+				"*://forumstest.frontier.co.uk/*",
+				"*://forums.frontier.co.uk./*",
+				"*://forumstest.frontier.co.uk./*"
 			],
 			"js": [
 				"lib/BabelExt.js",
@@ -67,8 +69,12 @@
 	"permissions": [
 		"http://altairvista.com:1234/*",
 		"http://frontiermods.replayirc.com:443/*",
+		"https://forums.frontier.co.uk./*",
+		"https://forumstest.frontier.co.uk./*",
 		"*://forums.frontier.co.uk/*",
 		"*://forumstest.frontier.co.uk/*",
+		"*://forums.frontier.co.uk./*",
+		"*://forumstest.frontier.co.uk./*",
 		"contextMenus",
 		"tabs",
 		"history",

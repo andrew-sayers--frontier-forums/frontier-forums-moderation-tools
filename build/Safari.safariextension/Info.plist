@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.12.2</string>
+	<string>4.13</string>
 	<key>CFBundleVersion</key>
-	<string>4.12.2</string>
+	<string>4.13</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -114,6 +114,8 @@
 			<array>
 				<string>forums.frontier.co.uk</string>
 				<string>forumstest.frontier.co.uk</string>
+				<string>forums.frontier.co.uk.</string>
+				<string>forumstest.frontier.co.uk.</string>
 			</array>
 			<key>Include Secure Pages</key>
 			<true/>
