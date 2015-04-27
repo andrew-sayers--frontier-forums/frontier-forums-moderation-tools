@@ -74,16 +74,16 @@ NewbiePolicy.prototype = Object.create(null, {
         configurable: false,
         value: {
             inappropriate: [
-                { html: 'honest mistake', type: 'PM'         },
-                { html: 'deliberate'    , type: 'infraction' },
-                { html: 'provocative'   , type: 'infraction' },
-                { html: 'malicious'     , type: 'infraction' }
+                { html: 'honest mistake', type: 'PM'        , icon: '/images/buttons/add-infraction_sm.png' },
+                { html: 'deliberate'    , type: 'infraction', icon: '/images/buttons/red-card_sm.png' },
+                { html: 'provocative'   , type: 'infraction', icon: '/images/buttons/red-card_sm.png' },
+                { html: 'malicious'     , type: 'infraction', icon: '/images/buttons/red-card_sm.png' }
             ],
             dupe: [
-                { html: 'honest mistake', type: 'PM'         },
-                { html: 'deliberate'    , type: 'warning'    }, // PM the primary and infract the additional account
-                { html: 'provocative'   , type: 'infraction' },
-                { html: 'malicious'     , type: 'infraction' }
+                { html: 'honest mistake', type: 'PM'        , icon: '/images/buttons/add-infraction_sm.png' },
+                { html: 'deliberate'    , type: 'warning'   , icon: '/images/buttons/yellow-card_sm.png' }, // PM the primary and infract the additional account
+                { html: 'provocative'   , type: 'infraction', icon: '/images/buttons/red-card_sm.png' },
+                { html: 'malicious'     , type: 'infraction', icon: '/images/buttons/red-card_sm.png' }
             ]
         }
     },

@@ -48,8 +48,14 @@ ol.dashboard-body {
 .dashboard-newbies .options_block.collapsed .blockbody,
 .dashboard-newbies .options_block:not(.valid) .blockbody.valid,
 .dashboard-newbies .options_block:not(.inappropriate) .blockbody.inappropriate,
-.dashboard-newbies .options_block:not(.dupe) .blockbody.dupe {
+.dashboard-newbies .options_block:not(.dupe) .blockbody.dupe,
+.dashboard-newbies .options_block:not(.inappropriate) .action.inappropriate,
+.dashboard-newbies .options_block:not(.dupe) .action.dupe {
     display: none;
+}
+
+.dashboard-newbies .action {
+    vertical-align: top;
 }
 
 .dashboard-newbies a.collapse {

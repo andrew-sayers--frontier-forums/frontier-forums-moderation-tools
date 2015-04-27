@@ -304,8 +304,14 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                          * Initialise the inappropriate username block
                          */
 
+                        var inappropriate_level;
+
                         function update_inappropriate() {
                             if ( !extra_post ) return; // ignore the callback during construction
+                            block.find('.action.inappropriate').html(
+                                '<img src="' + inappropriate_level.icon + '">' +
+                                '<img src="/images/smilies/vbsmileys/eek.png">'
+                            );
                             block.find('[name="issue"][value="inappropriate"]')
                                 .data( 'action', newbie_policy.action_inappropriate_wrapper( extra_post, notification.action(), user ));
                             update_actions();
@@ -335,6 +341,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                             {
                                 container: inappropriate.find('.posthead'),
                                 callback: function(level) {
+                                    inappropriate_level = level;
                                     notification.val(newbie_policy.notification_selector_inappropriate( level, user ));
                                     extra_post.val(newbie_policy.extra_post_inappropriate(level, user));
                                     update_inappropriate();
@@ -379,6 +386,11 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                         function update_dupe() {
 
                             var extra_post, user_actions = [];
+
+                            block.find('.action.dupe').html(
+                                '<img src="' + dupe_level.icon + '">' +
+                                dupe_users.map(function(user, index) { return '<img src="/images/smilies/vbsmileys/rolleyes.png">' }).join('')
+                            );
 
                             dupe_action_container.empty().append(
 
