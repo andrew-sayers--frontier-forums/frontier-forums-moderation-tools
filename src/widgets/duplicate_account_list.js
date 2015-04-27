@@ -37,9 +37,9 @@ function DuplicateAccountList( args ) {
     this.bb        = args.bb;
     this.user_info = {};
     if ( args.required && args.required.length ) {
-        this.email_highlighter = new EmailHighlighter({ v: args.v, source_address: args.required[0].email });
+        this.account_highlighter = new AccountHighlighter({ v: args.v, source_username: args.required[0].username, source_address: args.required[0].email });
     } else {
-        this.email_highlighter = new EmailHighlighter({ v: args.v, source_address: '@' });
+        this.account_highlighter = new AccountHighlighter({ v: args.v, source_username: '', source_address: '@' });
     }
 
     // make sure there's a <datalist> for us:
@@ -91,9 +91,9 @@ function DuplicateAccountList( args ) {
 }
 
 DuplicateAccountList.prototype = Object.create(Widget, {
-    bb               : { writable: true, configurable: false },
-    user_info        : { writable: true, configurable: false },
-    email_highlighter: { writable: true, configurable: false },
+    bb                 : { writable: true, configurable: false },
+    user_info          : { writable: true, configurable: false },
+    account_highlighter: { writable: true, configurable: false },
 });
 DuplicateAccountList.prototype.constructor = DuplicateAccountList;
 
@@ -116,11 +116,14 @@ DuplicateAccountList.prototype._set_row = function( row, username, user_id, firs
         row.find( '.notes' ).html( user.notes ).find('time').timeago();
         if ( first_user ) {
             var email = user.email.split('@');
+            row.find('.member'        )        .text( username );
             row.find('.email-user a'  )        .text( email[0] );
             row.find('.email-domain a').first().text( email[1] );
         } else {
-            this.email_highlighter.highlight_to_element(
+            this.account_highlighter.highlight_to_element(
+                username,
                 user.email,
+                row.find('.member'),
                 row.find('.email-user a'  ),
                 row.find('.email-domain a').first()
             );

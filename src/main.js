@@ -516,19 +516,20 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                         anchors.eq(2)
                             .attr( 'href', bb.url_for.moderation_ipsearch({ username: user.username, depth: 2 }) )
                             .find('span').text( user.username );
-                        var highlighter = new EmailHighlighter({ v: v, source_address: user.email });
+                        var highlighter = new AccountHighlighter({ v: v, source_username: user.username, source_address: user.email });
                         element
                             .children('ul')
                             .append(
                                 user.suspected_duplicates.map(function(user) {
                                     var element = $('<li><a></a> &lt;<a><span></span>@<span></span></a>&gt; <span></span></li>')
                                     element.find('a').first()
-                                        .attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) )
-                                        .text( user.username );
+                                        .attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) );
                                     var email_element = element.find('a').last()
                                         .attr( 'href', 'mailto:' + user.moderation_info.email );
                                     highlighter.highlight_to_element(
+                                        user.username,
                                         user.moderation_info.email,
+                                        element.find('a').first(),
                                         email_element.children().eq(0),
                                         email_element.children().eq(1)
                                     );
