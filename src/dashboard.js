@@ -335,8 +335,8 @@ Dashboard.prototype.newbies_init = function(bb, container) {
             dashboard.update_cache();
         } else {
             // first run - get min_user_id if possible, else set it to the next user ID that will be created:
-            return bb.users_list_new().then
-                .then(function(min_user_id, users) {
+            return bb.users_list_new()
+                .then(function(users) {
                     dashboard.cache['newbies-next'] = users[0].user_id + 1;
                     dashboard.update_cache();
                 });
