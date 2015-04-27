@@ -311,6 +311,12 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                             block.find('.action.inappropriate').html(
                                 '<img src="' + inappropriate_level.icon + '">' +
                                 '<img src="/images/smilies/vbsmileys/eek.png">'
+                            ).data(
+                                'summary',
+                                '[*][img]' + location.origin + inappropriate_level.icon + '[/img]' +
+                                ':eek:' +
+                                ' "[URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]"' +
+                                ' is an inappropriate username (' + inappropriate_level.html + ': ' + inappropriate_level.type + ')\n'
                             );
                             block.find('[name="issue"][value="inappropriate"]')
                                 .data( 'action', newbie_policy.action_inappropriate_wrapper( extra_post, notification.action(), user ));
@@ -387,9 +393,23 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
                             var extra_post, user_actions = [];
 
+                            var primary_account, dupe_accounts = [];
+                            dupe_users.forEach(function(user) {
+                                if ( user.is_primary )
+                                    primary_account = ' [URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]';
+                                else
+                                    dupe_accounts.push( '[URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]' );
+                            });
+
                             block.find('.action.dupe').html(
                                 '<img src="' + dupe_level.icon + '">' +
                                 dupe_users.map(function(user, index) { return '<img src="/images/smilies/vbsmileys/rolleyes.png">' }).join('')
+                            ).data(
+                                'summary',
+                                '[*][img]' + location.origin + dupe_level.icon + '[/img]' +
+                                dupe_users.map(function(user) { return ':rolleyes:' }).join('') +
+                                primary_account + ' has duplicate(s) ' + dupe_accounts.join(', ') +
+                                ' (' + dupe_level.html + ': ' + dupe_level.type + ')\n'
                             );
 
                             dupe_action_container.empty().append(
@@ -465,7 +485,18 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             var min_user_id, max_user_id;
 
             dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
-                progress_bar(this, newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val() ), 'validated!').then(function() {
+                progress_bar(
+                    this,
+                    newbie_policy.fire(
+                        min_user_id,
+                        max_user_id,
+                        '[list]\n' +
+                            dashboard.find('.dashboard-newbies .action:visible').map(function() { return $(this).data('summary') }).get().join('') +
+                        '[/list]',
+                        dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val()
+                    ),
+                    'validated!'
+                ).then(function() {
                     stash.newbies.data( 'min_user_id', max_user_id );
                 });
             });

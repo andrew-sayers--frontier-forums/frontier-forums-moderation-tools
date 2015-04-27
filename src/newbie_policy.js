@@ -125,16 +125,18 @@ NewbiePolicy.prototype.set_actions = function(actions) {
  * @summary Fire the actions
  * @param {Number} min_user_id lowest user ID
  * @param {Number} max_user_id highest user ID
+ * @param {string} summary     summary of actions
  * @param {string} extra_notes text entered by the user
  * @return {jQuery.Promise} Promise representing the whole graph of actions
  */
-NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, extra_notes) {
+NewbiePolicy.prototype.fire = function(min_user_id, max_user_id, summary, extra_notes) {
     if ( this.has_actions ) {
         return this.root_action.fire_with_journal(
             this.bb,
             {
                 'min user id': min_user_id,
                 'max user id': max_user_id,
+                'summary'    : summary,
                 'extra notes': extra_notes
             },
             this.v,
