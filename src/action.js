@@ -491,11 +491,11 @@ Action.prototype.title = function() {
     return descriptions_list.sort(function(a,b) { return b.highest_index < a.highest_index }).map(function(desc_type) {
         var targets = desc_type.targets;
         switch ( desc_type.type ) {
-        case 'PM'        : return ( targets.length == 1 ) ? 'PM '      +          targets[0].username    : 'send '     + targets.length + ' PMs';
-        case 'warning'   : return ( targets.length == 1 ) ? 'warn '    +          targets[0].username    : 'warn '     + targets.length + ' accounts';
-        case 'infraction': return ( targets.length == 1 ) ? 'infract ' +          targets[0].username    : 'infract '  + targets.length + ' accounts';
-        case 'usernote'  : return ( targets.length == 1 ) ? 'update notes for ' + targets[0].username    : 'update '   + targets.length + ' user notes';
-        case 'post'      : return ( targets.length == 1 ) ? 'reply to ' +         targets[0].thread_desc : 'reply to ' + targets.length + ' threads';
+        case 'PM'        : return ( targets.length == 1 ) ? 'PM '      +          targets[0].username    : 'send '    + targets.length + ' PMs';
+        case 'warning'   : return ( targets.length == 1 ) ? 'warn '    +          targets[0].username    : 'warn '    + targets.length + ' accounts';
+        case 'infraction': return ( targets.length == 1 ) ? 'infract ' +          targets[0].username    : 'infract ' + targets.length + ' accounts';
+        case 'usernote'  : return ( targets.length == 1 ) ? 'update notes for ' + targets[0].username    : 'update '  + targets.length + ' user notes';
+        case 'post'      : return ( targets.length == 1 ) ? 'reply to ' +         targets[0].thread_desc : 'post '    + targets.length + ' replies';
         case 'user IPs'  :
             if ( targets.length == 1 )
                 return 'Build IP address report for ' + targets[0].username;
