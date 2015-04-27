@@ -34,6 +34,31 @@
     </div>
     <ul class="list">
 
+        <li class="item" data-name="AccountHighlighter">
+            <span class="title">
+                <a href="AccountHighlighter.html">AccountHighlighter</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AccountHighlighter#highlight"><a href="AccountHighlighter.html#highlight">highlight</a></li>
+
+                <li data-name="AccountHighlighter#highlight_to_element"><a href="AccountHighlighter.html#highlight_to_element">highlight_to_element</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Action">
             <span class="title">
                 <a href="Action.html">Action</a>
@@ -236,31 +261,6 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
-
-            </ul>
-            <ul class="events itemMembers">
-
-            </ul>
-        </li>
-
-        <li class="item" data-name="EmailHighlighter">
-            <span class="title">
-                <a href="EmailHighlighter.html">EmailHighlighter</a>
-
-            </span>
-            <ul class="members itemMembers">
-
-            </ul>
-            <ul class="typedefs itemMembers">
-
-            </ul>
-            <ul class="methods itemMembers">
-
-            <span class="subtitle">Methods</span>
-
-                <li data-name="EmailHighlighter#highlight"><a href="EmailHighlighter.html#highlight">highlight</a></li>
-
-                <li data-name="EmailHighlighter#highlight_to_element"><a href="EmailHighlighter.html#highlight_to_element">highlight_to_element</a></li>
 
             </ul>
             <ul class="events itemMembers">
@@ -1134,8 +1134,20 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                          * Initialise the inappropriate username block
                          */
 
+                        var inappropriate_level;
+
                         function update_inappropriate() {
                             if ( !extra_post ) return; // ignore the callback during construction
+                            block.find('.action.inappropriate').html(
+                                '&lt;img src="' + inappropriate_level.icon + '">' +
+                                '&lt;img src="/images/smilies/vbsmileys/eek.png">'
+                            ).data(
+                                'summary',
+                                '[*][img]' + location.origin + inappropriate_level.icon + '[/img]' +
+                                ':eek:' +
+                                ' "[URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]"' +
+                                ' is an inappropriate username (' + inappropriate_level.html + ': ' + inappropriate_level.type + ')\n'
+                            );
                             block.find('[name="issue"][value="inappropriate"]')
                                 .data( 'action', newbie_policy.action_inappropriate_wrapper( extra_post, notification.action(), user ));
                             update_actions();
@@ -1165,6 +1177,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                             {
                                 container: inappropriate.find('.posthead'),
                                 callback: function(level) {
+                                    inappropriate_level = level;
                                     notification.val(newbie_policy.notification_selector_inappropriate( level, user ));
                                     extra_post.val(newbie_policy.extra_post_inappropriate(level, user));
                                     update_inappropriate();
@@ -1209,6 +1222,25 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                         function update_dupe() {
 
                             var extra_post, user_actions = [];
+
+                            var primary_account, dupe_accounts = [];
+                            dupe_users.forEach(function(user) {
+                                if ( user.is_primary )
+                                    primary_account = ' [URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]';
+                                else
+                                    dupe_accounts.push( '[URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]' );
+                            });
+
+                            block.find('.action.dupe').html(
+                                '&lt;img src="' + dupe_level.icon + '">' +
+                                dupe_users.map(function(user, index) { return '&lt;img src="/images/smilies/vbsmileys/rolleyes.png">' }).join('')
+                            ).data(
+                                'summary',
+                                '[*][img]' + location.origin + dupe_level.icon + '[/img]' +
+                                dupe_users.map(function(user) { return ':rolleyes:' }).join('') +
+                                primary_account + ' has duplicate(s) ' + dupe_accounts.join(', ') +
+                                ' (' + dupe_level.html + ': ' + dupe_level.type + ')\n'
+                            );
 
                             dupe_action_container.empty().append(
 
@@ -1283,7 +1315,18 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             var min_user_id, max_user_id;
 
             dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
-                progress_bar(this, newbie_policy.fire( min_user_id, max_user_id, dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val() ), 'validated!').then(function() {
+                progress_bar(
+                    this,
+                    newbie_policy.fire(
+                        min_user_id,
+                        max_user_id,
+                        '[list]\n' +
+                            dashboard.find('.dashboard-newbies .action:visible').map(function() { return $(this).data('summary') }).get().join('') +
+                        '[/list]',
+                        dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val()
+                    ),
+                    'validated!'
+                ).then(function() {
                     stash.newbies.data( 'min_user_id', max_user_id );
                 });
             });
@@ -1346,19 +1389,20 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                         anchors.eq(2)
                             .attr( 'href', bb.url_for.moderation_ipsearch({ username: user.username, depth: 2 }) )
                             .find('span').text( user.username );
-                        var highlighter = new EmailHighlighter({ v: v, source_address: user.email });
+                        var highlighter = new AccountHighlighter({ v: v, source_username: user.username, source_address: user.email });
                         element
                             .children('ul')
                             .append(
                                 user.suspected_duplicates.map(function(user) {
                                     var element = $('&lt;li>&lt;a>&lt;/a> &amp;lt;&lt;a>&lt;span>&lt;/span>@&lt;span>&lt;/span>&lt;/a>&amp;gt; &lt;span>&lt;/span>&lt;/li>')
                                     element.find('a').first()
-                                        .attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) )
-                                        .text( user.username );
+                                        .attr( 'href', bb.url_for.user_show({ user_id: user.user_id }) );
                                     var email_element = element.find('a').last()
                                         .attr( 'href', 'mailto:' + user.moderation_info.email );
                                     highlighter.highlight_to_element(
+                                        user.username,
                                         user.moderation_info.email,
+                                        element.find('a').first(),
                                         email_element.children().eq(0),
                                         email_element.children().eq(1)
                                     );
@@ -1817,7 +1861,7 @@ if (window.location == window.parent.location ) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 26 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 April 2015
         </footer>
     </div>
 </div>

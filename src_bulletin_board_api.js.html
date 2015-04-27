@@ -34,6 +34,31 @@
     </div>
     <ul class="list">
 
+        <li class="item" data-name="AccountHighlighter">
+            <span class="title">
+                <a href="AccountHighlighter.html">AccountHighlighter</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AccountHighlighter#highlight"><a href="AccountHighlighter.html#highlight">highlight</a></li>
+
+                <li data-name="AccountHighlighter#highlight_to_element"><a href="AccountHighlighter.html#highlight_to_element">highlight_to_element</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="Action">
             <span class="title">
                 <a href="Action.html">Action</a>
@@ -236,31 +261,6 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
-
-            </ul>
-            <ul class="events itemMembers">
-
-            </ul>
-        </li>
-
-        <li class="item" data-name="EmailHighlighter">
-            <span class="title">
-                <a href="EmailHighlighter.html">EmailHighlighter</a>
-
-            </span>
-            <ul class="members itemMembers">
-
-            </ul>
-            <ul class="typedefs itemMembers">
-
-            </ul>
-            <ul class="methods itemMembers">
-
-            <span class="subtitle">Methods</span>
-
-                <li data-name="EmailHighlighter#highlight"><a href="EmailHighlighter.html#highlight">highlight</a></li>
-
-                <li data-name="EmailHighlighter#highlight_to_element"><a href="EmailHighlighter.html#highlight_to_element">highlight_to_element</a></li>
 
             </ul>
             <ul class="events itemMembers">
@@ -2575,9 +2575,9 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
     return this.get( '/modcp/user.php?do=viewuser&amp;u=' + user_id ).then(function(html) {
         html = $(html);
 
-        var name = html.find( '[name="user\\[username\\]"]'  ).val();
+        var name = html.find( '[name="user\\[username\\]"]' ).val();
 
-        if ( !name.length ) return null; // user doesn't exist
+        if ( !name || !name.length ) return null; // user doesn't exist
 
         var image = html.find( 'img[src^="../image.php"]').attr( 'src' );
 
@@ -3119,34 +3119,60 @@ VBulletin.prototype.login = function( iframe, default_user ) {
 
     var bb = this;
 
-    function listen(event) {
-        if (event.origin !== bb._origin) return;
-        if ( event.data == 'BulletinBoard VBulletin get default user' ) {
-            document.title = title;
-            iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
-            event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
-        } else if ( event.data == 'BulletinBoard VBulletin show' ) {
-            iframe.css({ display: 'block', width: '450px', height: '2em' });
-        } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
-            iframe.hide();
-        } else {
-            event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
-            event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
-                bb.security_token = security_token;
-                document.title = title;
-                iframe.hide();
-                window.removeEventListener("message", listen, false);
-                dfd.resolve(iframe);
-            });
-        }
-    }
-
-    window.addEventListener("message", listen, false);
-
     iframe
         .css({ overflow: 'hidden', display: 'none' })
         .attr( 'src', this._origin )
     ;
+
+    function get_login() {
+        function listen(event) {
+            if (event.origin !== bb._origin) return;
+            if ( event.data == 'BulletinBoard VBulletin get default user' ) {
+                document.title = title;
+                iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
+                event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+            } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+                iframe.css({ display: 'block', width: '450px', height: '2em' });
+            } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
+                iframe.hide();
+            } else {
+                event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
+                event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
+                    bb.security_token = security_token;
+                    document.title = title;
+                    iframe.hide();
+                    window.removeEventListener("message", listen, false);
+                    BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
+                        creation_time : new Date().getTime(),
+                        session_id    : bb.session_id,
+                        security_token: bb.security_token
+                    }));
+                    dfd.resolve(iframe);
+                });
+            }
+        }
+
+        window.addEventListener("message", listen, false);
+    }
+
+    if ( default_user ) {
+        BabelExt.memoryStorage.get( 'VBulletin login ' + bb._origin + ' ' + default_user, function(data) {
+            if ( data.value ) {
+                var credentials = JSON.parse(data.value);
+                if ( credentials.creation_time + 60*60*1000 > new Date().getTime() ) {
+                    bb.session_id     = credentials.session_id;
+                    bb.security_token = credentials.security_token;
+                    dfd.resolve(iframe);
+                } else {
+                    get_login();
+                }
+            } else {
+                get_login();
+            }
+        })
+    } else {
+        get_login();
+    }
 
     return dfd.promise();
 
@@ -3301,7 +3327,7 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 26 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 April 2015
         </footer>
     </div>
 </div>

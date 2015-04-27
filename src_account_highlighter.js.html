@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Source: src/email_highlighter.js</title>
+    <title>Source: src/account_highlighter.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -33,6 +33,31 @@
         <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
     </div>
     <ul class="list">
+
+        <li class="item" data-name="AccountHighlighter">
+            <span class="title">
+                <a href="AccountHighlighter.html">AccountHighlighter</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AccountHighlighter#highlight"><a href="AccountHighlighter.html#highlight">highlight</a></li>
+
+                <li data-name="AccountHighlighter#highlight_to_element"><a href="AccountHighlighter.html#highlight_to_element">highlight_to_element</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
 
         <li class="item" data-name="Action">
             <span class="title">
@@ -236,31 +261,6 @@
             <span class="subtitle">Methods</span>
 
                 <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
-
-            </ul>
-            <ul class="events itemMembers">
-
-            </ul>
-        </li>
-
-        <li class="item" data-name="EmailHighlighter">
-            <span class="title">
-                <a href="EmailHighlighter.html">EmailHighlighter</a>
-
-            </span>
-            <ul class="members itemMembers">
-
-            </ul>
-            <ul class="typedefs itemMembers">
-
-            </ul>
-            <ul class="methods itemMembers">
-
-            <span class="subtitle">Methods</span>
-
-                <li data-name="EmailHighlighter#highlight"><a href="EmailHighlighter.html#highlight">highlight</a></li>
-
-                <li data-name="EmailHighlighter#highlight_to_element"><a href="EmailHighlighter.html#highlight_to_element">highlight_to_element</a></li>
 
             </ul>
             <ul class="events itemMembers">
@@ -821,7 +821,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="src_email_highlighter.js.html">Source: src/email_highlighter.js</h1>
+        <h1 class="page-title" data-filename="src_account_highlighter.js.html">Source: src/account_highlighter.js</h1>
 
 
 
@@ -829,79 +829,107 @@
     <section>
         <article>
             <pre class="prettyprint source "><code>/**
- * @file Highlight similar e-mail addresses
+ * @file Highlight similarly-named accounts
  * @author Andrew Sayers
  */
 
 /**
- * @summary Highlight similar e-mail addresses
+ * @summary Highlight similar accounts
  * @constructor
  * @param {Object} args address arguments
  * @example
  *
- * var highlighter = new EmailHighlighter({
+ * var highlighter = new AccountHighlighter({
  *     v: v, // Variables object
- *     source_address: 'a@b.cd'
+ *     source_username: 'a@b.cd'
+ *     source_address : 'a@b.cd'
  * });
  */
-function EmailHighlighter( args ) {
+function AccountHighlighter( args ) {
 
     var email = args.source_address.split('@');
     args.v.resolve('internal extension data', 'common e-mail domains', {}, 'array of items').forEach(function(domain) {
         if ( email[1].toLowerCase() == domain.value.toLowerCase() ) email[1] = '';
     });
-    this.source_name   = email[0].toLowerCase().split('');
+    this.source_name   = email[0].toLowerCase();
     this.source_domain = email[1].toLowerCase();
+
+    this.source_username = args.source_username.toLowerCase();
 
 }
 
-EmailHighlighter.prototype = Object.create(null, {
-    source_name  : { writable: true, configurable: false },
-    source_domain: { writable: true, configurable: false },
+AccountHighlighter.prototype = Object.create(null, {
+    source_username: { writable: true, configurable: false },
+    source_name    : { writable: true, configurable: false },
+    source_domain  : { writable: true, configurable: false },
 });
-EmailHighlighter.prototype.constructor = EmailHighlighter;
+AccountHighlighter.prototype.constructor = AccountHighlighter;
 
 /**
  * @summary Return highlighted values
  * @param {string} target_address E-mail address to highlight
  * @return {Object} highlighted sections for name and domain
  * @example
- * new EmailHighlighter({ name: 'b@c.de', v: v }).highlight( 'abc@c.de' )
- * // returns { name: [ 'a', 'b', 'c' ], domain: [ '', 'c.de', '' ] }
+ * new AccountHighlighter({ source_username: 'bee', source_address: 'b@c.de', v: v }).highlight( 'ay bee cee', 'abc@c.de' )
+ * // returns { username: [ 'ay ', 'bee', ' cee' ], name: [ 'a', 'b', 'c' ], domain: [ '', 'c.de', '' ] }
  */
-EmailHighlighter.prototype.highlight = function( target_address ) {
+AccountHighlighter.prototype.highlight = function( target_username, target_address ) {
 
     target_address = target_address.split('@');
 
-    /*
-     * Compare usernames by longest common substring
-     */
-    var source_name = this.source_name;
-    var target_address_name = target_address[0].toLowerCase().split('');
-    var longest_start=0, longest_length=-1;
-    for ( var n=0; n&lt;source_name.length; ++n ) {
-        for ( var m=0; m&lt;target_address_name.length; ++m ) {
-            var max_length = Math.min( source_name.length - n, target_address_name.length - m );
-            if ( max_length >= longest_length ) {
-                for ( var length=0; length != max_length &amp;&amp; source_name[n+length] == target_address_name[m+length]; ++length ) {
-                    if ( longest_length &lt; length ) {
-                        longest_start = m;
-                        longest_length = length;
+    function longest_common_substring(source, target) {
+        var longest_start=0, longest_length=-1;
+        for ( var n=0; n&lt;source.length; ++n ) {
+            for ( var m=0; m&lt;target.length; ++m ) {
+                var max_length = Math.min( source.length - n, target.length - m );
+                if ( max_length >= longest_length ) {
+                    for ( var length=0; length != max_length &amp;&amp; source[n+length] == target[m+length]; ++length ) {
+                        if ( longest_length &lt; length ) {
+                            longest_start = m;
+                            longest_length = length;
+                        }
                     }
                 }
             }
         }
+        // calculation above is off-by-one, but a correct algorithm would be much uglier:
+        ++longest_length;
+        if ( longest_length > 3 || longest_length == source.length || longest_length == target.length )
+            return [ longest_start, longest_length ];
+        else
+            return [ 0, 0 ];
     }
+
+    /*
+     * Compare names by longest common substring
+     */
+    var username_name_match     = longest_common_substring( this.source_username, target_address[0].toLowerCase() );
+    var     name_name_match     = longest_common_substring( this.source_name    , target_address[0].toLowerCase() );
+    var username_username_match = longest_common_substring( this.source_username, target_username  .toLowerCase() );
+    var     name_username_match = longest_common_substring( this.source_name    , target_username  .toLowerCase() );
+
+    // get the longest match, or the match of the same type if it's a tie:
+    var     name_match = ( username_name_match    [1] >  name_name_match    [1] ) ? username_name_match     : name_name_match    ;
+    var username_match = ( username_username_match[1] >= name_username_match[1] ) ? username_username_match : name_username_match;
 
     return {
 
-        name:
-        // calculation above is off-by-one, but a correct algorithm would be much uglier:
-        ( ++longest_length &amp;&amp; ( longest_length > 4 || longest_length == source_name.length || longest_length == target_address_name.length ) )
+        username:
+        username_match[1]
         ? [ // looks like a match!
-            target_address[0].substr(0            ,longest_start ),
-            target_address[0].substr(longest_start,longest_length),
-            target_address[0].substr(longest_start+longest_length)
+            target_username.substr(0            ,username_match[0]),
+            target_username.substr(username_match[0],username_match[1]),
+            target_username.substr(username_match[0]+username_match[1])
+        ]
+        : [ target_username, '', '' ]
+        ,
+
+        name:
+        name_match[1]
+        ? [ // looks like a match!
+            target_address[0].substr(0            ,name_match[0]),
+            target_address[0].substr(name_match[0],name_match[1]),
+            target_address[0].substr(name_match[0]+name_match[1])
         ]
         : [ target_address[0], '', '' ]
         ,
@@ -918,23 +946,30 @@ EmailHighlighter.prototype.highlight = function( target_address ) {
 
 /**
  * @summary convenience function to populate elements with a highlighted e-mail
- * @param {string} target_address   E-mail address to highlight
- * @param {jQuery} name_container   Element to place the user's name in
- * @param {jQuery} domain_container Element to place the user's domain in
+ * @param {string} target_username    Username to highlight
+ * @param {string} target_address     E-mail address to highlight
+ * @param {jQuery} username_container Element to place the user's username in
+ * @param {jQuery} name_container     Element to place the e-mail name in
+ * @param {jQuery} domain_container   Element to place the e-mail domain in
  */
-EmailHighlighter.prototype.highlight_to_element = function( target_address, name_container, domain_container ) {
+AccountHighlighter.prototype.highlight_to_element = function( target_username, target_address, username_container, name_container, domain_container ) {
 
-    target_address = this.highlight(target_address);
+    var target = this.highlight(target_username, target_address);
+
+    username_container.html('&lt;span>&lt;/span>&lt;b>&lt;/b>&lt;span>&lt;/span>');
+    username_container.children().eq(0).text( target.username[0] );
+    username_container.children().eq(1).text( target.username[1] );
+    username_container.children().eq(2).text( target.username[2] );
 
     name_container.html('&lt;span>&lt;/span>&lt;b>&lt;/b>&lt;span>&lt;/span>');
-    name_container.children().eq(0).text( target_address.name[0] );
-    name_container.children().eq(1).text( target_address.name[1] );
-    name_container.children().eq(2).text( target_address.name[2] );
+    name_container.children().eq(0).text( target.name[0] );
+    name_container.children().eq(1).text( target.name[1] );
+    name_container.children().eq(2).text( target.name[2] );
 
     domain_container.html('&lt;span>&lt;/span>&lt;b>&lt;/b>&lt;span>&lt;/span>');
-    domain_container.children().eq(0).text( target_address.domain[0] );
-    domain_container.children().eq(1).text( target_address.domain[1] );
-    domain_container.children().eq(2).text( target_address.domain[2] );
+    domain_container.children().eq(0).text( target.domain[0] );
+    domain_container.children().eq(1).text( target.domain[1] );
+    domain_container.children().eq(2).text( target.domain[2] );
 
 }
 </code></pre>
@@ -949,7 +984,7 @@ EmailHighlighter.prototype.highlight_to_element = function( target_address, name
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 26 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 April 2015
         </footer>
     </div>
 </div>
