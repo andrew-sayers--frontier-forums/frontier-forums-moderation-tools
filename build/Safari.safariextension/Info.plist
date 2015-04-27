@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.14</string>
+	<string>4.15</string>
 	<key>CFBundleVersion</key>
-	<string>4.14</string>
+	<string>4.15</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -85,7 +85,7 @@
 				<string>src/dashboard.js</string>
 				<string>src/report.js</string>
 				<string>src/form_keys.js</string>
-				<string>src/email_highlighter.js</string>
+				<string>src/account_highlighter.js</string>
 				<string>src/ip_address_report.js</string>
 				<string>src/newbie_policy.js</string>
 				<string>src/legacy.js</string>
