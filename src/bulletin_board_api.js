@@ -422,17 +422,25 @@ function VBulletin(args) {
 
     setInterval(
         function() {
-            return bb.post(
-                '/ajax.php',
-                {
-	            do: 'securitytoken'
-                }
-            ).then(function(xml) {
-                if ( this.origin )
-                    this.security_token                = xml.getElementsByTagName('securitytoken')[0].textContent;
-                else
+            if ( bb._origin ) {
+                // can't reset the token without cookies - just ping the page and hope for the best
+                bb.get( '/' ).then(function() {
+                    BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
+                        creation_time : new Date().getTime(),
+                        session_id    : bb.session_id,
+                        security_token: bb.security_token
+                    }))
+                });
+            } else {
+                return bb.post(
+                    '/ajax.php',
+                    {
+	                do: 'securitytoken'
+                    }
+                ).then(function(xml) {
                     $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
-            });
+                });
+            };
         },
         1000*60*30 // every 30 minutes
     );
@@ -563,6 +571,7 @@ VBulletin.prototype.constructor = VBulletin;
 VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 
     // only used if "origin" is set:
+    default_user  : { writable: true, configurable: false },
     session_id    : { writable: true, configurable: false },
     security_token: { writable: true, configurable: false },
 
@@ -2309,6 +2318,7 @@ VBulletin.prototype.login = function( iframe, default_user ) {
                 event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
                 event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
                     bb.security_token = security_token;
+                    bb.default_user   = default_user;
                     document.title = title;
                     iframe.hide();
                     window.removeEventListener("message", listen, false);
