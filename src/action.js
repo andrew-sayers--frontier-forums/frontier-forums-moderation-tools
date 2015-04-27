@@ -360,7 +360,11 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
                 '[/tr]';
         }).join('');
 
-        keys['action result data'] += '[/table]';
+        var end_time = completed_promises.reduce(function(prev, p) { return prev.getTime() > p.end_time ? prev : p.end_time }, start_time );
+        keys['action result data'] +=
+            '[/table]\n' +
+            'Action completed at: ' + end_time + ' (total duration: ' + ( ( end_time.getTime() - start_time.getTime() ) / 1000 ) + 's)'
+        ;
 
         return bb.post_edit({
             post_id: journal_post_id,
