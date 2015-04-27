@@ -2,6 +2,7 @@
     text-align: center;
 }
 
+.duplicate-account-list td.email-user,
 .duplicate-account-list td.notes1 {
     text-align: right;
 }
