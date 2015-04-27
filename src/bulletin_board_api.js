@@ -1745,9 +1745,9 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
     return this.get( '/modcp/user.php?do=viewuser&u=' + user_id ).then(function(html) {
         html = $(html);
 
-        var name = html.find( '[name="user\\[username\\]"]'  ).val();
+        var name = html.find( '[name="user\\[username\\]"]' ).val();
 
-        if ( !name.length ) return null; // user doesn't exist
+        if ( !name || !name.length ) return null; // user doesn't exist
 
         var image = html.find( 'img[src^="../image.php"]').attr( 'src' );
 
