@@ -265,7 +265,13 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
             dashboard.find('.dashboard-newbies .dashboard-body')
                 .on( 'click', 'a.collapse', function(event) {
-                    $(this).closest('.options_block').toggleClass('collapsed');
+                    var block = $(this).closest('.options_block');
+
+                    if ( block.hasClass('collapsed') ) {
+                        block.find('input[name="issue"]:checked').click();
+                    } else {
+                        block.addClass('collapsed');
+                    }
                     event.stopPropagation();
                     event.preventDefault();
                 })
