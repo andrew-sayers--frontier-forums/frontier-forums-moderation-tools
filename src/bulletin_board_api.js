@@ -1788,7 +1788,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
             ip        : html.find( '[name="user\\[ipaddress\\]"]' ).val(),
             homepage  : html.find( '[name="user\\[homepage\\]"]'  ).val(),
             signature : html.find( '[name="signature"]'           ).val(),
-            post_count: html.find( '[name="user\\[posts\\]"]'     ).val(),
+            post_count: parseInt( html.find( '[name="user\\[posts\\]"]').val(), 10 ),
 
             groups    : [primary_group].concat(additional_groups),
 
@@ -1825,6 +1825,11 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
             '(joined <time datetime="' +     join_date.toISOString() + '">' +     join_date.toISOString() + '</time>,' +
             ' active <time datetime="' + activity_date.toISOString() + '">' + activity_date.toISOString() + '</time>'
         );
+        switch ( ret.post_count ) {
+        case 0 :                                                  break;
+        case 1 : ret.summary += ', 1 post'                      ; break;
+        default: ret.summary += ', ' + ret.post_count + ' posts'; break;
+        }
         var groups = ret.groups.filter(function(group) { return group != bb._config['default user group'] }).join(', ');
         switch ( groups.length ) {
         case 0 : ret.summary +=                         ')'; break;
