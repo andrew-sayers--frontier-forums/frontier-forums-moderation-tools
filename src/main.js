@@ -666,6 +666,20 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
                 });
                 event.preventDefault();
             });
+
+            post.find('a[href="#download-thread"]')
+                .click(function(event) {
+                    var $this = $(this);
+                    v.serialise_thread(params.t, document.title, document.body).then(function(xml) {
+                        var link = $('<a>')
+                            .attr( 'download', 'Thread ' + params.t + ' - ' + document.title + '.xml' )
+                            .attr( 'href', 'data:application/octet-stream,'+encodeURIComponent(xml) )
+                            .appendTo(document.body);
+                        link[0].click(); // for some reason, link.click() doesn't work
+                        link.remove();
+                    });
+                    event.preventDefault();
+                });
             $('#posts').prepend(post);
 
             // Refresh variables:

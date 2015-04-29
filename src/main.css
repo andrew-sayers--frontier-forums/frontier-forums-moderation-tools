@@ -151,3 +151,16 @@ a.dashboard-refresh {
     background-color: yellow;
     border-radius: 2px
 }
+
+.mod-friend-variables-buttons {
+    width: 100%;
+    text-align: center;
+    margin: 1em;
+}
+
+.mod-friend-variables-buttons a {
+    float: none;
+    display: inline;
+    text-decoration: none;
+    font-size: 200%;
+}
