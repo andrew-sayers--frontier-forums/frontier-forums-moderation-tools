@@ -1832,11 +1832,8 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
         default: ret.summary += ', ' + ret.post_count + ' posts'; break;
         }
         var groups = ret.groups.filter(function(group) { return group != bb._config['default user group'] }).join(', ');
-        switch ( groups.length ) {
-        case 0 : ret.summary +=                         ')'; break;
-        case 1 : ret.summary += ', group: '  + groups + ')'; break;
-        default: ret.summary += ', groups: ' + groups + ')'; break;
-        }
+        if ( groups.length ) ret.summary += ', ' + groups;
+        ret.summary += ')';
 
         return ret;
     });
