@@ -567,3 +567,42 @@ VariablesFromForum.prototype.refresh_thread = function(thread_id, body) {
     var v = this;
     return v.thread_namespace( this.cache.threads[thread_id], body ).then(function() { return v.update_cache() });
 }
+
+/**
+ * Serialise a variables thread for backup/later upload
+ * @param {Number}      thread_id thread to refresh
+ * @param {string}      title     title for the current thread
+ * @param {HTMLElement} body      page for the current thread
+ * @param {jQuery.Promise}
+ */
+VariablesFromForum.prototype.serialise_thread = function(thread_id, title, body) {
+
+    var post_contents = [];
+    var bb = this.bb;
+
+    return bb.thread_posts( thread_id, body ).then(function(posts) {
+
+        return $.when.apply( $, posts.map(function(index) {
+            var post = this;
+            if ( post.post_id != '0' ) {
+                return bb.post_info(post.post_id).then(function(info) {
+                    var root = $('<root><post></post></root>');
+                    if ( post.title ) root.children().attr( 'title', post.title );
+                    root.children().text( info.bbcode );
+                    post_contents[index] = '	' + root.html() + "\n";
+                });
+            }
+        }))
+            .then(function() {
+                var root = $('<root><thread></thread></root>');
+                root.children()
+                    .attr( 'id'   , thread_id )
+                    .attr( 'title', title )
+                    .html( '\n' + post_contents.filter(function(post) { return post }).join('') )
+                ;
+                return root.html().replace(/&nbsp;/g, '&#xA0;');
+            });
+
+    });
+
+}
