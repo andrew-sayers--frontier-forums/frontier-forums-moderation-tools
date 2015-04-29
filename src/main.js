@@ -503,7 +503,7 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                     ),
                     'validated!'
                 ).then(function() {
-                    stash.newbies.data( 'min_user_id', max_user_id );
+                    stash.newbies.data( 'min_user_id', max_user_id+1 );
                 });
             });
 

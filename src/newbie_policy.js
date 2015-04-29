@@ -111,7 +111,7 @@ NewbiePolicy.prototype.set_actions = function(actions) {
     this.root_action.then(new Action( 'update shared store', {
         fire: function(data) {
             var max_user_id = data['max user id'];
-            return ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id });
+            return ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id+1 });
         }
     }));
     var title = this.root_action.title();
