@@ -694,7 +694,7 @@ Dashboard.prototype.folder_refresh = function(bb, container) {
 
     return bb.folder_pms(folder_id).then(function(pms) {
 
-        if ( done_id == pms[0].pm_id ) return;
+        if ( !pms.length || done_id == pms[0].pm_id ) return;
 
         container.data( 'undone_id', done_id );
         container.data( 'done_id', pms[0].pm_id );
