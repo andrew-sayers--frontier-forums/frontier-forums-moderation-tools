@@ -959,6 +959,7 @@ VBulletin.prototype.post_create = function( date, username, user_title, post_tit
 
     var post = $('#posts li').first().clone();
 
+    post.attr( 'id', 'post_0' );
     post.find('[id]'               ).removeAttr( 'id' );
     post.find('.date'              ).text( date );
     post.find('.postdetails'       ).attr( 'class', 'postdetails' ); // remove flare etc.
