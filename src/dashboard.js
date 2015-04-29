@@ -411,11 +411,14 @@ Dashboard.prototype.newbies_refresh = function(bb, container) {
 
     function get_newbies(user_id) {
 
-        if ( dashboard.cache['newbies-next'] < user_id ) {
+        if ( dashboard.cache['newbies-next'] < user_id )
             dashboard.cache['newbies-next'] = user_id;
-            current_users = current_users.filter(function(user) { user.user_id >= user_id });
+
+        current_users = current_users.filter(function(user) {
+            if ( user.user_id >= user_id ) return true
             container.data( 'signature', false );
-        }
+            return false;
+        });
 
         return $.when(
             bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
