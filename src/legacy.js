@@ -372,7 +372,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     // create the block (and add easy-to-add info):
                     container.find('#user-info').html(
                         '<div class="view-stats_mini"></div>' +
-                        ( stash.watched_users.hasOwnProperty(user_id) ? stash.watchlist_html : '' ) +
                         '<div><a id="browsing_options" href="/modcp/user.php?do=viewuser&u='+user_id+'#ctrl_options[receivepm]"><b>Browsing options</b></a></div>' +
                         '<div class="profile_content"><div id="infractions_block"><b>Infractions</b>: none</div></div>' +
                         '<ol id="user_notes"><li><b>User notes</b>: none</ol>'
@@ -485,41 +484,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
     },
 
-
-    { // retrieve the wathchlist
-        match_pathname: [ '/showthread.php', '/member.php', '/inlinemod.php' ],
-        pass_storage: [ 'watched_users', 'watched_users_timestamp' ],
-        pass_preferences: [ 'reload_interval' ],
-        callback: function( stash, pathname, params, watched_users, watched_users_timestamp, reload_interval ) {
-            stash.watchlist_html = '<a style="background: none" href="/showthread.php?t=10650"><img title="user is on the watch list" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAKCAQAAAAXtxYXAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfeCQgAIRS6AVz/AAAA+ElEQVQY002Pv23CQBxG3yWWbATmzEF5/DkhUaSxNzAbMIK9ASOYEdgANjCZADZwaNJmBJMuFrZ+KaxIea96xVd8CgBiTa5ylfQlH3LmfP8GUABvO3VWEXBTN5AtW5CH5J/v8AKbU3dpo/bYRc2hSZqkOXRRe2yj7rI5Aa5w4up1CqvUSe8qhXXqaieuwIqtFzGALazMy3lpxRYAi9jWVrwnICvu8ARIANQD4CdSANPMiJHJHmbafBkxYqqZhsneiJFpBoyzUEIZXYdLrXWqU62Hy9E1lLAeZ/1tBnFQBRKIX/mFX/hVIIEE1SDmP17mla/S65Xe35ZfppZeW0ULI8kAAAAASUVORK5CYII=" style="margin-right: 0.5ex">on the watchlist</a>';
-            stash.watched_users = JSON.parse( watched_users || '{}' );
-
-            if ( parseInt(watched_users_timestamp||'0',10)+reload_interval*1000 < new Date().getTime() ) {
-                $.ajax({
-                    url: '/showpost.php?p=246029&postcount=1',
-                    dataType: "html",
-                    success: function( msg ) {
-                        msg = $(msg).find('#post_message_246029');
-                        if ( msg.length ) {
-                            stash.watched_users = {};
-                            msg.find( 'a[href^="http://forums.frontier.co.uk/search.php?do=finduser&u="]' )
-                                .each(function() {
-                                    stash.watched_users[this.href.substr(54)] = 1;
-                                });
-                            BabelExt.storage.set( 'watched_users', JSON.stringify( stash.watched_users ) );
-                            BabelExt.storage.set( 'watched_users_timestamp', new Date().getTime() + 60*60*1000 );
-                        } else {
-                            alert( "Could not refresh the watchlist - some users may be incorrectly shown as (not) on the list until you refresh the page" );
-                        }
-                    },
-                    error: function() {
-                        alert( "Could not refresh the watchlist - some users may be incorrectly shown as (not) on the list until you refresh the page" );
-                    }
-                });
-            }
-
-        }
-    },
 
     /*
      * DELETE POSTS AS SPAM
@@ -986,12 +950,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
             bb.process_posts().each(function() {
                 this.linking.append(
-                    '<a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0"><span style="font-size: 120%">&#x266b;</span> User Notes</a>' +
-                        (
-                            stash.watched_users.hasOwnProperty(this.user_id)
-                                ? stash.watchlist_html
-                                : ''
-                        )
+                    '<a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0"><span style="font-size: 120%">&#x266b;</span> User Notes</a>'
                 );
 
                 var report_element = this.report_element.wrap('<div class="mod-tools-menu"></div>').parent();
