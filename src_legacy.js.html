@@ -605,6 +605,8 @@
 
                 <li data-name="VariablesFromForum#resolve"><a href="VariablesFromForum.html#resolve">resolve</a></li>
 
+                <li data-name="VariablesFromForum#serialise_thread"><a href="VariablesFromForum.html#serialise_thread">serialise_thread</a></li>
+
                 <li data-name="VariablesFromForum#set_namespaces"><a href="VariablesFromForum.html#set_namespaces">set_namespaces</a></li>
 
                 <li data-name="VariablesFromForum#update_cache"><a href="VariablesFromForum.html#update_cache">update_cache</a></li>
@@ -1202,7 +1204,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     // create the block (and add easy-to-add info):
                     container.find('#user-info').html(
                         '&lt;div class="view-stats_mini">&lt;/div>' +
-                        ( stash.watched_users.hasOwnProperty(user_id) ? stash.watchlist_html : '' ) +
                         '&lt;div>&lt;a id="browsing_options" href="/modcp/user.php?do=viewuser&amp;u='+user_id+'#ctrl_options[receivepm]">&lt;b>Browsing options&lt;/b>&lt;/a>&lt;/div>' +
                         '&lt;div class="profile_content">&lt;div id="infractions_block">&lt;b>Infractions&lt;/b>: none&lt;/div>&lt;/div>' +
                         '&lt;ol id="user_notes">&lt;li>&lt;b>User notes&lt;/b>: none&lt;/ol>'
@@ -1315,41 +1316,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
     },
 
-
-    { // retrieve the wathchlist
-        match_pathname: [ '/showthread.php', '/member.php', '/inlinemod.php' ],
-        pass_storage: [ 'watched_users', 'watched_users_timestamp' ],
-        pass_preferences: [ 'reload_interval' ],
-        callback: function( stash, pathname, params, watched_users, watched_users_timestamp, reload_interval ) {
-            stash.watchlist_html = '&lt;a style="background: none" href="/showthread.php?t=10650">&lt;img title="user is on the watch list" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAKCAQAAAAXtxYXAAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfeCQgAIRS6AVz/AAAA+ElEQVQY002Pv23CQBxG3yWWbATmzEF5/DkhUaSxNzAbMIK9ASOYEdgANjCZADZwaNJmBJMuFrZ+KaxIea96xVd8CgBiTa5ylfQlH3LmfP8GUABvO3VWEXBTN5AtW5CH5J/v8AKbU3dpo/bYRc2hSZqkOXRRe2yj7rI5Aa5w4up1CqvUSe8qhXXqaieuwIqtFzGALazMy3lpxRYAi9jWVrwnICvu8ARIANQD4CdSANPMiJHJHmbafBkxYqqZhsneiJFpBoyzUEIZXYdLrXWqU62Hy9E1lLAeZ/1tBnFQBRKIX/mFX/hVIIEE1SDmP17mla/S65Xe35ZfppZeW0ULI8kAAAAASUVORK5CYII=" style="margin-right: 0.5ex">on the watchlist&lt;/a>';
-            stash.watched_users = JSON.parse( watched_users || '{}' );
-
-            if ( parseInt(watched_users_timestamp||'0',10)+reload_interval*1000 &lt; new Date().getTime() ) {
-                $.ajax({
-                    url: '/showpost.php?p=246029&amp;postcount=1',
-                    dataType: "html",
-                    success: function( msg ) {
-                        msg = $(msg).find('#post_message_246029');
-                        if ( msg.length ) {
-                            stash.watched_users = {};
-                            msg.find( 'a[href^="http://forums.frontier.co.uk/search.php?do=finduser&amp;u="]' )
-                                .each(function() {
-                                    stash.watched_users[this.href.substr(54)] = 1;
-                                });
-                            BabelExt.storage.set( 'watched_users', JSON.stringify( stash.watched_users ) );
-                            BabelExt.storage.set( 'watched_users_timestamp', new Date().getTime() + 60*60*1000 );
-                        } else {
-                            alert( "Could not refresh the watchlist - some users may be incorrectly shown as (not) on the list until you refresh the page" );
-                        }
-                    },
-                    error: function() {
-                        alert( "Could not refresh the watchlist - some users may be incorrectly shown as (not) on the list until you refresh the page" );
-                    }
-                });
-            }
-
-        }
-    },
 
     /*
      * DELETE POSTS AS SPAM
@@ -1816,12 +1782,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
             bb.process_posts().each(function() {
                 this.linking.append(
-                    '&lt;a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0">&lt;span style="font-size: 120%">&amp;#x266b;&lt;/span> User Notes&lt;/a>' +
-                        (
-                            stash.watched_users.hasOwnProperty(this.user_id)
-                                ? stash.watchlist_html
-                                : ''
-                        )
+                    '&lt;a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0">&lt;span style="font-size: 120%">&amp;#x266b;&lt;/span> User Notes&lt;/a>'
                 );
 
                 var report_element = this.report_element.wrap('&lt;div class="mod-tools-menu">&lt;/div>').parent();
@@ -3305,7 +3266,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 28 April 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 29 April 2015
         </footer>
     </div>
 </div>
