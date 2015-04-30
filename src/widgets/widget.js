@@ -16,7 +16,10 @@
  */
 function Widget( args, name ) {
 
-    this.element = $(BabelExt.resources.get('res/widgets/' + name + '.html')).appendTo( $(args.container) );
+    this.element = $(BabelExt.resources.get('res/widgets/' + name + '.html'));
+
+    if ( args.container ) this.element.appendTo( $(args.container) );
+    else if ( args.insertBefore ) this.element.insertBefore( $(args.insertBefore) );
 
     if ( args.callback ) {
         var widget = this;
