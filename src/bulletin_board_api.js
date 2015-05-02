@@ -11,7 +11,8 @@
  * @example
  * var bb = new ChildOfBulletinBoard({
  *     config: { ... },
- *     origin: 'http://www.example.com' // default: current site
+ *     origin: 'http://www.example.com', // default: current site
+ *     doc: my_document // default: document
  * });
  *
  * @description At the time of writing, the only configuration values are:
@@ -22,11 +23,13 @@ function BulletinBoard(args) {
     this._config = $.extend( { 'unPMable user groups': [], 'default user group': '' }, args ? args.config : {} );
     this._origin = args ? args.origin : '';
     this.url_for = {};
+    this.doc = $( ( args || {} ).doc || document );
 }
 BulletinBoard.prototype = Object.create(null, {
 
     _config: { writable: true, configurable: false },
     _origin: { writable: true, configurable: false },
+    doc    : { writable: true, configurable: false },
     // construct product-specific URLs - concrete implementations should add functions here
     url_for: { writable: true, configurable: false }
 
@@ -624,11 +627,11 @@ VBulletin.prototype.fix_url = function(url) {
     return url;
 }
 
-VBulletin.prototype.get_posts = function(doc) { return $( doc || document ).find('#posts').children() }
+VBulletin.prototype.get_posts = function(doc) { return $( doc || this.doc ).find('#posts').children() }
 
 VBulletin.prototype.get_pages = function(doc) {
     var ret = { current: 1, total: 1 };
-    ( $( doc || document ).find('.pagination a').first().text() || '' ).replace( /Page ([0-9]+) of ([0-9]+)/, function(match, current, total) {
+    ( $( doc || this.doc ).find('.pagination a').first().text() || '' ).replace( /Page ([0-9]+) of ([0-9]+)/, function(match, current, total) {
         ret = { current: parseInt( current, 10 ), total: parseInt( total  , 10 ) };
     });
     return ret;
@@ -1271,7 +1274,7 @@ VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
 VBulletin.prototype.thread_edit = function( data ) {
     return this.post( '/postings.php?do=updatethread&t=' + data.thread_id, {
         do      : 'updatethread',
-        title   : data.title || document.title,
+        title   : data.title,
         notes   : data.notes,
         prefixid: data.prefix_id,
         visible : data.unapprove_thread ? 'no' : 'yes',
@@ -2000,7 +2003,7 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
         yesterday = [ yesterday.getDate().toString().replace(/^(.)$/,"0$1"), (yesterday.getMonth()+1).toString().replace(/^(.)$/,"0$1"), yesterday.getYear()+1900 ].join( '/' );
 
         if ( is_moderator && !this._forum_threads_callback_initialised++ ) {
-            $(document).on( 'dblclick', '.bb_api_threadstatus', function() {
+            bb.doc.on( 'dblclick', '.bb_api_threadstatus', function() {
                 var threadbit = $(this).closest('.threadbit');
                 bb.thread_openclose( $(this).data( 'thread_id' ), threadbit.hasClass('lock') )
                     .done(function() { threadbit.toggleClass('lock') });
@@ -2154,15 +2157,15 @@ VBulletin.prototype.css_add = function(page_types) {
  */
 VBulletin.prototype.css_keys = function() {
     var ret = {}, element;
-    element = $('<div></div>').appendTo(document.body);
+    element = $('<div></div>').appendTo(this.doc.find('body'));
     ret['foreground colour'] =  element.css( 'color' );
     element.remove();
 
-    element = $('<div class="body_wrapper"></div>').appendTo(document.body);
+    element = $('<div class="body_wrapper"></div>').appendTo(this.doc.find('body'));
     ret['body_wrapper background colour'] = element.css('background-color');
     element.remove();
 
-    element = $('<div class="popupmenu"><a class="popupctrl"></a></div>').appendTo(document.body);
+    element = $('<div class="popupmenu"><a class="popupctrl"></a></div>').appendTo(this.doc.find('body'));
     element.children().css('background-image').replace(/(?:^|\/)images\.([^\/]*)/, function(image, theme) { ret.theme = theme });
     element.remove();
 
@@ -2328,9 +2331,10 @@ VBulletin.prototype.login = function( iframe, default_user ) {
                 iframe.hide();
             } else {
                 event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
-                event.data.replace( /^BulletinBoard VBulletin success (.*)/, function(match, security_token) {
+                event.data.replace( /^BulletinBoard VBulletin success (.*)\n([^]*)/, function(match, security_token, doc) {
                     bb.security_token = security_token;
                     bb.default_user   = default_user;
+                    bb.doc = $(doc);
                     document.title = title;
                     iframe.hide();
                     window.removeEventListener("message", listen, false);
@@ -2432,7 +2436,7 @@ VBulletin.iframe_callbacks = function(target_origin, cookie_domains) {
                     });
                 });
                 else {
-                    window.parent.postMessage( 'BulletinBoard VBulletin success ' + input.value, target_origin );
+                    window.parent.postMessage( 'BulletinBoard VBulletin success ' + input.value + "\n" + document.documentElement.outerHTML, target_origin );
                 }
             }
         }
@@ -2456,8 +2460,8 @@ VBulletin.prototype.editor_set = function( text ) {
 VBulletin.prototype.editor_get = function() {
     // The only reliable way to get this value is from JavaScript running in page context:
     BabelExt.utils.runInEmbeddedPage( 'document.body.setAttribute( "data-editor-contents", vB_Editor["vB_Editor_001"].get_editor_contents() )');
-    var ret = document.body.getAttribute('data-editor-contents');
-    document.body.removeAttribute('data-editor-contents');
+    var ret = this.doc.find('body').attr('data-editor-contents');
+    this.doc.find('body').removeAttr('data-editor-contents');
     return ret;
 }
 
@@ -2492,9 +2496,10 @@ VBulletin.prototype.server_stats = function( ) {
  * This function redirects from the fake page to the real one.
  */
 VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
+    var bb = this;
     bb.get( '/modcp/user.php?do=doips' ).then(function(html) {
         function redirect() {
-            var form = $(html).find('#cpform').hide().appendTo(document.body);
+            var form = $(html).find('#cpform').hide().appendTo(bb.doc.find('body'));
             [ 'ipaddress', 'username', 'depth' ].forEach(function(param) {
                 if ( params.hasOwnProperty(param) ) form.find( '[name="' + param + '"]' ).val( params[param] );
             });
