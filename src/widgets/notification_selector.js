@@ -239,9 +239,9 @@ function NotificationSelector( args ) {
 
             if ( notification.element.hasClass('preview') ) {
                 var level_element = notification.element.children('.'+value.level);
-                level_element.find('.preview').html( args.loading_html );
+                level_element.find('.postrow').html( args.loading_html );
                 args.bb.bbcode_html( args.thread_id, level_element.find('textarea').val() )
-                    .done(function(html) { level_element.find('.preview').html(html) })
+                    .done(function(html) { level_element.find('.postrow').html(html) })
                 ;
             }
 
@@ -375,9 +375,11 @@ NotificationSelector.prototype.mode = function( mode ) {
         this.element.removeClass('edit preview').addClass(mode);
         if ( mode == 'preview' ) {
             var level_element = this.element.children('.'+this.value.level);
-            level_element.find('.preview').html( this.loading_html );
+            level_element.find('.postrow').html( this.loading_html );
             this.bb.bbcode_html( this.thread_id, level_element.find('textarea').val() )
-                .done(function(html) { level_element.find('.preview').html(html) })
+                .done(function(html) {
+                    level_element.find('.postrow').html(html);
+                })
             ;
         }
     }
