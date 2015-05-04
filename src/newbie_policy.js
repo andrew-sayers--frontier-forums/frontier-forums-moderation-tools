@@ -118,7 +118,7 @@ NewbiePolicy.prototype.set_actions = function(actions) {
     this.has_actions = title.length;
     if ( !title.length ) return null;
     title[0] = title[0][0].toUpperCase() + title[0].slice(1);
-    return title.length && title.join(', ') + ' and mark users validated';
+    return title.length && title.join('; ') + '; and mark users validated';
 }
 
 /**

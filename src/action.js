@@ -177,6 +177,7 @@ Action.prototype.fire = function(bb, keys) {
             case 'warning'   : return    'warn [URL="' + location.origin + bb.url_for.user_show({ user_id: desc.target.user_id }) + '"]' + desc.target.username + '[/URL]';
             case 'infraction': return 'infract [URL="' + location.origin + bb.url_for.user_show({ user_id: desc.target.user_id }) + '"]' + desc.target.username + '[/URL]';
             case 'usernote'  : return 'update [URL="' + location.origin + bb.url_for.user_notes({ user_id: desc.target.user_id }) + '"]user notes for ' + desc.target.username + '[/URL]';
+            case 'close'     : return 'close [thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
             case 'post'      : return 'reply to ' + (
                 desc.target.post_id
                 ?   '[post=' + desc.target.  post_id + ']' + desc.target.thread_desc + '[/post]'
@@ -479,6 +480,49 @@ Action.prototype.title = function() {
 
     // Convert the list of actions to a user-friendly string:
 
+    // STEP ONE: group together actions on a common target:
+    var descriptions_by_target = { user: [], thread: [] }, target_types = {
+        'PM'        : 'user',
+        'warning'   : 'user',
+        'infraction': 'user',
+        'usernote'  : 'user',
+        'user IPs'  : 'user',
+        'post'      : 'thread',
+        'close'     : 'thread'
+    };
+    descriptions.forEach(function(description, index) {
+
+        if ( !target_types.hasOwnProperty(description.type) ) return;
+
+        var target_type = target_types[description.type];
+        var target = target_type == 'user' ? description.target.user_id : description.target.thread_id;
+        if ( descriptions_by_target[target_type].hasOwnProperty(target) )
+            descriptions_by_target[target_type][target].push( description );
+        else
+            descriptions_by_target[target_type][target] = [ description ];
+    });
+    Object.keys(descriptions_by_target).forEach(function(target) {
+        descriptions_by_target[target].forEach(function(desc_list) {
+            if ( desc_list.length == 1 ) return;
+            desc_list[desc_list.length-1].type = desc_list.map(function(desc) {
+                desc.ignore = true;
+                switch ( desc.type ) {
+                case 'PM'        : return 'PM';
+                case 'warning'   : return 'warn';
+                case 'infraction': return 'infract';
+                case 'usernote'  : return 'add a note for';
+                case 'user IPs'  : return 'build IP address report for';
+                case 'post'      : return 'reply to';
+                case 'close'     : return 'close';
+                default: throw 'impossible: ' + desc.type;
+                }
+            }).join(', ').replace( /, ([^,]*)$/, " and $1 " ).replace( / for,/, ',' );
+            desc_list[desc_list.length-1].multiple_target = target;
+        });
+    });
+    descriptions = descriptions.filter(function(desc) { return desc.multiple_target || !desc.ignore });
+
+    // STEP TWO: GROUP ACTIONS BY TYPE
     var descriptions_by_type = {}, descriptions_list = [];
 
     descriptions.forEach(function(description, index) {
@@ -487,29 +531,36 @@ Action.prototype.title = function() {
             descriptions_by_type[ description.type ].targets.push( description.target );
         } else {
             descriptions_list.push(
-                descriptions_by_type[ description.type ] = { type: description.type, targets: [ description.target ], highest_index: index }
+                descriptions_by_type[ description.type ] = { type: description.type, multiple_target: description.multiple_target, targets: [ description.target ], highest_index: index }
             );
         }
     });
 
+    // STEP THREE: BUILD THE LIST
     return descriptions_list.sort(function(a,b) { return b.highest_index < a.highest_index }).map(function(desc_type) {
         var targets = desc_type.targets;
-        switch ( desc_type.type ) {
-        case 'PM'        : return ( targets.length == 1 ) ? 'PM '      +          targets[0].username    : 'send '    + targets.length + ' PMs';
-        case 'warning'   : return ( targets.length == 1 ) ? 'warn '    +          targets[0].username    : 'warn '    + targets.length + ' accounts';
-        case 'infraction': return ( targets.length == 1 ) ? 'infract ' +          targets[0].username    : 'infract ' + targets.length + ' accounts';
-        case 'usernote'  : return ( targets.length == 1 ) ? 'update notes for ' + targets[0].username    : 'update '  + targets.length + ' user notes';
-        case 'post'      : return ( targets.length == 1 ) ? 'reply to ' +         targets[0].thread_desc : 'post '    + targets.length + ' replies';
-        case 'user IPs'  :
-            if ( targets.length == 1 )
-                return 'Build IP address report for ' + targets[0].username;
-            else
-                return 'Build IP address report(s) for ' + targets.length + ' users';
-        default:
-            if ( targets.length == 1 )
-                return desc_type.type
-            else
-                return desc_type.type + ' x ' + desc_type.targets.length;
+        switch ( desc_type.multiple_target ) {
+        case 'user'  : return ( targets.length == 1 ) ? desc_type.type + targets[0].username : desc_type.type + targets.length + ' users';
+        case 'thread': return ( targets.length == 1 ) ? desc_type.type + targets[0].thread_desc : desc_type.type + targets.length + ' threads';
+        case undefined:
+            switch ( desc_type.type ) {
+            case 'PM'        : return ( targets.length == 1 ) ? 'PM '      +          targets[0].username    : 'send '    + targets.length + ' PMs';
+            case 'warning'   : return ( targets.length == 1 ) ? 'warn '    +          targets[0].username    : 'warn '    + targets.length + ' accounts';
+            case 'infraction': return ( targets.length == 1 ) ? 'infract ' +          targets[0].username    : 'infract ' + targets.length + ' accounts';
+            case 'usernote'  : return ( targets.length == 1 ) ? 'update notes for ' + targets[0].username    : 'update '  + targets.length + ' user notes';
+            case 'post'      : return ( targets.length == 1 ) ? 'reply to ' +         targets[0].thread_desc : 'post '    + targets.length + ' replies';
+            case 'close'     : return ( targets.length == 1 ) ? 'close '    +         targets[0].thread_desc : 'close '   + targets.length + ' threads';
+            case 'user IPs'  :
+                if ( targets.length == 1 )
+                    return 'Build IP address report for ' + targets[0].username;
+                else
+                    return 'Build IP address report(s) for ' + targets.length + ' users';
+            default:
+                if ( targets.length == 1 )
+                    return desc_type.type
+                else
+                    return desc_type.type + ' x ' + desc_type.targets.length;
+            }
         }
     });
 
