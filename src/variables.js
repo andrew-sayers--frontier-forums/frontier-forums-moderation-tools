@@ -14,7 +14,7 @@
  * + A default language is passed in
  * + If a "thread languages" variable exists, it is used for thread-specific language overrides
  * + If a "forum languages" variable exists, it is used for forum-specific language overrides
- * + Variable names of the form "foo: bar: baz" are treated specially - the part before the first ": " must be matched, others are optional (so a request for ['foo', 'bar'] would match a variable named 'foo) 
+ * + Variable names of the form "foo: bar: baz" are treated specially - the part before the first ": " must be matched, others are optional (so a request for ['foo', 'bar'] would match a variable named 'foo)
  * Variable values can include {{keys}}, which are resolved recursively.  So {{foo: {{something}}}} will first resolve {{something}}, then {{foo: (that thing)}}
  */
 function Variables(args) {
