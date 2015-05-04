@@ -165,6 +165,13 @@ a.dashboard-refresh {
     font-size: 200%;
 }
 
+
+.dashboard-section.chaseup .postbit_reputation,
+.dashboard-section.chaseup .postuseravatar,
+.dashboard-section.chaseup .user_rep {
+    display: none;
+}
+
 .notification-selector .postbitlegacy {
     margin-bottom: 0;
 }

@@ -91,10 +91,13 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             var name = $('.welcomelink a').text();
 
             var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
+            var chaseup_thread_id = v.resolve('frequently used posts/threads', 'Moderation Chase-Up Thread');
             var report_forum_id = 48;
             var introductions_forum_id = 16;
             dashboard.find( '[data-thread="mod-log"]'              ).data( 'thread', mod_log_thread_id );
             dashboard.find( 'a[href="#insert-mod-log-link"]'       ).attr( 'href'  , bb.url_for.thread_show({ thread_id: mod_log_thread_id, goto: 'newpost' }) );
+            dashboard.find( '[data-thread="chaseup-log"]'          ).data( 'thread', chaseup_thread_id );
+            dashboard.find( 'a[href="#insert-chaseup-log-link"]'   ).attr( 'href'  , bb.url_for.thread_show({ thread_id: chaseup_thread_id, goto: 'newpost' }) );
             dashboard.find( '[data-forum="reported-posts"]'        ).data( 'forum' , report_forum_id );
             dashboard.find( 'a[href="#insert-reported-posts-link"]').attr( 'href'  , bb.url_for.forum_show({ forum_id: report_forum_id }) );
             dashboard.find( '[data-forum="introductions"]'         ).data( 'forum' , introductions_forum_id );
@@ -156,6 +159,26 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                             .insertAfter(thread.title_element);
                     }
 
+                    return true;
+                });
+
+            });
+
+
+            /*
+             * CHASE-UP THREAD
+             */
+            dashboard.find('.chaseup').data( 'filter', function(posts) {
+
+                var now = new Date().getTime();
+
+                return posts.filter(function(post) {
+                    var data = bb.parse_post('action data', post);
+                    if ( !data ) return false;
+                    if ( (data.deadline || data.date + 1000*60*60*24*7) > now ) return;
+                    post.message_element.find('.bbcode_container').remove();
+                    var content = post.message_element.find( '.postcontent' );
+                    while ( content.children().last().is('br') ) content.children().last().remove();
                     return true;
                 });
 
