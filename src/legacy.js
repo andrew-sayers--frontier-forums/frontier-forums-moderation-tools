@@ -948,12 +948,12 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
             var infractions = vi.violations.map(function(infraction) { return '<li><a href="">&nbsp;Take report: ' + infraction.name + '&nbsp;' }).join('');
 
-            bb.process_posts().each(function() {
-                this.linking.append(
-                    '<a href="/usernote.php?u=' + this.user_id + '" style="background: none; padding: 0"><span style="font-size: 120%">&#x266b;</span> User Notes</a>'
+            bb.process_posts().forEach(function(post) {
+                post.linking.append(
+                    '<a href="/usernote.php?u=' + post.user_id + '" style="background: none; padding: 0"><span style="font-size: 120%">&#x266b;</span> User Notes</a>'
                 );
 
-                var report_element = this.report_element.wrap('<div class="mod-tools-menu"></div>').parent();
+                var report_element = post.report_element.wrap('<div class="mod-tools-menu"></div>').parent();
 
                 stash.convert_link_to_menu( report_element.find('a'), 'the report page' );
 
@@ -1020,7 +1020,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     "/": ' '
                 };
                 var morse_messages = {}, has_morse;
-                this.message.replace( /[-.][-. \/]{5,}[-.]/g, function(morse) {
+                post.message.replace( /[-.][-. \/]{5,}[-.]/g, function(morse) {
                     var latin = morse.split( /\s+/ ).map(function(letter) { return morse_to_latin.hasOwnProperty(letter) ? morse_to_latin[letter] : letter }).join('');
                     if ( morse.search(/-/) != -1 && morse.search(/\./) != -1 && latin.search( /[^-. ]/ ) != -1 ) {
                         morse_messages['<li><i>' + morse + '</i> is Morse code for <i>' + latin + '</i>'] = 1;
@@ -1028,13 +1028,13 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     }
                 });
                 if ( has_morse ) {
-                    $(this.message_element).closest('.postrow').after('<ol class="notices">' + Object.keys(morse_messages).sort().join("<br>") + '</ol>');
+                    $(post.message_element).closest('.postrow').after('<ol class="notices">' + Object.keys(morse_messages).sort().join("<br>") + '</ol>');
                 }
 
 
                 report_element.append(
                     '<ul class="popupbody memberaction_body">' + infractions + '</ul>'
-                ).find('li a').attr( 'href', 'report.php?p=' + this.post_id ).click(function(event) {
+                ).find('li a').attr( 'href', 'report.php?p=' + post.post_id ).click(function(event) {
                     var post_id = $(this).attr('href').substr(13);
                     $(this).before(loading_html);
                     bb.post_report(
@@ -1052,7 +1052,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                             stash.take_thread_and_go( report_thread_href, report_thread_id );
                         else
                             $.get( report_thread_href, function( html ) {
-                                var report_owner = bb.process_posts( $(html).find('.flare_Moderator,.flare_Employee').closest('li') )[0].username
+                                var report_owner = bb.process_posts( $(html).find('.flare_Moderator,.flare_Employee').closest('li').get() )[0].username
                                 if ( report_owner == $('.welcomelink a').text() ) {
                                     stash.take_thread_and_go( report_thread_href, report_thread_id );
                                 } else {
@@ -1063,11 +1063,11 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     event.preventDefault();
                 });
 
-                var ip_element = this.ip_element.wrap('<div class="mod-tools-menu"></div>').parent();
+                var ip_element = post.ip_element.wrap('<div class="mod-tools-menu"></div>').parent();
                 stash.convert_link_to_menu( ip_element.find('a'), 'the IP information page' );
                 $(
                     '<ul class="popupbody memberaction_body">' +
-                        '<li>' + stash.spam_list_links( this.ip, this.username ).join('<li>') +
+                        '<li>' + stash.spam_list_links( post.ip, post.username ).join('<li>') +
                     '</ul>'
                 ).appendTo(ip_element);
 
@@ -1341,11 +1341,11 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
             var thread_closed = $( '#newreplylink_top' ).text() != '+ Reply to Thread';
             var thread_status = thread_closed ? 'closed' : 'open';
-            var mod_posts = bb.process_posts( $('.flare_Moderator,.flare_Employee').closest('li') );
+            var mod_posts = bb.process_posts( $('.flare_Moderator,.flare_Employee').closest('li').get() );
 
             var logged_in_user = $('.welcomelink a').text();
 
-            var report_owner = ( mod_posts.filter(function() { return this.title.search(/^(?:Reported Item$|Reported Post by )/) == -1 })[0] || { username: undefined } ).username;
+            var report_owner = ( mod_posts.filter(function(post) { return post.title.search(/^(?:Reported Item$|Reported Post by )/) == -1 })[0] || { username: undefined } ).username;
             if ( report_owner ) {
                 if ( thread_status == 'open' ) thread_status = ( report_owner == logged_in_user ) ? 'yours' : 'taken';
             } else {
@@ -1354,12 +1354,12 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
             // guess the default action from mod posts:
             var infraction_id, logged_in_user_has_suggested_infraction_id;
-            mod_posts.each(function() {
-                var infraction_name = this.message_element.find('.quote_container').first().text().replace(/^\s*|[.\s]*$/g,'') || '';
+            mod_posts.forEach(function(post) {
+                var infraction_name = post.message_element.find('.quote_container').first().text().replace(/^\s*|[.\s]*$/g,'') || '';
                 var infraction = vi.violations.filter(function(infraction) { return infraction.name == infraction_name });
                 if ( infraction.length ) {
-                    if ( !infraction_id || ( this.username == logged_in_user && !logged_in_user_has_suggested_infraction_id ) ) {
-                        logged_in_user_has_suggested_infraction_id = this.username == logged_in_user;
+                    if ( !infraction_id || ( post.username == logged_in_user && !logged_in_user_has_suggested_infraction_id ) ) {
+                        logged_in_user_has_suggested_infraction_id = post.username == logged_in_user;
                         infraction_id = infraction[0].id;
                     };
                 }
@@ -1422,7 +1422,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 handle_thread();
                 break;
             case 'taken':
-                var report_owner_id = mod_posts.filter(function() { return this.username == report_owner })[0].user_id;
+                var report_owner_id = mod_posts.filter(function(post) { return post.username == report_owner })[0].user_id;
                 common_actions.find('.postcontent').html(
                     '<ul style="margin: 1em; padding-left: 1em">' +
                         '<li><a href="/private.php?do=newpm&u=' + report_owner_id + '">PM the report owner (' + report_owner +')</a>' +
@@ -2071,12 +2071,12 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 });
 
                 stash.review_post_promise.done(function(html) {
-                    posts = bb.process_posts(html.find( '#posts').children()).filter(function(post) { return parseInt(this.post_id,10) >= parseInt(post_to_review_id,10); }).get();
+                    posts = bb.process_posts(html.find( '#posts').children().get()).filter(function(post) { return parseInt(post.post_id,10) >= parseInt(post_to_review_id,10); });
                     posts[0].vbcode_promise = stash.review_post_contents_promise;
                     posts[0].is_reported_post = true;
                     var quotes_count = 0, links_count = 0;
                     bb.thread_posts( stash.thread_to_review_id, html ).done(function(more_posts) {
-                        posts = posts.concat( more_posts.filter(function(post) { return parseInt(this.post_id,10) >= parseInt(post_to_review_id,10); }).get().slice(posts.length) );
+                        posts = posts.concat( more_posts.filter(function(post) { return parseInt(this.post_id,10) >= parseInt(post_to_review_id,10); }).slice(posts.length) );
                         $('#apply-to-after').text( ' (' + (posts.length-1) + ')' );
                         var re = new RegExp( 'showthread\.php(?:\\?|.*&)p=' + post_to_review_id + '($|&|#)' );
                         posts.forEach(function(post) {

@@ -486,7 +486,7 @@ VariablesFromForum.prototype.thread_namespace = function( thread, first_page ) {
         return v.posts_namespace( thread.replies, thread.names ).then(function(namespace) { thread.namespace = namespace });
     else
         return this.bb.thread_posts( thread.thread_id, first_page ).then(function (posts) {
-            thread.replies = posts.map(function() { return this.post_id }).get();
+            thread.replies = posts.map(function(post) { return post.post_id });
             thread.replies.shift(); // ignore the first post
             return v.posts_namespace( thread.replies, thread.names ).then(function(namespace) { thread.namespace = namespace });
         });
@@ -582,8 +582,7 @@ VariablesFromForum.prototype.serialise_thread = function(thread_id, title, body)
 
     return bb.thread_posts( thread_id, body ).then(function(posts) {
 
-        return $.when.apply( $, posts.map(function(index) {
-            var post = this;
+        return $.when.apply( $, posts.map(function(post, index) {
             if ( post.post_id != '0' ) {
                 return bb.post_info(post.post_id).then(function(info) {
                     var root = $('<root><post></post></root>');

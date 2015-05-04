@@ -284,7 +284,7 @@ BulletinBoard.prototype.get_posts = function(doc) {}
  * @summary Map a list of elements returned by get_posts() to data about the posts they represent
  * @abstract
  * @param {jQuery} posts list of post elements
- * @return {jQuery} list of hashes describing each post
+ * @return {Array.<Object>} list of hashes describing each post
  */
 BulletinBoard.prototype.process_posts = function(posts) {}
 
@@ -627,7 +627,7 @@ VBulletin.prototype.fix_url = function(url) {
     return url;
 }
 
-VBulletin.prototype.get_posts = function(doc) { return $( doc || this.doc ).find('#posts').children() }
+VBulletin.prototype.get_posts = function(doc) { return $( doc || this.doc ).find('#posts').children().get() }
 
 VBulletin.prototype.get_pages = function(doc) {
     var ret = { current: 1, total: 1 };
@@ -641,15 +641,15 @@ VBulletin.prototype.process_posts = function(posts) {
     if ( !posts ) posts = this.get_posts();
     return (
         posts
-            .map(function() {
+            .map(function(post) {
                 var edited = {};
-                $( '.lastedited', this ).each(function() {
-                    var a = $('a', this);
+                $( '.lastedited', post ).each(function() {
+                    var a = $('a', post);
                     edited = {
                         edit_username: a.text().substr(15),
                         edit_user_id : a.attr('href').split('?p=')[1],
                     };
-                    $(this).text().replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
+                    $(post).text().replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
                         edited.time = time;
                         edited.reason = reason;
                     });
@@ -657,20 +657,20 @@ VBulletin.prototype.process_posts = function(posts) {
                 return $.extend(
                     edited,
                     {
-                        container_element: this,
-                        post_id          : this.id.substr(5),
-                        date             : $('.date'       , this).text(),
-                        username         : $('.username'   , this).text(),
-                        user_id          : ( $('.username' , this).attr('href') || '             guest' ).substr(13),
-                        title            : $('.title'      , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                        message          : $('.content'    , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                        message_element  : $('.content'    , this),
-                        linking          : $('.postlinking', this),
-                        ip_element       : $('.ip'         , this),
-                        report_element   : $('.report'     , this),
-                        ip               : $('.ip'         , this).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                        cleardiv         : $('.cleardiv'   , this),
-                        is_deleted       : !!$('.deleted'  , this).length
+                        container_element: post,
+                        post_id          : post.id.substr(5),
+                        date             : $('.date'       , post).text(),
+                        username         : $('.username'   , post).text(),
+                        user_id          : ( $('.username' , post).attr('href') || '             guest' ).substr(13),
+                        title            : $('.title'      , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
+                        message          : $('.content'    , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
+                        message_element  : $('.content'    , post),
+                        linking          : $('.postlinking', post),
+                        ip_element       : $('.ip'         , post),
+                        report_element   : $('.report'     , post),
+                        ip               : $('.ip'         , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
+                        cleardiv         : $('.cleardiv'   , post),
+                        is_deleted       : !!$('.deleted'  , post).length
                     }
                 );
             })

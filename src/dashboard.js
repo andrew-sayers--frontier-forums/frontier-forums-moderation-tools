@@ -226,10 +226,10 @@ Dashboard.prototype.thread_refresh = function(bb, container) {
                 container.data( 'signature', signature );
                 container.data( 'done_id', posts[posts.length-1].post_id );
 
-                posts = posts.filter(function() { return this.post_id > read_post_id });
+                posts = posts.filter(function(post) { return post.post_id > read_post_id });
                 if ( container.data('filter') ) posts = container.data('filter')(posts);
 
-                return posts.map(function(post) { return this.container_element });
+                return posts.map(function(post) { return post.container_element });
 
             });
         });

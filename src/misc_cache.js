@@ -58,7 +58,7 @@ MiscellaneousCache.prototype.refresh = function(args) {
 
                 args.bb
                     .process_posts(args.bb.get_posts(get_args[0]) ) // get all posts on the page
-                    .filter(function() { return this.post_id == infractions_list_post })[0] // get the target post
+                    .filter(function(post) { return post.post_id == infractions_list_post })[0] // get the target post
                     .message_element // get the titles and tables
                     .find('blockquote')
                     .children('font,div')
