@@ -60,6 +60,7 @@
         "src/widgets/severity_slider.js",
         "src/widgets/notification_selector.js",
         "src/widgets/duplicate_account_list.js",
+        "src/widgets/vbulletin_popup_menu.js",
 
         /* Basic functionality */
         "src/variables.js",
@@ -102,6 +103,7 @@
         "res/widgets/notification_selector.html",
         "res/widgets/severity_slider.html",
         "res/widgets/duplicate_account_list.html",
+        "res/widgets/vbulletin_popup_menu.html",
 
         "res/error_box.html",
         "res/variables_thread_post.html"
