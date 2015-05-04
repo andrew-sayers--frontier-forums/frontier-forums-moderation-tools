@@ -402,12 +402,16 @@ NewbiePolicy.prototype._action_wrapper = function(extra_action, action, users, v
  * @return {Action} augmented action
  */
 NewbiePolicy.prototype._action_data = function(violation, users) {
+    var date = new Date();
+    var next_week = new Date();
+    next_week.setDate(next_week.getDate()+7);
     return this.v.escape(
         this.bb.stringify(
             'action data',
             {
                 violation: violation,
-                date: new Date().getTime(),
+                date: date.getTime(),
+                deadline: next_week.getTime(),
                 users: users.map(function(u) { return { username: u.username, user_id: u.user_id } })
             }
         )
