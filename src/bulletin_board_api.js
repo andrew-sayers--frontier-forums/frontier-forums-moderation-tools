@@ -395,6 +395,15 @@ BulletinBoard.prototype.stringify = function(name, object, cmp) {
     return '[code]/* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' */\n' + stringify( object, cmp ) + '\n/* END DATA BLOCK: ' + name.toUpperCase() + ' */[/code]'
 }
 
+BulletinBoard.prototype._parse = function(name, text, before, after) {
+    var ret = null;
+    text.replace(
+        new RegExp( before + '/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/' + after ),
+        function( match, json ) { ret = JSON.parse(json) }
+    );
+    return ret;
+}
+
 /**
  * @summary Retrieve a string previously encoded with .stringify()
  * @param {string} name object name
@@ -402,13 +411,19 @@ BulletinBoard.prototype.stringify = function(name, object, cmp) {
  * @return {Object} parsed object
  */
 BulletinBoard.prototype.parse = function(name, text) {
-    var ret = null;
-    text.replace(
-        new RegExp( '\\[code\\]/\\* BEGIN DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\s*((?:.|\\n)*?)\\s*\\/\\* END DATA BLOCK: ' + name.toUpperCase() + ' \\*/\\[/code\\]' ),
-        function( match, json ) { ret = JSON.parse(json) }
-    );
-    return ret;
+    return this._parse( name, text, '\\[code\\]', '\\[/code\\]' );
 }
+
+/**
+ * @summary Retrieve a string previously encoded with .stringify()
+ * @param {string} name object name
+ * @param {Object} post post data returned from process_posts()
+ * @return {Object} parsed object
+ */
+BulletinBoard.prototype.parse_post = function(name, post) {/*
+    var bb = this;
+    return post.message_element.find( '...').get().reduce(function(prev,post) { return bb._parse( name, post.textContent, '^', '$' ) || prev });
+*/}
 
 
 
@@ -735,6 +750,12 @@ VBulletin.prototype.detect_post_error = function(reply) {
     } else {
         return null;
     }
+}
+
+VBulletin.prototype.parse_post = function(name, post) {
+    var bb = this;
+    return post.message_element.find( '.bbcode_code').get()
+        .reduce(function(prev,post) { return bb._parse( name, post.textContent, '^', '$' ) || prev }, null);
 }
 
 /*
