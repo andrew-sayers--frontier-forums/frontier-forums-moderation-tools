@@ -1342,6 +1342,15 @@ VBulletin.prototype.thread_merge = function( data ) {
 }
 
 /**
+ * @summary Get the title of a thread
+ * @param {string|HTMLElement=} thread thread to get page for (default: current page)
+ * @return string
+ */
+VBulletin.prototype.thread_title = function( thread ) {
+    return $.trim( $(thread || this.doc).find( '.navbit.lastnavbit span').first().text() );
+}
+
+/**
  * @summary Open or close a thread
  * @param {Number} thread_id ID of thread to open or close
  * @param {boolean} open whether the thread status should be set to "open" (instead of "closed")
