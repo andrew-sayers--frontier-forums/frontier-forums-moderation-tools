@@ -20,6 +20,7 @@
 
 .notification-selector:not(.none      ) > .none      ,
 .notification-selector:not(.PM        ) > .PM        ,
+.notification-selector:not(.post      ) > .post,
 .notification-selector:not(.warning   ) > .warning   ,
 .notification-selector:not(.infraction) > .infraction {
     display: none;

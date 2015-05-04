@@ -14,25 +14,27 @@
  * var notification = new NotificationSelector({
  *
  *     // default values (can be changed with val()):
- *     level               : 'none', // or 'PM' or 'warning' or 'infraction'
+ *     level               : 'none', // or 'post' or 'PM' or 'warning' or 'infraction'
  *     namespace           : 'variables namespace', // namespace to retrieve variables from
  *     violation           : 'default violation', // string, numeric ID or object
  *     keys                : {...}, // keys to use when resolving variables
- *           title_variable: 'Title variable', // variable to use for PM title or infraction reason
+ *           title_variable: 'Title variable', // variable to use for post/PM title or infraction reason
  *             ban_variable: 'Ban reason variable', // variable to use for reason to ban an account
  *          bbcode_variable: 'BBCode variable', // variable to use for BBCode
  *      note_title_variable: 'User note title variable', // variable to use for user note title
  *     note_bbcode_variable: 'User note BBCode variable', // variable to use for user note BBCode
  *     // these two usually aren't used:
- *     // title : 'initial text for PM title',
+ *     // title : 'initial text for post/PM title',
  *     // bbcode: 'initial text for BBCode',
+ *     show_violations     : false, // show the "violation" dropdown (default: true)
  *
  *     // other data needed for the selector to function:
  *     user            : { username: ..., user_id: ... }, // user to apply action to
  *     v               : variables, // Variables object
  *     bb              : bb, // BulletinBoard object
  *     violation_groups: [{ name: '...', violations: [v1,v2,...]},...], // list of violations to display
- *     thread_id       : 12345, // variables will be parsed and previews will display as if rendered in this thread
+ *     thread_id       : 12345, // post goes here, variables and previews will be calculated as if rendered in this thread
+ *     thread_desc     : 'name of thread (passed to Action)',
  *     loading_html    : 'Loading, please wait...', // shown while the preview is updated
  *     callback        : function(keys) { ... }, // called with the current data
  *     container       : notification_appended_to_this
@@ -91,6 +93,11 @@ function NotificationSelector( args ) {
                 return_keys['notification bbcode'] = value.bbcode;
                 return args.bb.pm_send( user.username, value.title, value.bbcode ).then(success,fail);
 
+            case 'post':
+                return_keys['notification title' ] = value.title;
+                return_keys['notification bbcode'] = value.bbcode;
+                return args.bb.thread_reply( notification.thread_id, value.title, value.bbcode ).then(success,fail);
+
             case 'warning'   : var is_warning = true; // then FALL THROUGH
             case 'infraction':
                 return_keys['notification title' ] = notification._resolve( value.ban_variable, keys );
@@ -111,8 +118,15 @@ function NotificationSelector( args ) {
 
         },
         function() {
-            if ( notification.value.level != 'none' )
-                return [{ type: notification.value.level, target: user }, { type: 'usernote', target: user }]
+            if ( notification.value.level == 'none' ) return;
+            var actions = [];
+            if ( notification.value.level == 'post' )
+                actions.push({ type: notification.value.level, target: { thread_id: args.thread_id, thread_desc: args.thread_desc } });
+            else
+                actions.push({ type: notification.value.level, target: user });
+            if ( notification.value.note_title_variable )
+                actions.push({ type: 'usernote', target: user });
+            return actions;
         },
         function() {
             if ( notification.value.level != 'none' && !select.val() )
@@ -199,7 +213,7 @@ function NotificationSelector( args ) {
 
             notification.update_maps(value.level);
 
-            if ( value.level == 'PM' ) {
+            if ( value.level == 'PM' || value.level == 'post' ) {
                 if ( value.title === null ) {
                     var new_title = notification._resolve( title, keys );
                     if ( new_title != notification.old_title ) {
@@ -215,7 +229,6 @@ function NotificationSelector( args ) {
                     notification.old_title = value.title;
                 };
             } else {
-                value.title = null;
                 [ 'top', 'bottom' ].forEach(function(location) {
                     notification.element.find('.'+value.level + ' .message-' + location).html(
                         args.v.resolve( 'report process', value.level + ' message ' + location, keys ) );
@@ -245,7 +258,8 @@ function NotificationSelector( args ) {
                 ;
             }
 
-            value.bbcode = null;
+            notification.value.title = null;
+            notification.value.bbcode = null;
 
         }
     });
@@ -297,15 +311,15 @@ NotificationSelector.prototype.update_maps = function(level) {
  * @example
  *
  * ns.val({
- *     level          : 'none', // or 'PM' or 'warning' or 'infraction'
+ *     level          : 'none', // or 'post' || 'PM' or 'warning' or 'infraction'
  *     namespace      : 'variables namespace', // namespace to retrieve variables from
  *     bbcode_variable: 'BBCode variable', // variable to use for BBCode
  *     ban_variable   : 'Ban reason variable', // variable to use for reason to ban an account
- *     title_variable : 'Title variable', // variable to use for PM title
+ *     title_variable : 'Title variable', // variable to use for post/PM title
  *     keys           : {...}, // keys to use when resolving variables
  *     violation      : 'default violation', // string, numeric ID or object
  *     // these two usually aren't used:
- *     // title  : 'initial text for PM title',
+ *     // title  : 'initial text for post/PM title',
  *     // bbcode : 'initial text for BBCode',
  *     data           : ..., arbitrary data used by the calling code
  * });
@@ -327,7 +341,7 @@ NotificationSelector.prototype.val = function( value ) {
 
         if ( value.hasOwnProperty('level') && value.level != this.value.level ) {
             this.update_maps(this.value.level);
-            this.element.removeClass('none PM warning infraction').addClass(value.level)
+            this.element.removeClass('none post PM warning infraction').addClass(value.level)
                 .find('input,select,textarea').prop( 'required', false );
             this.element                          .find('select'  ).prop( 'required', true );
             this.element.children('.'+value.level).find('textarea').prop( 'required', true );

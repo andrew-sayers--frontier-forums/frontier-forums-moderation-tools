@@ -164,3 +164,7 @@ a.dashboard-refresh {
     text-decoration: none;
     font-size: 200%;
 }
+
+.notification-selector .postbitlegacy {
+    margin-bottom: 0;
+}
