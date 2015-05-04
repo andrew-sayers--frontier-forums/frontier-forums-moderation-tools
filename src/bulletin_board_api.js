@@ -2311,6 +2311,11 @@ VBulletin.prototype.login = function( iframe, default_user ) {
     var dfd = new jQuery.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
 
+    if ( !this._origin ) {
+        dfd.resolve(iframe);
+        return dfd.promise();
+    }
+
     var bb = this;
 
     iframe

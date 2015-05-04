@@ -78,7 +78,12 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
             // Because of an obscure legacy DNS feature, you can append a '.' to a domain and connect to the same server
             // this is treated as a different server for cookie purposes, allowing us to manage a second account:
-            var mod_team_bb = new VBulletin({ origin: location.origin + '.' });
+            var mod_team_bb;
+            if ( location.hostname == 'forumstest.frontier.co.uk' ) {
+                mod_team_bb = bb;
+            } else {
+                mod_team_bb = new VBulletin({ origin: location.origin + '.' });
+            }
 
             var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
@@ -1037,6 +1042,4 @@ if (window.location == window.parent.location ) {
     // in an iframe
     if ( location.origin == 'https://forums.frontier.co.uk.' )
         VBulletin.iframe_callbacks( 'https://forums.frontier.co.uk', [ '.frontier.co.uk.', 'frontier.co.uk.' ] );
-    if ( location.origin == 'https://forumstest.frontier.co.uk.' )
-        VBulletin.iframe_callbacks( 'https://forumstest.frontier.co.uk', [ '.frontier.co.uk.', 'frontier.co.uk.' ] );
 }
