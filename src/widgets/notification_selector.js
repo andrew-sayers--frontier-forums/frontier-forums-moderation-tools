@@ -55,27 +55,33 @@ function NotificationSelector( args ) {
             keys.violation = return_keys.violation = value.violation.name;
             function success() {
                 return_keys['notification result'] = 'success';
-                return args.bb.usernote_add(
-                    user.user_id,
-                    notification._resolve( value.note_title_variable , $.extend( keys, return_keys ) ),
-                    notification._resolve( value.note_bbcode_variable, $.extend( keys, return_keys ) )
-                ).then(function() {
+                if ( value.note_title_variable ) {
+                    return args.bb.usernote_add(
+                        user.user_id,
+                        notification._resolve( value.note_title_variable , $.extend( keys, return_keys ) ),
+                        notification._resolve( value.note_bbcode_variable, $.extend( keys, return_keys ) )
+                    ).then(function() {
+                        return { keys: return_keys };
+                    });
+                } else {
                     return { keys: return_keys };
-                });
+                }
             };
 
             function fail(error) {
                 return_keys['notification result'] = 'fail';
                 return_keys['notification error' ] = error;
-                return args.bb.usernote_add(
-                    user.user_id,
-                    notification._resolve( value.note_title_variable , $.extend( keys, return_keys ) ),
-                    notification._resolve( value.note_bbcode_variable, $.extend( keys, return_keys ) )
-                ).then(function() {
-                    var dfd = jQuery.Deferred();
-                    dfd.reject(error);
-                    return dfd.promise();
-                });
+                if ( value.note_title_variable ) {
+                    return args.bb.usernote_add(
+                        user.user_id,
+                        notification._resolve( value.note_title_variable , $.extend( keys, return_keys ) ),
+                        notification._resolve( value.note_bbcode_variable, $.extend( keys, return_keys ) )
+                    ).then(function() {
+                        var dfd = jQuery.Deferred();
+                        dfd.reject(error);
+                        return dfd.promise();
+                    });
+                }
             };
 
             switch ( value.level ) {
