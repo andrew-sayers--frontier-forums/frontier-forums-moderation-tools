@@ -30,6 +30,11 @@
     margin: 0 0.25em;
 }
 
+.notification-selector .mode-switch-container {
+    width: 1px;
+    float: left;
+}
+
 .notification-selector .reset {
     float: right;
 }

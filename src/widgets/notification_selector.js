@@ -135,6 +135,14 @@ function NotificationSelector( args ) {
     this.old_title  = '';
     this.old_bbcode = '';
 
+    this.button = $('<input class="notification-text-button" type="button">')
+        .val( notification.element.hasClass('preview') ? 'switch to edit mode' : 'switch to preview mode' )
+        .on( 'click', function() {
+            this.value = 'switch to ' + ( notification.element.hasClass('preview') ? 'preview' : 'edit' ) + ' mode';
+            notification.mode           ( notification.element.hasClass('preview') ? 'edit' : 'preview' );
+        })
+        .appendTo(this.element.find('.mode-switch-container').first());
+
     var select = this.element.find('select');
 
     if ( args.violation_groups.length == 1 ) {
@@ -319,6 +327,12 @@ NotificationSelector.prototype.val = function( value ) {
             this.element.children('.'+value.level).find('textarea').prop( 'required', true );
         }
 
+        if ( this.button.closest('.notification-selector').is(this.element) )
+            this.element.find('div.' + value.level + ' .mode-switch-container').append(this.button);
+
+        if      ( value.show_violations === false ) this.element.find('.violation-details').hide();
+        else if ( value.show_violations === true  ) this.element.find('.violation-details').show();
+
         if ( value.hasOwnProperty('violation') ) {
             this.update_maps(this.value.level);
             var old_violation = this.element.find('select').val();
@@ -369,18 +383,7 @@ NotificationSelector.prototype.mode = function( mode ) {
  * @return {jQuery}
  * @description this bit of sugar provides a "mode switch" button for the widget
  */
-NotificationSelector.prototype.mode_switcher = function() {
-    var notification = this;
-    if ( !this.button )
-        this.button = $('<input class="notification-text-button" type="button">')
-        .val( notification.element.hasClass('preview') ? 'switch to edit mode' : 'switch to preview mode' )
-        .on( 'click', function() {
-            var new_mode = notification.element.hasClass('preview') ? 'edit' : 'preview';
-            this.value = 'switch to ' + new_mode + ' mode';
-            notification.mode(new_mode);
-        });
-    return this.button;
-}
+NotificationSelector.prototype.mode_switcher = function() { return this.button }
 
 /**
  * @summary <div> element where you can put "extra" actions
