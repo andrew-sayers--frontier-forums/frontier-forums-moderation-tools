@@ -214,7 +214,7 @@ Action.prototype.fire = function(bb, keys) {
             throw "Giving up: cycle detected in action graph";
         }
 
-        if ( failure_count ) return done_cb({ keys: {} }); // on failure, exit at the earliest convenience
+        if ( failure_count ) return done_cb({ keys: keys }); // on failure, exit at the earliest convenience
 
         keys = $.extend( {}, keys ); // clone keys
 
@@ -283,11 +283,11 @@ Action.prototype.fire = function(bb, keys) {
 
     }
 
-    fire_action( this, keys, function() {
+    fire_action( this, keys, function(keys) {
         if ( failure_count )
-            graph_dfd.reject ( completed_promises );
+            graph_dfd.reject ( completed_promises, keys.keys );
         else
-            graph_dfd.resolve( completed_promises );
+            graph_dfd.resolve( completed_promises, keys.keys );
     });
 
     return graph_dfd.promise();
@@ -332,7 +332,7 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
         )
     );
 
-    function finalise(completed_promises, journal_post_id, result) {
+    function finalise(completed_promises, journal_post_id, keys, result) {
 
         var start_time = completed_promises[0].start_time;
 
@@ -400,8 +400,8 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
                 keys['journal post id'] = journal_post_id;
 
                 return policy.fire(bb, keys).then(
-                    function(completed_promises) { return finalise( completed_promises, journal_post_id, 'succeeded' ) },
-                    function(completed_promises) { return finalise( completed_promises, journal_post_id, 'failed'    ) }
+                    function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
+                    function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'failed'    ) }
                 );
 
             });
