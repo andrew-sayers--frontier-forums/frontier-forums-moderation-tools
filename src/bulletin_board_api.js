@@ -420,9 +420,9 @@ function VBulletin(args) {
 
     var bb = this;
 
-    setInterval(
-        function() {
-            if ( bb._origin ) {
+    if ( bb._origin ) {
+        setInterval(
+            function() {
                 // can't reset the token without cookies - just ping the page and hope for the best
                 bb.get( '/' ).then(function() {
                     BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
@@ -431,19 +431,27 @@ function VBulletin(args) {
                         security_token: bb.security_token
                     }))
                 });
-            } else {
-                return bb.post(
-                    '/ajax.php',
-                    {
-	                do: 'securitytoken'
-                    }
-                ).then(function(xml) {
-                    $('input[name="securitytoken"]').val(xml.getElementsByTagName('securitytoken')[0].textContent);
-                });
-            };
-        },
-        1000*60*30 // every 30 minutes
-    );
+            }, 1000*60*30 );
+    } else {
+        var securitytoken = '';
+        $(function() { securitytoken = bb._get_token() });
+        setInterval(
+            function() {
+                if ( bb._get_token() == securitytoken ) { // skip this if the token was already updated
+                    return bb.post(
+                        '/ajax.php?do=securitytoken',
+                        {
+	                    do: 'securitytoken'
+                        }
+                    ).then(function(xml) {
+                        securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
+                        $('input[name="securitytoken"]').val(securitytoken);
+                    });
+                }
+            },
+            1000*60*30 // every 30 minutes
+        );
+    }
 
     $.extend(
         this.url_for,
@@ -666,6 +674,15 @@ VBulletin.prototype.process_posts = function(posts) {
     );
 }
 
+VBulletin.prototype._get_token = function() {
+    var token = this.security_token || $('input[name="securitytoken"]').val();
+    if ( token ) return token;
+    BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
+    var token = document.head.getAttribute('data-securitytoken');
+    document.head.removeAttribute('data-securitytoken');
+    return token;
+}
+
 VBulletin.prototype._add_standard_data = function(data) {
 
     var dfd = new jQuery.Deferred();
@@ -677,20 +694,12 @@ VBulletin.prototype._add_standard_data = function(data) {
         data.ajax = 1; // some URLs will serve a lightweight page if passed this
     }
 
-    function get_token() {
-        data.securitytoken = this.security_token || $('input[name="securitytoken"]').val();
-        if ( data.securitytoken ) return true;
-        BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
-        data.securitytoken = document.head.getAttribute('data-securitytoken');
-        document.head.removeAttribute('data-securitytoken');
-        return data.securitytoken;
-    }
-
-    if ( get_token() ) {
+    if ( data.securitytoken = this._get_token() ) {
         dfd.resolve(data);
     } else {
+        var bb = this;
         $(function() {
-            if ( get_token() ) {
+            if ( data.securitytoken = this._get_token() ) {
                 dfd.resolve(data);
             } else {
                 debug_log.log("Fatal: could not get securitytoken");
