@@ -264,10 +264,14 @@ Action.prototype.fire = function(bb, keys) {
                 promise.promise = promise.fire($.extend( {}, keys ) );
                 if ( promise.promise) {
                     ++in_progress;
-                    promise.promise = promise.promise.then(
-                        function(ret) {                  contained_completed(ret , promise, 'success', null) },
-                        function(err) { ++failure_count; contained_completed(null, promise, 'fail'   , err ) }
-                    );
+                    if ( promise.promise.then ) { // looks like a promise
+                        promise.promise = promise.promise.then(
+                            function(ret) {                  contained_completed(ret , promise, 'success', null) },
+                            function(err) { ++failure_count; contained_completed(null, promise, 'fail'   , err ) }
+                        );
+                    } else if ( promise.promise.keys ) { // looks like keys
+                        contained_completed( promise.promise, null, 'success', null);
+                    }
                 }
             }
         });
