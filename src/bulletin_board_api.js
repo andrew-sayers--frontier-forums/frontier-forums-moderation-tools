@@ -675,7 +675,7 @@ VBulletin.prototype.process_posts = function(posts) {
                         container_element: post,
                         post_id          : post.id.substr(5),
                         date             : $('.date'       , post).text(),
-                        username         : $('.username'   , post).text(),
+                        username         : $('.username'   , post).first().text(),
                         user_id          : ( $('.username' , post).attr('href') || '             guest' ).substr(13),
                         title            : $('.title'      , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
                         message          : $('.content'    , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
