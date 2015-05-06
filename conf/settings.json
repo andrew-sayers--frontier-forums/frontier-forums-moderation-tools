@@ -61,6 +61,7 @@
         "src/widgets/notification_selector.js",
         "src/widgets/duplicate_account_list.js",
         "src/widgets/vbulletin_popup_menu.js",
+        "src/widgets/deadline.js",
 
         /* Basic functionality */
         "src/variables.js",
@@ -100,6 +101,7 @@
         "res/usernotes_cc.html",
 
         "res/widgets/extra_post.html",
+        "res/widgets/deadline.html",
         "res/widgets/notification_selector.html",
         "res/widgets/severity_slider.html",
         "res/widgets/duplicate_account_list.html",
