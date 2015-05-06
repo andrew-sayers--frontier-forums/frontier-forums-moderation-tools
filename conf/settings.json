@@ -75,6 +75,9 @@
         "src/ip_address_report.js",
         "src/newbie_policy.js",
 
+        /* Policies */
+        "src/policies/policy.js",
+
         /* User-visible functionality */
         "src/legacy.js",
         "src/main.js"
