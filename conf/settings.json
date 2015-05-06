@@ -73,10 +73,11 @@
         "src/form_keys.js",
         "src/account_highlighter.js",
         "src/ip_address_report.js",
-        "src/newbie_policy.js",
 
         /* Policies */
         "src/policies/policy.js",
+        "src/policies/duplicate_account_policy.js",
+        "src/policies/inappropriate_username_policy.js",
 
         /* User-visible functionality */
         "src/legacy.js",
