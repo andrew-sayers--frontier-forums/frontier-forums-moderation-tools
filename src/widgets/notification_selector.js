@@ -37,9 +37,17 @@
  *     thread_desc     : 'name of thread (passed to Action)',
  *     loading_html    : 'Loading, please wait...', // shown while the preview is updated
  *     callback        : function(keys) { ... }, // called with the current data
- *     container       : notification_appended_to_this
+ *     container       : notification_appended_to_this,
+ *     key_prefix      : 'string appended to all keys returned from the action', // default: 'notification '
  *
  * });
+ *
+ * @description User notes should always be updated with the contents of a
+ * notification action, but sometimes we want to do that in a separate action.
+ *
+ * When 'note_title_variable' and 'note_bbcode_variable' are not passed,
+ * the action will always succeed.  You are expected to write a later action
+ * that checks 'notification result' and returns appropriately.
  */
 function NotificationSelector( args ) {
 
@@ -47,38 +55,38 @@ function NotificationSelector( args ) {
 
     var user = { username: args.user.username, user_id: args.user.user_id };
 
+    var key_prefix = args.hasOwnProperty('key_prefix') ? args.key_prefix : 'notification ';
+
     ActionWidget.call(
-        this, args, 'notification_selector',
-        function(keys) {
+        this, args, 'notification_selector', [ 'title', 'bbcode', 'ban', 'note_title', 'note_bbcode' ],
+        function(keys) { // fire
 
             var value = this.val();
 
             var return_keys = $.extend( {}, value.keys );
             keys.violation = return_keys.violation = value.violation.name;
             function success() {
-                return_keys['notification result'] = 'success';
-                if ( value.note_title_variable ) {
-                    return args.bb.usernote_add(
-                        user.user_id,
-                        notification._resolve( value.note_title_variable , $.extend( keys, return_keys ) ),
-                        notification._resolve( value.note_bbcode_variable, $.extend( keys, return_keys ) )
-                    ).then(function() {
+                return_keys[key_prefix + 'result'] = 'success';
+                var title  = notification.resolve_value( 'note_title' , [], $.extend( keys, return_keys ) );
+                var bbcode = notification.resolve_value( 'note_bbcode', [], $.extend( keys, return_keys ) );
+                if ( bbcode === null ) {
+                    return { keys: return_keys };
+                } else {
+                    return args.bb.usernote_add( user.user_id, title, bbcode ).then(function() {
                         return { keys: return_keys };
                     });
-                } else {
-                    return { keys: return_keys };
                 }
             };
 
             function fail(error) {
-                return_keys['notification result'] = 'fail';
-                return_keys['notification error' ] = error;
-                if ( value.note_title_variable ) {
-                    return args.bb.usernote_add(
-                        user.user_id,
-                        notification._resolve( value.note_title_variable , $.extend( keys, return_keys ) ),
-                        notification._resolve( value.note_bbcode_variable, $.extend( keys, return_keys ) )
-                    ).then(function() {
+                return_keys[key_prefix + 'result'] = 'fail';
+                return_keys[key_prefix + 'error' ] = error;
+                var title  = notification.resolve_value( 'note_title' , [], $.extend( keys, return_keys ) );
+                var bbcode = notification.resolve_value( 'note_bbcode', [], $.extend( keys, return_keys ) );
+                if ( bbcode === null ) {
+                    return { keys: return_keys };
+                } else {
+                    return args.bb.usernote_add( user.user_id, title, bbcode ).then(function() {
                         var dfd = jQuery.Deferred();
                         dfd.reject(error);
                         return dfd.promise();
@@ -89,23 +97,30 @@ function NotificationSelector( args ) {
             switch ( value.level ) {
 
             case 'PM':
-                return_keys['notification title' ] = value.title;
-                return_keys['notification bbcode'] = value.bbcode;
+                return_keys[key_prefix + 'title' ] = value.title;
+                return_keys[key_prefix + 'bbcode'] = value.bbcode;
                 return args.bb.pm_send( user.username, value.title, value.bbcode ).then(success,fail);
 
             case 'post':
-                return_keys['notification title' ] = value.title;
-                return_keys['notification bbcode'] = value.bbcode;
-                return args.bb.thread_reply( notification.thread_id, value.title, value.bbcode ).then(success,fail);
+                return_keys[key_prefix + 'title' ] = value.title;
+                return_keys[key_prefix + 'bbcode'] = value.bbcode;
+                return args.bb.thread_reply({
+                    thread_id           : notification.thread_id,
+                    title               : value.title,
+                    bbcode              : value.bbcode
+                }).then(function(post_id) {
+                    return_keys[key_prefix + 'post id'] = post_id;
+                    return success();
+                }, fail );
 
             case 'warning'   : var is_warning = true; // then FALL THROUGH
             case 'infraction':
-                return_keys['notification title' ] = notification._resolve( value.ban_variable, keys );
-                return_keys['notification bbcode'] = value.bbcode;
+                return_keys[key_prefix + 'title' ] = notification.resolve_value( 'ban', [], keys )
+                return_keys[key_prefix + 'bbcode'] = value.bbcode;
                 return args.bb.infraction_give({
-                    administrative_note: notification._resolve( value.title_variable, keys ),
-                    ban_reason         : return_keys['notification title'],
-                    bbcode             : return_keys['notification bbcode'],
+                    administrative_note: notification.resolve_value( 'title', [], keys ),
+                    ban_reason         : return_keys[key_prefix + 'title'],
+                    bbcode             : return_keys[key_prefix + 'bbcode'],
                     user_id            : user.user_id,
                     is_warning         : is_warning,
                     infraction_id      : value.violation.id
@@ -117,18 +132,18 @@ function NotificationSelector( args ) {
             }
 
         },
-        function() {
+        function() { // description
             if ( notification.value.level == 'none' ) return;
             var actions = [];
             if ( notification.value.level == 'post' )
                 actions.push({ type: notification.value.level, target: { thread_id: args.thread_id, thread_desc: args.thread_desc } });
             else
                 actions.push({ type: notification.value.level, target: user });
-            if ( notification.value.note_title_variable )
+            if ( notification.resolve_value( 'note_bbcode', [], {} ) !== null )
                 actions.push({ type: 'usernote', target: user });
             return actions;
         },
-        function() {
+        function() { // blockers
             if ( notification.value.level != 'none' && !select.val() )
                 return [ 'Please select a violation for ' + user.username ];
         }
@@ -137,23 +152,13 @@ function NotificationSelector( args ) {
     this.bb           = args.bb;
     this.loading_html = args.loading_html;
     this.thread_id    = args.thread_id;
-    this.title_map    = {};
-    this.bbcode_map   = {};
-    this.value        = {
-        level               : null,
-        namespace           : null,
-        violation           : null,
-        keys                : null,
-              title_variable: null,
-                ban_variable: null,
-             bbcode_variable: null,
-         note_title_variable: null,
-        note_bbcode_variable: null,
-        bbcode: null,
-        title : null
-    };
-    this.old_title  = '';
-    this.old_bbcode = '';
+    this.key_prefix   = key_prefix;
+    $.extend( this.value, {
+        level    : null,
+        namespace: null,
+        violation: null,
+        keys     : null,
+    });
 
     this.button = $('<input class="notification-text-button" type="button">')
         .val( notification.element.hasClass('preview') ? 'switch to edit mode' : 'switch to preview mode' )
@@ -166,7 +171,7 @@ function NotificationSelector( args ) {
     var select = this.element.find('select');
 
     if ( args.violation_groups.length == 1 ) {
-        this.element.find('select').append(
+        select.append(
             args.violation_groups[0].violations.map(function(violation) {
                 return $('<option>')
                     .data( 'violation', violation )
@@ -203,52 +208,20 @@ function NotificationSelector( args ) {
 
             var keys = $.extend( { violation: violation.name, points: violation.points }, value.keys );
 
-            var bbcode = $.isArray(value.bbcode_variable) ? value.bbcode_variable.slice(0) : [ value.bbcode_variable ];
-            var title  = $.isArray(value. title_variable) ? value. title_variable.slice(0) : [ value. title_variable ];
-
-            bbcode.push(keys.violation);
-            title .push(keys.violation);
-
             notification.element.removeClass('missing-violation');
 
-            notification.update_maps(value.level);
-
             if ( value.level == 'PM' || value.level == 'post' ) {
-                if ( value.title === null ) {
-                    var new_title = notification._resolve( title, keys );
-                    if ( new_title != notification.old_title ) {
-                        notification.element.find('.'+value.level + ' .title').val(
-                            notification.title_map.hasOwnProperty(new_title)
-                            ? notification.title_map[new_title]
-                            :                        new_title
-                        );
-                        notification.old_title = new_title;
-                    }
-                } else {
-                    notification.element.find('.'+value.level + ' .title').val( value.title );
-                    notification.old_title = value.title;
-                };
-            } else {
+                var title_element = notification.element.find('.'+value.level + ' .title');
+                title_element.val( notification.set_value( title_element.val(), 'title', [keys.violation], keys ) );
+            } else if ( value.level != 'none' ) {
                 [ 'top', 'bottom' ].forEach(function(location) {
                     notification.element.find('.'+value.level + ' .message-' + location).html(
-                        args.v.resolve( 'report process', value.level + ' message ' + location, keys ) );
+                        args.v.resolve( 'report process', [value.level + ' message ' + location], keys ) );
                 });
             }
 
-            if ( value.bbcode === null ) {
-                var new_bbcode = notification._resolve( bbcode, keys );
-                if ( new_bbcode != notification.old_bbcode ) {
-                    notification.element.find('.'+value.level + ' textarea').val(
-                        notification.bbcode_map.hasOwnProperty(new_bbcode)
-                        ? notification.bbcode_map[new_bbcode]
-                        :                         new_bbcode
-                    );
-                    notification.old_bbcode = new_bbcode;
-                }
-            } else {
-                notification.element.find('.'+value.level + ' textarea').val( value.bbcode );
-                notification.old_bbcode = value.bbcode;
-            };
+            var bbcode_element = notification.element.find('.'+value.level + ' textarea');
+            bbcode_element.val( notification.set_value( bbcode_element.val(), 'bbcode', [keys.violation], keys ) );
 
             if ( notification.element.hasClass('preview') ) {
                 var level_element = notification.element.children('.'+value.level);
@@ -258,26 +231,13 @@ function NotificationSelector( args ) {
                 ;
             }
 
-            notification.value.title = null;
-            notification.value.bbcode = null;
-
         }
+
     });
 
     this.element.find('.reset').click(function() {
-        var input_bbcode = $(this).siblings('textarea').val();
-        if (
-            notification.bbcode_map.hasOwnProperty(notification.old_bbcode) &&
-            input_bbcode == notification.old_bbcode
-        ) {
-            $(this).siblings('textarea').val( notification.bbcode_map[notification.old_bbcode] );
-            delete notification.bbcode_map[notification.old_bbcode];
-        } else {
-            notification.bbcode_map[notification.old_bbcode] = input_bbcode;
-            $(this).siblings('textarea').val( notification.old_bbcode );
-        }
+        $(this).siblings('textarea').val( notification.reset_value( $(this).siblings('textarea').val(), 'bbcode' ) );
     });
-
 
     this.val(args);
 
@@ -287,21 +247,14 @@ NotificationSelector.prototype = Object.create(ActionWidget.prototype, {
     bb          : { writable: true, configurable: false },
     loading_html: { writable: true, configurable: false },
     thread_id   : { writable: true, configurable: false },
+    thread_desc : { writable: true, configurable: false },
+    user        : { writable: true, configurable: false },
+    key_prefix  : { writable: true, configurable: false },
     button      : { writable: true, configurable: false },
-    title_map   : { writable: true, configurable: false },
-    bbcode_map  : { writable: true, configurable: false },
     value       : { writable: true, configurable: false }
 
 });
 NotificationSelector.prototype.constructor = NotificationSelector;
-
-NotificationSelector.prototype.update_maps = function(level) {
-    var input_title  = this.element.find('.'+level + ' .title'  ).val();
-    var input_bbcode = this.element.find('.'+level + ' textarea').val();
-    if ( this.old_title  != '' && this.old_title  != input_title  ) this. title_map[this.old_title ] = input_title;
-    if ( this.old_bbcode != '' && this.old_bbcode != input_bbcode ) this.bbcode_map[this.old_bbcode] = input_bbcode;
-    this.old_title = this.old_bbcode = ''; // disable updates until the values are reset
-}
 
 
 /**
@@ -340,7 +293,7 @@ NotificationSelector.prototype.val = function( value ) {
             .reduce(function(prev, property) { return prev || value.hasOwnProperty(property) }, false);
 
         if ( value.hasOwnProperty('level') && value.level != this.value.level ) {
-            this.update_maps(this.value.level);
+            this.update_previous_values();
             this.element.removeClass('none post PM warning infraction').addClass(value.level)
                 .find('input,select,textarea').prop( 'required', false );
             this.element                          .find('select'  ).prop( 'required', true );
@@ -354,7 +307,7 @@ NotificationSelector.prototype.val = function( value ) {
         else if ( value.show_violations === true  ) this.element.find('.violation-details').show();
 
         if ( value.hasOwnProperty('violation') ) {
-            this.update_maps(this.value.level);
+            this.update_previous_values();
             var old_violation = this.element.find('select').val();
             switch ( typeof(value.violation) ) {
             case 'string': this.element.find('option').filter(function() { return $(this).text() == value.violation || this.value == value.violation }).prop( 'selected', true ); break;

@@ -39,14 +39,14 @@ function ExtraPost( args ) {
     var post_id;
 
     ActionWidget.call(
-        this, args, 'extra_post',
-        function(keys) {
+        this, args, 'extra_post', [ 'title', 'bbcode' ],
+        function(keys) { // fire
             var value = this.val();
             if ( value.checked ) {
                 return args.bb.thread_reply({
                     thread_id: value.thread_id,
-                    title    : this._resolve( value. title_variable, keys ),
-                    bbcode   : this._resolve( value.bbcode_variable, keys ),
+                    title    : this.resolve_value( 'title' , [], keys ),
+                    bbcode   : this.resolve_value( 'bbcode', [], keys )
                 }).then(function(_post_id) {
                     post_id = _post_id;
                     return { keys: $.extend( {}, value.keys, {
@@ -61,7 +61,7 @@ function ExtraPost( args ) {
                 return dfd.promise();
             }
         },
-        function() {
+        function() { // description
             if ( this.element.find('input').prop( 'checked' ) ) {
                     return [{
                         type: 'post',
@@ -79,8 +79,6 @@ function ExtraPost( args ) {
         visible        : null,
         checked        : null,
         text           : null,
-         title_variable: null,
-        bbcode_variable: null,
         thread_id      : null,
         thread_desc    : null,
         keys           : null
