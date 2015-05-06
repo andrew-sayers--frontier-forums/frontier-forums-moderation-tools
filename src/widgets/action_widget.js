@@ -52,14 +52,24 @@ function ActionWidget( args, name, fire, description, blockers ) {
     this._resolve = function(names, keys, parser) {
         return args.v.resolve( args.namespace, names, keys ? keys : args.keys, parser, undefined, args.thread_id );
     }
+    this._get = function(names) {
+        return args.v.get( args.namespace, names, undefined, args.thread_id );
+    }
+    this._parse = function(text, keys, parser) {
+        return args.v.get( args.namespace, names, keys ? keys : args.keys, parser );
+    }
 
 }
 
 ActionWidget.prototype = Object.create(Widget, {
-    bb      : { writable: true, configurable: false },
-    _name   : { writable: true, configurable: false },
-    _action : { writable: true, configurable: false },
-    _resolve: { writable: true, configurable: false } // function to resolve variables - call this in child objects
+    bb     : { writable: true, configurable: false },
+    _name  : { writable: true, configurable: false },
+    _action: { writable: true, configurable: false },
+
+    // variable resolution - call these in child objects
+    _resolve: { writable: true, configurable: false },
+    _get    : { writable: true, configurable: false },
+    _parse  : { writable: true, configurable: false },
 });
 ActionWidget.prototype.constructor = ActionWidget;
 
