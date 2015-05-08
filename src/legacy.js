@@ -1323,7 +1323,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             stash.review_post_promise.done(function(html, post) {
                 if ( post.find( '.deleted' ).length )
                     first_post.message_element.find('a[href^="' + location.origin + '/showthread.php?t="]').first().after( ' <em>(this post has now been deleted)</em>' );
-                if ( html.find( '#newreplylink_top' ).text() == 'Closed Thread' )
+                if ( html.find( '#newreplylink_top' ).text() != '+ Reply to Thread' )
                     first_post.message_element.find('a[href^="' + location.origin + '/showthread.php?t="]').first().after( ' <em>(this thread has now been closed)</em>' );
 
                 var post_text = first_post.message_element.find('blockquote > .bbcode_container').eq(1);
@@ -1338,7 +1338,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
 
             first_post.linking.find('.infraction').remove();
 
-            var thread_closed = $( '#newreplylink_top' ).text() == 'Closed Thread';
+            var thread_closed = $( '#newreplylink_top' ).text() != '+ Reply to Thread';
             var thread_status = thread_closed ? 'closed' : 'open';
             var mod_posts = bb.process_posts( $('.flare_Moderator').closest('li') );
 
