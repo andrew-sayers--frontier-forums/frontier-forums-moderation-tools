@@ -1016,10 +1016,11 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     ".-..-.": "\"",
                     ".--.-.": "@",
                     "-...-": "=",
-                    ".-.-": "\n"
+                    ".-.-": "\n",
+                    "/": ' '
                 };
                 var morse_messages = {}, has_morse;
-                this.message.replace( /[-.][-. ]{5,}[-.]/g, function(morse) {
+                this.message.replace( /[-.][-. \/]{5,}[-.]/g, function(morse) {
                     var latin = morse.split( /\s+/ ).map(function(letter) { return morse_to_latin.hasOwnProperty(letter) ? morse_to_latin[letter] : letter }).join('');
                     if ( morse.search(/-/) != -1 && morse.search(/\./) != -1 && latin.search( /[^-. ]/ ) != -1 ) {
                         morse_messages['<li><i>' + morse + '</i> is Morse code for <i>' + latin + '</i>'] = 1;
