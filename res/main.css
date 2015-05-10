@@ -1,8 +1,10 @@
-.dashboard-newbies fieldset {
+.dashboard-newbies fieldset,
+.mod-friend-respond fieldset {
     border-color: {{foreground colour}};
 }
 
-.dashboard-newbies legend, .dashboard-newbies h1 {
+.dashboard-newbies legend, .dashboard-newbies h1,
+.mod-friend-respond legend {
     color: {{foreground colour}};
 }
 

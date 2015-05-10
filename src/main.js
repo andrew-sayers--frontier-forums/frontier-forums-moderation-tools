@@ -76,15 +76,6 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
                 "</style>"
             );
 
-            // Because of an obscure legacy DNS feature, you can append a '.' to a domain and connect to the same server
-            // this is treated as a different server for cookie purposes, allowing us to manage a second account:
-            var mod_team_bb;
-            if ( location.hostname == 'forumstest.frontier.co.uk' ) {
-                mod_team_bb = bb;
-            } else {
-                mod_team_bb = new VBulletin({ origin: location.origin + '.' });
-            }
-
             var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
             var recently_reported_posts = {};
@@ -576,6 +567,171 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 )}
 
 /**
+ * @summary Handle popup items in threads
+ * @param {BulletinBoard}      bb Bulletin Board to manipulate
+ * @param {Variables}          v  Variables to use
+ * @param {MiscellaneousCache} mc Miscellaneous Cache to use
+ * @param {string}             loading_html HTML to show while loading
+ */
+function handle_mod_team_replies( bb, mod_team_bb, v, mc, loading_html ) {
+
+    var element;
+
+    var namespace = 'mod team replies';
+
+    function initialise(stash, pathname, params, link) {
+
+        function build(html) {
+
+            if ( !element ) {
+                element = $( BabelExt.resources.get('res/popups/mod team replies.html') ).appendTo(document.body).hide();
+                var promise = mod_team_bb.login( element.find('iframe'), 'Frontier Moderation Team' );
+                if ( bb.get_pages().current == 1 ) {
+                    return $.when(
+                        $.get( bb.url_for.thread_show({ thread_id: params.t, posts_per_page: 1 }) ),
+                        promise
+                    ).then(function(html) { build(html[0]) });
+                } else {
+                    return promise.then(function() { build() });
+                }
+            }
+
+            element.addClass('logged-in');
+
+            var button = element.find('.button');
+
+            var thread_creator = bb.process_posts(bb.get_posts(html))[0];
+
+            var root_action;
+
+            var policy = new ModTeamReplyPolicy({
+                v : v,
+                bb: bb,
+                mc: mc,
+                loading_html: loading_html,
+                thread_id: params.t,
+                thread_desc: bb.thread_title(),
+                user: { username: thread_creator.username, user_id: thread_creator.user_id },
+
+                mod_team_bb: mod_team_bb,
+                mod_team_user: mod_team_bb.user_current(),
+
+                template_selector_args: { container: element.find('.template_selector') },
+                    post_selector_args: { container: element.find('.notification-post') },
+                      pm_selector_args: { container: element.find('.notification-pm') },
+                         deadline_args: { container: element.find('.reopen-reminder') },
+
+                callback: function( action, summary, has_post, has_pm ) {
+                    element.find('.notification-post')[ has_post ? 'show' : 'hide' ]();
+                    element.find('.notification-pm'  )[ has_pm   ? 'show' : 'hide' ]();
+
+                    root_action = action;
+                    var title = root_action.title();
+
+                    if ( title.length ) {
+                        title[0] = title[0][0].toUpperCase() + title[0].slice(1);
+                        button.last().prop( 'disabled', false ).val( title.join('; ') );
+                    } else {
+                        button.last().prop( 'disabled', true  ).val( 'please select some actions' );
+                    }
+
+                }
+
+            });
+
+            button.click(function() {
+                var progress_bar = $(button).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                root_action.fire_with_journal(
+                    bb,
+                    policy.keys({ 'extra notes' : element.find('[name="extra-notes"]').val() }),
+                    v,
+                    v.resolve('frequently used posts/threads', 'mod team reply log' ),
+                    'mod team replies',
+                    'log'
+                ).progress(function(percent) {
+                    progress_bar.css({ width: percent + '%' });
+                }).always(function() {
+                    progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                }).done(function() {
+                    $(button).prop( 'disabled', true ).val( 'replied!' );
+                });
+            });
+
+        }
+
+        function hide_element(event) {
+            if ( !$(event.target).closest('.mod-friend-team-reply').is(element) ) {
+                element.slideUp();
+                $(document).off( 'click', hide_element );
+            }
+        }
+
+        function build_event(event) {
+            var promise = build(), link = this, do_click = event.type == 'click';
+            function register_click(event) { do_click = true };
+            reply_buttons
+                .off( 'click mouseover', build_event )
+                .on ( 'click'          , register_click );
+            if ( promise ) promise.then(function() {
+                if ( do_click ) link.click();
+                $(link).off('click', register_click);
+            });
+        }
+
+        var reply_buttons = $('<a class="newcontent_textcontrol" href="#mod-team-reply" style="position: absolute"><span>+</span>Mod Team Reply</a>')
+            .insertBefore(link)
+            .each(function() {
+                $(this).css({ 'margin-left': ( $(this.nextElementSibling).outerWidth() + 10 ) + 'px' });
+            })
+            .on( 'click mouseover', build_event )
+            .click(function(event) {
+                if ( element && element.hasClass('logged-in') ) {
+                    if ( element.is(':visible') ) {
+                        element.slideUp();
+                        $(document).off( 'click', hide_element );
+                    } else {
+                        var offset = $(this).offset();
+                        offset.top += $(this).outerHeight();
+                        element.slideDown().offset(offset);
+                        setTimeout(function() {
+                            $(document).on ( 'click', hide_element );
+                        }, 0 );
+                    }
+                }
+                event.preventDefault();
+            })
+        ;
+
+    }
+
+    BabelExt.utils.dispatch(
+        {
+            match_pathname: '/showthread.php',
+            match_elements: [ '#newreplylink_top' ],
+            callback: function(stash, pathname, params, link) {
+
+                // skip this in the report forum:
+                if ( $('.navbit a[href="forumdisplay.php?f=48"]').length ) return false;
+
+                $("head").append(
+                    "<style type='text/css'>" +
+                        v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
+                    "</style>"
+                );
+
+                initialise(stash, pathname, params, link);
+            }
+        },
+        {
+            match_pathname: '/showthread.php',
+            match_elements: [ '#newreplylink_bottom' ],
+            callback: initialise
+        }
+    );
+
+}
+
+/**
  * @summary Handle variables threads
  * @param {BulletinBoard} bb Bulletin Board to manipulate
  * @param {Variables}     v  Variables to use
@@ -799,6 +955,17 @@ if (window.location == window.parent.location ) {
 
             var bb = new VBulletin();
 
+
+            // Because of an obscure legacy DNS feature, you can append a '.' to a domain and connect to the same server
+            // this is treated as a different server for cookie purposes, allowing us to manage a second account:
+            var mod_team_bb;
+            if ( location.hostname == 'forumstest.frontier.co.uk' ) {
+                // ... but the test site dies when you try :(
+                mod_team_bb = bb;
+            } else {
+                mod_team_bb = new VBulletin({ origin: location.origin + '.' });
+            }
+
             /*
              * ERROR HANDLER
              */
@@ -956,9 +1123,10 @@ if (window.location == window.parent.location ) {
                     handle_moderation_links     ();
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();
+                    handle_mod_team_replies     ( bb, mod_team_bb, v, mc, loading_html );
                     handle_thread_form          ( bb, v, handle_error );
                     handle_usernotes_cc         ( bb, v );
-                    handle_dashboard            ( bb, v, vi, ss, mc, loading_html );
+                    handle_dashboard            ( bb, mod_team_bb, v, vi, ss, mc, loading_html );
                     handle_legacy               ( bb, v, vi, loading_html ); // everything that hasn't been refactored yet
                 });
 

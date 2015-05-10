@@ -83,21 +83,24 @@ ol.dashboard-body {
     margin-right: 1em;
 }
 
-.dashboard-newbies fieldset {
+.dashboard-newbies fieldset,
+.mod-friend-team-reply fieldset {
     clear: both;
     border-width: 1px;
     border-style: solid;
     /* border-color: see res/main.css */
     padding: 1em;
 }
-.dashboard-newbies legend, #dashboard-newbies h1 {
+.dashboard-newbies legend, #dashboard-newbies h1,
+.mod-friend-team-reply legend {
     /* color: see res/main.css */
     font-size: larger;
     font-weight: bold;
     margin-bottom: 0.25em
 }
 
-.dashboard-newbies .notification-text-button {
+.dashboard-newbies .notification-text-button,
+.mod-friend-team-reply .button {
     float: right;
 }
 
@@ -165,6 +168,36 @@ a.dashboard-refresh {
     font-size: 200%;
 }
 
+.mod-friend-team-reply {
+    position: absolute;
+    min-width: 51em;
+    border: 2px solid black;
+    background: white;
+    padding: 2px;
+    border-radius: 0 2px 2px;
+    margin-right: 3em;
+}
+
+.mod-friend-team-reply.logged-in > iframe,
+.mod-friend-team-reply:not(.logged-in) > div {
+    display: none;
+}
+
+.mod-friend-team-reply select, .mod-friend-team-reply input[type="text"], .mod-friend-team-reply .violation-details {
+    width: 100%;
+    margin: 0;
+}
+
+.mod-friend-team-reply .blockbody {
+    padding: 0;
+}
+.mod-friend-team-reply textarea {
+    height: 15em;
+}
+
+.mod-friend-team-reply textarea[name="extra-notes"] {
+    width: 100%;
+}
 
 .dashboard-section.chaseup .postbit_reputation,
 .dashboard-section.chaseup .postuseravatar,

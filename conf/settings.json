@@ -112,6 +112,8 @@
         "res/widgets/duplicate_account_list.html",
         "res/widgets/vbulletin_popup_menu.html",
 
+        "res/popups/mod team replies.html",
+
         "res/error_box.html",
         "res/variables_thread_post.html"
 
