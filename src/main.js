@@ -30,9 +30,9 @@
  * @param {Violations}         vi Violations to use
  * @param {SharedStore}        ss Shared Store to use
  * @param {MiscellaneousCache} mc Miscellaneous Cache to use
- * @param {string}        loading_html HTML to show while loading
+ * @param {string}             loading_html HTML to show while loading
  */
-function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.dispatch(
+function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.dispatch(
 
     {
         match_pathname: '/',
@@ -269,24 +269,38 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
              * NEWBIE LIST
              */
 
-            var newbie_policy = new NewbiePolicy({
+            var policy_args = {
                 v : v,
                 bb: bb,
                 vi: vi,
-                ss: ss
-            });
+                ss: ss,
+                mc: mc,
+                loading_html: loading_html
+            };
 
-            var update_timer = null;
+            var update_timer = null, root_action;
             function update_actions() {
 
                 if ( update_timer !== null ) clearTimeout(update_timer);
 
                 update_timer = setTimeout(function() {
                     update_timer = null;
-                    var title = newbie_policy.set_actions(
-                        dashboard.find('.dashboard-newbies [name="issue"]:checked').map(function() { return $(this).data('action') }).get()
-                    );
-                    dashboard.find('.dashboard-newbies-result input').prop( 'disabled', false ).val( title || 'Validate all users' );
+
+                    var actions = dashboard.find('.dashboard-newbies [name="issue"]:checked').map(function() { return $(this).data('action') }).get()
+                    if ( actions.length ) {
+                        root_action = new Action( 'root action', actions ).then(new Action( 'update shared store', {
+                            fire: function(data) {
+                                var max_user_id = data['max user id'];
+                                return ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id+1 });
+                            }
+                        }));
+                        var title = root_action.title();
+                        title[0] = title[0][0].toUpperCase() + title[0].slice(1);
+                        dashboard.find('.dashboard-newbies-result input').prop( 'disabled', false ).val( title.join('; ') + '; and mark users validated' );
+                    } else {
+                        root_action = null;
+                        dashboard.find('.dashboard-newbies-result input').prop( 'disabled', false ).val( 'Validate all users' );
+                    }
                 }, 100 );
 
             }
@@ -338,57 +352,23 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
                          * Initialise the inappropriate username block
                          */
 
-                        var inappropriate_level;
-
-                        function update_inappropriate() {
-                            if ( !extra_post ) return; // ignore the callback during construction
-                            block.find('.action.inappropriate').html(
-                                '<img src="' + inappropriate_level.icon + '">' +
-                                '<img src="/images/smilies/vbsmileys/eek.png">'
-                            ).data(
-                                'summary',
-                                '[*][img]' + location.origin + inappropriate_level.icon + '[/img]' +
-                                ':eek:' +
-                                ' "[URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]"' +
-                                ' is an inappropriate username (' + inappropriate_level.html + ': ' + inappropriate_level.type + ')\n'
-                            );
-                            block.find('[name="issue"][value="inappropriate"]')
-                                .data( 'action', newbie_policy.action_inappropriate_wrapper( extra_post, notification.action(), user ));
-                            update_actions();
-                        }
-
                         var user = block.data('user');
 
                         var inappropriate = block.find('.inappropriate');
                         inappropriate.find( '.search .username' ).text( user.username );
                         inappropriate.find( '.search a' ).each(function() { this.href += encodeURIComponent(user.username) });
-                        var notification = new NotificationSelector($.extend(
-                            newbie_policy.notification_selector_inappropriate(undefined, user),
-                            widget_args,
-                            { container: inappropriate.find('.notification') }
-                        ));
-                        var extra_post = new ExtraPost($.extend(
-                            newbie_policy.extra_post_inappropriate(undefined, user),
-                            widget_args,
-                            {
-                                container: notification.extra_block(),
-                                callback : update_inappropriate
+
+                        new InappropriateUsernamePolicy($.extend({
+                            user: user,
+                                  severity_slider_args: { container: inappropriate.find('.posthead' ) },
+                            notification_selector_args: { container: inappropriate.find('.notification' ) },
+                                    mode_switcher_args: { container: inappropriate.find('.mode-switcher') },
+                            callback: function( action, summary, header ) {
+                                block.find('.action.inappropriate').html(header).data( 'summary', summary );
+                                block.find('[name="issue"][value="inappropriate"]').data( 'action', action );
+                                update_actions();
                             }
-                        ));
-                        new SeveritySlider($.extend(
-                            newbie_policy.severity_slider_inappropriate(),
-                            widget_args,
-                            {
-                                container: inappropriate.find('.posthead'),
-                                callback: function(level) {
-                                    inappropriate_level = level;
-                                    notification.val(newbie_policy.notification_selector_inappropriate( level, user ));
-                                    extra_post.val(newbie_policy.extra_post_inappropriate(level, user));
-                                    update_inappropriate();
-                                }
-                            }
-                        ));
-                        inappropriate.find('.notification').prepend( notification.mode_switcher() );
+                        }, policy_args ));
 
                         block.addClass('inappropriate-built');
 
@@ -400,112 +380,35 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
 
                         var user = block.data('user');
 
-                        var suspiciousness = newbie_policy.suspiciousness_duplicate(user);
-
-                        var dupe_level, dupe_users = [{
-                            username: user.username,
-                            user_id : user.user_id,
-                            email   : user.email,
-                            notes   : user.summary,
-                            is_primary: true,
-                        }]
-                            .concat(user.suspected_duplicates.map(function(user) {
-                                return {
-                                    username  : user.username,
-                                    user_id   : user.user_id,
-                                    email     : user.moderation_info.email,
-                                    notes     : user.info.infraction_summary + ' ' + user.moderation_info.summary,
-                                    is_banned : user.info.is_banned,
-                                    is_primary: false
-                                };
-                            }));
-
                         var dupe = block.find('.dupe');
                         var dupe_action_container = dupe.find('.dupe-actions');
 
-                        function update_dupe() {
-
-                            var extra_post, user_actions = [];
-
-                            var primary_account, dupe_accounts = [];
-                            dupe_users.forEach(function(user) {
-                                if ( user.is_primary )
-                                    primary_account = ' [URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]';
-                                else
-                                    dupe_accounts.push( '[URL="' + bb.url_for.user_show({ user_id: user.user_id }) + '"]' + user.username + '[/URL]' );
-                            });
-
-                            block.find('.action.dupe').html(
-                                '<img src="' + dupe_level.icon + '">' +
-                                dupe_users.map(function(user, index) { return '<img src="/images/smilies/vbsmileys/rolleyes.png">' }).join('')
-                            ).data(
-                                'summary',
-                                '[*][img]' + location.origin + dupe_level.icon + '[/img]' +
-                                dupe_users.map(function(user) { return ':rolleyes:' }).join('') +
-                                primary_account + ' has duplicate(s) ' + dupe_accounts.join(', ') +
-                                ' (' + dupe_level.html + ': ' + dupe_level.type + ')\n'
-                            );
-
-                            dupe_action_container.empty().append(
-
-                                dupe_users.map(function(user, index) {
-
-                                    var element = $('<fieldset class="dupe-user-action"><legend></legend><div class="notification"></div></fieldset>');
+                        new DuplicateAccountPolicy($.extend({
+                            user: user,
+                                   severity_slider_args: { container: dupe.find('.posthead' ) },
+                            duplicate_account_list_args: { container: dupe.find('.dupes' ) },
+                            build_dupe_args: function(users) {
+                                dupe_action_container.empty();
+                                return users.map(function(user, index) {
+                                    var element = $('<fieldset class="dupe-user-action"><legend></legend><div class="notification"><span class="mode-switcher"></span></div></fieldset>')
+                                        .appendTo(dupe_action_container);
                                     element.find('legend').text( 'User action: ' + user.username );
-
-                                    var notification = new NotificationSelector($.extend(
-                                        newbie_policy.notification_selector_duplicate(dupe_level, user, dupe_users, suspiciousness ),
-                                        widget_args,
-                                        { container: element.find('.notification') }
-                                    ));
-
-                                    if ( !index ) {
-                                        extra_post = new ExtraPost($.extend(
-                                            newbie_policy.extra_post_duplicate(suspiciousness, dupe_level, user, dupe_users),
-                                            widget_args,
-                                            {
-                                                container: notification.extra_block(),
-                                                callback : update_actions
-                                            }
-                                        ));
+                                    return {
+                                        user: user,
+                                              severity_slider_args: { container: element.find('.posthead' ) },
+                                        notification_selector_args: { container: element.find('.notification' ) },
+                                                   extra_post_args: { visible: !index },
+                                                mode_switcher_args: { container: element.find('.mode-switcher') },
                                     }
-
-                                    user_actions.push( notification.action() );
-                                    element.find('.notification').prepend( notification.mode_switcher() );
-                                    return element;
-                                })
-                            );
-
-                            block.find('[name="issue"][value="dupe"]')
-                                .data( 'action', newbie_policy.action_duplicate_wrapper( extra_post, user_actions, dupe_users ) );
-
-                            update_actions();
-
-                        };
-
-                        new SeveritySlider($.extend(
-                            newbie_policy.severity_slider_duplicate(suspiciousness),
-                            widget_args,
-                            {
-                                container: dupe.find('.posthead'),
-                                callback: function(level) {
-                                    dupe_level = level;
-                                    update_dupe();
-                                }
+                                });
+                            },
+                            callback: function(action, summary, header) {
+                                block.find('.action.dupe').html(header).data( 'summary', summary );
+                                block.find('[name="issue"][value="dupe"]').data( 'action', action );
+                                update_actions();
                             }
-                        ));
-                        new DuplicateAccountList($.extend(
-                            widget_args,
-                            {
-                                required: dupe_users.slice(0,1),
-                                default : dupe_users.slice(1),
-                                container: dupe.find('.dupes'),
-                                callback: function(u) {
-                                    dupe_users = u;
-                                    update_dupe();
-                                }
-                            }
-                        ));
+
+                        }, policy_args ));
 
                         block.addClass('dupe-built');
 
@@ -521,27 +424,30 @@ function handle_dashboard( bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.di
             dashboard.find('.dashboard-newbies .dashboard-newbies-result input').click(function() {
                 progress_bar(
                     this,
-                    newbie_policy.fire(
-                        min_user_id,
-                        max_user_id,
-                        '[list]\n' +
-                            dashboard.find('.dashboard-newbies .action:visible').map(function() { return $(this).data('summary') }).get().join('') +
-                        '[/list]',
-                        dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val()
-                    ),
+                    root_action
+                        ? root_action.fire_with_journal(
+                            bb,
+                            {
+                                'min user id': min_user_id,
+                                'max user id': max_user_id,
+                                'summary'    :
+                                '[list]\n' +
+                                    dashboard.find('.dashboard-newbies .action:visible').map(function() { return $(this).data('summary') }).get().join('') +
+                                    '[/list]',
+                                'extra notes': dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val()
+                            },
+                            v,
+                            v.resolve( 'frequently used posts/threads', 'newbie management log' ),
+                            'newbie actions',
+                            'log'
+                        )
+                        : ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id; return true })
+                    ,
                     'validated!'
                 ).then(function() {
                     stash.newbies.data( 'min_user_id', max_user_id+1 );
                 });
             });
-
-            var widget_args = {
-                v               : v,
-                bb              : bb,
-                violations      : vi,
-                violation_groups: mc.violation_groups,
-                loading_html    : loading_html,
-            };
 
             dashboard.find('[data-monitor="newbies"]').data( 'min_user_id', stash.newbies.data('min_user_id') );
             stash.newbies = dashboard.find('[data-monitor="newbies"]');
