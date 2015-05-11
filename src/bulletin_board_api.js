@@ -438,7 +438,7 @@ function VBulletin(args) {
 
     var bb = this;
 
-    if ( bb._origin ) {
+    if ( bb.session_id ) {
         setInterval(
             function() {
                 // can't reset the token without cookies - just ping the page and hope for the best
@@ -2348,12 +2348,12 @@ VBulletin.prototype.login = function( iframe, default_user ) {
 
     var bb = this;
 
-    iframe
-        .css({ overflow: 'hidden', display: 'none' })
-        .attr( 'src', this._origin )
-    ;
-
     function get_login() {
+        iframe
+            .css({ overflow: 'hidden', display: 'none' })
+            .attr( 'src', bb._origin )
+        ;
+
         function listen(event) {
             if (event.origin !== bb._origin) return;
             if ( event.data == 'BulletinBoard VBulletin get default user' ) {
@@ -2373,11 +2373,13 @@ VBulletin.prototype.login = function( iframe, default_user ) {
                     document.title = title;
                     iframe.hide();
                     window.removeEventListener("message", listen, false);
-                    BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
-                        creation_time : new Date().getTime(),
-                        session_id    : bb.session_id,
-                        security_token: bb.security_token
-                    }));
+                    if ( bb.session_id ) {
+                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
+                            creation_time : new Date().getTime(),
+                            session_id    : bb.session_id,
+                            security_token: bb.security_token
+                        }));
+                    }
                     dfd.resolve(iframe);
                 });
             }
@@ -2437,7 +2439,9 @@ VBulletin.iframe_callbacks = function(target_origin, cookie_domains) {
             match_params: { do: 'login' },
             match_elements: '#redirect_button a.textcontrol',
             callback: function( stash, pathname, params, a ) {
-                window.parent.postMessage( 'BulletinBoard VBulletin session ' + a.href.split( /\?s=|&/ )[1], target_origin );
+                a.href.replace( /[\?&]s=([^&]+)/, function( match, session_id ) {
+                    window.parent.postMessage( 'BulletinBoard VBulletin session ' + session_id, target_origin );
+                });
             }
         },
         {
