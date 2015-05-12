@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.18.1</string>
+	<string>4.19</string>
 	<key>CFBundleVersion</key>
-	<string>4.18.1</string>
+	<string>4.19</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -80,6 +80,8 @@
 				<string>src/widgets/severity_slider.js</string>
 				<string>src/widgets/notification_selector.js</string>
 				<string>src/widgets/duplicate_account_list.js</string>
+				<string>src/widgets/vbulletin_popup_menu.js</string>
+				<string>src/widgets/deadline.js</string>
 				<string>src/variables.js</string>
 				<string>src/violations.js</string>
 				<string>src/dashboard.js</string>
@@ -87,7 +89,10 @@
 				<string>src/form_keys.js</string>
 				<string>src/account_highlighter.js</string>
 				<string>src/ip_address_report.js</string>
-				<string>src/newbie_policy.js</string>
+				<string>src/policies/policy.js</string>
+				<string>src/policies/duplicate_account_policy.js</string>
+				<string>src/policies/inappropriate_username_policy.js</string>
+				<string>src/policies/mod_team_reply_policy.js</string>
 				<string>src/legacy.js</string>
 				<string>src/main.js</string>
 			</array>
