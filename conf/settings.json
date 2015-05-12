@@ -43,6 +43,7 @@
         "lib/Chart.js",
         "lib/json-stable-stringify.js",
         "lib/jquery.timeago.js",
+        "lib/iconselect.js",
 
         /* Low-level libraries */
         "src/debug_log.js",
@@ -85,6 +86,9 @@
         "src/main.js"
     ],
     "contentStyleFiles": [
+        /* Third-party libraries */
+        "lib/iconselect.css",
+
          /* widgets */
          "src/widgets/severity_slider.css",
          "src/widgets/notification_selector.css",
