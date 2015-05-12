@@ -1391,6 +1391,56 @@ VBulletin.prototype.thread_merge = function( data ) {
 }
 
 /**
+ * @summary Get metadata about a thread
+ * @param {Number} thread_id
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.thread_metadata = function( thread_id ) {
+    return this.get( '/postings.php?do=editthread&t=' + thread_id ).then(function(html) {
+        html = $(html);
+        var forum = html.find('.navbit a[href^="forumdisplay.php"]').map(function() {
+            return { forum_id: parseInt( this.href.split( /\?f=/ )[1], 10 ), name: this.textContent };
+        }).get();
+        var prefix_id, prefixes = html.find('#prefix option').map(function() {
+            if ( $(this).is(':checked') ) prefix_id = this.value;
+            return {
+                prefix_id: this.value, // despite the name, this is a string
+                text: this.textContent
+            };
+        });
+        var icon_id, icons = html.find('[name="iconid"]').map(function() {
+            if ( $(this).is(':checked') ) icon_id = parseInt( this.value, 10 );
+            return {
+                icon_id: parseInt( this.value, 10 ),
+                file: html.find('label[for="'+this.id+'"] img').attr('src'),
+                name: html.find('label[for="'+this.id+'"] img').attr('alt')
+            };
+        });
+        return {
+            title: html.find('#title').val(),
+            forum_id: forum.length ? forum[forum.length-1].forum_id : null,
+            forum: forum,
+
+            notes: html.find('[name="notes"]').val(),
+
+            valid  : !!html.find('#cb_open').length,
+            open   :   html.find('#cb_open').is(':checked'),
+            deleted: !!html.find('[name="threadstatus"]').length,
+            merged : !!html.find('#rb_redirect_expires').length,
+
+            sticky: html.find('#cb_sticky').is(':checked'),
+            moderated: !html.find('#cb_visible').is(':checked'),
+
+            prefix_id: prefix_id,
+            prefixes: prefixes.get(),
+
+            icon_id: icon_id,
+            icons: icons.get()
+        }
+    });
+}
+
+/**
  * @summary Get the title of a thread
  * @param {string|HTMLElement=} thread thread to get page for (default: current page)
  * @return string
