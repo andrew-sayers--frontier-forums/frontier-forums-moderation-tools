@@ -2203,6 +2203,28 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
 }
 
 /**
+ * @summary Get a tree of forums on the site
+ * @return {jQuery.Promise} Deferred object that will return when all pages have loaded
+ */
+VBulletin.prototype.forums = function() {
+    return this.get( '/archive/index.php' ).then(function(html) {
+        function node() {
+            var children = $(this).children('ul').children().map(node).get();
+            var a = $(this).children('a');
+            var forum_id;
+            ( a.attr('href') || '' ).replace( /\/archive\/index.php\/f-([0-9]+)\.html$/, function(match, _forum_id) { forum_id = _forum_id });
+            if ( children.length || forum_id ) {
+                var ret = { name: a.text() };
+                if ( forum_id ) ret.forum_id = parseInt( forum_id, 10 );
+                if ( children.length ) ret.children = children;
+                return ret;
+            }
+        }
+        return $(html).find( '#content > ul > li' ).map(node).get();
+    });
+}
+
+/**
  * @summary get recent threads/posts on the forum
  * @return {jQuery.Promise}
  */
