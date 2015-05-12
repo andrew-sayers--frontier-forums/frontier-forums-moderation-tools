@@ -717,7 +717,7 @@ VBulletin.prototype._add_standard_data = function(data) {
     } else {
         var bb = this;
         $(function() {
-            if ( data.securitytoken = this._get_token() ) {
+            if ( data.securitytoken = bb._get_token() ) {
                 dfd.resolve(data);
             } else {
                 debug_log.log("Fatal: could not get securitytoken");
