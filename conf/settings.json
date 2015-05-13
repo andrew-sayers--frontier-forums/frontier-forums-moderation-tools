@@ -55,6 +55,7 @@
         "src/widgets/action_widget.js",
         "src/shared_store.js",
         "src/available_users.js",
+        "src/recent_list.js",
 
         /* Widgets */
         "src/widgets/extra_post.js",
