@@ -799,7 +799,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                                         thread_id: current_thread,
                                         forum_id: current_forum,
                                         title: current_title,
-                                        posts: posts.get().map(function(post) { return post.post_id })
+                                        posts: posts.map(function(post) { return post.post_id })
                                     },
                                     null,
                                     '  '
