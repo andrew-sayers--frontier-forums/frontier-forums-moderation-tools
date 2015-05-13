@@ -567,7 +567,7 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 )}
 
 /**
- * @summary Handle popup items in threads
+ * @summary Handle mod team replies to threads
  * @param {BulletinBoard}      bb Bulletin Board to manipulate
  * @param {Variables}          v  Variables to use
  * @param {MiscellaneousCache} mc Miscellaneous Cache to use
