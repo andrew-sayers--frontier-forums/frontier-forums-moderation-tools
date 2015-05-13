@@ -1,5 +1,5 @@
 /**
- * @file manage policy for new accounts
+ * @file manage policy for official mod team replies to threads
  * @author Andrew Sayers
  * This file defines mod team reply policy in the abstract,
  * but sadly needs to be tightly coupled to the interface.
