@@ -588,147 +588,167 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 )}
 
 /**
- * @summary Handle mod team replies to threads
+ * @summary Handle thread management
  * @param {BulletinBoard}      bb Bulletin Board to manipulate
  * @param {Variables}          v  Variables to use
  * @param {MiscellaneousCache} mc Miscellaneous Cache to use
+ * @param {SharedStore}        ss Shared Store to use
  * @param {string}             loading_html HTML to show while loading
  */
-function handle_mod_team_replies( bb, mod_team_bb, v, mc, loading_html ) {
+function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
 
     var element;
 
-    var namespace = 'mod team replies';
-
     function initialise(stash, pathname, params, link) {
 
-        function build(html) {
+        var policy, root_action, click_link, showhide_initialised = false;
 
-            if ( !element ) {
-                element = $( BabelExt.resources.get('res/popups/mod team replies.html') ).appendTo(document.body).hide();
-                var promise = mod_team_bb.login( element.find('iframe'), 'Frontier Moderation Team' );
+        var buttons = $('<a class="newcontent_textcontrol" href="#thread-management" style="position: absolute"><span>+</span> Manage Thread</a>')
+            .insertBefore(link)
+            .each(function() {
+                $(this).css({ 'margin-left': ( $(this.nextElementSibling).outerWidth() + 10 ) + 'px' });
+            });
+
+        // only start the process if it looks like we'll be needed:
+        buttons
+            .on( 'click mouseover', function build_event(event) {
+
+                element = $( BabelExt.resources.get('res/thread management.html') ).appendTo(document.body).hide();
+
+                // Fire the root action:
+                element.find('input[type="submit"]').click(function() {
+                    var button = $(this);
+                    var progress_bar = button.parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                    root_action.fire_with_journal(
+                        bb,
+                        policy.keys({ 'extra notes' : element.find('[name="extra-notes"]').val() }),
+                        v,
+                        v.resolve('frequently used posts/threads', 'thread management log' ),
+                        'thread management',
+                        'log'
+                    ).progress(function(percent) {
+                        progress_bar.css({ width: percent + '%' });
+                    }).always(function() {
+                        progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                    }).done(function() {
+                        button.prop( 'disabled', true ).val( 'managed!' );
+                    });
+                });
+
+                var promise = _handle_login(
+                    bb,
+                    mod_team_bb,
+                    element.find('iframe').first(),
+                    element.find('iframe').last ()
+                ).progress(function() {
+                    element.   addClass('logging-in'); initialise_showhide();
+                }).then(function() {
+                    element.removeClass('logging-in');
+                });
                 if ( bb.get_pages().current == 1 ) {
-                    return $.when(
+                    promise.then(function() { build(bb.process_posts(bb.get_posts())[0]) });
+                } else {
+                    $.when(
                         $.get( bb.url_for.thread_show({ thread_id: params.t, posts_per_page: 1 }) ),
                         promise
-                    ).then(function(html) { build(html[0]) });
-                } else {
-                    return promise.then(function() { build() });
+                    ).then(function(html) { build(bb.process_posts(bb.get_posts(html[0]))[0]) });
                 }
-            }
 
-            element.addClass('logged-in');
+                if ( event.type == 'click' ) click_link = this;
+                buttons
+                    .off( 'click mouseover', build_event )
+                    .on ( 'click'          , register_click );
 
-            var button = element.find('.button');
+            })
+            .click(function(event) { event.preventDefault() })
+        ;
 
-            var thread_creator = bb.process_posts(bb.get_posts(html))[0];
+        function register_click(event) { click_link = this };
 
-            var root_action;
+        // show/hide the popup once there's something to show:
+        function initialise_showhide() {
 
-            var policy = new ModTeamReplyPolicy({
+            showhide_initialised = true;
+
+            buttons
+                .off('click', register_click)
+                .click(function(event) {
+                    if ( !element.is(':visible') ) {
+                        var offset = $(this).offset();
+                        element.css({ top: offset.top + $(this).outerHeight(), left: offset.left }).slideDown();
+                        setTimeout(function() {
+                            $(document).on ( 'click', function hide_element(event) {
+                                if ( !element.has(event.target).length ) {
+                                    element.slideUp();
+                                    $(document).off( 'click', hide_element );
+                                }
+                            });
+                        }, 0 );
+                    }
+                })
+            ;
+            if ( click_link ) click_link.click();
+
+        }
+
+        function build(first_post) {
+            policy = new ThreadManagementPolicy({
                 v : v,
                 bb: bb,
                 mc: mc,
+                ss: ss,
                 loading_html: loading_html,
-                thread_id: params.t,
+                thread_id: parseInt( params.t, 10 ),
                 thread_desc: bb.thread_title(),
-                user: { username: thread_creator.username, user_id: thread_creator.user_id },
+                forum_id   : parseInt( $('.navbit a[href^="forumdisplay.php"]').last().attr('href').split( '?f=' )[1], 10 ),
+                forum_desc : $('.navbit a[href^="forumdisplay.php"]').last().text(),
+                first_post: first_post,
 
                 mod_team_bb: mod_team_bb,
                 mod_team_user: mod_team_bb.user_current(),
 
+                           status_args: { container: element.find('.status') },
+                             icon_args: { container: element.find( '.icons') },
+                            title_args: { container: element.find( '.title') },
+                           prefix_args: { container: element.find('.prefix') },
+                            forum_args: { container: element.find(   '.forum_selector') },
                 template_selector_args: { container: element.find('.template_selector') },
+                 message_selector_args: { container: element.find( '.message_selector') },
+                  sender_selector_args: { container: element.find(  '.sender_selector') },
+                    bump_selector_args: { container: element.find(    '.bump_selector') },
                     post_selector_args: { container: element.find('.notification-post') },
                       pm_selector_args: { container: element.find('.notification-pm') },
-                         deadline_args: { container: element.find('.reopen-reminder') },
 
-                callback: function( action, summary, has_post, has_pm ) {
+                callback: function( action, summary, has_post, has_pm, show_merge_sender_warning ) {
+
                     element.find('.notification-post')[ has_post ? 'show' : 'hide' ]();
                     element.find('.notification-pm'  )[ has_pm   ? 'show' : 'hide' ]();
+                    element.find('.merge-sender-warning')[ show_merge_sender_warning ? 'show' : 'hide' ]();
 
                     root_action = action;
-                    var title = root_action.title();
 
-                    if ( title.length ) {
+                    if ( root_action ) {
+                        var title = root_action.title();
                         title[0] = title[0][0].toUpperCase() + title[0].slice(1);
-                        button.last().prop( 'disabled', false ).val( title.join('; ') );
+                        element.find('.button').last().prop( 'disabled', false ).val( title.join('; ') );
                     } else {
-                        button.last().prop( 'disabled', true  ).val( 'please select some actions' );
+                        element.find('.button').last().prop( 'disabled', true  ).val( 'please select some actions' );
                     }
 
                 }
 
             });
 
-            button.click(function() {
-                var progress_bar = $(button).parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
-                root_action.fire_with_journal(
-                    bb,
-                    policy.keys({ 'extra notes' : element.find('[name="extra-notes"]').val() }),
-                    v,
-                    v.resolve('frequently used posts/threads', 'mod team reply log' ),
-                    'mod team replies',
-                    'log'
-                ).progress(function(percent) {
-                    progress_bar.css({ width: percent + '%' });
-                }).always(function() {
-                    progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
-                }).done(function() {
-                    $(button).prop( 'disabled', true ).val( 'replied!' );
-                });
-            });
-
+            if ( !showhide_initialised )
+                policy.promise.then(initialise_showhide);
         }
-
-        function hide_element(event) {
-            if ( !$(event.target).closest('.mod-friend-team-reply').is(element) ) {
-                element.slideUp();
-                $(document).off( 'click', hide_element );
-            }
-        }
-
-        function build_event(event) {
-            var promise = build(), link = this, do_click = event.type == 'click';
-            function register_click(event) { do_click = true };
-            reply_buttons
-                .off( 'click mouseover', build_event )
-                .on ( 'click'          , register_click );
-            if ( promise ) promise.then(function() {
-                if ( do_click ) link.click();
-                $(link).off('click', register_click);
-            });
-        }
-
-        var reply_buttons = $('<a class="newcontent_textcontrol" href="#mod-team-reply" style="position: absolute"><span>+</span>Mod Team Reply</a>')
-            .insertBefore(link)
-            .each(function() {
-                $(this).css({ 'margin-left': ( $(this.nextElementSibling).outerWidth() + 10 ) + 'px' });
-            })
-            .on( 'click mouseover', build_event )
-            .click(function(event) {
-                if ( element && element.hasClass('logged-in') ) {
-                    if ( element.is(':visible') ) {
-                        element.slideUp();
-                        $(document).off( 'click', hide_element );
-                    } else {
-                        var offset = $(this).offset();
-                        offset.top += $(this).outerHeight();
-                        element.slideDown().offset(offset);
-                        setTimeout(function() {
-                            $(document).on ( 'click', hide_element );
-                        }, 0 );
-                    }
-                }
-                event.preventDefault();
-            })
-        ;
 
     }
 
     BabelExt.utils.dispatch(
         {
             match_pathname: '/showthread.php',
-            match_elements: [ '#newreplylink_top' ],
+            match_elements: [ '#newreplylink_top', '.threadtitle' ],
             callback: function(stash, pathname, params, link) {
 
                 // skip this in the report forum:
@@ -1141,12 +1161,13 @@ if (window.location == window.parent.location ) {
                 }));
 
                 $.when( vi.promise, mc.promise, ss.promise ).then(function() {
+
                     handle_modcp_doips          ( bb );
                     handle_post_edit            ( bb );
                     handle_moderation_links     ();
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();
-                    handle_mod_team_replies     ( bb, mod_team_bb, v, mc, loading_html );
+                    handle_thread_management    ( bb, mod_team_bb, v, mc, ss, loading_html );
                     handle_thread_form          ( bb, v, handle_error );
                     handle_usernotes_cc         ( bb, v );
                     handle_dashboard            ( bb, mod_team_bb, v, vi, ss, mc, loading_html );

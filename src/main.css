@@ -84,7 +84,7 @@ ol.dashboard-body {
 }
 
 .dashboard-newbies fieldset,
-.mod-friend-team-reply fieldset {
+.mod-friend-thread-management fieldset {
     clear: both;
     border-width: 1px;
     border-style: solid;
@@ -92,7 +92,7 @@ ol.dashboard-body {
     padding: 1em;
 }
 .dashboard-newbies legend, #dashboard-newbies h1,
-.mod-friend-team-reply legend {
+.mod-friend-thread-management legend {
     /* color: see res/main.css */
     font-size: larger;
     font-weight: bold;
@@ -100,7 +100,7 @@ ol.dashboard-body {
 }
 
 .dashboard-newbies .notification-text-button,
-.mod-friend-team-reply .button {
+.mod-friend-thread-management .button {
     float: right;
 }
 
@@ -168,7 +168,7 @@ a.dashboard-refresh {
     font-size: 200%;
 }
 
-.mod-friend-team-reply {
+.mod-friend-thread-management {
     position: absolute;
     min-width: 51em;
     border: 2px solid black;
@@ -178,26 +178,93 @@ a.dashboard-refresh {
     margin-right: 3em;
 }
 
-.mod-friend-team-reply.logged-in > iframe,
-.mod-friend-team-reply:not(.logged-in) > div {
+.mod-friend-thread-management.logging-in > div,
+.mod-friend-thread-management:not(.logging-in) > iframe,
+.mod-friend-thread-metadata.logging-in > div,
+.mod-friend-thread-metadata:not(.logging-in) > iframe {
     display: none;
 }
 
-.mod-friend-team-reply select, .mod-friend-team-reply input[type="text"], .mod-friend-team-reply .violation-details {
+.mod-friend-thread-management select[name="response_template"],
+.mod-friend-thread-management .forum_selector select,
+.mod-friend-thread-management .violation-details,
+.mod-friend-thread-management .post input[type="text"],
+.mod-friend-thread-management .PM   input[type="text"] {
     width: 100%;
     margin: 0;
 }
 
-.mod-friend-team-reply .blockbody {
+.mod-friend-thread-management .forum_selector {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.mod-friend-thread-management .forum_selector .current-forum {
+    font-style: italic;
+}
+.mod-friend-thread-management .forum_selector .recent-target {
+    font-weight: bold;
+}
+
+.mod-friend-thread-management .status select,
+.mod-friend-thread-management .prefix select {
+    margin-right: 2px
+}
+
+.mod-friend-thread-management .thread-info div:not(.title) {
+    float: left;
+}
+.mod-friend-thread-management .buttons > div {
+    float: left;
+    margin: 0.5em 1em;
+}
+.mod-friend-thread-management .buttons label {
+    display: block;
+}
+
+.mod-friend-thread-management .thread-info div.title {
+    width: auto;
+    padding: 0 6px 0 3px;
+    overflow: hidden;
+}
+.mod-friend-thread-management .thread-info div.title input {
+    width: 100%;
+    min-height: 20px;
+}
+
+.mod-friend-thread-management .message_selector {
+    clear: both;
+}
+
+.mod-friend-thread-management .lastnavbit {
+    padding-right: 0;
+}
+
+.mod-friend-thread-management .blockbody {
     padding: 0;
 }
-.mod-friend-team-reply textarea {
+.mod-friend-thread-management textarea {
     height: 15em;
 }
 
-.mod-friend-team-reply textarea[name="extra-notes"] {
+.mod-friend-thread-management textarea[name="extra-notes"] {
     width: 100%;
 }
+
+.mod-friend-thread-management .lastnavbit select {
+    width: 51em;
+}
+
+.mod-friend-thread-management .icons {
+    display: inline-block;
+    width:30px;
+    vertical-align: bottom;
+}
+
+.mod-friend-thread-management .title input {
+    width: 17.5em;
+}
+
 
 .dashboard-section.chaseup .postbit_reputation,
 .dashboard-section.chaseup .postuseravatar,
@@ -207,4 +274,23 @@ a.dashboard-refresh {
 
 .notification-selector .postbitlegacy {
     margin-bottom: 0;
+}
+
+.mod-friend-thread-metadata .icons {
+    display: inline-block;
+    width:30px;
+    vertical-align: bottom;
+}
+
+.mod-friend-thread-metadata .title input {
+    width: 25em;
+}
+
+.mod-friend-thread-metadata .delete input {
+    width: 100%;
+}
+
+.mod-friend-thread-management .merge-sender-warning {
+    clear: both;
+    display: none;
 }
