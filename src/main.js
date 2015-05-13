@@ -1119,7 +1119,7 @@ if (window.location == window.parent.location ) {
                     vi: vi
                 }));
 
-                $.when( vi.promise, mc.promise ).then(function() {
+                $.when( vi.promise, mc.promise, ss.promise ).then(function() {
                     handle_modcp_doips          ( bb );
                     handle_post_edit            ( bb );
                     handle_moderation_links     ();

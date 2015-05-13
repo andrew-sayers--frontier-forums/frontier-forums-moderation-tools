@@ -36,6 +36,9 @@ function SharedStore(args) {
     this.interval_cbs = [];
     this.data         = '{}';
 
+    var ss = this;
+    this.promise = this.retrieve().then(function(data) { ss.data = data });
+
     if ( args.lock_url ) {
         this.   lock = function(       ) { return $.ajax({ url: args.lock_url +    '/lock'           , xhr: function() { return new BabelExt.XMLHttpRequest() } }) };
         this. unlock = function(lock_id) { return $.ajax({ url: args.lock_url +  '/unlock/' + lock_id, xhr: function() { return new BabelExt.XMLHttpRequest() } }) };
@@ -57,6 +60,8 @@ SharedStore.prototype = Object.create(Object, {
        lock: { writable: true, configurable: false },
      unlock: { writable: true, configurable: false },
     refresh: { writable: true, configurable: false },
+
+    promise: { writable: true, configurable: false },
 
     store    : { writable: true, configurable: false },
     retrieve : { writable: true, configurable: false },
