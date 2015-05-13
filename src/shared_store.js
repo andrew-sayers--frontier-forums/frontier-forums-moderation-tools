@@ -74,7 +74,7 @@ SharedStore.prototype = Object.create(Object, {
  * See transaction() and change()
  */
 SharedStore.prototype.val = function() {
-    return JSON.parse(ss.data);
+    return JSON.parse(this.data);
 }
 
 // Regularly update the data
