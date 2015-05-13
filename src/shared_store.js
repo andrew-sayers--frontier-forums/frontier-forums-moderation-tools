@@ -209,6 +209,7 @@ SharedStore.prototype.transaction = function(updater) {
                     if ( !data || data == ss.data ) {
                         data = JSON.parse(data || '{}' );
                     } else {
+                        ss.data = data;
                         data = JSON.parse(data);
                         ss.change_cbs.forEach(function(f) { f(data) });
                     }
@@ -218,7 +219,7 @@ SharedStore.prototype.transaction = function(updater) {
                         ss._interval_transaction();
                     }
                     if ( need_update ) {
-                        ss.store( ss.data = JSON.stringify( data ) ).then(function() {
+                        ss.store( ss.data ).then(function() {
                             dfd.resolve(data);
                             unlock();
                         }, function() {
