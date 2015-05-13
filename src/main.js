@@ -947,6 +947,8 @@ function handle_moderation_links() {
  * MAIN BLOCK (not run in iFrames)
  */
 if (window.location == window.parent.location ) {
+    // I keep going to the wrong site :s
+    if ( location.origin == "http://forumstest.frontier.co.uk" ) location = location.toString().replace( '://', 's://' );
     // in the root window
     if ( location.hostname.search(/\.$/)==-1) BabelExt.utils.dispatch({ // initialise general stuff
         pass_storage    : ['variables', 'violations', 'misc'],
