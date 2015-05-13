@@ -379,7 +379,9 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
     return this.get( bb.url_for.thread_show({ thread_id: thread_id }) )
         .then(get_later_pages, function() {
             debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
+            var dfd = new jQuery.Deferred();
             dfd.reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) );
+            return dfd.promise();
         });
 
 }
