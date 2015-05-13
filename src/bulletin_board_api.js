@@ -462,8 +462,15 @@ function VBulletin(args) {
 	                    do: 'securitytoken'
                         }
                     ).then(function(xml) {
-                        securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
-                        $('input[name="securitytoken"]').val(securitytoken);
+                        if ( bb._origin ) {
+                            BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
+                                creation_time : new Date().getTime(),
+                                security_token: bb.security_token
+                            }));
+                        } else {
+                            securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
+                            $('input[name="securitytoken"]').val(securitytoken);
+                        }
                     });
                 }
             },
