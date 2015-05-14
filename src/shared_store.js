@@ -224,7 +224,7 @@ SharedStore.prototype.transaction = function(updater) {
                         ss._interval_transaction();
                     }
                     if ( need_update ) {
-                        ss.store( ss.data ).then(function() {
+                        ss.store( ss.data = JSON.stringify( data ) ).then(function() {
                             dfd.resolve(data);
                             unlock();
                         }, function() {
