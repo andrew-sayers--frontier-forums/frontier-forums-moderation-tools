@@ -1313,7 +1313,9 @@ VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
  *     notes           : 'edit notes'
  *     prefix_id       : 1, // optional: default: no prefix
  *     close_thread    : true, // optional, default: leave in current state
- *     unapprove_thread: true // optional, default: do not close
+ *     unapprove_thread: true, // optional, default: do not close
+ *     delete_thread   : true // optional, default: leave in current state
+ *     delete_reason   : 'reason why thread was deleted',
  * });
  */
 VBulletin.prototype.thread_edit = function( data ) {
@@ -1327,6 +1329,14 @@ VBulletin.prototype.thread_edit = function( data ) {
             ( typeof(data.close_thread) === 'undefined' ) ? undefined :
                      data.close_thread                    ? ''        :
                                                             'yes'
+        ),
+
+        keepattachments: data.delete_thread ? 'yes'       : undefined,
+        reason         : data.delete_thread ? data.reason : undefined,
+        threadstatus   : (
+            ( typeof(data.delete_thread) === 'undefined' ) ? undefined :
+                     data.delete_thread                    ? 0         :
+                                                             1
         )
     });
 }
