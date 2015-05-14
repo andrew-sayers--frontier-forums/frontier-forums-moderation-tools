@@ -48,9 +48,8 @@ function Deadline( args ) {
     ActionWidget.call(
         this, args, 'deadline', [ 'title', 'bbcode' ],
         function(keys) { // fire
-            var ret = { keys: { 'extra actions': '(none)' }};
-            this.element.val().replace( /^\+([0-9]+)([mhd])$/i, function(match, duration, unit) {
-                ret = args.bb.thread_reply({
+            if ( parse_duration(this.element.val()) ) {
+                return args.bb.thread_reply({
                     thread_id: thread_id,
                     title    : widget.resolve_value( 'title' , [], keys ),
                     bbcode   : widget.resolve_value( 'bbcode', [], keys ),
@@ -60,11 +59,12 @@ function Deadline( args ) {
                         'extra actions'   : '[post=' + post_id + ']replied to the chase-up thread[/post]'
                     }};
                 });
-            });
-            return ret;
+            } else {
+                return { keys: { 'extra actions': '(none)' }};
+            }
         },
         function() { // description
-            if ( this.element.val().search(/^\+[0-9]+[mhd]$/i)==0 ) {
+            if ( parse_duration(this.element.val()) ) {
                 return [{
                     type: 'post',
                     target: {

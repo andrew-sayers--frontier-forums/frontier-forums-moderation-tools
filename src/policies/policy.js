@@ -239,20 +239,13 @@ Policy.prototype._build_keys = function(keys, context) {
                 var action_data = key.value;
                 if ( action_data.hasOwnProperty('deadline') && action_data.deadline != '' ) {
 
-                    var deadline = new Date(date);
-                    action_data.deadline.replace( /^\s*\+([0-9]+)([mhd])\s*$/i, function(match, duration, unit) {
-                        switch ( unit.toLowerCase() ) {
-                        case 'm': deadline = new Date( deadline.getTime() + parseInt( duration, 10 ) *    60*1000 ); break;
-                        case 'h': deadline = new Date( deadline.getTime() + parseInt( duration, 10 ) * 60*60*1000 ); break;
-                        case 'd': deadline = deadline.setDate( deadline.getDate() + parseInt( duration, 10 ) ); break;
-                        }
-                    });
-                    if ( deadline == date ) {
-                        console.log( 'invalid deadline: ' + action_data.deadline );
-                        throw 'invalid deadline: ' + action_data.deadline;
+                    var deadline = parse_duration(action_data.deadline);
+                    if ( deadline ) {
+                        action_data.deadline = deadline.date.getTime();
+                        ret.deadline = deadline.date.toUTCString().replace(/:[0-9][0-9] /, ' ' );
                     } else {
-                        action_data.deadline = deadline.getTime();
-                        ret.deadline = deadline.toUTCString().replace(/:[0-9][0-9] /, ' ' );
+                        alert( 'invalid deadline: ' + action_data.deadline );
+                        throw 'invalid deadline: ' + action_data.deadline;
                     }
 
                 }

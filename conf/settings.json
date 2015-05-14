@@ -56,6 +56,7 @@
         "src/shared_store.js",
         "src/available_users.js",
         "src/recent_list.js",
+        "src/parse_duration.js",
 
         /* Widgets */
         "src/widgets/extra_post.js",
