@@ -668,7 +668,7 @@ VBulletin.prototype.process_posts = function(posts) {
             .map(function(post) {
                 var edited = {};
                 $( '.lastedited', post ).each(function() {
-                    var a = $('a', post);
+                    var a = $('a[href]', post);
                     edited = {
                         edit_username: a.text().substr(15),
                         edit_user_id : a.attr('href').split('?p=')[1],
