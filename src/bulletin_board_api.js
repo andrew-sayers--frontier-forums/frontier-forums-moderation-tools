@@ -1318,6 +1318,26 @@ VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
 }
 
 /**
+ * @summary Delete thread
+ * @param {Object} data
+ * @return {jQuery.Promise}
+ * @example
+ * bb.thread_delete({
+ *     thread_id: 123,
+ *     reason   : 'reason for deletion',
+ * });
+ * @description this soft-deletes a post - physically removing posts is not supported
+ */
+VBulletin.prototype.thread_delete = function( data ) {
+    return this.post( '/postings.php?do=dodeletethread&threadid=' + data.thread_id, {
+        deletereason: data.reason,
+        deletetype: 1, // soft delete
+        do: 'dodeletethread',
+        t: data.thread_id
+    });
+}
+
+/**
  * @summary Change thread metadata
  * @param {Object} data
  * @return {jQuery.Promise}
@@ -1386,6 +1406,39 @@ VBulletin.prototype.thread_merge = function( data ) {
 
             url: data.url
         },
+        data.url
+    );
+}
+
+/**
+ * @summary Move a thread from one forum to another
+ * @param {Object} data
+ * @return {jQuery.Promise}
+ *
+ * @example
+ * bb.thread_move({
+ *     thread_id     : 123,
+ *              title: 'new thread title',
+ *     redirect_title: 'thread title for redirect',
+ *     forum_id      : 12,
+ *     redirect      : { period: 1, frame: 'w' }, // see parse_duration()
+ *     url           : '/foo.php' // optional, default: post with AJAX to avoid page load
+ * });
+ */
+VBulletin.prototype.thread_move = function( data ) {
+    return this.post(
+        '/postings.php?domovethread&t=' + data.thread_id,
+        $.extend(
+            data.redirect ? { enableredirect: 1, redirect: 'expires', period: data.redirect.period, frame: data.redirect.frame } : {},
+            {
+                do: 'domovethread',
+                t: data.thread_id,
+                destforumid: data.forum_id,
+                redirecttitle: data.redirect_title || data.title,
+                title: data.title,
+                url: data.url
+            }
+        ),
         data.url
     );
 }
