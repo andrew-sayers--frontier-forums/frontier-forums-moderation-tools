@@ -246,9 +246,10 @@ Variables.prototype.parse = function( text, keys, parser, forum_id, thread_id ) 
                 has_changed = true;
                 var values = keys[key];
                 if ( $.isArray(values) ) {
-                    if ( values.length == 1 ) {
-                        return values[0];
-                    } else {
+                    switch ( values.length ) {
+                    case 0: return '';
+                    case 1: return values[0];
+                    default:
                         var last = values.pop();
                         var last_joiner = v.get('other templates', 'localisation: list end joiner', forum_id, thread_id);
                         if ( last_joiner.error ) {
