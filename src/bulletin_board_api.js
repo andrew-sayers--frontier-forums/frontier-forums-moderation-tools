@@ -2363,38 +2363,44 @@ VBulletin.prototype.login = function( iframe, default_user ) {
             .attr( 'src', bb._origin )
         ;
 
-        function listen(event) {
-            if (event.origin !== bb._origin) return;
-            if ( event.data == 'BulletinBoard VBulletin get default user' ) {
-                document.title = title;
-                iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
-                event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
-            } else if ( event.data == 'BulletinBoard VBulletin show' ) {
-                iframe.css({ display: 'block', width: '450px', height: '2em' });
-            } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
-                iframe.hide();
-            } else {
-                event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
-                event.data.replace( /^BulletinBoard VBulletin success (.*)\n([^]*)/, function(match, security_token, doc) {
-                    bb.security_token = security_token;
-                    bb.default_user   = default_user;
-                    bb.doc = $(doc);
+        window.addEventListener(
+            "message",
+            function listen(event) {
+                if (event.origin !== bb._origin) return;
+                if ( event.data == 'BulletinBoard VBulletin get default user' ) {
                     document.title = title;
+                    iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
+                    setTimeout(function() {
+                        // Firefox will silently refuse to reply unless we wait a little while
+                        event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+                    }, 10 );
+                } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+                    iframe.css({ display: 'block', width: '450px', height: '2em' });
+                } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
                     iframe.hide();
-                    window.removeEventListener("message", listen, false);
-                    if ( bb.session_id ) {
-                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
-                            creation_time : new Date().getTime(),
-                            session_id    : bb.session_id,
-                            security_token: bb.security_token
-                        }));
-                    }
-                    dfd.resolve(iframe);
-                });
-            }
-        }
+                } else {
+                    event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
+                    event.data.replace( /^BulletinBoard VBulletin success (.*)\n([^]*)/, function(match, security_token, doc) {
+                        bb.security_token = security_token;
+                        bb.default_user   = default_user;
+                        bb.doc = $(doc);
+                        document.title = title;
+                        iframe.hide();
+                        window.removeEventListener("message", listen, false);
+                        if ( bb.session_id ) {
+                            BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
+                                creation_time : new Date().getTime(),
+                                session_id    : bb.session_id,
+                                security_token: bb.security_token
+                            }));
+                        }
+                        dfd.resolve(iframe);
+                    });
+                }
+            },
+            false
+        );
 
-        window.addEventListener("message", listen, false);
     }
 
     if ( default_user ) {
