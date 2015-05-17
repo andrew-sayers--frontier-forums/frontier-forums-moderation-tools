@@ -161,22 +161,27 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
 
     var full_name = [ root_name ].concat(names).join(': ');
 
+    var ret = {
+        matching_namespaces: matching_namespaces,
+        name: full_name
+    };
+
     if ( text === null ) {
-        return {
+        return $.extend(ret, {
             text: null,
             error: "Couldn't find variable \"" + full_name + '" in namespace "' + target_namespace + '"',
-            resolutions: this.suggest_resolutions(matching_namespaces)
-        };
+            resolutions: this.suggest_resolutions(matching_namespaces),
+        });
     } else {
         switch ( text ) {
-        case "OVERRIDE: pretend this variable exists but has no contents": return { text: ''  , error: null };
-        case "OVERRIDE: pretend this variable doesn't exist"             : return { text: null, error: 'variable overriden' };
+        case "OVERRIDE: pretend this variable exists but has no contents": return $.extend(ret, { text: ''  , error: null });
+        case "OVERRIDE: pretend this variable doesn't exist"             : return $.extend(ret, { text: null, error: 'variable overriden' });
         case '': console.log(
             'Warning: "' + full_name + '" in namespace "' + target_namespace + '" is an empty string.\n' +
             'These are deprecated for compatibility, and will become an error in a future version of the moderators\' etension.'
         );
             // FALL THROUGH
-        default                                                          : return { text: text.replace( /^NO OVERRIDE: /, "" ), error: null };
+        default                                                          : return $.extend(ret, { text: text.replace( /^NO OVERRIDE: /, "" ), error: null });
         };
     }
 
