@@ -457,23 +457,34 @@ function VBulletin(args) {
         $(function() { securitytoken = bb._get_token() });
         setInterval(
             function() {
-                if ( bb._get_token() == securitytoken ) { // skip this if the token was already updated
-                    return bb.post(
-                        '/ajax.php?do=securitytoken',
-                        {
-	                    do: 'securitytoken'
-                        }
-                    ).then(function(xml) {
-                        if ( bb._origin ) {
-                            BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
-                                creation_time : new Date().getTime(),
-                                security_token: bb.security_token
-                            }));
-                        } else {
-                            securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
-                            $('input[name="securitytoken"]').val(securitytoken);
+
+                if ( bb._origin ) {
+
+                    BabelExt.memoryStorage.get( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, function(data) {
+                        if ( data.value ) {
+                            var credentials = JSON.parse(data.value);
+                            if ( credentials.creation_time + 60*60*1000 > new Date().getTime() ) {
+                                bb.session_id     = credentials.session_id;
+                                bb.security_token = credentials.security_token;
+                                if ( credentials.creation_time + 20*60*1000 < new Date().getTime() ) {
+                                    return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
+                                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
+                                            creation_time : new Date().getTime(),
+                                            security_token: bb.security_token
+                                        }));
+                                    });
+                                }
+                            }
                         }
                     });
+
+                } else if ( bb._get_token() == securitytoken ) { // skip this if the token was already updated
+
+                    return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
+                        securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
+                        $('input[name="securitytoken"]').val(securitytoken);
+                    });
+
                 }
             },
             1000*60*30 // every 30 minutes
@@ -702,12 +713,16 @@ VBulletin.prototype.process_posts = function(posts) {
 }
 
 VBulletin.prototype._get_token = function() {
-    var token = this.security_token || $('input[name="securitytoken"]').val();
-    if ( token ) return token;
-    BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
-    var token = document.head.getAttribute('data-securitytoken');
-    document.head.removeAttribute('data-securitytoken');
-    return token;
+    if ( this._origin ) {
+        return this.security_token || 'guest';
+    } else {
+        var token = this.security_token || $('input[name="securitytoken"]').val();
+        if ( token ) return token;
+        BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
+        var token = document.head.getAttribute('data-securitytoken');
+        document.head.removeAttribute('data-securitytoken');
+        return token;
+    }
 }
 
 VBulletin.prototype._add_standard_data = function(data) {
