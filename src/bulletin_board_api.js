@@ -2745,6 +2745,7 @@ VBulletin.prototype.login = function( iframe, default_user ) {
                         event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
                     }, 10 );
                 } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+                    dfd.notify('show');
                     iframe.css({ display: 'block', width: '450px', height: '2em' });
                 } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
                     iframe.hide();
