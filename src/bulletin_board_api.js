@@ -309,7 +309,7 @@ BulletinBoard.prototype.detect_post_error = function(reply) {}
  * @description Note: supports vBCode's [quote=author;post_id] syntax
  */
 BulletinBoard.prototype.quotes_process = function(text) {
-    var ret = [], regex = /\[quote="?([^\n=;\]]+)(?:;([^\n=";\]]*))?"?\]|\[\/quote\]/gi, start=0, depth=0, author, post_id, result;
+    var ret = [], regex = /\[quote="?([^\n=";\]]+)(?:;([^\n=";\]]*))?"?\]|\[\/quote\]/gi, start=0, depth=0, author, post_id, result;
     while ( (result = regex.exec(text)) ) {
         if ( result[0].toLowerCase() == '[/quote]' ) {
             if ( !--depth ) ret.push( { author: author, post_id: post_id, text: text.substr( start, result.index - start ) } );
