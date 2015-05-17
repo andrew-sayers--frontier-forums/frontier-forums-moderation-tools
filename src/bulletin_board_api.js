@@ -1297,6 +1297,39 @@ VBulletin.prototype.threads_complete = function(substring) {
 }
 
 /**
+ * @summary list recent threads with at least one reply, sorted by reply count
+ * @param {string} substring partial thread title
+ * @return {Array.<Object>} list of thread titles and IDs
+ */
+VBulletin.prototype.threads_recent = function(substring) {
+    return this.post(
+        '/search.php?do=process',
+        {
+            do: 'process',
+            beforeafter: 'after',
+            childforums: 1,
+            contenttypeid: 1,
+            order: 'descending',
+            replyless: 0,
+            replylimit: 1,
+            searchdate: 1,
+            searchfromtype: 'vBForum:Post',
+            showposts: 0,
+            sortby: 'replycount'
+        }
+    ).then(function(html) {
+        // if multiple pages, get all pages
+        return $(html).find( '.title' ).map(function() {
+            return {
+                thread_id: parseInt( this.id.split('_')[2], 10 ),
+                title: $(this).text(),
+                forum_id: parseInt( $(this).closest('li').find('.threadpostedin a').attr('href').split('?f=')[0], 10 )
+            }
+        }).get();
+    });
+}
+
+/**
  * @summary Create a new thread
  * @param {Number} forum_id ID of forum to create in
  * @param {string} title    thread title
