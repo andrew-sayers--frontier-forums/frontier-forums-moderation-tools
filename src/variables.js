@@ -390,7 +390,7 @@ Variables.prototype.suggest_resolutions_edit = function( namespace, names, forum
 
     var resolutions = this.suggest_resolutions( variable.matching_namespaces );
 
-    resolutions.forEach(function(resolution) { resolution.message = 'edit ' + variable.name });
+    resolutions.forEach(function(resolution) { resolution.message = ('edit ' + variable.name).replace( / +/g, '\xA0' ) });
 
     return resolutions;
 
