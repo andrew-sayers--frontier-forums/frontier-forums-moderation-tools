@@ -174,19 +174,31 @@ Action.prototype.fire = function(bb, keys) {
         if ( !descriptions ) return;
         descriptions = descriptions.map(function(desc) {
             switch ( desc.type ) {
+
             case 'PM'        : return      'PM [URL="' + location.origin + bb.url_for.user_show({ user_id: desc.target.user_id }) + '"]' + desc.target.username + '[/URL]';
             case 'warning'   : return    'warn [URL="' + location.origin + bb.url_for.user_show({ user_id: desc.target.user_id }) + '"]' + desc.target.username + '[/URL]';
             case 'infraction': return 'infract [URL="' + location.origin + bb.url_for.user_show({ user_id: desc.target.user_id }) + '"]' + desc.target.username + '[/URL]';
+
             case 'usernote'  : return 'update [URL="' + location.origin + bb.url_for.user_notes({ user_id: desc.target.user_id }) + '"]user notes for ' + desc.target.username + '[/URL]';
+
             case 'close'     : return 'close [thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
             case 'post'      : return 'reply to ' + (
                 desc.target.post_id
                 ?   '[post=' + desc.target.  post_id + ']' + desc.target.thread_desc + '[/post]'
                 : '[thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]'
             );
+
+            case 'change thread forum' : return 'change forum for [thread='  + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
+            case 'change thread title' : return 'change title for [thread='  + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
+            case 'change thread status': return 'change status for [thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
+            case 'change thread prefix': return 'change prefix for [thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
+            case 'change thread icon'  : return 'change icon for [thread='   + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
+
             case 'user IPs'  : return 'Download [URL="' + location.origin + bb.url_for.moderation_ipsearch($.extend( {depth:2}, desc.target )) + '"]IP address report for ' + desc.target.username + '[/URL]';
             case 'IP users'  : return 'Download user reports for ' + desc.target.length + ' IP address(es)';
+
             default          : return desc.type;
+
             }
         });
         switch ( descriptions.length ) {
@@ -498,14 +510,23 @@ Action.prototype.title = function() {
     // Convert the list of actions to a user-friendly string:
 
     // STEP ONE: group together actions on a common target:
-    var descriptions_by_target = { user: [], thread: [] }, target_types = {
+    var descriptions_by_target = { user: [], thread: [], 'change thread': [] }, target_types = {
+
         'PM'        : 'user',
         'warning'   : 'user',
         'infraction': 'user',
         'usernote'  : 'user',
         'user IPs'  : 'user',
-        'post'      : 'thread',
-        'close'     : 'thread'
+
+        'post' : 'thread',
+        'close': 'thread',
+
+        'change thread forum' : 'change thread',
+        'change thread title' : 'change thread',
+        'change thread status': 'change thread',
+        'change thread prefix': 'change thread',
+        'change thread icon'  : 'change thread'
+
     };
     descriptions.forEach(function(description, index) {
 
@@ -531,6 +552,11 @@ Action.prototype.title = function() {
                 case 'user IPs'  : return 'build IP address report for';
                 case 'post'      : return 'reply to';
                 case 'close'     : return 'close';
+                case 'change thread forum' : return 'forum';
+                case 'change thread title' : return 'title';
+                case 'change thread status': return 'status';
+                case 'change thread prefix': return 'prefix';
+                case 'change thread icon'  : return 'icon';
                 default: throw 'impossible: ' + desc.type;
                 }
             }).join(', ').replace( /, ([^,]*)$/, " and $1 " ).replace( / for,/, ',' );
@@ -559,14 +585,26 @@ Action.prototype.title = function() {
         switch ( desc_type.multiple_target ) {
         case 'user'  : return ( targets.length == 1 ) ? desc_type.type + targets[0].username : desc_type.type + targets.length + ' users';
         case 'thread': return ( targets.length == 1 ) ? desc_type.type + targets[0].thread_desc : desc_type.type + targets.length + ' threads';
+        case 'change thread': return ( targets.length == 1 ) ? 'change ' + desc_type.type + 'for ' + targets[0].thread_desc : 'change ' + desc_type.type + 'for ' + targets.length + ' threads';
         case undefined:
             switch ( desc_type.type ) {
+
             case 'PM'        : return ( targets.length == 1 ) ? 'PM '      +          targets[0].username    : 'send '    + targets.length + ' PMs';
             case 'warning'   : return ( targets.length == 1 ) ? 'warn '    +          targets[0].username    : 'warn '    + targets.length + ' accounts';
             case 'infraction': return ( targets.length == 1 ) ? 'infract ' +          targets[0].username    : 'infract ' + targets.length + ' accounts';
             case 'usernote'  : return ( targets.length == 1 ) ? 'update notes for ' + targets[0].username    : 'update '  + targets.length + ' user notes';
+
             case 'post'      : return ( targets.length == 1 ) ? 'reply to ' +         targets[0].thread_desc : 'post '    + targets.length + ' replies';
             case 'close'     : return ( targets.length == 1 ) ? 'close '    +         targets[0].thread_desc : 'close '   + targets.length + ' threads';
+
+            case 'change thread forum' :
+            case 'change thread title' :
+            case 'change thread status':
+            case 'change thread prefix':
+            case 'change thread icon'  :
+                var prefix = 'change ' + desc_type.type.substr(14) + ' for ';
+                return ( targets.length == 1 ) ? prefix + targets[0].thread_desc : prefix + targets.length + ' threads';
+
             case 'user IPs'  :
                 if ( targets.length == 1 )
                     return 'Build IP address report for ' + targets[0].username;
