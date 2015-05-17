@@ -25,6 +25,8 @@ function Policy(args) {
     this.v  = args.v ;
     this.bb = args.bb;
 
+    this.promise = jQuery.Deferred().resolve().promise();
+
     this._default_violation = args.mc.violation_groups[0].violations[0].name;
 
     var levels = this.get(this.name.concat([ 'severity levels' ]));
@@ -64,6 +66,8 @@ Policy.prototype = Object.create(null, {
 
     v : { writable: true, configurable: false },
     bb: { writable: true, configurable: false },
+
+    promise: { writable: true, configurable: false },
 
     root_action: { writable: true, configurable: false },
     has_actions: { writable: true, configurable: false },
