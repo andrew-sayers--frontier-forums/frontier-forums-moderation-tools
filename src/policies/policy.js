@@ -198,6 +198,11 @@ Policy.prototype._build_keys = function(keys, context) {
                 ret['infraction type'] = level.type;
                 break;
 
+            case 'image':
+                ret[key.name + ' URL'  ] =           key.value;
+                ret[key.name + ' image'] = '[IMG]' + key.value + '[/IMG]';
+                break;
+
             case 'username':
                 ret[key.name               ] = user_username(key.value);
                 ret[key.name + ' with link'] = user_link    (key.value);
@@ -220,6 +225,11 @@ Policy.prototype._build_keys = function(keys, context) {
             case 'thread':
                 ret[key.name + ' title'          ] = key.value.thread_desc;
                 ret[key.name + ' title with link'] = '[thread=' + key.value.thread_id + ']' + key.value.thread_desc + '[/thread]';
+                break;
+
+            case 'forum':
+                ret[key.name + ' title'          ] = key.value.forum_desc;
+                ret[key.name + ' title with link'] = '[URL="' + location.origin + bb.url_for.forum_show({ forum_id: key.value.forum_id }) + '"]' + key.value.forum_desc + '[/URL]';
                 break;
 
             case 'action data':
