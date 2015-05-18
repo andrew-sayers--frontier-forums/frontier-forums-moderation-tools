@@ -18,12 +18,32 @@
     margin-bottom: 1em;
 }
 
+.notification-selector:not(.has-curly-brackets) .has-curly-brackets,
+.notification-selector:not(.has-known-variables) .has-known-variables,
 .notification-selector:not(.none      ) > .none      ,
 .notification-selector:not(.PM        ) > .PM        ,
 .notification-selector:not(.post      ) > .post,
 .notification-selector:not(.warning   ) > .warning   ,
 .notification-selector:not(.infraction) > .infraction {
     display: none;
+}
+
+.notification-selector .has-curly-brackets {
+    clear: both;
+    border: 2px solid red;
+    color: black;
+    text-align: center;
+    padding: 0.25em;
+    background: #faa;
+}
+
+.notification-selector .has-known-variables {
+    clear: both;
+    border: 2px solid yellow;
+    color: black;
+    text-align: center;
+    padding: 0.25em;
+    background: #ffc;
 }
 
 .notification-selector-button {
