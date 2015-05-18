@@ -1259,6 +1259,21 @@ VBulletin.prototype.thread_bump = function(thread_id) {
 }
 
 /**
+ * @summary De-bump a thread
+ * @param {Number} thread_ID ID of thread to de-bump
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.thread_debump = function(thread_id) {
+    return this.post(
+        '/postings.php',
+        {
+            do: 'vsa_makeolder',
+            t : thread_id
+        }
+    );
+}
+
+/**
  * @summary suggest possible completions given a partial thread title
  * @param {string} substring partial thread title
  * @return {Array.<Object>} list of thread titles and IDs
