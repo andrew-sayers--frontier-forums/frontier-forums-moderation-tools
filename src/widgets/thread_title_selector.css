@@ -1,0 +1,23 @@
+.thread-title-selector {
+    width: 100%;
+}
+
+.thread-title-selector > div {
+    position: absolute;
+    background: #faa;
+    border: 2px solid red;
+    padding: 0.2em;
+    color: black
+}
+
+.thread-title-selector > div.warn {
+    background: #ffa;
+    border: 2px solid yellow;
+}
+
+.thread-title-selector:not(.closed ) .closed,
+.thread-title-selector:not(.old    ) .old,
+.thread-title-selector:not(.self   ) .self,
+.thread-title-selector:not(.missing) .missing {
+    display: none;
+}
