@@ -223,6 +223,8 @@ Policy.prototype._build_keys = function(keys, context) {
                 break;
 
             case 'thread':
+                ret[key.name + ' id'             ] = key.value.thread_id;
+                ret[key.name + ' url'            ] = bb.url_for.thread_show({ thread_id: key.value.thread_id });
                 ret[key.name + ' title'          ] = key.value.thread_desc;
                 ret[key.name + ' title with link'] = '[thread=' + key.value.thread_id + ']' + key.value.thread_desc + '[/thread]';
                 break;
