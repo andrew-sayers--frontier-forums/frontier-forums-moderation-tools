@@ -118,7 +118,7 @@
         "res/variables_thread_post.html"
 
     ],
-    // an obscure legacy DNS feature lets you append a "." to a domain name to access a server in in a way that's considered sepearate for cookie resolution:
+    // an obscure legacy DNS feature lets you append a "." to a domain name to access a server in a way that's considered sepearate for cookie resolution:
     "match_domains": [ "forums.frontier.co.uk", "forumstest.frontier.co.uk", "forums.frontier.co.uk.", "forumstest.frontier.co.uk." ],
     "match_secure_domain": true,
 
