@@ -312,7 +312,7 @@ BulletinBoard.prototype.quotes_process = function(text) {
     var ret = [], regex = /\[quote="?([^\n=";\]]+)(?:;([^\n=";\]]*))?"?\]|\[\/quote\]/gi, start=0, depth=0, author, post_id, result;
     while ( (result = regex.exec(text)) ) {
         if ( result[0].toLowerCase() == '[/quote]' ) {
-            if ( !--depth ) ret.push( { author: author, post_id: post_id, text: text.substr( start, result.index - start ) } );
+            if ( !--depth ) ret.push( { author: author, post_id: parseInt( post_id, 10 ), text: text.substr( start, result.index - start ) } );
         } else {
             if ( !depth++ ) {
                 start = result.index + result[0].length;
@@ -682,7 +682,7 @@ VBulletin.prototype.process_posts = function(posts) {
                     var a = $('a[href]', post);
                     edited = {
                         edit_username: a.text().substr(15),
-                        edit_user_id : a.attr('href').split('?p=')[1],
+                        edit_user_id : parseInt( a.attr('href').split('?p=')[1], 10 ),
                     };
                     $(post).text().replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
                         edited.time = time;
@@ -693,10 +693,10 @@ VBulletin.prototype.process_posts = function(posts) {
                     edited,
                     {
                         container_element: post,
-                        post_id          : post.id.substr(5),
+                        post_id          : parseInt( post.id.substr(5), 10 ),
                         date             : $('.date'       , post).text(),
                         username         : $('.username'   , post).first().text(),
-                        user_id          : ( $('.username' , post).attr('href') || '             guest' ).substr(13),
+                        user_id          : parseInt( ( $('.username' , post).attr('href') || '             guest' ).substr(13), 10 ),
                         title            : $('.title'      , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
                         message          : $('.content'    , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
                         message_element  : $('.content'    , post),
@@ -958,8 +958,8 @@ VBulletin.prototype.infraction_ids = function( user_id ) {
                 var name = $.trim($(this).parent().text());
                 return {
                     name  : name,
-                    id    : $(this).val(),
-                    points: $(this).closest('td').next().text()
+                    id    : parseInt( $(this).val(), 10 ),
+                    points: parseInt( $(this).closest('td').next().text(), 10 )
                 }
             }
         }).get();
@@ -985,7 +985,7 @@ VBulletin.prototype.on_posts_modified = function( callback ) {
         mutations.forEach(function(mutation) {
             var post_id = $(mutation.target).closest('li').attr('id') || $(mutation.target).children('li').attr('id');
             if ( !post_id ) return;
-            post_id = post_id.substr(5);
+            post_id = parseInt( post_id.substr(5), 10 );
             if ( $(mutation.target).find('blockquote').length ) {
                 has_modifications = true;
                 modifications.initialised.push( post_id );
@@ -1276,7 +1276,7 @@ VBulletin.prototype.threads_complete = function(substring) {
         }
     ).then(function(html) {
         return $(html).find( '.title' ).map(function() {
-            return { thread_id: this.id.split('_')[2], title: $(this).text() }
+            return { thread_id: parseInt( this.id.split('_')[2], 10 ), title: $(this).text() }
         }).get();
     });
 }
@@ -1461,7 +1461,7 @@ VBulletin.prototype.thread_whoposted = function( thread_id ) {
             total: html.find('.stats.total dd').text(),
             users: html.find('#whoposted .blockrow').map(function() { // '#whoposted' is needed on forums with debugging enabled
                 return {
-                    user_id   : $('.username a', this).attr('href').split('?u=')[1],
+                    user_id   : parseInt( $('.username a', this).attr('href').split('?u=')[1], 10 ),
                     username  : $('.username a', this).text(),
                     post_count: parseInt( $('.stats a', this).text(), 10 )
                 }
@@ -1552,7 +1552,7 @@ VBulletin.prototype.user_ips = function( user, get_overlapping ) {
             html.find( '#cpform_table ul ul > li' ).each(function() {
                 var elements = $(this).children('a');
                 var name     = elements.eq(0).text(),
-                user_id  = elements.eq(0).attr('href').split('&u=')[1],
+                user_id  = parseInt( elements.eq(0).attr('href').split('&u=')[1], 10 ),
                 address  = elements.eq(1).text()
                 ;
                 if ( address === '127.0.0.1' ) return; // ignore localhost
@@ -1592,7 +1592,7 @@ VBulletin.prototype.ip_users = function( ip ) {
                 ip: ip,
                 domain_name: domain_name,
                 users: html.find('#cpform_table li a b').parent().map(function() {
-                    var user_id = $(this).attr('href').split('&u=')[1];
+                    var user_id = parseInt( $(this).attr('href').split('&u=')[1], 10 );
                     if ( !previous_users.hasOwnProperty(user_id) ) {
                         previous_users[user_id] = 1;
                         return {
@@ -1981,7 +1981,7 @@ VBulletin.prototype.users_complete = function( prefix ) {
     }).then(function(xml) {
         var ret = [], users = xml.getElementsByTagName('user'), n;
         for ( n=0; n!=users.length; ++n )
-            ret.push({ user_id: users[n].getAttribute('userid'), username: users[n].textContent });
+            ret.push({ user_id: parseInt( users[n].getAttribute('userid'), 10 ), username: users[n].textContent });
         return ret;
     });
 }
@@ -2098,7 +2098,7 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
                 container_element: this,
                 forum_id         : forum_id,
                 thread_id        : parseInt(thread_id,10),
-                orig_thread_id   : this.id.substr(7), // for moved threads
+                orig_thread_id   : parseInt(this.id.substr(7),10), // for moved threads
                 title_element    : title,
                 title            : title.text(),
                 status           : status,
@@ -2154,7 +2154,7 @@ VBulletin.prototype.activity = function(min_date, min_post_id) {
                  forum_id        : parseInt( links.eq(2) .attr('href').split('?f='  )[1], 10 ),
                 date             : $element.find('.date').text(),
                 username         : links.first().text(),
-                user_id          : ( links.first().attr('href') || '             guest' ).substr(13),
+                user_id          : parseInt( ( links.first().attr('href') || '             guest' ).substr(13), 10 ),
                 title            : links.eq(1).text(),
                 message          : $element.find('.excerpt').text(),
                 message_element  : $element.find('.excerpt'),
@@ -2252,24 +2252,24 @@ VBulletin.prototype.posts_moderated = function() {
         function parse_row() {
             $( 'a[href^="user.php"]', this ).each(function() { // User who created a post (first row of a block)
                 current_block.push(current = {
-                    user_id : this.href.split('&u=')[1],
+                    user_id : parseInt( this.href.split('&u=')[1], 10 ),
                     username: $(this).text()
                 });
             });
             $( 'a[href^="../showthread.php"]', this ).each(function() { // Thread (in post block)
-                current.thread_id    = this.href.split('?t=')[1];
+                current.thread_id    = parseInt( this.href.split('?t=')[1], 10 );
                 current.thread_title = $(this).text();
             });
             $( 'a[href^="../forumdisplay.php"]', this ).each(function() { // Forum
-                current.forum_id   = this.href.split('?f=')[1];
+                current.forum_id   = parseInt( this.href.split('?f=')[1], 10 );
                 current.forum_name = $(this).text();
             });
             $( '[name^="threadtitle"]', this ).each(function() { // Title (in thread block)
-                current.thread_id    = this.name.split(/[\[\]]/)[1];
+                current.thread_id    = parseInt( this.name.split(/[\[\]]/)[1], 10 );
                 current.thread_title = $(this).val();
             });
             $( '[name^="posttitle"]', this ).each(function() { // Title (in post block)
-                current.post_id    = this.name.split(/[\[\]]/)[1];
+                current.post_id    = parseInt( this.name.split(/[\[\]]/)[1], 10 );
                 current.post_title = $(this).text();
             });
             $( '[name^="threadpagetext"],[name^="postpagetext"]', this ).each(function() { // Body
