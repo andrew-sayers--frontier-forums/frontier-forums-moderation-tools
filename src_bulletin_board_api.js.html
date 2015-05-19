@@ -1311,7 +1311,7 @@ BulletinBoard.prototype.detect_post_error = function(reply) {}
  * @description Note: supports vBCode's [quote=author;post_id] syntax
  */
 BulletinBoard.prototype.quotes_process = function(text) {
-    var ret = [], regex = /\[quote="?([^\n=;\]]+)(?:;([^\n=";\]]*))?"?\]|\[\/quote\]/gi, start=0, depth=0, author, post_id, result;
+    var ret = [], regex = /\[quote="?([^\n=";\]]+)(?:;([^\n=";\]]*))?"?\]|\[\/quote\]/gi, start=0, depth=0, author, post_id, result;
     while ( (result = regex.exec(text)) ) {
         if ( result[0].toLowerCase() == '[/quote]' ) {
             if ( !--depth ) ret.push( { author: author, post_id: post_id, text: text.substr( start, result.index - start ) } );
@@ -1459,23 +1459,34 @@ function VBulletin(args) {
         $(function() { securitytoken = bb._get_token() });
         setInterval(
             function() {
-                if ( bb._get_token() == securitytoken ) { // skip this if the token was already updated
-                    return bb.post(
-                        '/ajax.php?do=securitytoken',
-                        {
-	                    do: 'securitytoken'
-                        }
-                    ).then(function(xml) {
-                        if ( bb._origin ) {
-                            BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
-                                creation_time : new Date().getTime(),
-                                security_token: bb.security_token
-                            }));
-                        } else {
-                            securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
-                            $('input[name="securitytoken"]').val(securitytoken);
+
+                if ( bb._origin ) {
+
+                    BabelExt.memoryStorage.get( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, function(data) {
+                        if ( data.value ) {
+                            var credentials = JSON.parse(data.value);
+                            if ( credentials.creation_time + 60*60*1000 > new Date().getTime() ) {
+                                bb.session_id     = credentials.session_id;
+                                bb.security_token = credentials.security_token;
+                                if ( credentials.creation_time + 20*60*1000 &lt; new Date().getTime() ) {
+                                    return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
+                                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
+                                            creation_time : new Date().getTime(),
+                                            security_token: bb.security_token
+                                        }));
+                                    });
+                                }
+                            }
                         }
                     });
+
+                } else if ( bb._get_token() == securitytoken ) { // skip this if the token was already updated
+
+                    return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
+                        securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
+                        $('input[name="securitytoken"]').val(securitytoken);
+                    });
+
                 }
             },
             1000*60*30 // every 30 minutes
@@ -1704,12 +1715,16 @@ VBulletin.prototype.process_posts = function(posts) {
 }
 
 VBulletin.prototype._get_token = function() {
-    var token = this.security_token || $('input[name="securitytoken"]').val();
-    if ( token ) return token;
-    BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
-    var token = document.head.getAttribute('data-securitytoken');
-    document.head.removeAttribute('data-securitytoken');
-    return token;
+    if ( this._origin ) {
+        return this.security_token || 'guest';
+    } else {
+        var token = this.security_token || $('input[name="securitytoken"]').val();
+        if ( token ) return token;
+        BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
+        var token = document.head.getAttribute('data-securitytoken');
+        document.head.removeAttribute('data-securitytoken');
+        return token;
+    }
 }
 
 VBulletin.prototype._add_standard_data = function(data) {
@@ -3365,38 +3380,44 @@ VBulletin.prototype.login = function( iframe, default_user ) {
             .attr( 'src', bb._origin )
         ;
 
-        function listen(event) {
-            if (event.origin !== bb._origin) return;
-            if ( event.data == 'BulletinBoard VBulletin get default user' ) {
-                document.title = title;
-                iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
-                event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
-            } else if ( event.data == 'BulletinBoard VBulletin show' ) {
-                iframe.css({ display: 'block', width: '450px', height: '2em' });
-            } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
-                iframe.hide();
-            } else {
-                event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
-                event.data.replace( /^BulletinBoard VBulletin success (.*)\n([^]*)/, function(match, security_token, doc) {
-                    bb.security_token = security_token;
-                    bb.default_user   = default_user;
-                    bb.doc = $(doc);
+        window.addEventListener(
+            "message",
+            function listen(event) {
+                if (event.origin !== bb._origin) return;
+                if ( event.data == 'BulletinBoard VBulletin get default user' ) {
                     document.title = title;
+                    iframe.css({ display: 'block', width: '0', height: '0', border: 'none' });
+                    setTimeout(function() {
+                        // Firefox will silently refuse to reply unless we wait a little while
+                        event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+                    }, 10 );
+                } else if ( event.data == 'BulletinBoard VBulletin show' ) {
+                    iframe.css({ display: 'block', width: '450px', height: '2em' });
+                } else if ( event.data == 'BulletinBoard VBulletin progress' ) {
                     iframe.hide();
-                    window.removeEventListener("message", listen, false);
-                    if ( bb.session_id ) {
-                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
-                            creation_time : new Date().getTime(),
-                            session_id    : bb.session_id,
-                            security_token: bb.security_token
-                        }));
-                    }
-                    dfd.resolve(iframe);
-                });
-            }
-        }
+                } else {
+                    event.data.replace( /^BulletinBoard VBulletin session (.*)/, function(match, session_id) { bb.session_id = session_id });
+                    event.data.replace( /^BulletinBoard VBulletin success (.*)\n([^]*)/, function(match, security_token, doc) {
+                        bb.security_token = security_token;
+                        bb.default_user   = default_user;
+                        bb.doc = $(doc);
+                        document.title = title;
+                        iframe.hide();
+                        window.removeEventListener("message", listen, false);
+                        if ( bb.session_id ) {
+                            BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + default_user, JSON.stringify({
+                                creation_time : new Date().getTime(),
+                                session_id    : bb.session_id,
+                                security_token: bb.security_token
+                            }));
+                        }
+                        dfd.resolve(iframe);
+                    });
+                }
+            },
+            false
+        );
 
-        window.addEventListener("message", listen, false);
     }
 
     if ( default_user ) {
@@ -3574,7 +3595,7 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 14 May 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 19 May 2015
         </footer>
     </div>
 </div>
