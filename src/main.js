@@ -933,6 +933,147 @@ function handle_post_edit( bb ) { BabelExt.utils.dispatch(
 )}
 
 /**
+ * @summary Show post graph
+ * @param {BulletinBoard} bb           Bulletin Board to manipulate
+ * @param {string}        loading_html HTML to show while loading
+ */
+function handle_post_graph( bb, loading_html ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: ['/showthread.php'],
+        match_elements: ['#threadtools'],
+        callback: function(stash, pathname, params, link) {
+            $('<li class="popupmenu">' +
+                '<h6><a href="javascript://" class="popupctrl">Show Post Graph</a></h6>' +
+                '<ul style="left: 5px; top: 18px" class="popupbody"><li class="mod-friend-post-graph">' + loading_html + '</li></ul>' +
+              '</li>'
+             )
+                .insertBefore(link)
+                .find('a')
+                .one( 'click', function(event) {
+                    var $this = $(this), ul = $(this).closest('li').find('ul');
+                    bb.thread_posts(
+                        params.t,
+                        ( bb.get_pages().current == 1 ) ? document.body : undefined,
+                        true
+                    ).progress(function(completed, total) {
+                        ul.children()
+                            .html(
+                                '<div class="mod-friend-progressing"><div class="mod-friend-progress" style="width:' + (completed/total*100) + '%"><div class="mod-friend-percent">&nbsp;</div></div></div>'
+                            );
+                    }).then(function(posts) {
+
+                        var width = $(window).width() - 20, height = 400;
+                        var li =
+                            ul.css({ left: '-' + ( $this.offset().left - 10 ) + 'px', width: width + 'px' })
+                            .find('li')
+                            .html('<canvas width="' + width + '" height="' + (height+2) + '"></canvas><ul class="line-legend"></ul>');
+                        var legend = li.find('ul');
+                        var ctx = li.find('canvas')[0].getContext("2d");
+
+                        var user_hash = {}, user_list = [];
+
+                        posts.forEach(function(post, index) {
+                            if ( user_hash.hasOwnProperty(post.user_id) ) {
+                                user_hash[post.user_id].posts.push(index+1);
+                            } else {
+                                user_list.push(
+                                    user_hash[post.user_id] = {
+                                        user_id: post.user_id,
+                                        username: post.username,
+                                        posts: [index+1]
+                                    }
+                                );
+                            }
+                        });
+
+                        var hapax_posts = [0], counts = [], y_max = 1;
+                        user_list = user_list.filter(function(user, index) {
+                            if ( index && user.posts.length == 1 && user_list.length > 10 ) { // non-first-posters with only one post
+                                hapax_posts.push(user.posts[0]);
+                                return false;
+                            } else {
+                                if ( y_max < user.posts.length ) y_max = user.posts.length;
+                                counts.push(user.posts.length);
+                                return true;
+                            }
+                        });
+                        hapax_posts.shift();
+
+                        var cutoff = ( counts.length > 20 ) ? counts.sort(function(a,b) { return b - a })[10] : Infinity;
+
+                        user_list.forEach(function(user, index) {
+                            user.colour = 'hsl(' + Math.floor(360*index/user_list.length) + ', ' + ( (index%5)*10+60 ) + '%, ' + ( (index%7)*10+20 ) + '%)';
+                            var legend_item = $('<li><a href="#show-hide-user" class="colour-block" style="background-color:' + user.colour + '"></a><a></a> <a></a></li>').appendTo(legend);
+                            legend_item.find('a').eq(0).data( 'index', index );
+                            legend_item.find('a').eq(1)
+                                .text(user.username)
+                                .attr('href',bb.url_for.user_show({ user_id: user.user_id }));
+                            if ( user.posts.length > cutoff )
+                                legend_item.find('a').eq(1).addClass('top-10');
+                            legend_item.find('a').eq(2)
+                                .text('(' + user.posts.length + ')')
+                                .attr('href',bb.url_for.thread_user_posts({ thread_id: params.t, user_id: user.user_id }));
+                        });
+
+                        if ( hapax_posts.length ) {
+                            if ( y_max < hapax_posts.length ) y_max = hapax_posts.length;
+                            legend.append('<li><a href="#show-hide-user" class="colour-block" data-index="' + user_list.length + '" style="background-color:rgba(220,220,220,1)"></a><i>users with one post (' + hapax_posts.length + ')</i></li>');
+                            user_list.push({
+                                posts : hapax_posts,
+                                colour: "rgba(220,220,220,1)",
+                            });
+                        }
+
+                        var x_max = posts.length;
+			ctx.lineWidth = 2;
+                        function draw() {
+                            user_list.forEach(function(user) {
+                                if ( !user.hidden ) {
+                                    var posts = user.posts;
+                                    ctx.beginPath();
+                                    ctx.strokeStyle = user.colour;
+				    ctx.moveTo(width*(posts[0]-1)/x_max, height+2);
+				    ctx.lineTo(width* posts[0]   /x_max, height - height/y_max);
+                                    for ( var n=1; n!=posts.length; ++n ) {
+					ctx.lineTo(width*(posts[n]-1)/x_max,height - height* n   /y_max);
+					ctx.lineTo(width* posts[n]   /x_max,height - height*(n+1)/y_max);
+                                    }
+                                    ctx.stroke();
+                                }
+                            });
+                        };
+
+                        legend
+                            .find('a.colour-block').click(function(event) {
+                                user_list[ $(this).data('index') ].hidden ^= true;
+                                $(this).closest('li').toggleClass('disabled');
+                                ctx.clearRect( 0, 0, width, height+2 );
+                                y_max = user_list.reduce(function(prev,user) { return ( user.hidden || prev > user.posts.length ) ? prev : user.posts.length }, 0);
+                                draw();
+                                event.preventDefault();
+                            });
+
+                        draw();
+
+                    });
+                })
+                .click(function() {
+                    // Sometimes YUI handles this itself, sometimes it fails to bind the handler
+                    if ( $(this).hasClass('mod-friend-active') ) {
+                        $(this).removeClass( 'active mod-friend-active' );
+                        $(this.parentNode.nextElementSibling).hide();
+                    } else {
+                        $(this).addClass( 'active mod-friend-active' );
+                        $(this.parentNode.nextElementSibling)
+                            .show();
+                    }
+                });
+;
+        }
+    }
+)}
+
+/**
  * @summary Handle moderation checkboxes
  * @description (so you can always tab through them, and hovering over tells you so)
  */
@@ -1164,6 +1305,7 @@ if (window.location == window.parent.location ) {
 
                     handle_modcp_doips          ( bb );
                     handle_post_edit            ( bb );
+                    handle_post_graph           ( bb, loading_html );
                     handle_moderation_links     ();
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();

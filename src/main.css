@@ -124,11 +124,37 @@ a.dashboard-refresh {
     margin-left: 3em
 }
 
+.toolsmenu .popupgroup .popupbody .mod-friend-post-graph {
+    background: #333;
+}
+
+.toolsmenu .popupgroup .popupbody .mod-friend-post-graph .line-legend li {
+    display: inline-block;
+    border: none;
+    width: 20em;
+}
+
+.toolsmenu .popupgroup .popupbody .mod-friend-post-graph .line-legend a {
+    background: none;
+    display: inline;
+    padding: 0;
+    color: white;
+}
+
+.toolsmenu .popupgroup .popupbody .mod-friend-post-graph .line-legend a.colour-block,
 .dashboard-section .line-legend span {
     width: 1em;
     height:1em;
-    display:inline-block;
+    display: inline-block;
     margin-right: 0.5em;
+}
+
+.line-legend a.top-10 {
+    font-weight: bold;
+}
+
+.line-legend li.disabled {
+    text-decoration: line-through;
 }
 
 /*
@@ -176,6 +202,7 @@ a.dashboard-refresh {
     padding: 2px;
     border-radius: 0 2px 2px;
     margin-right: 3em;
+    max-width: 66em;
 }
 
 .mod-friend-thread-management.logging-in > div,
@@ -274,20 +301,6 @@ a.dashboard-refresh {
 
 .notification-selector .postbitlegacy {
     margin-bottom: 0;
-}
-
-.mod-friend-thread-metadata .icons {
-    display: inline-block;
-    width:30px;
-    vertical-align: bottom;
-}
-
-.mod-friend-thread-metadata .title input {
-    width: 25em;
-}
-
-.mod-friend-thread-metadata .delete input {
-    width: 100%;
 }
 
 .mod-friend-thread-management .merge-sender-warning {
