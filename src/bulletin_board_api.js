@@ -271,7 +271,7 @@ BulletinBoard.prototype._add_standard_data = function(data) {}
  * @summary Get the current and maximum page number
  * @abstract
  * @param {string|jQuery|HTMLDocument} doc document to get posts for
- * @return {Array.<number>} current and maximum page numbers
+ * @return {Array.<number>} current and maximum page numbers, number of posts on the page
  */
 BulletinBoard.prototype.get_pages = function(doc) {}
 
@@ -738,10 +738,12 @@ VBulletin.prototype.fix_url = function(url) {
 VBulletin.prototype.get_posts = function(doc) { return $( doc || this.doc ).find('#posts').children().get() }
 
 VBulletin.prototype.get_pages = function(doc) {
+    doc = $( doc || this.doc );
     var ret = { current: 1, total: 1 };
-    ( $( doc || this.doc ).find('.pagination a').first().text() || '' ).replace( /Page ([0-9]+) of ([0-9]+)/, function(match, current, total) {
-        ret = { current: parseInt( current, 10 ), total: parseInt( total  , 10 ) };
+    ( doc.find('.pagination a').first().text() || '' ).replace( /Page ([0-9]+) of ([0-9]+)/, function(match, current, total) {
+        ret = { current: parseInt( current, 10 ), total: parseInt( total , 10 ) };
     });
+    ret.replies_on_page = doc.find('#posts > li:not(.postbitdeleted)').length;
     return ret;
 }
 
