@@ -31,7 +31,10 @@ BulletinBoard.prototype = Object.create(null, {
     _origin: { writable: true, configurable: false },
     doc    : { writable: true, configurable: false },
     // construct product-specific URLs - concrete implementations should add functions here
-    url_for: { writable: true, configurable: false }
+    url_for: { writable: true, configurable: false },
+
+    // number of replies per page (not counting the first post on forums that treat the first post specially):
+    default_reply_count: { writable: false, configurable: false, value: 200 },
 
 });
 
@@ -587,7 +590,7 @@ function VBulletin(args) {
                 '/showthread.php',
                 [
                     { key: 'thread_id'      , param: 't' },
-                    { key: 'posts_per_page' , param: 'pp', default: 1000 },
+                    { key: 'posts_per_page' , param: 'pp', default: VBulletin.prototype.default_reply_count },
                     { key: 'post_id'        , param: 'p' },
                     { key: 'page_no'        , param: 'page' },
                     { key: 'show_if_deleted', param: 'viewfull', map: { true: 1, false: '' } },
@@ -632,6 +635,8 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
     default_user  : { writable: true, configurable: false },
     session_id    : { writable: true, configurable: false },
     security_token: { writable: true, configurable: false },
+
+    default_reply_count: { writable: false, configurable: false, value: 200 },
 
     standard_post_data: {
         writable: false,
