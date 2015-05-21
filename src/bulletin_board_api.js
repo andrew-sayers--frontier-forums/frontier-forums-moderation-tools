@@ -596,6 +596,18 @@ function VBulletin(args) {
                 args,
                 args.post_id ? 'post' + args.post_id : undefined // hash
             )},
+            thread_user_posts: function(args) { return bb.build_url(
+                '/search.php',
+                [
+                    { key: 'action'        , param: 'do', default: 'finduser' },
+                    { key: 'content_type'  , param: 'contenttype', default: 'vBForum_Post' },
+                    { key: 'posts_show'    , param: 'showposts', default: 1 },
+                    { key: 'user_id'       , param: 'userid' },
+                    { key: 'thread_id'     , param: 'searchthreadid' },
+                    { key: 'posts_per_page', param: 'pp', default: VBulletin.prototype.default_reply_count },
+                ],
+                args
+            )},
 
             post_edit: function() { return bb.build_url( '/editpost.php' ) },
             post_show: function(args) { return bb.build_url(
