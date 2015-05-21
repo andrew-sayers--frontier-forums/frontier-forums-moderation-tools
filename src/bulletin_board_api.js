@@ -1384,7 +1384,11 @@ VBulletin.prototype.threads_complete = function(substring) {
         }
     ).then(function(html) {
         return $(html).find( '.title' ).map(function() {
-            return { thread_id: parseInt( this.id.split('_')[2], 10 ), title: $(this).text() }
+            return {
+                thread_id: parseInt( this.id.split('_')[2], 10 ),
+                title: $(this).text(),
+                forum_id: parseInt( $(this).closest('li').find('.threadpostedin a').attr('href').split('?f=')[1], 10 )
+            }
         }).get();
     });
 }
