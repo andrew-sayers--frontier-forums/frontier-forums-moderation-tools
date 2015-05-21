@@ -337,14 +337,18 @@ BulletinBoard.prototype.quotes_process = function(text) {
  *
  * @param {number} thread_id ID of thread to get posts for
  * @param {string|jQuery|HTMLDocument} doc document to get posts for
+ * @param {boolean} skip_images convert all images to <img> - significantly improves performance
  * @return {jQuery.Promise} Deferred object that will return when all pages have loaded
  */
-BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
+BulletinBoard.prototype.thread_posts = function( thread_id, first_page, skip_images ) {
 
     var bb = this;
 
     function get_later_pages(html) {
-        html = $(html);
+        if ( typeof(html) == 'string' ) {
+            if ( skip_images ) html = html.replace(/<img[^>]*>/ig, '<img>');
+            html = $(html);
+        }
 
         var posts = bb.process_posts(bb.get_posts(html));
 
@@ -360,13 +364,14 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
             more_pages.push(
                 bb.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: n }))
                     .then(function(html) {
+                        if ( skip_images ) html = html.replace(/<img[^>]*>/ig, '<img>');
                         return bb.process_posts(bb.get_posts(html));
                     })
             );
 
         if ( more_pages.length ) {
             return bb.when(more_pages).then(
-                function(more_posts) { more_posts.forEach(function(more) { posts = posts.add(more); }); return posts },
+                function(more_posts) { more_posts.unshift(posts); return Array.concat.apply( [], more_posts ) },
                 function(          ) { return 'Failed to load some later pages in ' + bb.url_for.thread_show({ thread_id: thread_id }) }
             );
         } else {
@@ -376,16 +381,67 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page ) {
         }
     }
 
-    if ( first_page )
-        return get_later_pages(first_page);
+    if ( first_page ) {
 
-    return this.get( bb.url_for.thread_show({ thread_id: thread_id }) )
-        .then(get_later_pages, function() {
-            debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
-            var dfd = new jQuery.Deferred();
-            dfd.reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) );
-            return dfd.promise();
-        });
+        if ( typeof(first_page) == 'string' ) {
+            if ( skip_images ) first_page = first_page.replace(/<img[^>]*>/ig, '<img>');
+            first_page = $(first_page);
+        }
+
+        var pages = bb.get_pages(first_page);
+        if ( pages.current == pages.total ) {
+            return new $.Deferred()
+                .resolve( bb.process_posts(bb.get_posts(first_page)) )
+                .promise()
+            ;
+        } else if ( pages.replies_on_page == this.default_reply_count )
+            return get_later_pages(first_page);
+        else {
+
+            var first_post_index = (pages.current-1) * pages.replies_on_page;
+
+            var current_page = Math.ceil( pages.current * pages.replies_on_page / this.default_reply_count );
+            var   final_page = Math.ceil( pages.total   * pages.replies_on_page / this.default_reply_count );
+
+            // number of posts to trim from the first downloaded page, to make it look as if we started loading on this page:
+            var offset = ( pages.replies_on_page * (pages.current-1) ) - ( this.default_reply_count * (current_page-1) );
+            var pages = [
+                bb.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: current_page }))
+                    .then(function(html) {
+                        if ( skip_images ) html = html.replace(/<img[^>]*>/ig, '<img>');
+                        var posts = bb.process_posts(bb.get_posts(html));
+                        posts.splice(0, offset);
+                        return posts;
+                    })
+            ];
+
+            for ( var n=current_page+1; n<=final_page; ++n )
+                pages.push(
+                    bb.get(bb.url_for.thread_show({ thread_id: thread_id, page_no: n }))
+                        .then(function(html) {
+                            if ( skip_images ) html = html.replace(/<img[^>]*>/ig, '<img>');
+                            return bb.process_posts(bb.get_posts(html));
+                        })
+                );
+
+            return bb.when(pages).then(
+                function(posts) { return Array.concat.apply( [], posts ) },
+                function(     ) { return 'Failed to load some pages in ' + bb.url_for.thread_show({ thread_id: thread_id }) }
+            );
+        }
+
+    } else {
+
+        return this.get( bb.url_for.thread_show({ thread_id: thread_id }) )
+            .then(get_later_pages, function() {
+                debug_log.log('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }));
+                return $.Deferred()
+                    .reject('Failed to load thread ' + bb.url_for.thread_show({ thread_id: thread_id }) )
+                    .promise()
+                ;
+            });
+
+    }
 
 }
 
