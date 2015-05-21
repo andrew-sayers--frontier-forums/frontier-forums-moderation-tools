@@ -105,29 +105,40 @@ BulletinBoard.prototype.build_url = function( url, valid_args, args, hash ) {
 
 /**
  * @summary Sane wrapper around $.when()
- *
- * @description $.when() wants a variadic list of arguments and has
- * a different return syntax when passed a single item than many.
- * This makes it hard to use when you want to pass a variable number
- * of Deferreds.
- *
  * @param {Array.<jQuery.Promise>} promises array of promises to wait for
  * @return {jQuery.Promise} return values from each promise
+ *
+ * @description $.when() has several problems:
+ * - it wants a variadic list of arguments
+ * - it has a different return syntax when passed a single item than many
+ * - does not notify on completion of individual promises
+ *
+ * This workalike solves those issues.
+ *
  */
 BulletinBoard.prototype.when = function(promises) {
-    return $.when.apply( // $.when() wants a variadic list of arguments - allow an array instead
-        $,
-        promises
-    ).then(
-        function() {
-            // $.when() behaves differently for 1 vs. many arguments - normalise that behaviour:
-            if ( promises.length == 1 ) {
-                return [ arguments[0] ];
-            } else {
-                return Array.prototype.slice.call( arguments, 0 );
+    var promises_completed = 0;
+    var ret = new Array(promises.length);
+    var dfd = $.Deferred();
+    promises.forEach(function(promise, index) {
+        promise.then(
+            function() {
+                if ( arguments.length == 1 )
+                    ret[index] = arguments[0];
+                else
+                    ret[index] = Array.prototype.slice.call( arguments, 0 );
+                if ( ++promises_completed == promises.length )
+                    dfd.resolve(ret);
+                else if ( promises_completed < promises.length )
+                    dfd.notify( promises_completed, promises.length );
+            },
+            function() {
+                dfd.reject();
+                promises_completed = promises.length + 1;
             }
-        }
-    );
+        );
+    });
+    return dfd.promise();
 }
 
 /*
