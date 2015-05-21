@@ -642,7 +642,9 @@ function VBulletin(args) {
                 ],
                 args
             )},
-            thread_show: function(args) { return bb.build_url(
+            thread_show: function(args) {
+                if ( (args.page_no||0) == 1 ) delete args.page_no; // VBulletin will redirect us if passed this
+                return bb.build_url(
                 '/showthread.php',
                 [
                     { key: 'thread_id'      , param: 't' },
