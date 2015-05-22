@@ -45,10 +45,12 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 
             stash.intro = stash.newbies = $('<div>'); // placeholder, will be filled in later
 
-            ss.change(function(data) {
+            function update_values(data) {
                 stash.intro.data( 'min_thread_id', data.intro_forum_thread_id+1 );
                 stash.newbies.data( 'min_user_id', data.newbie_policy_base_user_id );
-            });
+            }
+            ss.change(update_values);
+            update_values(ss.val());
 
             stash.au = new AvailableUsers({
                 ss: ss,
