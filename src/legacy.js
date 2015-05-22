@@ -75,7 +75,8 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 return [
                     '<a class="stopforumspam" href="//api.stopforumspam.org/api?ip=' + encodeURIComponent(ip) + '&amp;username=' + encodeURIComponent(name) + '&amp;f=json">' + prefix_text + 'StopForumSpam</a>',
                     '<a href="http://multirbl.valli.org/lookup/' + encodeURIComponent(ip) + '.html">' + prefix_text + 'MultiRBL</a>',
-                    '<a href="https://www.projecthoneypot.org/ip_' + encodeURIComponent(ip) + '">' + prefix_text + 'Project&nbsp;Honeypot</a>'
+                    '<a href="https://www.projecthoneypot.org/ip_' + encodeURIComponent(ip) + '">' + prefix_text + 'Project&nbsp;Honeypot</a>',
+                    '<a href="https://geoiptool.com/en/?ip=' + encodeURIComponent(ip) + '">' + prefix_text + 'GeoIP&nbsp;Tool</a>'
                 ];
 
             }
