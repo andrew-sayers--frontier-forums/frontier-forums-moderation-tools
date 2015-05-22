@@ -24,11 +24,15 @@ var webPage      = require('webpage');
  * improve PhantomJS' ability to interact with the operating system
  */
 
-var chrome_command =
-    ( system.os.name == 'windows' )
-    ? 'chrome.exe'
-    : 'google-chrome'
-;
+var chrome_command;
+switch ( system.os.name ) {
+case 'windows': chrome_command = 'chrome.exe'   ; break;
+case 'linux'  : chrome_command = 'google-chrome'; break;
+case 'mac'    : chrome_command = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'; break;
+default:
+   console.error( "Sorry, but your operating system (" + system.os.name + ") is not supported."  );
+   phantom.exit(1);
+}
 
 // script-wide debugging:
 phantom.onError = function(msg, trace) {
@@ -50,10 +54,17 @@ var execFile = childProcess.execFile;
 childProcess.execFile = function(cmd, args, opts, cb) {
 
     // need to check both the callback and value of "exit":
-    var calls = 0, err, stdout, stderr, code;
+    var calls = 0, err, stdout, stderr, code, has_finished = false;
 
     // run the command and get stdout/stderr:
     var ctx = execFile.call( childProcess, cmd, args, opts, function(_err,_stdout,_stderr) {
+        setTimeout(function() {
+            if ( !has_finished ) {
+                console.log( cmd + ' returned but did not exit - does the command exist?' );
+                code = 100;
+                run_callback();
+            }
+        }, 1000 );
         err    = _err;
         stdout = _stdout;
         stderr = _stderr;
@@ -68,9 +79,12 @@ childProcess.execFile = function(cmd, args, opts, cb) {
 
     // once we've got all the information, print STDERR and continue if there was no error:
     function run_callback() {
-        if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
-        if ( code ) program_counter.end(code);
-        else if ( cb ) cb(null, stdout, stderr, code);
+        if ( !has_finished ) {
+            has_finished = true;
+            if ( stderr != '' ) console.log(stderr.replace(/\n$/,''));
+            if ( code ) program_counter.end(code);
+            else if ( cb ) cb(null, stdout, stderr, code);
+        }
     }
 
     return ctx;
@@ -437,8 +451,9 @@ function update_settings() {
             });
     } else if ( settings.environment_specific ) {
         console.log(
-            'Please specify build environment using the ENVIRONMENT environment variable,\n' +
-            'or comment out the "environment_specific" section in settings.json'
+            'Please specify build environment using the ENVIRONMENT environment variable, e.g.:\n\n' +
+            '\texport ENVIRONMENT=' + Object.keys(settings.environment_specific)[0] + "\n\n" +
+            'Alternatively, comment out the "environment_specific" section in settings.json'
         );
         phantom.exit(1);
     };
@@ -502,6 +517,12 @@ update_settings();
  * Load settings from conf/local_settings.json
  */
 var local_settings;
+if ( !fs.exists('conf/local_settings.json') ) {
+    console.error(
+        "Please create conf/local_settings.json (you can probably just rename conf/local_settings.json.example)"
+    );
+    phantom.exit(1);
+}
 try {
     local_settings = eval('('+fs.read('conf/local_settings.json')+')');
 } catch (e) {
@@ -1583,6 +1604,7 @@ var args = system.args;
 
 function usage() {
     console.log(
+        settings.name + ' v' + settings.version + ' (built on BabelExt)\n' +
         'Usage: ' + args[0] + ' <command> <build|release> <firefox|chrome|safari>\n' +
         'Commands:\n' +
         '    build <target> - builds extensions for "amo" (Firefox) "chrome" or "safari"\n' +
