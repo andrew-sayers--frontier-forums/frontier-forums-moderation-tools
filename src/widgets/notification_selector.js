@@ -58,6 +58,8 @@ function NotificationSelector( args ) {
 
     var key_prefix = args.hasOwnProperty('key_prefix') ? args.key_prefix : 'notification ';
 
+    var post_id;
+
     ActionWidget.call(
         this, args, 'notification_selector', [ 'title', 'bbcode', 'ban', 'note_title', 'note_bbcode' ],
         function(keys) { // fire
@@ -122,8 +124,8 @@ function NotificationSelector( args ) {
                     thread_id           : notification.thread_id,
                     title               : value.title,
                     bbcode              : value.bbcode
-                }).then(function(post_id) {
-                    return_keys[key_prefix + 'post id'] = post_id;
+                }).then(function(_post_id) {
+                    return_keys[key_prefix + 'post id'] = post_id = _post_id;
                     return success();
                 }, fail );
 
@@ -150,7 +152,7 @@ function NotificationSelector( args ) {
             if ( notification.value.level == 'none' ) return;
             var actions = [];
             if ( notification.value.level == 'post' )
-                actions.push({ type: notification.value.level, target: { thread_id: args.thread_id, thread_desc: args.thread_desc } });
+                actions.push({ type: notification.value.level, target: { thread_id: args.thread_id, thread_desc: args.thread_desc, post_id: post_id } });
             else
                 actions.push({ type: notification.value.level, target: user });
             if ( notification.resolve_value( 'note_bbcode', [], {} ) !== null )
