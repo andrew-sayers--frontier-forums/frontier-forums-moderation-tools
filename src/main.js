@@ -773,11 +773,11 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
 }
 
 /**
- * @summary Handle variables threads
+ * @summary Handle variables threads/forums
  * @param {BulletinBoard} bb Bulletin Board to manipulate
  * @param {Variables}     v  Variables to use
  */
-function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
+function handle_variables( bb, v ) { BabelExt.utils.dispatch(
     {
         match_pathname: '/showthread.php',
         match_elements: [ '#breadcrumb .navbit a[href="forumdisplay.php?f=70"]', '#below_postlist' ],
@@ -830,6 +830,94 @@ function handle_variables_thread( bb, v ) { BabelExt.utils.dispatch(
                 }
             });
 
+        }
+    },
+    {
+        match_pathname: '/forumdisplay.php',
+        match_params  : { f: 70 },
+        match_elements: [ '#forumsearch' ],
+        callback: function(stash, pathname, params) {
+            $('<li><a href="#download">Download threads</a></li>')
+                .appendTo('#admintools ul')
+                .find('a')
+                .click(function(event) {
+                    var a = $(this);
+                    a.html('<div class="mod-friend-progressing"><div class="mod-friend-progress" style="width:100%"><div class="mod-friend-percent">&nbsp;</div></div></div>');
+                    bb.forum_threads(params.f).then(function(threads) {
+                        var completed_threads = 0, total_threads = threads.length;
+                        var files = [], titles = {};
+                        threads.forEach(function(thread) { titles[thread.orig_thread_id] = thread.title });
+                        return $.when.apply(
+                            $,
+                            threads.sort(function(a,b) { return a.title.localeCompare(b.title) }).map(function(thread, index) {
+                                switch ( thread.status ) {
+                                case 'moved':
+                                    --total_threads;
+                                    var root = $('<root><thread></thread></root>');
+                                    root.children()
+                                        .attr( 'id'    , thread.orig_thread_id )
+                                        .attr( 'target', titles[thread.thread_id] )
+                                        .attr( 'title' , thread.title )
+                                    ;
+                                    files[index] = root.html().replace(/&nbsp;/g, '&#xA0;');
+                                case 'deleted': return;
+                                default:
+                                    return v.serialise_thread(thread.thread_id, thread.title).then(function(xml) {
+                                        a.find('.mod-friend-percent').css({ 'width': ( 100 * ++completed_threads / total_threads ) + '%' });
+                                        files[index] = xml;
+                                    });
+                                }
+                            })
+                        ).then(function() {
+                            a.html('Download threads');
+                            var link = $('<a>')
+                                .attr( 'download', 'variables-' + location.hostname + '.xml' )
+                                .attr( 'href', 'data:application/octet-stream,'+encodeURIComponent('<forum id="70">\n' + files.join('\n') + '\n</forum>') )
+                                .appendTo(document.body);
+                            link[0].click(); // for some reason, link.click() doesn't work
+                            link.remove();
+                        });
+                    });
+                    event.preventDefault();
+                });
+            $('<li><a href="#download">Upload thread</a></li>')
+                .appendTo('#admintools ul')
+                .find('a')
+                .click(function(event) {
+                    $(document.body).click(); // hide element
+                    var form = $(
+                        '<form class="mod-friend-variables-upload-form">' +
+                            '<textarea placeholder="Paste downloaded XML here"></textarea>' +
+                            '<input type="button" value="cancel" class="cancel"><input type="button" value="create">' +
+                        '</form>'
+                    ).appendTo(document.body);
+
+                    form.find('input').first().click(function() { $(this.form).remove() });
+                    form.find('input').last ().click(function() {
+                        var xml = $($(this.form).find('textarea').val());
+                        if ( xml.length != 1 || xml[0].tagName != 'THREAD' ) {
+                            alert('Error: invalid XML');
+                            return;
+                        }
+                        var posts = xml.children('post').map(function() {
+                            return {
+                                title : this.getAttribute('title'),
+                                bbcode: this.textContent
+                            }
+                        }).get();
+                        bb.thread_create({
+                            forum_id: params.f,
+                            title   : xml.attr('title'),
+                            bbcode  : posts.shift().bbcode
+                        }).then(function(thread_id) {
+                            (function add_reply() {
+                                if ( posts.length )
+                                    bb.thread_reply($.extend( posts.shift(), { thread_id: thread_id })).then(add_reply);
+                            })();
+                        });
+                    });
+                    event.preventDefault();
+                });
         }
     }
 )}
@@ -1263,7 +1351,7 @@ if (window.location == window.parent.location ) {
                 }
             }));
 
-            v.promise.then(function() { return handle_variables_thread( bb, v ) }).then(function() {
+            v.promise.then(function() { return handle_variables( bb, v ) }).then(function() {
 
                 var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
                 var ss = new SharedStore({
