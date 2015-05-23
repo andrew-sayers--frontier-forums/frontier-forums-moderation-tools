@@ -69,7 +69,8 @@ Action.prototype = Object.create(Object, {
     _children  : { writable: true , configurable: false },
     _level     : { writable: true , configurable: false },
     _fire_count: { writable: true , configurable: false },
-    _title     : { writable: true , configurable: false }
+    _title     : { writable: true , configurable: false },
+    _debug     : { writable: true , configurable: false, value: false } // check for programming errors in actions
 });
 Action.prototype.constructor = Action;
 
@@ -261,7 +262,18 @@ Action.prototype.fire = function(bb, keys) {
 
         action._promises.forEach(function(promise) {
             if ( promise ) {
-                promise.promise = promise.fire($.extend( {}, keys ) );
+                if ( Action.prototype._debug ) {
+                    try {
+                        promise.promise = promise.fire($.extend( {}, keys ) );
+                    } catch (error) {
+                        console.log( action._title + ': ' + error, promise );
+                        alert      ( action._title + ': ' + error );
+                        throw error;
+                    };
+                } else {
+                    promise.promise = promise.fire($.extend( {}, keys ) );
+                }
+
                 if ( promise.promise) {
                     ++in_progress;
                     if ( promise.promise.then ) { // looks like a promise
