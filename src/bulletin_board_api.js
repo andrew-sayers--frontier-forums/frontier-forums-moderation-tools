@@ -1517,7 +1517,8 @@ VBulletin.prototype.thread_delete = function( data ) {
  *     thread_id       : 123,
  *     title           : 'post title',
  *     notes           : 'edit notes'
- *     prefix_id       : 1, // optional: default: no prefix
+ *     icon_id         : 1, // optional
+ *     prefix_id       : 1, // optional, default: no prefix
  *     close_thread    : true, // optional, default: open thread
  *     unapprove_thread: true, // optional, default: do not unapprove
  *     delete_thread   : true // optional, default: leave in current state
@@ -1529,6 +1530,7 @@ VBulletin.prototype.thread_edit = function( data ) {
         do      : 'updatethread',
         title   : data.title,
         notes   : data.notes,
+        iconid  : data.icon_id,
         prefixid: data.prefix_id,
         visible : data.unapprove_thread ? 'no' : 'yes',
         open    : (
