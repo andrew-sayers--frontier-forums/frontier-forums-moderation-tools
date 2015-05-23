@@ -864,63 +864,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         }
     },
 
-    { // quick merge
-        match_pathname: '/showthread.php',
-        match_elements: '#threadtools',
-        pass_preferences: [ 'reload_interval' ],
-        callback: function(stash, pathname, params, threadtools, reload_interval) {
-
-            var quick_merge = $(
-                    '<li class="popupmenu">' +
-                      '<h6><a href="javascript://" class="popupctrl">Quick Merge</a></h6>' +
-                      '<ul style="min-width: 350px; left: 5px; top: 18px" class="popupbody"></ul>' +
-                    '</li>'
-            ).insertBefore(threadtools);
-            quick_merge.find('h6 a').click(function() {
-                    // Sometimes YUI handles this itself, sometimes it fails to bind the handler
-                    if ( $(this).hasClass('mod-friend-active') ) {
-                        $(this).removeClass( 'active mod-friend-active' );
-                        $(this.parentNode.nextElementSibling).hide();
-                    } else {
-                        $(this).addClass( 'active mod-friend-active' );
-                        $(this.parentNode.nextElementSibling).show();
-                    }
-                });
-
-            stash.merge_destinations.forEach(function(destination) {
-
-                var link = $('<li></li>').appendTo(quick_merge.find('.popupbody'));
-                if ( destination.thread_id < params.t ) {
-                    link.html('<a class="merge-title" rel="nofollow" href="showthread.php?t='+destination.thread_id+'"></a>')
-                        .click(function(event) {
-                            $(this).html(loading_html);
-                            $.get( '/showthread.php?t=' + destination.thread_id, function(html) {
-                                html = $(html);
-                                var forum_id = html.find( '#breadcrumb .navbit a').last().attr('href').split( '?f=' )[1];
-                                var title = $.trim($('.lastnavbit').text());
-                                stash.report_merge( params.t, title, forum_id, destination.thread_id, destination.value).done(function() {
-                                    bb.thread_merge({
-                                        forum_id  : forum_id,
-                                        thread_ids: [ destination.thread_id, params.t ],
-                                        url       : '/showthread.php?goto=newpost&t='+v.resolve('frequently used posts/threads', 'mod log'),
-                                    });
-                                });
-                            });
-                            event.preventDefault();
-                        });
-                } else if ( destination.thread_id > params.t ) {
-                    link.html('<span class="merge-title" title="can\'t merge earlier threads into later ones\nIf you really want to do this, please merge from that thread into this one."></span>');
-                } else { // equal
-                    link.html('<span class="merge-title" title="can\'t merge a thread with itself."></span>')
-                }
-
-                link.find('.merge-title').text(destination.value);
-
-            });
-
-        }
-    },
-
     {
         match_pathname: '/showthread.php',
         match_elements: ['input[value="openclosethread"]'],
