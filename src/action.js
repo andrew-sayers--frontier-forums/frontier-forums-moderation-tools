@@ -409,7 +409,8 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
                 bbcode   : v.resolve(namespace, [ name + ' body' , 'before' ], keys)
             }).then(function(journal_post_id) {
 
-                keys['journal post id'] = journal_post_id;
+                keys['journal thread id'] = thread_id;
+                keys['journal post id' ] = journal_post_id;
 
                 return policy.fire(bb, keys).then(
                     function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
