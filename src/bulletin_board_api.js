@@ -1646,7 +1646,7 @@ VBulletin.prototype.thread_metadata = function( thread_id ) {
  * @return string
  */
 VBulletin.prototype.thread_title = function( thread ) {
-    return $.trim( $(thread || this.doc).find( '.navbit.lastnavbit span').first().text() );
+    return $.trim( $(thread || this.doc).find( '.threadtitle').first().text() );
 }
 
 /**
