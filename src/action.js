@@ -354,7 +354,7 @@ Action.prototype.fire = function(bb, keys) {
  */
 Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace, name) {
 
-    var policy = this;
+    var action = this;
 
     var sort_order = {
         title    : 0,
@@ -439,7 +439,7 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
                 keys['journal thread id'] = thread_id;
                 keys['journal post id' ] = journal_post_id;
 
-                return policy.fire(bb, keys).then(
+                return action.fire(bb, keys).then(
                     function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
                     function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'failed'    ) }
                 );
