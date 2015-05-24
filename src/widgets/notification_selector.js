@@ -152,7 +152,7 @@ function NotificationSelector( args ) {
             if ( notification.value.level == 'none' ) return;
             var actions = [];
             if ( notification.value.level == 'post' )
-                actions.push({ type: notification.value.level, target: { thread_id: args.thread_id, thread_desc: args.thread_desc, post_id: post_id } });
+                actions.push({ type: notification.value.level, target: { thread_id: notification.thread_id, thread_desc: args.thread_desc, post_id: post_id } });
             else
                 actions.push({ type: notification.value.level, target: user });
             if ( notification.resolve_value( 'note_bbcode', [], {} ) !== null )
@@ -243,7 +243,7 @@ function NotificationSelector( args ) {
             if ( notification.element.hasClass('preview') ) {
                 var level_element = notification.element.children('.'+value.level);
                 level_element.find('.postrow').html( args.loading_html );
-                args.bb.bbcode_html( args.thread_id, level_element.find('textarea').val() )
+                args.bb.bbcode_html( notification.thread_id, level_element.find('textarea').val() )
                     .done(function(html) { level_element.find('.postrow').html(html) })
                 ;
             }
