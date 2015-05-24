@@ -188,6 +188,21 @@ Action.prototype.fire = function(bb, keys) {
                 : '[thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]'
             );
 
+            case 'create thread': return (
+                desc.target.thread_id
+                ? 'Create [thread=' + desc.target.thread_id + ']' + desc.target.title + '[/thread]'
+                : 'Create '                                       + desc.target.title
+            );
+
+            case 'move posts':
+                var posts = desc.target.posts.map(function(post) { return '[post=' + post + ']post #' + post + '[/post]' });
+                switch ( posts.length ) {
+                case 0 : posts = '(an empty list of posts)'; break;
+                case 1 : posts = posts[0]; break;
+                default: posts = posts.join(', ').replace( /(.*),/, '$1 and' ); break;
+                };
+                return 'Move ' + posts + ' to [thread=' + desc.target.thread.thread_id + ']' + ( desc.target.thread.title + '[/thread]' );
+
             case 'change thread forum' : return 'change forum for [thread='  + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
             case 'change thread title' : return 'change title for [thread='  + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
             case 'change thread status': return 'change status for [thread=' + desc.target.thread_id + ']' + desc.target.thread_desc + '[/thread]';
@@ -510,7 +525,7 @@ Action.prototype.title = function() {
     // Convert the list of actions to a user-friendly string:
 
     // STEP ONE: group together actions on a common target:
-    var descriptions_by_target = { user: [], thread: [], 'change thread': [] }, target_types = {
+    var descriptions_by_target = { user: [], thread: [], 'change thread': [], 'create thread': [], posts: [] }, target_types = {
 
         'PM'        : 'user',
         'warning'   : 'user',
@@ -520,6 +535,9 @@ Action.prototype.title = function() {
 
         'post' : 'thread',
         'close': 'thread',
+
+        'create': 'create thread',
+        'posts': 'posts',
 
         'change thread forum' : 'change thread',
         'change thread title' : 'change thread',
@@ -552,6 +570,8 @@ Action.prototype.title = function() {
                 case 'user IPs'  : return 'build IP address report for';
                 case 'post'      : return 'reply to';
                 case 'close'     : return 'close';
+                case 'create thread': return 'create';
+                case 'move posts': return 'move';
                 case 'change thread forum' : return 'forum';
                 case 'change thread title' : return 'title';
                 case 'change thread status': return 'status';
@@ -596,6 +616,11 @@ Action.prototype.title = function() {
 
             case 'post'      : return ( targets.length == 1 ) ? 'reply to ' +         targets[0].thread_desc : 'post '    + targets.length + ' replies';
             case 'close'     : return ( targets.length == 1 ) ? 'close '    +         targets[0].thread_desc : 'close '   + targets.length + ' threads';
+
+            case 'create thread': return ( targets.length == 1 ) ? 'create a new thread' : 'create '   + targets.length + ' threads';
+            case 'move posts'   :
+                var post_count = targets.reduce( function(prev, t) { return prev + t.posts.length }, 0 );
+                return ( post_count == 1 ) ? 'move one post'       : 'move '     + post_count + ' posts';
 
             case 'change thread forum' :
             case 'change thread title' :
