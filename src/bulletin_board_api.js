@@ -844,12 +844,10 @@ VBulletin.prototype.detect_post_error = function(reply) {
                 return $.trim(reply.find('.standard_error').text());
             else
                 return null;
+        } else if ( reply.search && reply.search( / class="[^"]*\b(?:blockrow\b[^"]*\berror\b|error\b[^"]*\bblockrow\b)[^>*]>(?!<\/div>)/ ) != -1 ) {
+            return $.trim( $(reply).find( '.blockrow.error' ).text() );
         } else {
-            var errors = $(reply).find( '.blockrow.error' );
-            if ( errors.length && errors.text().search(/\S/)!=-1 )
-                return $.trim(errors.text());
-            else
-                return null;
+            return null;
         }
     } else {
         return null;
