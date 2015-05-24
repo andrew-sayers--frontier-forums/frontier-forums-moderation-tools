@@ -588,7 +588,7 @@ VariablesFromForum.prototype.serialise_thread = function(thread_id, title, body)
     return bb.thread_posts( thread_id, body ).then(function(posts) {
 
         return $.when.apply( $, posts.map(function(post, index) {
-            if ( post.post_id != '0' ) {
+            if ( post.post_id != '0' && !post.is_deleted ) {
                 return bb.post_info(post.post_id).then(function(info) {
                     var root = $('<root><post></post></root>');
                     if ( post.title ) root.children().attr( 'title', post.title );
