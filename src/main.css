@@ -320,6 +320,7 @@ a.dashboard-refresh {
     margin-bottom: 0.5em;
 }
 
+.mod-friend-unmerge input,
 .mod-friend-variables-upload-form input.cancel {
     float: right;
 }

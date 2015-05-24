@@ -590,6 +590,7 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 /**
  * @summary Handle thread management
  * @param {BulletinBoard}      bb Bulletin Board to manipulate
+ * @param {BulletinBoard}      mod_team_bb Bulletin Board to manipulate
  * @param {Variables}          v  Variables to use
  * @param {MiscellaneousCache} mc Miscellaneous Cache to use
  * @param {SharedStore}        ss Shared Store to use
@@ -771,6 +772,79 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
     );
 
 }
+
+/**
+ * @summary Handle the merge log
+ * @param {BulletinBoard}      bb          Bulletin Board to manipulate
+ * @param {BulletinBoard}      mod_team_bb Bulletin Board to manipulate
+ * @param {Variables}          v           Variables to use
+ */
+function handle_merge_log( bb, mod_team_bb, v ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: [ '/showthread.php' ],
+        match_params: { t: v.resolve('frequently used posts/threads', 'merge log') },
+        match_elements: [ '#below_postlist' ],
+        callback: function(stash, pathname, params) {
+            // Unmerge data in the merge log
+            $('blockquote > .bbcode_container').each(function() {
+                var $this = $(this);
+                var unmerge_data = bb.parse_post('merge data', { message_element: $this });
+                if ( !unmerge_data ) { // legacy compatibility
+                    $this.text().replace( /\/\* BEGIN THREAD MERGE DATA \*\/\s*((?:.|\n)*?)\s*\/\* END THREAD MERGE DATA \*\//, function( match, json ) {
+                        var data = JSON.parse(json);
+                        unmerge_data = {
+                            posts: data.posts,
+                            source_thread: {
+                                forum_id: data.forum_id,
+                                title: data.title,
+                            }
+                        };
+                    });
+                }
+                if ( unmerge_data ) {
+                    var root_action = ThreadManagementPolicy.prototype.unmerge_action(bb, mod_team_bb, v, unmerge_data);
+
+                    var button = $('<div class="mod-friend-unmerge"><div class="mod-friend-progress"><div class="mod-friend-percent">&nbsp;</div></div><input type="button" class="button"></div>')
+                        .insertAfter($this.parent());
+
+                    button.find('input')
+                        .val('Unmerge: ' + root_action.title().join('; '))
+                        .click(function() {
+                            var iframes = $('<iframe></iframe><iframe></iframe>').hide().insertAfter(this);
+                            _handle_login(
+                                bb,
+                                mod_team_bb,
+                                iframes.first(),
+                                iframes.last ()
+                            ).progress(function() { iframes.show() })
+                            .then(function() {
+                                iframes.hide();
+                                var progress_bar = button.addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                                root_action.fire_with_journal(
+                                    bb,
+                                    {
+                                        template: 'unmerge',
+                                        'old thread title': unmerge_data.source_thread.title,
+                                        'old thread title with link': unmerge_data.source_thread.title,
+                                    },
+                                    v,
+                                    v.resolve('frequently used posts/threads', 'thread management log' ),
+                                    'thread management',
+                                    'log'
+                                ).progress(function(percent) {
+                                    progress_bar.css({ width: percent + '%' });
+                                }).always(function() {
+                                    progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                                }).done(function() {
+                                    button.find('input').prop( 'disabled', true ).val( 'unmerged!' );
+                                });
+                            });
+                        });
+                }
+            });
+        }
+    }
+)}
 
 /**
  * @summary Handle variables threads/forums
@@ -1390,7 +1464,6 @@ if (window.location == window.parent.location ) {
                 }));
 
                 $.when( vi.promise, mc.promise, ss.promise ).then(function() {
-
                     handle_modcp_doips          ( bb );
                     handle_post_edit            ( bb );
                     handle_post_graph           ( bb, loading_html );
@@ -1398,6 +1471,7 @@ if (window.location == window.parent.location ) {
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();
                     handle_thread_management    ( bb, mod_team_bb, v, mc, ss, loading_html );
+                    handle_merge_log            ( bb, mod_team_bb, v );
                     handle_thread_form          ( bb, v, handle_error );
                     handle_usernotes_cc         ( bb, v );
                     handle_dashboard            ( bb, mod_team_bb, v, vi, ss, mc, loading_html );

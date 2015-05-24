@@ -1117,44 +1117,6 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
         }
     },
 
-    { // unmerge threads
-        match_pathname: [ '/showthread.php' ],
-        // match_params: { t: mod_log_thread }, // doing this neatly would be an architectural hassle, TODO: consider said hassle some day
-        match_elements: [ '#below_postlist' ],
-        callback: function(stash, pathname, params) {
-            var merge_log = v.resolve('frequently used posts/threads', 'merge log');
-            if ( params.t == merge_log ) {
-                // Unmerge data in the merge log
-                $('.bbcode_code').each(function() {
-                    var $code = $(this);
-                    $code.text().replace( /\/\* BEGIN THREAD MERGE DATA \*\/\s*((?:.|\n)*?)\s*\/\* END THREAD MERGE DATA \*\//, function( match, json ) {
-                        var data = JSON.parse(json);
-                        var variable_data = {
-                            'current thread id': data.thread_id,
-                            'current thread title': data.title,
-                            'destination thread title' : data.title
-                        };
-                        $('<input type="button" value="Unmerge this thread">')
-                            .insertAfter($code.parent())
-                            .click(function() {
-                                bb.thread_create( data.forum_id, data.title, v.resolve('report process', 'unmerge notification body', variable_data) ).done(function(new_thread_id) {
-                                    variable_data['destination thread id'] = new_thread_id;
-                                    bb.posts_move( new_thread_id, data.posts ).done(function() {
-                                        bb.thread_reply({
-                                            thread_id: merge_log,
-                                            title    : v.resolve('report process', 'unmerge title', variable_data),
-                                            bbcode   : v.resolve('report process', 'unmerge body' , variable_data),
-                                            url      : '/showthread.php?goto=newpost&t='+merge_log
-                                        });
-                                    });
-                                });
-                            });
-                    });
-                });
-            }
-        }
-    },
-
 
     { // infraction pages
         match_pathname: '/infraction.php',
