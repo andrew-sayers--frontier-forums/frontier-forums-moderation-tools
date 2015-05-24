@@ -62,7 +62,20 @@ function NotificationSelector( args ) {
         this, args, 'notification_selector', [ 'title', 'bbcode', 'ban', 'note_title', 'note_bbcode' ],
         function(keys) { // fire
 
-            var value = this.val();
+            var value = $.extend( {}, this.val() );
+
+            if ( args.known_keys ) {
+                var keys = {};
+                args.known_keys.forEach(function(key) {
+                    if ( notification.known_keys.hasOwnProperty(key) ) {
+                        keys[key] = notification.known_keys[key]
+                    } else {
+                        console.log( 'Error: known key "' + key + '" was not defined' );
+                    }
+                });
+                value.title  = args.v.parse( value.title , keys );
+                value.bbcode = args.v.parse( value.bbcode, keys );
+            };
 
             var return_keys = $.extend( {}, value.keys );
             keys.violation = return_keys.violation = value.violation.name;
@@ -154,6 +167,7 @@ function NotificationSelector( args ) {
     this.loading_html = args.loading_html;
     this.thread_id    = args.thread_id;
     this.key_prefix   = key_prefix;
+    this.known_keys   = {};
     $.extend( this.value, {
         level    : null,
         namespace: null,
@@ -278,8 +292,8 @@ NotificationSelector.prototype = Object.create(ActionWidget.prototype, {
     user        : { writable: true, configurable: false },
     key_prefix  : { writable: true, configurable: false },
     button      : { writable: true, configurable: false },
-    value       : { writable: true, configurable: false }
-
+    value       : { writable: true, configurable: false },
+    known_keys  : { writable: true, configurable: false }
 });
 NotificationSelector.prototype.constructor = NotificationSelector;
 
@@ -395,3 +409,11 @@ NotificationSelector.prototype.mode_switcher = function() { return this.button }
  * a place to put such widgets
  */
 NotificationSelector.prototype.extra_block = function() { return this.element.find('.extra') }
+
+/**
+ * @summary add known keys that will be inserted immediately before the notification is sent
+ * @param {Object} keys keys to insert
+ */
+NotificationSelector.prototype.add_known_keys = function(keys) {
+    $.extend( this.known_keys, keys );
+}
