@@ -499,6 +499,8 @@ Action.prototype.long_description = function() {
         if ( !description.contained.reduce(function(prev, item) { return prev || item }, false ) ) delete description.contained;
     });
 
+    root_description[0].description_build_time = new Date().getTime();
+
     return root_description[0];
 
 }
