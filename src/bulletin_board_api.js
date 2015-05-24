@@ -748,43 +748,64 @@ VBulletin.prototype.get_pages = function(doc) {
 }
 
 VBulletin.prototype.process_posts = function(posts) {
+    // this is a surprisingly tight loop when downloading a large thread (up to 10,000 posts in quick succession),
+    // so we mostly avoid jQuery and go straight to DOM accessors
     if ( !posts ) posts = this.get_posts();
-    return (
-        posts
-            .map(function(post) {
-                var edited = {};
-                $( '.lastedited', post ).each(function() {
-                    var a = $('a[href]', post);
-                    edited = {
-                        edit_username: a.text().substr(15),
-                        edit_user_id : parseInt( a.attr('href').split('?p=')[1], 10 ),
-                    };
-                    $(post).text().replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
-                        edited.time = time;
-                        edited.reason = reason;
-                    });
+    return posts.map(function(post) {
+
+        var username = post.getElementsByClassName('username')[0];
+        var title    = post.getElementsByClassName('title'  )[0];
+
+        var ret = {
+
+            container_element: post,
+            post_id          : parseInt( post.id.substr(5), 10 ),
+
+            date             : post.getElementsByClassName('date')[0].textContent,
+
+            title            : title ? title.textContent.replace(/^\s*/, '').replace(/\s*$/, '') : '',
+
+            username         : username.textContent,
+            user_id          : parseInt( ( username.getAttribute('href') || '             guest' ).substr(13), 10 ),
+
+            is_deleted       : post.className.search( /\bpostbitdeleted\b/ ) != -1,
+            is_moderated     : !!post.getElementsByClassName('moderated').length
+
+        };
+
+        if ( !ret.is_deleted ) {
+
+            var content    = post.getElementsByClassName('content')[0];
+            var ip_element = post.getElementsByClassName('ip'     )[0];
+
+            $.extend(ret, {
+                message        : content.textContent.replace(/^\s*/, '').replace(/\s*$/, ''),
+                message_element: $(content),
+                linking        : $(post.getElementsByClassName('postlinking')[0]),
+                ip_element     : ip_element ? $(ip_element) : $('<div>'),
+                report_element : $(post.getElementsByClassName('report')[0]),
+                ip             : ip_element ? ip_element.textContent.replace(/^\s*/, '').replace(/\s*$/, '') : '',
+            },
+            ret.is_moderated ? {} : {
+                post_no        : parseInt( post.getElementsByClassName('iepostcounter')[0].textContent.substr(1), 10 ),
+            });
+
+            var edited = post.getElementsByClassName('lastedited');
+            if ( edited.length ) {
+                var a = $('a[href]', edited[0]);
+                ret.edit_username = a.text().substr(15);
+                ret.edit_user_id  = parseInt( a.attr('href').split('?p=')[1], 10 );
+                edited[0].textContent.replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
+                    ret.edit_time = time;
+                    ret.edit_reason = reason;
                 });
-                return $.extend(
-                    edited,
-                    {
-                        container_element: post,
-                        post_id          : parseInt( post.id.substr(5), 10 ),
-                        date             : $('.date'       , post).text(),
-                        username         : $('.username'   , post).first().text(),
-                        user_id          : parseInt( ( $('.username' , post).attr('href') || '             guest' ).substr(13), 10 ),
-                        title            : $('.title'      , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                        message          : $('.content'    , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                        message_element  : $('.content'    , post),
-                        linking          : $('.postlinking', post),
-                        ip_element       : $('.ip'         , post),
-                        report_element   : $('.report'     , post),
-                        ip               : $('.ip'         , post).text().replace(/^\s*/, '').replace(/\s*$/, ''),
-                        cleardiv         : $('.cleardiv'   , post),
-                        is_deleted       : !!$('.deleted'  , post).length
-                    }
-                );
-            })
-    );
+            }
+
+        }
+
+        return ret;
+
+    });
 }
 
 VBulletin.prototype._get_token = function() {

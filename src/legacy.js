@@ -950,6 +950,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             var infractions = vi.violations.map(function(infraction) { return '<li><a href="">&nbsp;Take report: ' + infraction.name + '&nbsp;' }).join('');
 
             bb.process_posts().forEach(function(post) {
+                if ( post.is_deleted ) return;
                 post.linking.append(
                     '<a href="/usernote.php?u=' + post.user_id + '" style="background: none; padding: 0"><span style="font-size: 120%">&#x266b;</span> User Notes</a>'
                 );
