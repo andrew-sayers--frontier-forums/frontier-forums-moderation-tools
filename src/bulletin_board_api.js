@@ -833,11 +833,16 @@ VBulletin.prototype.detect_post_error = function(reply) {
         return reply.getElementsByTagName('error')[0].textContent
     else if ( reply.search && !reply.search(/^\s*</) ) { // looks like HTML
         if (  reply.search(' class="standard_error"') != -1 ) { // HTML error
+            var this_script = '';
+            reply.replace( /var THIS_SCRIPT = "([^"]+)";/, function(match,_this_script) { this_script = _this_script });
             reply.replace( /<body([^]*<\/)body>/, function(body, body_innerHTML) { reply = $('<div'+body_innerHTML+'div>') });
             var noscript = reply.find( 'noscript' );
-            if ( noscript.length && noscript.html().search( /http-equiv="refresh"/i ) == -1 )
+            if ( noscript.length && (
+                noscript.html().search( /http-equiv="refresh"/i ) == -1 || // Automatic page refreshes generally indicate success, even when the success message has class="standard_error"
+                this_script == "newthread" // automatic page refreshes during thread creation *do not* indicate success
+            ))
                 return $.trim(reply.find('.standard_error').text());
-            else // Automatic page refreshes generally indicate success, even when the success message has class="standard_error"
+            else
                 return null;
         } else {
             var errors = $(reply).find( '.blockrow.error' );
@@ -1428,23 +1433,37 @@ VBulletin.prototype.threads_recent = function(substring) {
 
 /**
  * @summary Create a new thread
- * @param {Number} forum_id ID of forum to create in
- * @param {string} title    thread title
- * @param {string} bbcode   bbcode of first post body
+ * @param {Object} data
  * @return {jQuery.Promise}
+ * @example
+ * bb.thread_create({
+ *     forum_id: 12,
+ *      icon_id: 1,
+ *     prefix  : 'some_prefix',
+ *     title   : 'thread title',
+ *     bbcode  : 'thread bbcode'
+ *     close_thread: true, // optional, default: thread is open
+ *     stick_thread: true, // optional, default: thread is not sticky
+ * });
  */
-VBulletin.prototype.thread_create = function(forum_id, title, bbcode) {
+VBulletin.prototype.thread_create = function(data) {
     return this.post(
-        '/newthread.php?do=postthread&f=' + forum_id,
+        '/newthread.php?do=postthread&f=' + data.forum_id,
         {
             do            : 'postthread',
-            subject       : title,
-            message_backup: bbcode,
-            message       : bbcode,
-            f             : forum_id,
+            f             : data.forum_id,
+            iconid        : data.icon_id,
+            prefixid      : data.prefix_id,
+            subject       : data.title,
+            message_backup: data.bbcode,
+            message       : data.bbcode,
             sbutton       : 'Submit New Thread',
+            openclose     : data.close_thread ? 1 : undefined,
+            stickunstick  : data.stick_thread ? 1 : undefined,
         }
-    );
+    ).then(function(html) {
+        return $(html).find( 'input[name="t"]' ).val();
+    });
 }
 
 /**
@@ -1594,6 +1613,8 @@ VBulletin.prototype.thread_metadata = function( thread_id ) {
 
             sticky: html.find('#cb_sticky').is(':checked'),
             moderated: !html.find('#cb_visible').is(':checked'),
+
+            delete_reason: html.find('[name="reason"]').val()
 
         });
     });

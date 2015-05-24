@@ -1193,21 +1193,16 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                         $('<input type="button" value="Unmerge this thread">')
                             .insertAfter($code.parent())
                             .click(function() {
-                                bb.thread_create( data.forum_id, data.title, v.resolve('report process', 'unmerge notification body', variable_data) ).done(function(html) {
-                                    var new_thread_id = $(html).find( 'input[name="t"]' ).val();
-                                    if  ( typeof(new_thread_id) == 'undefined' ) {
-                                        alert("Failed to create unmerge thread - please try again later");
-                                    } else {
-                                        variable_data['destination thread id'] = new_thread_id;
-                                        bb.posts_move( new_thread_id, data.posts ).done(function() {
-                                            bb.thread_reply({
-                                                thread_id: merge_log,
-                                                title    : v.resolve('report process', 'unmerge title', variable_data),
-                                                bbcode   : v.resolve('report process', 'unmerge body' , variable_data),
-                                                url      : '/showthread.php?goto=newpost&t='+merge_log
-                                            });
+                                bb.thread_create( data.forum_id, data.title, v.resolve('report process', 'unmerge notification body', variable_data) ).done(function(new_thread_id) {
+                                    variable_data['destination thread id'] = new_thread_id;
+                                    bb.posts_move( new_thread_id, data.posts ).done(function() {
+                                        bb.thread_reply({
+                                            thread_id: merge_log,
+                                            title    : v.resolve('report process', 'unmerge title', variable_data),
+                                            bbcode   : v.resolve('report process', 'unmerge body' , variable_data),
+                                            url      : '/showthread.php?goto=newpost&t='+merge_log
                                         });
-                                    }
+                                    });
                                 });
                             });
                     });
