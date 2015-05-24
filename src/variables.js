@@ -570,7 +570,11 @@ VariablesFromForum.prototype.refresh = function(args) {
  */
 VariablesFromForum.prototype.refresh_thread = function(thread_id, body) {
     var v = this;
-    return v.thread_namespace( this.cache.threads[thread_id], body ).then(function() { return v.update_cache() });
+    if ( this.cache.threads.hasOwnProperty(thread_id) )
+        return v.thread_namespace( this.cache.threads[thread_id], body ).then(function() { return v.update_cache() });
+    else
+        // TODO: handle this properly:
+        return $.Deferred().reject('thread not initialised').promise();
 }
 
 /**
