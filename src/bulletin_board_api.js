@@ -2597,7 +2597,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
             document.title = title;
             if ( $('#vb_login_username', iframe[0].contentDocument.body ).length ) { // need to log in
                 setTimeout(function() {
-                    if ( !login_attempt_count++ && document.getElementsByTagName('iframe')[0].contentDocument.getElementById('vb_login_password').value.length ) {
+                    if ( !login_attempt_count++ && iframe[0].contentDocument.getElementById('vb_login_password').value.length ) {
                         $(iframe[0].contentDocument.body).find('form').submit();
                     } else {
                         $(iframe[0].contentDocument.body).css({ overflow: 'hidden' }).find('p').remove();
