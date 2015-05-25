@@ -425,8 +425,8 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
                                 'max user id': max_user_id,
                                 'summary'    :
                                 '[list]\n' +
-                                    dashboard.find('.dashboard-newbies .action:visible').map(function() { return $(this).data('summary') }).get().join('') +
-                                    '[/list]',
+                                    '[*]' + dashboard.find('.dashboard-newbies .action:visible').map(function() { return $(this).data('summary') }).get().join('\n[*]') + '\n' +
+                                '[/list]',
                                 'extra notes': dashboard.find( '.dashboard-newbies [name="extra-notes"]' ).val()
                             },
                             v,
