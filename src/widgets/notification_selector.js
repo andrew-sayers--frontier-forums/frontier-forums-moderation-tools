@@ -88,7 +88,7 @@ function NotificationSelector( args ) {
                 if ( bbcode === null ) {
                     return { keys: return_keys };
                 } else {
-                    return args.bb.usernote_add( user.user_id, title, bbcode ).then(function() {
+                    return notification.bb.usernote_add( user.user_id, title, bbcode ).then(function() {
                         return { keys: return_keys };
                     });
                 }
@@ -102,7 +102,7 @@ function NotificationSelector( args ) {
                 if ( bbcode === null ) {
                     return { keys: return_keys };
                 } else {
-                    return args.bb.usernote_add( user.user_id, title, bbcode ).then(function() {
+                    return notification.bb.usernote_add( user.user_id, title, bbcode ).then(function() {
                         var dfd = jQuery.Deferred();
                         dfd.reject(error);
                         return dfd.promise();
@@ -115,12 +115,12 @@ function NotificationSelector( args ) {
             case 'PM':
                 return_keys[key_prefix + 'title' ] = value.title;
                 return_keys[key_prefix + 'bbcode'] = value.bbcode;
-                return args.bb.pm_send( user.username, value.title, value.bbcode ).then(success,fail);
+                return notification.bb.pm_send( user.username, value.title, value.bbcode ).then(success,fail);
 
             case 'post':
                 return_keys[key_prefix + 'title' ] = value.title;
                 return_keys[key_prefix + 'bbcode'] = value.bbcode;
-                return args.bb.thread_reply({
+                return notification.bb.thread_reply({
                     thread_id           : notification.thread_id,
                     title               : value.title,
                     bbcode              : value.bbcode
@@ -133,7 +133,7 @@ function NotificationSelector( args ) {
             case 'infraction':
                 return_keys[key_prefix + 'title' ] = notification.resolve_value( 'ban', [], keys )
                 return_keys[key_prefix + 'bbcode'] = value.bbcode;
-                return args.bb.infraction_give({
+                return notification.bb.infraction_give({
                     administrative_note: notification.resolve_value( 'title', [], keys ),
                     ban_reason         : return_keys[key_prefix + 'title'],
                     bbcode             : return_keys[key_prefix + 'bbcode'],
@@ -243,7 +243,7 @@ function NotificationSelector( args ) {
             if ( notification.element.hasClass('preview') ) {
                 var level_element = notification.element.children('.'+value.level);
                 level_element.find('.postrow').html( args.loading_html );
-                args.bb.bbcode_html( notification.thread_id, level_element.find('textarea').val() )
+                notification.bb.bbcode_html( notification.thread_id, level_element.find('textarea').val() )
                     .done(function(html) { level_element.find('.postrow').html(html) })
                 ;
             }
