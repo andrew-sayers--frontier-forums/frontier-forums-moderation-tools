@@ -24,6 +24,23 @@
  */
 
 /**
+ * @summary Log in wherever we need to
+ * @param {BulletinBoard} bb                 Bulletin Board to manipulate
+ * @param {BulletinBoard} mod_team_bb        Bulletin Board to manipulate
+ * @param {jQuery}        bb_iframe          iframe to use for ModCP login box
+ * @param {jQuery}        mod_team_bb_iframe iframe to use for mod team login box
+ * @return {jQuery.Promise}
+ */
+function _handle_login( bb, mod_team_bb, bb_iframe, mod_team_bb_iframe ) {
+    var dfd = $.Deferred();
+    $.when(
+        bb.moderation_page(          bb_iframe, '/modcp/index.php?do=nav', '.navlink', '.navlink' ).progress(function() { dfd.notify() }),
+        mod_team_bb.login ( mod_team_bb_iframe, 'Frontier Moderation Team'                        ).progress(function() { dfd.notify() })
+    ).then(function() { dfd.resolve() }, function() { dfd.reject() });
+    return dfd.promise();
+}
+
+/**
  * @summary Handle the dashboard page
  * @param {BulletinBoard}      bb Bulletin Board to manipulate
  * @param {Variables}          v  Variables to use
@@ -532,11 +549,13 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
              */
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
-            body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe><iframe style="margin:auto"></iframe>' );
-            $.when(
-                bb.moderation_page( body_wrapper.find('iframe').first(), '/modcp/index.php?do=nav', '.navlink', '.navlink' ),
-                mod_team_bb.login( body_wrapper.find('iframe').last(), 'Frontier Moderation Team' )
-            ).then(function() {
+           body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe><iframe style="margin:auto"></iframe>' );
+           _handle_login(
+               bb,
+               mod_team_bb,
+               body_wrapper.find('iframe').first(),
+               body_wrapper.find('iframe').last ()
+           ).then(function() {
 
                 // delayed from the top of the function, because we need the mod team's session ID:
                 dashboard.find( 'a[href="#insert-mod-team-inbox-link"]').attr( 'href'  , mod_team_bb.url_for.folder_show({folder_id: 0}) );
