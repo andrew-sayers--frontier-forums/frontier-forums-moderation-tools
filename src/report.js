@@ -22,8 +22,8 @@
 function Report(args) {
 
     if ( args.title ) {
-        args.title.replace(     /\[PID: ([0-9]+)\]/, function(match, pid ) { args.target_post_id   = pid });
-        args.title.replace(     /\[TID: ([0-9]+)\]/, function(match, tid ) { args.target_thread_id = tid });
+        args.title.replace(     /\[PID: ([0-9]+)\]/, function(match, pid ) { args.target_post_id   = parseInt( pid, 10 ) });
+        args.title.replace(     /\[TID: ([0-9]+)\]/, function(match, tid ) { args.target_thread_id = parseInt( tid, 10 ) });
         args.title.replace( /\[ASSIGNED: ([^)]+)\]/, function(match, name) { args.assigned         = name });
     }
 
