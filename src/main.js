@@ -97,7 +97,6 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 
             var dashboard = $(BabelExt.resources.get('res/dashboard.html'));
 
-            var recently_reported_posts = {};
             var name = $('.welcomelink a').text();
 
             var mod_log_thread_id = v.resolve('frequently used posts/threads', 'mod log');
@@ -142,7 +141,15 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
             dashboard.find('[data-forum="reported-posts"]').data( 'filter', function(threads) {
 
                 return threads.filter(function(thread) {
-                    if ( thread.is_sticky || thread.status != 'open' ) return false;
+
+                    if ( thread.is_sticky ) return false;
+
+                    var report = new Report({ v: v, bb: bb, thread_id: thread.thread_id, title: thread.title })
+                    if ( report.target_post_id ) {
+                        BabelExt.memoryStorage.set( 'Report for ' + report.target_post_id, report.thread_id );
+                    }
+
+                    if ( thread.status != 'open' ) return false;
 
                     // modify the container elements to make moderation easier
                     $('.threadimod', thread.container_element).remove();
@@ -155,10 +162,6 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
                             bb.thread_openclose( thread.thread_id, $(this).closest('.threadbit').hasClass('lock') )
                                 .done(function() { threadbit.toggleClass('lock') });
                         });
-
-                    var report = new Report({ v: v, bb: bb, thread_id: thread.thread_id, title: thread.title })
-
-                    recently_reported_posts['#post_'+report.target_post_id] = report.target_thread_id;
 
                     if ( !report.assigned ) {
                         $('<a title="Click to take this thread" class="newcontent_textcontrol" rel="nofollow" href="newreply.php?t='+thread.thread_id+'&noquote=1" style="float:right">Take this report</a>')
@@ -1255,6 +1258,262 @@ function handle_moderation_checkboxes() { BabelExt.utils.dispatch(
 )}
 
 /**
+ * @summary Handle post blocks (or post-like block such as PMs)
+ * @param {BulletinBoard} bb Bulletin Board to manipulate
+ * @param {Variables}     v  Variables to use
+ * @param {Violations}    vi Violations to use
+ * @param {string}        loading_html HTML to show while loading
+ */
+function handle_posts( bb, v, vi, loading_html ) {
+
+    // People have a habit of typing Morse Code messages to avoid the filters:
+    var morse_to_latin = {
+        ".-"  : "a",
+        "-...": "b",
+        "-.-.": "c",
+        "-.." : "d",
+        "."   : "e",
+        "..-.": "f",
+        "--." : "g",
+        "....": "h",
+        ".."  : "i",
+        ".---": "j",
+        "-.-" : "k",
+        ".-..": "l",
+        "--"  : "m",
+        "-."  : "n",
+        "---" : "o",
+        ".--.": "p",
+        "--.-": "q",
+        ".-." : "r",
+        "..." : "s",
+        "-"   : "t",
+        "..-" : "u",
+        "...-": "v",
+        ".--" : "w",
+        "-..-": "x",
+        "-.--": "y",
+        "--..": "z",
+
+        ".-.-" : "ä",
+        ".--.-": "á",
+        ".--.-": "å",
+        "----" : "ch",
+        "..-..": "é",
+        "--.--": "ñ",
+        "---." : "ö",
+        "..--" : "ü",
+
+        "-----": "0",
+        ".----": "1",
+        "..---": "2",
+        "...--": "3",
+        "....-": "4",
+        ".....": "5",
+        "-....": "6",
+        "--...": "7",
+        "---..": "8",
+        "----.": "9",
+
+        ".-.-.-": ".",
+        "--..--": ",",
+        "---...": ":",
+        "..--..": "?",
+        ".----.": "'",
+        "-....-": "-",
+        "-..-. ": "/",
+        "-.--.-": "()",
+        ".-..-.": "\"",
+        ".--.-.": "@",
+        "-...-" : "=",
+        ".-.-"  : "\n",
+        "/"     : ' '
+    };
+
+    // convert a link to a menu when it's clicked:
+    function menuise(event, element, link_title, links) {
+        $(element)
+            .addClass('mod-team-initialised')
+            .attr( 'title', 'click for menu, double-click to go to ' + link_title )
+            .click(function(event) {
+                $(this.parentNode).toggleClass( 'mod-friend-active' );
+                event.preventDefault();
+            })
+            .dblclick(function(event) {
+                location = this.href;
+                event.preventDefault();
+            })
+            .wrap('<span class="mod-friend-active popupmenu popupcustom"></span>')
+            .parent()
+            .append('<ul class="popupbody memberaction_body"></ul>')
+            .children().last().append(links)
+        event.preventDefault();
+    }
+
+    // modify post-like elements when they appear:
+    function observe_mutation(mutations) {
+
+        // the outer loop here is quite tight:
+        for ( var n=0; n!=mutations.length; ++n ) {
+            var nodes = mutations[n].addedNodes;
+            for (var m=0; m!=nodes.length; ++m) {
+                var li = nodes[m], node;
+                if ( li.tagName == 'LI' && li.className && li.className.search(/\bpostcontainer\b/)!=-1 ) {
+
+                    // only about 10% of runtime is spent inside this block!
+
+                    // detect Morse Code in post bodies:
+                    if ( (node = li.getElementsByClassName('postbody')).length ) {
+                        var morse_messages = {}, has_morse;
+                        node[0].textContent.replace( /[-.][-. \/]{5,}[-.]/g, function(morse) {
+                            var latin = morse.split( /\s+/ ).map(function(letter) { return morse_to_latin.hasOwnProperty(letter) ? morse_to_latin[letter] : letter }).join('');
+                            if ( morse.search(/-/) != -1 && morse.search(/\./) != -1 && latin.search( /[^-. ]/ ) != -1 ) {
+                                morse_messages['<li><i>' + morse + '</i> is Morse code for <i>' + latin + '</i>'] = 1;
+                                has_morse = 1;
+                            }
+                        });
+                        if ( has_morse ) {
+                            $(node[0]).closest('.postrow').after('<ol class="notices">' + Object.keys(morse_messages).sort().join("<br>") + '</ol>');
+                        }
+                    }
+
+                    // add user notes after report links:
+                    if ( (node = li.getElementsByClassName('report')).length ) {
+                        var element = $(node[0]);
+                        BabelExt.memoryStorage.get( 'Report for ' + node[0].href.split('?p=')[1], function(data) {
+                            if ( data && data.value )
+                                element
+                                .addClass('mod-team-initialised')
+                                .attr( 'href', bb.url_for.thread_show({ thread_id: data.value }) )
+                                .attr( 'title', 'Go to report thread')
+                                .text('Already reported');
+                            ;
+                        });
+                        element.after(
+                            '<a class="mod-team-usernote" href="/usernote.php?u=' +
+                                li.getElementsByClassName('username')[0].href.split('?u=')[1] +
+                            '">Notes</a>'
+                        );
+                    }
+
+                    // add links to "moderated post" images:
+                    if ( (node = li.getElementsByClassName('moderated')).length ) {
+                        $(node[0]).parent().wrap('<a></a>').parent().attr( 'href', bb.url_for.moderation_posts() )
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    var interval = setInterval(function() {
+        if ( !document.body ) return;
+        clearInterval(interval);
+        var observer;
+        if      ( typeof(      MutationObserver) != 'undefined' ) observer = new       MutationObserver(observe_mutation);
+        else if ( typeof(WebKitMutationObserver) != 'undefined' ) observer = new WebKitMutationObserver(observe_mutation);
+        observer.observe(document.body, { childList: true, subtree: true });
+        observe_mutation([
+            { addedNodes: document.getElementsByClassName('postcontainer') },
+        ]);
+    }, 10 );
+
+    // convert "IP" links to menus when clicked:
+    $(document).on( 'click', '.postlinking a.ip:not(.mod-team-initialised)', function(event) {
+        var keys = {
+            ip      : encodeURIComponent($.trim(this.textContent)),
+            username: encodeURIComponent($.trim($(this).closest('li').find('.username').text()))
+        };
+        return menuise(
+            event, this, 'the IP information page',
+            v.resolve( 'policy', 'ip links', keys, 'array of items' ).map(function(item) {
+                var ret = $('<a>')
+                    .text( 'Check\u00a0on\u00a0' + item.value.replace( /\s+/, '\u00A0' ) )
+                    .attr( 'href', item.url )
+                ;
+                if ( !item.url.search(/^[a-z]*:\/\/api.stopforumspam.org/) ) {
+                    ret.click(function(event) {
+                        $.ajax({
+                            url : this.href,
+                            xhr : function() { return new BabelExt.XMLHttpRequest() },
+                            dataType: 'json'
+                        }).then( function(data) {
+                            var response = [];
+                            if ( data.success ) {
+                                switch ( ( data.username || { frequency: -1 } ).frequency ) {
+                                case -1: break;
+                                case  0: response.push('username does not appear in the list'); break;
+                                case  1: response.push('username appears once in the list'); break;
+                                default: response.push('username appears ' + data.username.frequency + ' times in the list'); break;
+                                }
+                                switch ( ( data.ip || { frequency: -1 } ).frequency ) {
+                                case -1: break;
+                                case  0: response.push('IP address does not appear in the list'); break;
+                                case  1: response.push('IP address appears once in the list'); break;
+                                default: response.push('IP address appears ' + data.ip.frequency + ' times in the list'); break;
+                                }
+                            } else {
+                                response.push('Could not contact server');
+                            }
+                            alert(response.join("\n"));
+                        });
+                        event.preventDefault();
+                    });
+                }
+                return ret.wrap('<li>').parent();
+            })
+        );
+    });
+
+    // convert "report" links to menus when clicked:
+    $(document).on( 'click', '.postlinking a.report:not(.mod-team-initialised)', function(event) {
+        var post_id = this.href.split('?p=')[1];
+        return menuise(
+            event, this, 'the IP information page',
+            vi.violations.map(function(infraction) {
+                var ret = $('<li><a href=""></a></li>');
+                ret.children()
+                    .text( '\u00A0Take report: ' + infraction.name + '\u00A0' )
+                    .click(function(event) {
+                        $(this).before(loading_html);
+                        bb.post_report(
+                            post_id,
+                            infraction.name,
+                            '/forumdisplay.php?f=48' // reported posts forum, so we can find our report and go there
+                        ).done(function(html) {
+                            var re = new RegExp( "\\[PID: " + post_id + "\\]" );
+                            var report_thread = $(html).find('a.title').filter(function() { return $(this).text().search(re) != -1 });
+
+                            var report = new Report({
+                                v : v,
+                                bb: bb,
+                                thread_id: report_thread.attr('href').split('?t=')[1],
+                                title: report_thread.text()
+                            });
+
+                            if ( report_thread.closest('li').find('a[href^="misc.php?do=whoposted&t="]').text() == '0' )
+                                report.take( bb.user_current().username );
+                            else
+                                $.get( report_thread.attr('href'), function( html ) {
+                                    var report_owner = bb.process_posts( $(html).find('.flare_Moderator,.flare_Employee').closest('li').get() )[0].username
+                                    if ( report_owner == $('.welcomelink a').text() ) {
+                                        report.take( bb.user_current() );
+                                    } else {
+                                        if ( confirm( "Ninja'd by " + report_owner + "\nView anyway?" ) ) location = report_thread.attr('href');
+                                    }
+                                });
+                        });
+                        event.preventDefault();
+                    });
+                return ret;
+            })
+        );
+    });
+
+}
+
+/**
  * @summary Handle "user" pages in ModCP
  */
 function handle_modcp_user() { BabelExt.utils.dispatch(
@@ -1464,6 +1723,7 @@ if (window.location == window.parent.location ) {
                 }));
 
                 $.when( vi.promise, mc.promise, ss.promise ).then(function() {
+                    handle_posts                ( bb, v, vi, loading_html );
                     handle_modcp_doips          ( bb );
                     handle_post_edit            ( bb );
                     handle_post_graph           ( bb, loading_html );

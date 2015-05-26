@@ -329,3 +329,32 @@ a.dashboard-refresh {
     clear: both;
     display: none;
 }
+
+.postbitlegacy .mod-team-usernote:before {
+    font-size: 120%;
+    content: "\266b";
+}
+
+.postbitlegacy .postfoot .textcontrols a.mod-team-usernote {
+    background: none;
+    padding: 0;
+}
+
+.mod-friend-active > .popupbody {
+    display: inline-block
+}
+.mod-friend-active.popupmenu ul.popupbody.memberaction_body {
+    position: absolute;
+    left: 0px;
+    top: 15px;
+    width: inherit;
+}
+.mod-friend-active.popupmenu ul.popupbody.memberaction_body li {
+    width: inherit;
+}
+.mod-friend-active.popupmenu ul.popupbody.memberaction_body li a {
+    padding: 4px 0;
+    display: inline-block;
+    width: 100%;
+    margin: 0;
+}
