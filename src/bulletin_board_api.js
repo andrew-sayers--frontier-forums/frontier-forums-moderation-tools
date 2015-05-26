@@ -1471,8 +1471,8 @@ VBulletin.prototype.thread_delete = function( data ) {
  *     title           : 'post title',
  *     notes           : 'edit notes'
  *     prefix_id       : 1, // optional: default: no prefix
- *     close_thread    : true, // optional, default: leave in current state
- *     unapprove_thread: true, // optional, default: do not close
+ *     close_thread    : true, // optional, default: open thread
+ *     unapprove_thread: true, // optional, default: do not unapprove
  *     delete_thread   : true // optional, default: leave in current state
  *     delete_reason   : 'reason why thread was deleted',
  * });
@@ -1485,8 +1485,8 @@ VBulletin.prototype.thread_edit = function( data ) {
         prefixid: data.prefix_id,
         visible : data.unapprove_thread ? 'no' : 'yes',
         open    : (
-            ( typeof(data.close_thread) === 'undefined' ) ? undefined :
-                     data.close_thread                    ? ''        :
+            ( typeof(data.close_thread) === 'undefined' ) ? 'yes' :
+                     data.close_thread                    ? ''    :
                                                             'yes'
         ),
 
