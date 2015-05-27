@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: InappropriateUsernamePolicy</title>
+    <title>Class: RecentList</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -1067,7 +1067,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="InappropriateUsernamePolicy.html">Class: InappropriateUsernamePolicy</h1>
+        <h1 class="page-title" data-filename="RecentList.html">Class: RecentList</h1>
 
 
 
@@ -1076,7 +1076,7 @@
 
 <header>
     <h2>
-    InappropriateUsernamePolicy
+    RecentList
     </h2>
 
 </header>
@@ -1089,20 +1089,164 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="InappropriateUsernamePolicy">
+        <h4 class="name" id="RecentList">
 
-            new InappropriateUsernamePolicy<span class="signature">()</span>
+            <span class="type-signature ">abstract</span>new RecentList<span class="signature">(args)</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_policies_inappropriate_username_policy.js.html">src/policies/inappropriate_username_policy.js</a>, <a href="src_policies_inappropriate_username_policy.js.html#line29">line 29</a>
+            <a href="src_recent_list.js.html">src/recent_list.js</a>, <a href="src_recent_list.js.html#line20">line 20</a>
         </div>
 
     </div>
 
 
-    <p class="summary">inappropirate name policy</p>
+    <p class="summary">Manage a list of recent values</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>args</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                list arguments</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h5>Example</h5>
+
+
+
+    <pre class="prettyprint"><code>var recent_list = new RecentList({
+    ss: ss, // SharedStore object
+    name: 'name of value within shared store',
+    time_horizon: 60*60*1000, // how recent is "recent" (default: 24 hours)
+});</code></pre>
+
+
+
+</dd>
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="get">
+
+            get<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Array}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_recent_list.js.html">src/recent_list.js</a>, <a href="src_recent_list.js.html#line39">line 39</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">get a list of values updated in the past 24 hours</p>
 
 </dt>
 <dd>
@@ -1150,39 +1294,116 @@
 
 
 
-
-
-        <h5>Example</h5>
+    <h5>Returns:</h5>
 
 
 
-    <pre class="prettyprint"><code>var policy = new InappropriateUsernamePolicy({
-    // objects:
-    v : v, // Variables object
-    bb: bb, // BulletinBoard object
-    mc: mc, // MiscellaneousCache object
-    vi: vi, // Violations object
+<table class="params">
+    <thead>
+    <tr>
 
-    // configuration:
-    loading_html  : 'loading, please wait...',
-    user          : { username: 'thread creator username', user_id: 12345 }
-    callback: function( action, summary, header ) { ... };
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
 
-    // widget placement:
-    notification_selector_args: { container: $('.notification_selector_container') },
-               extra_post_args: { container: $(           '.extra_post_container') },
-          severity_slider_args: { container: $(      '.severity_slider_container') },
-            mode_switcher_args: { container: $(        '.mode_switcher_container') }
-});</code></pre>
+        <tr>
+
+            <td class="type">
+
+                        Array
+
+
+            </td>
+            <td class="description last">list of values</td>
+        </tr>
+
+    </tbody>
+</table>
+
 
 
 
 </dd>
 
 
+
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="push">
+
+            push<span class="signature">(value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_recent_list.js.html">src/recent_list.js</a>, <a href="src_recent_list.js.html#line52">line 52</a>
+        </div>
+
     </div>
 
 
+    <p class="summary">append to a list of recent values</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>value</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                value to add</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
 
 
 
@@ -1194,6 +1415,62 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Returns:</h5>
+
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Type</th>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+
+            <td class="type">
+
+                        jQuery.Promise
+
+
+            </td>
+            <td class="description last">promise that succeeds when the change goes through</td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+</dd>
+
+        </dl>
 
 
 

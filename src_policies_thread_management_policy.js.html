@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Source: src/policies/thread_management_policy.js</title>
+
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+
+
+    <script>
+    var config = {"monospaceLinks":false,"cleverLinks":true,"default":{"outputSourceFiles":true}};
+    </script>
+
+
+
+</head>
+<body>
+<div id="wrap" class="clearfix">
+
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html"></a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+
+        <li class="item" data-name="AccountHighlighter">
+            <span class="title">
+                <a href="AccountHighlighter.html">AccountHighlighter</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AccountHighlighter#highlight"><a href="AccountHighlighter.html#highlight">highlight</a></li>
+
+                <li data-name="AccountHighlighter#highlight_to_element"><a href="AccountHighlighter.html#highlight_to_element">highlight_to_element</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Action">
+            <span class="title">
+                <a href="Action.html">Action</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Action#blockers"><a href="Action.html#blockers">blockers</a></li>
+
+                <li data-name="Action#fire"><a href="Action.html#fire">fire</a></li>
+
+                <li data-name="Action#fire_with_journal"><a href="Action.html#fire_with_journal">fire_with_journal</a></li>
+
+                <li data-name="Action#long_description"><a href="Action.html#long_description">long_description</a></li>
+
+                <li data-name="Action#then"><a href="Action.html#then">then</a></li>
+
+                <li data-name="Action#title"><a href="Action.html#title">title</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="ActionWidget">
+            <span class="title">
+                <a href="ActionWidget.html">ActionWidget</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="ActionWidget#action"><a href="ActionWidget.html#action">action</a></li>
+
+                <li data-name="ActionWidget#reset_value"><a href="ActionWidget.html#reset_value">reset_value</a></li>
+
+                <li data-name="ActionWidget#resolve_value"><a href="ActionWidget.html#resolve_value">resolve_value</a></li>
+
+                <li data-name="ActionWidget#set_value"><a href="ActionWidget.html#set_value">set_value</a></li>
+
+                <li data-name="ActionWidget#update_previous_values"><a href="ActionWidget.html#update_previous_values">update_previous_values</a></li>
+
+                <li data-name="ActionWidget#val"><a href="ActionWidget.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="AvailableUsers">
+            <span class="title">
+                <a href="AvailableUsers.html">AvailableUsers</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="AvailableUsers#active"><a href="AvailableUsers.html#active">active</a></li>
+
+                <li data-name="AvailableUsers#is_ours"><a href="AvailableUsers.html#is_ours">is_ours</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="BulletinBoard">
+            <span class="title">
+                <a href="BulletinBoard.html">BulletinBoard</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="BulletinBoard#_add_standard_data"><a href="BulletinBoard.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="BulletinBoard#build_url"><a href="BulletinBoard.html#build_url">build_url</a></li>
+
+                <li data-name="BulletinBoard#config"><a href="BulletinBoard.html#config">config</a></li>
+
+                <li data-name="BulletinBoard#detect_post_error"><a href="BulletinBoard.html#detect_post_error">detect_post_error</a></li>
+
+                <li data-name="BulletinBoard#fix_url"><a href="BulletinBoard.html#fix_url">fix_url</a></li>
+
+                <li data-name="BulletinBoard#get"><a href="BulletinBoard.html#get">get</a></li>
+
+                <li data-name="BulletinBoard#get_pages"><a href="BulletinBoard.html#get_pages">get_pages</a></li>
+
+                <li data-name="BulletinBoard#get_posts"><a href="BulletinBoard.html#get_posts">get_posts</a></li>
+
+                <li data-name="BulletinBoard#parse"><a href="BulletinBoard.html#parse">parse</a></li>
+
+                <li data-name="BulletinBoard#parse_post"><a href="BulletinBoard.html#parse_post">parse_post</a></li>
+
+                <li data-name="BulletinBoard#ping"><a href="BulletinBoard.html#ping">ping</a></li>
+
+                <li data-name="BulletinBoard#post"><a href="BulletinBoard.html#post">post</a></li>
+
+                <li data-name="BulletinBoard#process_posts"><a href="BulletinBoard.html#process_posts">process_posts</a></li>
+
+                <li data-name="BulletinBoard#quotes_process"><a href="BulletinBoard.html#quotes_process">quotes_process</a></li>
+
+                <li data-name="BulletinBoard#stringify"><a href="BulletinBoard.html#stringify">stringify</a></li>
+
+                <li data-name="BulletinBoard#thread_posts"><a href="BulletinBoard.html#thread_posts">thread_posts</a></li>
+
+                <li data-name="BulletinBoard#when"><a href="BulletinBoard.html#when">when</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Cacheable">
+            <span class="title">
+                <a href="Cacheable.html">Cacheable</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Cacheable#refresh"><a href="Cacheable.html#refresh">refresh</a></li>
+
+                <li data-name="Cacheable#update_cache"><a href="Cacheable.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Dashboard">
+            <span class="title">
+                <a href="Dashboard.html">Dashboard</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Dashboard#refresh"><a href="Dashboard.html#refresh">refresh</a></li>
+
+                <li data-name="Dashboard#update_cache"><a href="Dashboard.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Deadline">
+            <span class="title">
+                <a href="Deadline.html">Deadline</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Deadline#action"><a href="Deadline.html#action">action</a></li>
+
+                <li data-name="Deadline#reset_value"><a href="Deadline.html#reset_value">reset_value</a></li>
+
+                <li data-name="Deadline#resolve_value"><a href="Deadline.html#resolve_value">resolve_value</a></li>
+
+                <li data-name="Deadline#set_value"><a href="Deadline.html#set_value">set_value</a></li>
+
+                <li data-name="Deadline#update_previous_values"><a href="Deadline.html#update_previous_values">update_previous_values</a></li>
+
+                <li data-name="Deadline#val"><a href="Deadline.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="DuplicateAccountList">
+            <span class="title">
+                <a href="DuplicateAccountList.html">DuplicateAccountList</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="DuplicateAccountPolicy">
+            <span class="title">
+                <a href="DuplicateAccountPolicy.html">DuplicateAccountPolicy</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="DuplicateAccountPolicy#_Single">
+            <span class="title">
+                <a href="DuplicateAccountPolicy__Single.html">DuplicateAccountPolicy#_Single</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="ExtraPost">
+            <span class="title">
+                <a href="ExtraPost.html">ExtraPost</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="ExtraPost#action"><a href="ExtraPost.html#action">action</a></li>
+
+                <li data-name="ExtraPost#reset_value"><a href="ExtraPost.html#reset_value">reset_value</a></li>
+
+                <li data-name="ExtraPost#resolve_value"><a href="ExtraPost.html#resolve_value">resolve_value</a></li>
+
+                <li data-name="ExtraPost#set_value"><a href="ExtraPost.html#set_value">set_value</a></li>
+
+                <li data-name="ExtraPost#update_previous_values"><a href="ExtraPost.html#update_previous_values">update_previous_values</a></li>
+
+                <li data-name="ExtraPost#val"><a href="ExtraPost.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="InappropriateUsernamePolicy">
+            <span class="title">
+                <a href="InappropriateUsernamePolicy.html">InappropriateUsernamePolicy</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="IPAddressReport">
+            <span class="title">
+                <a href="IPAddressReport.html">IPAddressReport</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="IPAddressReport#action"><a href="IPAddressReport.html#action">action</a></li>
+
+                <li data-name="IPAddressReport#bbcode"><a href="IPAddressReport.html#bbcode">bbcode</a></li>
+
+                <li data-name="IPAddressReport#cache_timeout"><a href="IPAddressReport.html#cache_timeout">cache_timeout</a></li>
+
+                <li data-name="IPAddressReport#html"><a href="IPAddressReport.html#html">html</a></li>
+
+                <li data-name="IPAddressReport#users"><a href="IPAddressReport.html#users">users</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="MiscellaneousCache">
+            <span class="title">
+                <a href="MiscellaneousCache.html">MiscellaneousCache</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="MiscellaneousCache#refresh"><a href="MiscellaneousCache.html#refresh">refresh</a></li>
+
+                <li data-name="MiscellaneousCache#update_cache"><a href="MiscellaneousCache.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="NotificationSelector">
+            <span class="title">
+                <a href="NotificationSelector.html">NotificationSelector</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="NotificationSelector#action"><a href="NotificationSelector.html#action">action</a></li>
+
+                <li data-name="NotificationSelector#add_known_keys"><a href="NotificationSelector.html#add_known_keys">add_known_keys</a></li>
+
+                <li data-name="NotificationSelector#extra_block"><a href="NotificationSelector.html#extra_block">extra_block</a></li>
+
+                <li data-name="NotificationSelector#mode"><a href="NotificationSelector.html#mode">mode</a></li>
+
+                <li data-name="NotificationSelector#mode_switcher"><a href="NotificationSelector.html#mode_switcher">mode_switcher</a></li>
+
+                <li data-name="NotificationSelector#reset_value"><a href="NotificationSelector.html#reset_value">reset_value</a></li>
+
+                <li data-name="NotificationSelector#resolve_value"><a href="NotificationSelector.html#resolve_value">resolve_value</a></li>
+
+                <li data-name="NotificationSelector#set_value"><a href="NotificationSelector.html#set_value">set_value</a></li>
+
+                <li data-name="NotificationSelector#update_previous_values"><a href="NotificationSelector.html#update_previous_values">update_previous_values</a></li>
+
+                <li data-name="NotificationSelector#val"><a href="NotificationSelector.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Policy">
+            <span class="title">
+                <a href="Policy.html">Policy</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Policy#_build_keys"><a href="Policy.html#_build_keys">_build_keys</a></li>
+
+                <li data-name="Policy#_build_widget_args"><a href="Policy.html#_build_widget_args">_build_widget_args</a></li>
+
+                <li data-name="Policy#check"><a href="Policy.html#check">check</a></li>
+
+                <li data-name="Policy#close_thread"><a href="Policy.html#close_thread">close_thread</a></li>
+
+                <li data-name="Policy#deadline_action"><a href="Policy.html#deadline_action">deadline_action</a></li>
+
+                <li data-name="Policy#deadline_args"><a href="Policy.html#deadline_args">deadline_args</a></li>
+
+                <li data-name="Policy#duplicate_account_list_args"><a href="Policy.html#duplicate_account_list_args">duplicate_account_list_args</a></li>
+
+                <li data-name="Policy#extra_post_action"><a href="Policy.html#extra_post_action">extra_post_action</a></li>
+
+                <li data-name="Policy#extra_post_args"><a href="Policy.html#extra_post_args">extra_post_args</a></li>
+
+                <li data-name="Policy#get"><a href="Policy.html#get">get</a></li>
+
+                <li data-name="Policy#keys"><a href="Policy.html#keys">keys</a></li>
+
+                <li data-name="Policy#notification_selector_action"><a href="Policy.html#notification_selector_action">notification_selector_action</a></li>
+
+                <li data-name="Policy#notification_selector_args"><a href="Policy.html#notification_selector_args">notification_selector_args</a></li>
+
+                <li data-name="Policy#resolve"><a href="Policy.html#resolve">resolve</a></li>
+
+                <li data-name="Policy#resolve_post"><a href="Policy.html#resolve_post">resolve_post</a></li>
+
+                <li data-name="Policy#severity_slider_args"><a href="Policy.html#severity_slider_args">severity_slider_args</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="RecentList">
+            <span class="title">
+                <a href="RecentList.html">RecentList</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="RecentList#get"><a href="RecentList.html#get">get</a></li>
+
+                <li data-name="RecentList#push"><a href="RecentList.html#push">push</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Report">
+            <span class="title">
+                <a href="Report.html">Report</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="SeveritySlider">
+            <span class="title">
+                <a href="SeveritySlider.html">SeveritySlider</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SeveritySlider#val"><a href="SeveritySlider.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="SharedStore">
+            <span class="title">
+                <a href="SharedStore.html">SharedStore</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="SharedStore#change"><a href="SharedStore.html#change">change</a></li>
+
+                <li data-name="SharedStore#interval_transaction"><a href="SharedStore.html#interval_transaction">interval_transaction</a></li>
+
+                <li data-name="SharedStore#transaction"><a href="SharedStore.html#transaction">transaction</a></li>
+
+                <li data-name="SharedStore#val"><a href="SharedStore.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="ThreadManagementPolicy">
+            <span class="title">
+                <a href="ThreadManagementPolicy.html">ThreadManagementPolicy</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="ThreadManagementPolicy#unmerge_action"><a href="ThreadManagementPolicy.html#unmerge_action">unmerge_action</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="ThreadTitleSelector">
+            <span class="title">
+                <a href="ThreadTitleSelector.html">ThreadTitleSelector</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="ThreadTitleSelector#check"><a href="ThreadTitleSelector.html#check">check</a></li>
+
+                <li data-name="ThreadTitleSelector#focus"><a href="ThreadTitleSelector.html#focus">focus</a></li>
+
+                <li data-name="ThreadTitleSelector#val"><a href="ThreadTitleSelector.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Variables">
+            <span class="title">
+                <a href="Variables.html">Variables</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Variables#check"><a href="Variables.html#check">check</a></li>
+
+                <li data-name="Variables#escape"><a href="Variables.html#escape">escape</a></li>
+
+                <li data-name="Variables#get"><a href="Variables.html#get">get</a></li>
+
+                <li data-name="Variables#get_language"><a href="Variables.html#get_language">get_language</a></li>
+
+                <li data-name="Variables#parse"><a href="Variables.html#parse">parse</a></li>
+
+                <li data-name="Variables#refresh"><a href="Variables.html#refresh">refresh</a></li>
+
+                <li data-name="Variables#resolve"><a href="Variables.html#resolve">resolve</a></li>
+
+                <li data-name="Variables#set_namespaces"><a href="Variables.html#set_namespaces">set_namespaces</a></li>
+
+                <li data-name="Variables#update_cache"><a href="Variables.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="VariablesFromFirstPost">
+            <span class="title">
+                <a href="VariablesFromFirstPost.html">VariablesFromFirstPost</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="VariablesFromFirstPost#check"><a href="VariablesFromFirstPost.html#check">check</a></li>
+
+                <li data-name="VariablesFromFirstPost#escape"><a href="VariablesFromFirstPost.html#escape">escape</a></li>
+
+                <li data-name="VariablesFromFirstPost#get"><a href="VariablesFromFirstPost.html#get">get</a></li>
+
+                <li data-name="VariablesFromFirstPost#get_language"><a href="VariablesFromFirstPost.html#get_language">get_language</a></li>
+
+                <li data-name="VariablesFromFirstPost#parse"><a href="VariablesFromFirstPost.html#parse">parse</a></li>
+
+                <li data-name="VariablesFromFirstPost#refresh"><a href="VariablesFromFirstPost.html#refresh">refresh</a></li>
+
+                <li data-name="VariablesFromFirstPost#resolve"><a href="VariablesFromFirstPost.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromFirstPost#set_namespaces"><a href="VariablesFromFirstPost.html#set_namespaces">set_namespaces</a></li>
+
+                <li data-name="VariablesFromFirstPost#update_cache"><a href="VariablesFromFirstPost.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="VariablesFromForum">
+            <span class="title">
+                <a href="VariablesFromForum.html">VariablesFromForum</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="VariablesFromForum#check"><a href="VariablesFromForum.html#check">check</a></li>
+
+                <li data-name="VariablesFromForum#escape"><a href="VariablesFromForum.html#escape">escape</a></li>
+
+                <li data-name="VariablesFromForum#get"><a href="VariablesFromForum.html#get">get</a></li>
+
+                <li data-name="VariablesFromForum#get_language"><a href="VariablesFromForum.html#get_language">get_language</a></li>
+
+                <li data-name="VariablesFromForum#parse"><a href="VariablesFromForum.html#parse">parse</a></li>
+
+                <li data-name="VariablesFromForum#refresh"><a href="VariablesFromForum.html#refresh">refresh</a></li>
+
+                <li data-name="VariablesFromForum#refresh_thread"><a href="VariablesFromForum.html#refresh_thread">refresh_thread</a></li>
+
+                <li data-name="VariablesFromForum#resolve"><a href="VariablesFromForum.html#resolve">resolve</a></li>
+
+                <li data-name="VariablesFromForum#serialise_thread"><a href="VariablesFromForum.html#serialise_thread">serialise_thread</a></li>
+
+                <li data-name="VariablesFromForum#set_namespaces"><a href="VariablesFromForum.html#set_namespaces">set_namespaces</a></li>
+
+                <li data-name="VariablesFromForum#update_cache"><a href="VariablesFromForum.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="VBulletin">
+            <span class="title">
+                <a href="VBulletin.html">VBulletin</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="VBulletin.iframe_callbacks"><a href="VBulletin.html#.iframe_callbacks">iframe_callbacks</a></li>
+
+                <li data-name="VBulletin#_add_standard_data"><a href="VBulletin.html#_add_standard_data">_add_standard_data</a></li>
+
+                <li data-name="VBulletin#activity"><a href="VBulletin.html#activity">activity</a></li>
+
+                <li data-name="VBulletin#attachments_delete"><a href="VBulletin.html#attachments_delete">attachments_delete</a></li>
+
+                <li data-name="VBulletin#bbcode_html"><a href="VBulletin.html#bbcode_html">bbcode_html</a></li>
+
+                <li data-name="VBulletin#bbcode_html_newthread"><a href="VBulletin.html#bbcode_html_newthread">bbcode_html_newthread</a></li>
+
+                <li data-name="VBulletin#build_url"><a href="VBulletin.html#build_url">build_url</a></li>
+
+                <li data-name="VBulletin#config"><a href="VBulletin.html#config">config</a></li>
+
+                <li data-name="VBulletin#css_add"><a href="VBulletin.html#css_add">css_add</a></li>
+
+                <li data-name="VBulletin#css_keys"><a href="VBulletin.html#css_keys">css_keys</a></li>
+
+                <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
+
+                <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
+
+                <li data-name="VBulletin#editor_set"><a href="VBulletin.html#editor_set">editor_set</a></li>
+
+                <li data-name="VBulletin#fix_url"><a href="VBulletin.html#fix_url">fix_url</a></li>
+
+                <li data-name="VBulletin#folder_pms"><a href="VBulletin.html#folder_pms">folder_pms</a></li>
+
+                <li data-name="VBulletin#forum_metadata"><a href="VBulletin.html#forum_metadata">forum_metadata</a></li>
+
+                <li data-name="VBulletin#forum_threads"><a href="VBulletin.html#forum_threads">forum_threads</a></li>
+
+                <li data-name="VBulletin#forums"><a href="VBulletin.html#forums">forums</a></li>
+
+                <li data-name="VBulletin#get"><a href="VBulletin.html#get">get</a></li>
+
+                <li data-name="VBulletin#get_pages"><a href="VBulletin.html#get_pages">get_pages</a></li>
+
+                <li data-name="VBulletin#get_posts"><a href="VBulletin.html#get_posts">get_posts</a></li>
+
+                <li data-name="VBulletin#infraction_give"><a href="VBulletin.html#infraction_give">infraction_give</a></li>
+
+                <li data-name="VBulletin#infraction_give_custom"><a href="VBulletin.html#infraction_give_custom">infraction_give_custom</a></li>
+
+                <li data-name="VBulletin#infraction_ids"><a href="VBulletin.html#infraction_ids">infraction_ids</a></li>
+
+                <li data-name="VBulletin#ip_users"><a href="VBulletin.html#ip_users">ip_users</a></li>
+
+                <li data-name="VBulletin#login"><a href="VBulletin.html#login">login</a></li>
+
+                <li data-name="VBulletin#moderation_page"><a href="VBulletin.html#moderation_page">moderation_page</a></li>
+
+                <li data-name="VBulletin#on_posts_modified"><a href="VBulletin.html#on_posts_modified">on_posts_modified</a></li>
+
+                <li data-name="VBulletin#parse"><a href="VBulletin.html#parse">parse</a></li>
+
+                <li data-name="VBulletin#parse_post"><a href="VBulletin.html#parse_post">parse_post</a></li>
+
+                <li data-name="VBulletin#ping"><a href="VBulletin.html#ping">ping</a></li>
+
+                <li data-name="VBulletin#pm_send"><a href="VBulletin.html#pm_send">pm_send</a></li>
+
+                <li data-name="VBulletin#post"><a href="VBulletin.html#post">post</a></li>
+
+                <li data-name="VBulletin#post_create"><a href="VBulletin.html#post_create">post_create</a></li>
+
+                <li data-name="VBulletin#post_delete"><a href="VBulletin.html#post_delete">post_delete</a></li>
+
+                <li data-name="VBulletin#post_edit"><a href="VBulletin.html#post_edit">post_edit</a></li>
+
+                <li data-name="VBulletin#post_info"><a href="VBulletin.html#post_info">post_info</a></li>
+
+                <li data-name="VBulletin#post_report"><a href="VBulletin.html#post_report">post_report</a></li>
+
+                <li data-name="VBulletin#post_summary"><a href="VBulletin.html#post_summary">post_summary</a></li>
+
+                <li data-name="VBulletin#posts_moderated"><a href="VBulletin.html#posts_moderated">posts_moderated</a></li>
+
+                <li data-name="VBulletin#posts_move"><a href="VBulletin.html#posts_move">posts_move</a></li>
+
+                <li data-name="VBulletin#process_posts"><a href="VBulletin.html#process_posts">process_posts</a></li>
+
+                <li data-name="VBulletin#quotes_process"><a href="VBulletin.html#quotes_process">quotes_process</a></li>
+
+                <li data-name="VBulletin#redirect_modcp_ipsearch"><a href="VBulletin.html#redirect_modcp_ipsearch">redirect_modcp_ipsearch</a></li>
+
+                <li data-name="VBulletin#server_stats"><a href="VBulletin.html#server_stats">server_stats</a></li>
+
+                <li data-name="VBulletin#spammer_delete"><a href="VBulletin.html#spammer_delete">spammer_delete</a></li>
+
+                <li data-name="VBulletin#stringify"><a href="VBulletin.html#stringify">stringify</a></li>
+
+                <li data-name="VBulletin#thread_bump"><a href="VBulletin.html#thread_bump">thread_bump</a></li>
+
+                <li data-name="VBulletin#thread_create"><a href="VBulletin.html#thread_create">thread_create</a></li>
+
+                <li data-name="VBulletin#thread_debump"><a href="VBulletin.html#thread_debump">thread_debump</a></li>
+
+                <li data-name="VBulletin#thread_delete"><a href="VBulletin.html#thread_delete">thread_delete</a></li>
+
+                <li data-name="VBulletin#thread_edit"><a href="VBulletin.html#thread_edit">thread_edit</a></li>
+
+                <li data-name="VBulletin#thread_merge"><a href="VBulletin.html#thread_merge">thread_merge</a></li>
+
+                <li data-name="VBulletin#thread_metadata"><a href="VBulletin.html#thread_metadata">thread_metadata</a></li>
+
+                <li data-name="VBulletin#thread_move"><a href="VBulletin.html#thread_move">thread_move</a></li>
+
+                <li data-name="VBulletin#thread_openclose"><a href="VBulletin.html#thread_openclose">thread_openclose</a></li>
+
+                <li data-name="VBulletin#thread_posts"><a href="VBulletin.html#thread_posts">thread_posts</a></li>
+
+                <li data-name="VBulletin#thread_reply"><a href="VBulletin.html#thread_reply">thread_reply</a></li>
+
+                <li data-name="VBulletin#thread_title"><a href="VBulletin.html#thread_title">thread_title</a></li>
+
+                <li data-name="VBulletin#thread_whoposted"><a href="VBulletin.html#thread_whoposted">thread_whoposted</a></li>
+
+                <li data-name="VBulletin#threads_complete"><a href="VBulletin.html#threads_complete">threads_complete</a></li>
+
+                <li data-name="VBulletin#threads_recent"><a href="VBulletin.html#threads_recent">threads_recent</a></li>
+
+                <li data-name="VBulletin#url_decode"><a href="VBulletin.html#url_decode">url_decode</a></li>
+
+                <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
+
+                <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
+
+                <li data-name="VBulletin#user_info"><a href="VBulletin.html#user_info">user_info</a></li>
+
+                <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
+
+                <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
+
+                <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
+
+                <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
+
+                <li data-name="VBulletin#user_signature_set"><a href="VBulletin.html#user_signature_set">user_signature_set</a></li>
+
+                <li data-name="VBulletin#usernote_add"><a href="VBulletin.html#usernote_add">usernote_add</a></li>
+
+                <li data-name="VBulletin#usernote_edit"><a href="VBulletin.html#usernote_edit">usernote_edit</a></li>
+
+                <li data-name="VBulletin#usernote_info"><a href="VBulletin.html#usernote_info">usernote_info</a></li>
+
+                <li data-name="VBulletin#users_complete"><a href="VBulletin.html#users_complete">users_complete</a></li>
+
+                <li data-name="VBulletin#users_list_new"><a href="VBulletin.html#users_list_new">users_list_new</a></li>
+
+                <li data-name="VBulletin#when"><a href="VBulletin.html#when">when</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="VbulletinPopupMenu">
+            <span class="title">
+                <a href="VbulletinPopupMenu.html">VbulletinPopupMenu</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="VbulletinPopupMenu#val"><a href="VbulletinPopupMenu.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Violations">
+            <span class="title">
+                <a href="Violations.html">Violations</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Violations#refresh"><a href="Violations.html#refresh">refresh</a></li>
+
+                <li data-name="Violations#update_cache"><a href="Violations.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Widget">
+            <span class="title">
+                <a href="Widget.html">Widget</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Widget#val"><a href="Widget.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+    </ul>
+</div>
+    <div class="main">
+        <h1 class="page-title" data-filename="src_policies_thread_management_policy.js.html">Source: src/policies/thread_management_policy.js</h1>
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>/**
+ * @file manage policy for common thread management actions
+ * @author Andrew Sayers
+ * This file defines thread management policy in the abstract,
+ * but sadly needs to be tightly coupled to the interface.
+ */
+
+/**
+ * @summary manage policy for common thread management actions
+ * @constructor
+ * @example
+ * var policy = new ThreadManagementPolicy({
+ *
+ *     // objects:
+ *     v : v, // Variables object
+ *     bb: bb, // BulletinBoard object
+ *     mod_team_bb: bb, // BulletinBoard object for the moderation team
+ *     mc: mc, // MiscellaneousCache object
+ *     vi: vi, // Violations object
+ *
+ *     // configuration:
+ *     thread_id     : 1234,
+ *     thread_desc   : 'thread description',
+ *     loading_html  : 'loading, please wait...',
+ *     user          : { username: 'thread creator username', user_id: 12345 }
+ *     callback: function( action, summary, template, has_post, has_pm ) { ... };
+ *
+ *     // widget placement:
+ *         post_selector_args: { container: $(    '.post_selector_container') },
+ *           pm_selector_args: { container: $(      '.pm_selector_container') },
+ *     template_selector_args: { container: $('.template_selector_container') }
+ *      message_selector_args: { container: $( '.message_selector_container') }
+ * });
+ */
+function ThreadManagementPolicy(args) {
+
+    Policy.call( this, args );
+
+    var policy = this;
+
+    var action_data = {
+        thread: { thread_id: args.thread_id, thread_desc: args.thread_desc, forum_id: args.forum_id },
+        template: 'no template'
+    };
+    var variable_suffix = [action_data.template];
+    this.variable_suffix = variable_suffix;
+
+    var forum_has_icons;
+
+    var unmerge_data;
+
+    var macro_defaults = { template: 'no template' };
+    var recent_macros = new RecentList({ ss: args.ss, name: 'recent thread management macros', });
+
+    var thread_creator = this.user = {
+        is_target: true,
+        username: args.first_post.username,
+        user_id : args.first_post.user_id
+    };
+    this.default_keys = [
+
+        { type: 'thread'     , name: 'old thread'      , value: { thread_id: args.thread_id, thread_desc: args.thread_desc } },
+        { type: 'thread'     , name: 'new thread'      , value: { thread_id: args.thread_id, thread_desc: args.thread_desc } },
+        { type: 'forum'      , name: 'old forum'       , value: {  forum_id: args. forum_id,  forum_desc: args. forum_desc } },
+        { type: 'forum'      , name: 'new forum'       , value: {  forum_id: args. forum_id,  forum_desc: args. forum_desc } },
+        { type: 'literal'    , name: 'new prefix'      , value: '' },
+        { type: 'image'      , name: 'new icon'        , value: '' },
+
+        { type: 'literal'    , name: 'user-friendly description of actions', value: '' },
+        { type: 'literal'    , name:  'mod-friendly description of actions', value: '' },
+
+        { type: 'username'   , name: 'username'        , value: thread_creator },
+        { type: 'username'   , name: 'thread creator'  , value: thread_creator },
+        { type: 'literal'    , name: 'mod team user id', value: args.mod_team_user.user_id },
+        { type: 'literal'    , name: 'first post id'   , value: args.first_post.post_id },
+        { type: 'action data', name: 'action data'     , value: action_data },
+        { type: 'literal'    , name: 'template'        , value: 'no template' }
+
+    ];
+
+    /*
+     * BUILD CALLBACK
+     */
+
+    var original, metadata;
+    function callback_timeout() {
+
+        cb_timeout = null;
+
+        var actions = [];
+
+        var has_post = message_selector.find('[name="post"]').prop('checked');
+        var has_pm   = message_selector.find('[name="pm"]'  ).prop('checked');
+
+        variable_suffix.splice(1);
+
+        if ( status_widget.val() == 'merged' ) { // Merging is a completely different process to everything else
+
+            variable_suffix.push('merge');
+
+            var merge_post_id;
+
+            var edit_action = new Action( 'close thread', {
+                fire: function(keys) {
+                    var destination_thread = title_widget.val();
+                    post.thread_id = destination_thread.target_thread_id;
+                    action_data.destination_thread = destination_thread = {
+                        thread_id: destination_thread.target_thread_id,
+                        thread_desc: destination_thread.target_thread_desc,
+                        forum_id: destination_thread.target_forum_id
+                    };
+                    post.bb = args.mod_team_bb; // merge posts are always sent from the mod account, so they can be searched for
+                    return args.bb.thread_edit({
+                        thread_id   : args.thread_id,
+                        title       : args.thread_desc,
+                        notes       : policy.resolve('edit notes', keys ),
+                        close_thread: true
+                    }).then(function(html) { // Get information from the closed thread
+                        return args.bb.thread_posts( args.thread_id, html ).then(function (posts) {
+                            var return_keys = {
+                                'list of posts in merged thread':
+                                    '[TABLE="class: outer_border"]\n' +
+                                        '[TR][TH]Post #[/TH][TH]author[/TH][TH]summary[/TH][/TR]\n' +
+                                        posts.map(function(post, index) {
+                                            return (
+                                                '[TR][TD][center][post=' + post.post_id + ']#' + (index+1) + '[/post][/center][/TD][TD]' +
+                                                '[URL="' + location.origin + args.bb.url_for.user_show({ user_id: post.user_id }) + '"]' + post.username + '[/URL][/TD][TD]' +
+                                                args.bb.post_summary(post) + '[/TD][/TR]\n'
+                                             );
+                                        }).join('') +
+                                    '[/TABLE]',
+                                'merge data': args.bb.stringify( 'merge data', {
+                                    date: new Date().getTime(),
+                                    source_thread: unmerge_data,
+                                    destination_thread: destination_thread,
+                                    posts: posts.map(function(post) { return post.post_id })
+                                })
+                            };
+                            post.add_known_keys( return_keys );
+                            pm  .add_known_keys( return_keys );
+                            return { keys: return_keys };
+                        });
+                    });
+                },
+                description: function() {
+                    return [
+                        {
+                            type: 'change thread status',
+                            target: { thread_id: args.thread_id, thread_desc: args.thread_desc, forum_id: args.forum_id }
+                        }
+                    ];
+                },
+                blockers: function() {
+                    if ( !title_widget.val().target_thread_id ) return [ 'Please select a valid merge target' ];
+                }
+            });
+
+            var log_action = new Action( 'post in merge log', {
+                fire: function(keys) {
+                    return args.bb.thread_reply({ // Notify/save all posts in thread
+                        thread_id: args.v.resolve('frequently used posts/threads', 'merge log'),
+                        title    : policy.resolve('merge title' , keys),
+                        bbcode   : policy.resolve('merge bbcode', keys)
+                    }).then(function(post_id) {
+                        merge_post_id = action_data.merge_log_post_id = post_id;
+                        return { keys: { 'merge log post id': merge_post_id } };
+                    });
+                },
+                description: function() {
+                    var destination_thread = title_widget.val();
+                    destination_thread = {
+                        thread_id: destination_thread.target_thread_id,
+                        thread_desc: destination_thread.target_thread_desc,
+                        forum_id: destination_thread.target_forum_id
+                    };
+                    return [
+                        {
+                            type: 'post',
+                            target: {
+                                thread_desc: 'the merge log',
+                                thread_id  : args.v.resolve('frequently used posts/threads', 'merge log'),
+                                post_id    : merge_post_id
+                            }
+                        },
+                    ];
+                }
+            });
+
+            var merge_action = new Action( 'merge threads', {
+                fire: function(keys) {
+                    var destination_thread = title_widget.val();
+                    return args.bb.thread_merge({
+                        forum_id  :   destination_thread.target_forum_id,
+                        thread_ids: [ destination_thread.target_thread_id, args.thread_id ],
+                    });
+                },
+                description: function() {
+                    var destination_thread = title_widget.val();
+                    destination_thread = {
+                        thread_id: destination_thread.target_thread_id,
+                        thread_desc: destination_thread.target_thread_desc,
+                        forum_id: destination_thread.target_forum_id
+                    };
+                    return [
+                        {
+                            type: 'merge threads',
+                            source_thread: { thread_id: args.thread_id, thread_desc: args.thread_desc, forum_id: args.forum_id },
+                            thread_creator: { username: args.first_post.username, user_id : args.first_post.user_id },
+                            destination_thread: destination_thread
+                        }
+                    ];
+                }
+            });
+
+            actions[0] = new Action( 'merge wrapper', edit_action.then(log_action.then(merge_action)) )
+
+            policy.default_keys[7].value = ['merge'];
+
+            if ( has_pm   ) {
+                pm  .val( policy.notification_selector_args({ html: 'PM', type: 'PM' }) );
+                actions[0].then( policy.notification_selector_action(pm  ) );
+            }
+            if ( has_post ) {
+                post.val( policy.notification_selector_args({ html: 'post', type: 'post' }) );
+                actions[0].then( policy.notification_selector_action(post) );
+            }
+
+        } else {
+
+            var edit_actions = [],
+                userfriendly_description = [],
+                edit_target = { thread_id: args.thread_id, thread_desc: args.thread_desc, forum_id: args.forum_id }
+            ;
+
+            if ( status_widget.val() != original.status ) {
+                var status = status_widget.val();
+                if ( status == 'closed temporarily' ) {
+                    action_data.deadline = status_widget.find('option:selected').data('deadline');
+                    var thread_id = args.v.resolve('frequently used posts/threads', 'Moderation Chase-Up Thread' );
+                    var post_id;
+                    actions.push( new Action( 'chase-up post', {
+                        fire: function(keys) {
+                            return args.bb.thread_reply({
+                                thread_id: thread_id,
+                                title    : policy.resolve( 'deadline post title' , keys ),
+                                bbcode   : policy.resolve( 'deadline post bbcode', keys ),
+                            }).then(function(_post_id) {
+                                action_data.chaseup_post_id = post_id = _post_id;
+                                return { keys: {
+                                    'chase-up post id': post_id,
+                                    'extra actions'   : '[post=' + post_id + ']replied to the chase-up thread[/post]'
+                                }};
+                            });
+                        },
+                        description: function() { // description
+                            return [{
+                                type: 'post',
+                                target: {
+                                    thread_desc: 'the chase-up thread',
+                                    thread_id  : thread_id,
+                                      post_id  :   post_id
+                                }
+                            }];
+                        }
+                    }));
+                }
+                edit_actions.push( { type: 'change thread status', target: edit_target } );
+                variable_suffix.push('change status', status);
+                userfriendly_description.push('{{'+policy._namespace+': change status: ' + status + '}}');
+            }
+            if ( (prefix_widget.val()||'') != original.prefix ) {
+                edit_actions.push( { type: 'change thread prefix', target: edit_target } );
+                variable_suffix.push('change prefix');
+                userfriendly_description.push('{{'+policy._namespace+': change prefix}}');
+            }
+            if ( forum_has_icons &amp;&amp; icon_widget.getSelectedIndex() != original.icon ) {
+                edit_actions.push( { type: 'change thread icon', target: edit_target } );
+                variable_suffix.push('change icon');
+                userfriendly_description.push('{{'+policy._namespace+': change icon}}');
+            }
+
+            if ( forum_widget.val() != original.forum_id ) {
+                variable_suffix.push('change forum');
+                userfriendly_description.push('{{'+policy._namespace+': change forum}}');
+                if ( title_widget.val().thread_desc != original.title.thread_desc ) {
+                    variable_suffix.push('change title');
+                    userfriendly_description.push('{{'+policy._namespace+': change title}}');
+                }
+                actions.push( new Action(
+                    'move thread',
+                    {
+                        fire: function(keys) {
+                            var option = forum_widget.find(':selected');
+                            action_data.destination_forum_id = option.val();
+                            return args.bb.thread_move({
+                                thread_id     : args.thread_id,
+                                         title: title_widget.val().thread_desc,
+                                redirect_title: original.title.thread_desc,
+                                forum_id      : option.val(),
+                                redirect      : parse_duration( policy.resolve( 'redirect deadline', keys ) )
+                            });
+                        },
+                        description: function() {
+                            var option = forum_widget.find(':selected');
+                            var change_forum = {
+                                type: 'change thread forum',
+                                target: $.extend({
+                                    forum_id: option.val(),
+                                    forum_desc: option.text()
+                                }, edit_target )
+                            };
+                            if ( title_widget.val().thread_desc == original.title.thread_desc )
+                                return [change_forum];
+                            else
+                                return [
+                                    change_forum,
+                                    { type: 'change thread title', target: edit_target }
+                                ];
+                        },
+                        blockers: function() {
+                            if ( !forum_widget.val() ) return [ 'Please select a target forum' ];
+                        }
+                    }
+                ));
+            } else if ( title_widget.val().thread_desc != original.title.thread_desc ) {
+                // we can retitle a thread at the same time as moving it
+                edit_actions.push( { type: 'change thread title', target: edit_target } );
+                variable_suffix.push('change title');
+                userfriendly_description.push('{{'+policy._namespace+': change title}}');
+            }
+
+            policy.default_keys[6].value = userfriendly_description;
+            policy.default_keys[7].value = userfriendly_description
+                .map(function(d) { return d.replace(/{{'+policy._namespace+': (.*)}}/, '$1') });
+
+            if ( edit_actions.length )
+                actions.push( new Action(
+                    'edit thread',
+                    {
+                        fire: function(keys) {
+                            var edit_info = action_data.edit_info = {
+                                thread_id       : args.thread_id,
+                                title           : title_widget.val().thread_desc,
+                                notes           : policy.resolve('edit notes', keys ),
+                                icon_id         : forum_has_icons ? icon_widget.getSelectedValue() : undefined,
+                                prefix_id       : prefix_widget.val(),
+                                close_thread    : status_widget.val() == 'closed' || status_widget.val() == 'closed temporarily',
+                                unapprove_thread: status_widget.val() == 'moderated',
+                                delete_thread   : status_widget.val() == 'deleted',
+                                delete_reason   : policy.resolve('delete reason', keys ),
+                            };
+                            return args.bb.thread_edit(edit_info);
+                        },
+                        description: function() {
+                            return edit_actions;
+                        },
+                    }
+                ));
+
+            // need to do this before building the messages...
+            var bump_value = bump_selector.find(':checked').val();
+            //if ( bump_value ) variable_suffix.push(bump_value); // informing users about this would only cause problems
+
+            if ( has_pm   ) {
+                pm  .val( policy.notification_selector_args({ html: 'PM', type: 'PM' }) );
+                actions.push( policy.notification_selector_action(pm  ) );
+            }
+            if ( has_post ) {
+                post.val( policy.notification_selector_args({ html: 'post', type: 'post' }) );
+                actions.push( policy.notification_selector_action(post) );
+            }
+
+            // ... but de-bumping must happen *after* any post action bumps the thread
+            switch ( bump_value ) {
+            case 'bump':
+                if ( !has_post ) {
+                    // bumping is redundant if you reply to a thread
+                    actions.push( new Action(
+                        'bump thread',
+                        {
+                            fire: function(keys) { return args.bb.thread_bump(args.thread_id) },
+                            description: function() {
+                                return [{ type: 'bump thread', target: edit_target }];
+                            }
+                        }
+                    ));
+                }
+                break;
+            case 'debump':
+                var debump_action = new Action(
+                    'debump thread',
+                    {
+                        fire: function(keys) { return args.bb.thread_debump(args.thread_id) },
+                        description: function() {
+                            return [{ type: 'debump thread', target: edit_target }];
+                        }
+                    }
+                );
+                if ( has_post )
+                    actions[actions.length-1].then( debump_action );
+                else
+                    actions.push(debump_action);
+                break;
+            case '': // nothing to do
+            }
+
+        }
+
+        if ( has_pm   ) policy.default_keys[7].value.push('PM');
+        if ( has_post ) policy.default_keys[7].value.push('reply');
+
+        policy.default_keys[7].value = policy.default_keys[7].value.join('; ');
+
+        if ( macro_defaults.template &amp;&amp; policy.check( [ 'macro' ].concat(variable_suffix) ) ) {
+
+            var macro_values = { template: macro_defaults.template };
+
+            switch ( status_widget.val() ) {
+            case 'closed temporarily':
+                var deadline = status_widget.find('option:selected').data('deadline');
+                if ( (macro_defaults.deadline||'') != deadline ) {
+                    macro_values.status = 'closed temporarily';
+                    macro_values.deadline = deadline;
+                }
+                break;
+            case 'merged':
+                var target_thread_id = title_widget.val().target_thread_id;
+                if ( (macro_defaults.target_thread_id||NaN) != target_thread_id ) {
+                    macro_values.status = 'merged';
+                    macro_values.target_thread_id = target_thread_id;
+                }
+            case macro_defaults.status:
+                break;
+            default:
+                macro_values.status = status_widget.val();
+            }
+
+            if ( macro_defaults. forum_id !=   forum_widget.val()      ) macro_values.forum_id = parseInt( forum_widget.val(), 10 );
+            if ( macro_defaults.prefix_id != (prefix_widget.val()||'') ) macro_values.prefix_id = prefix_widget.val()||'';
+            if ( macro_defaults.  icon    !=    icon_widget.getSelectedIndex() &amp;&amp; forum_has_icons )
+                macro_values.icon = icon_widget.getSelectedIndex();
+
+
+            if ( macro_defaults.has_pm   != has_pm   ) macro_values.has_pm   = has_pm  ;
+            if ( macro_defaults.has_post != has_post ) macro_values.has_post = has_post;
+
+            if ( Object.keys(macro_values).length > 1 ) {
+                actions.push(new Action( 'register macro', {
+                    fire: function(keys) {
+                        macro_values.name = policy.resolve( [ 'macro' ].concat(variable_suffix), keys );
+                        return recent_macros.push(macro_values);
+                    }
+                }));
+            }
+
+        }
+
+        if ( actions.length ) {
+
+            args.callback(
+                new Action(
+                    'root action',
+                    // this has to be split out from the notification actions because they're performed with the mod team account:
+                    new Action( policy._namespace + ' wrapper', actions ).then(new Action( 'add usernote', {
+                        fire: function(keys) {
+                            var return_keys = {};
+                            if ( !keys.hasOwnProperty(  'pm result') ) return_keys[  'pm result'] = 'no action';
+                            if ( !keys.hasOwnProperty('post result') ) return_keys['post result'] = 'no action';
+                            $.extend( keys, return_keys );
+                            return args.bb.usernote_add(
+                                thread_creator.user_id,
+                                policy.resolve( 'combined note title' , keys ),
+                                policy.resolve( 'combined note bbcode', keys )
+                            ).then(function() {
+                                if ( keys['notification error' ] == 'fail' ) {
+                                    return $.Deferred()
+                                        .reject('Notification failed, but the error was postponed so we could add a usernote:\n' + error)
+                                        .promise();
+                                } else {
+                                    return { keys: return_keys };
+                                }
+                            });
+                        },
+                        description: function() {
+                            return [{ type: 'usernote', target: thread_creator }];
+                        }
+                    }))
+                ),
+                'manage [thread=' + args.thread_id + ']' + args.thread_desc + '[/thread]',
+                has_post, has_pm,
+                status_widget.val() == 'merged' &amp;&amp; sender_selector.find('input:checked').val() == 'personal'
+            );
+
+        } else {
+            args.callback( null, '', has_post, has_pm );
+        }
+
+    }
+
+    var cb_timeout, callback = (
+        args.callback
+        ? function() {
+            if ( cb_timeout ) clearTimeout(cb_timeout);
+            cb_timeout = setTimeout(callback_timeout, 0 );
+        }
+        : function() {}
+    );
+
+    /*
+     * INITIALISE WIDGETS
+     */
+
+    var was_merged = false;
+    var status_widget = $(
+        '&lt;select title="set the thread status">' +
+            '&lt;option title="open the thread to replies from ordinary users" value="open">Open: &lt;/option>' +
+
+            this.resolve( 'close periods', {}, 'array of items' ).map(function(period) {
+                period = period.value.split(/\s*:\s*/, 2 );
+                return '&lt;option title="close the thread and make a note to reopen it" value="closed temporarily" data-deadline="' + period[0] + '">' + period[1] + ': &lt;/options>';
+            }).join('') +
+            '&lt;option title="permanently close the thread" value="closed" data-deadline="permanent">Closed: &lt;/option>' +
+
+            '&lt;option title="merge this with the specified thread" value="merged">Merged with: &lt;/option>' +
+            '&lt;option title="unapprove this thread" value="moderated">Moderated: &lt;/option>' +
+            '&lt;option title="(soft-)delete this thread" value="deleted">Deleted: &lt;/option>' +
+        '&lt;/select>'
+    )
+        .appendTo(args.status_args.container)
+        .change(function() {
+            if ( this.value == 'merged' ) {
+                 forum_widget              .prop( 'disabled', true );
+                prefix_widget              .prop( 'disabled', true );
+                bump_selector.find('input').prop( 'disabled', true );
+                title_widget.val({ mode: 'merge' });
+                title_widget.focus();
+                $('#mod-friend-thread-metadata-icons').addClass('disabled');
+                was_merged = true;
+            } else {
+                if ( was_merged ) {
+                     forum_widget              .prop( 'disabled', false );
+                    status_widget              .prop( 'disabled', false );
+                    bump_selector.find('input').prop( 'disabled', false );
+                    $('#mod-friend-thread-metadata-icons').removeClass('disabled');
+                    title_widget.val({ mode: 'edit', target_thread_id: args.thread_id });
+                    forum_widget.val(metadata.forum_id);
+                    if ( metadata.prefixes.length ) {
+                        prefix_widget.empty().show().append(metadata.prefixes.map(function(option) {
+                            return $('&lt;option>').val(option.prefix_id).text(option.text).prop( 'checked', option.checked );
+                        }));
+                    } else {
+                        prefix_widget.empty().hide();
+                    }
+                }
+            }
+            callback();
+        });
+
+    args.icon_args.container.append('&lt;span title="specify the thread icon" id="mod-friend-thread-metadata-icons">&lt;/span>' );
+    var icon_widget = new IconSelect('mod-friend-thread-metadata-icons', {
+        selectedIconWidth: 16,
+        selectedIconHeight: 16,
+        iconsWidth: 16,
+        iconsHeight: 16,
+        boxIconSpace: 0,
+        vectoralIconNumber: 3,
+        horizontalIconNumber: 5
+    });
+
+    var prefix_widget = $('&lt;select title="specify the thread prefix">&lt;/select>').appendTo(args.prefix_args.container).hide();
+    prefix_widget.change(function() {
+        policy.default_keys[4].value = $( ':selected', this ).text();
+        callback();
+    });
+
+    var prev_title_thread_id = args.thread_id;
+    var title_widget = new ThreadTitleSelector($.extend({}, args, args.title_args, {
+        mode: 'edit',
+        callback: function(thread) {
+            if ( !forum_widget ) return; // skip during creation
+            if ( thread ) {
+                policy.default_keys[1].value = thread;
+                if ( prev_title_thread_id != thread.thread_id ) {
+                    prev_title_thread_id = thread.thread_id;
+                    forum_widget.val( thread.forum_id ).change();
+                }
+            } else {
+                policy.default_keys[1].value = { thread_id: args.thread_id, thread_desc: args.thread_desc, forum_id: args.forum_id };
+                forum_widget.val( args.forum_id ).change();
+            }
+            callback();
+        }
+    }));
+
+    var forum_widget = $('&lt;select title="move this thread to another forum" required>&lt;option value="">Please select a forum...&lt;/option>&lt;/select>').appendTo(args.forum_args.container);
+    var forum_metadata = {}, stored_prefixes = {}, old_forum_id;
+    forum_widget.change(function() {
+        if ( !this.value ) return;
+        policy.default_keys[3].value.forum_id   = this.value;
+        policy.default_keys[3].value.forum_desc = $( ':selected', this ).text().replace( /^\s+/, '' );
+        var old_prefix = stored_prefixes[old_forum_id] = prefix_widget.val();
+        var stored_prefix = stored_prefixes[this.value];
+        old_forum_id = this.value;
+        if ( !forum_metadata[this.value] ) forum_metadata[this.value] = args.bb.forum_metadata(this.value);
+        forum_metadata[this.value].then(function(forum_metadata) {
+            metadata = forum_metadata;
+            if ( forum_has_icons ) {
+                forum_has_icons = forum_metadata.icons.length;
+                if ( !forum_has_icons )
+                    $('#mod-friend-thread-metadata-icons').hide();
+            } else {
+                forum_has_icons = forum_metadata.icons.length;
+                if ( forum_has_icons ) {
+                    var default_icon;
+                    icon_widget.refresh(
+                        forum_metadata.icons.map(function(icon, index) {
+                            if ( !icon.file ) default_icon = index;
+                            return {
+                                'iconFilePath': icon.file || 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///////yH5BAEKAAEALAAAAAAQABAAAAIOjI+py+0Po5y02ouzPgUAOw==',
+                                'iconValue': icon.icon_id
+                            };
+                        })
+                    );
+                    icon_widget.setSelectedIndex( ( original.icon == -1 ) ? default_icon : original.icon );
+                    $('#mod-friend-thread-metadata-icons').show();
+                }
+            }
+
+            if ( forum_metadata.prefixes.length ) {
+                var has_old_prefix, has_stored_prefix;
+                prefix_widget.show().empty().append(forum_metadata.prefixes.map(function(option) {
+                    if (    old_prefix &amp;&amp; option.prefix_id ==    old_prefix ) has_old_prefix    = true;
+                    if ( stored_prefix &amp;&amp; option.prefix_id == stored_prefix ) has_stored_prefix = true;
+                    return $('&lt;option>').val(option.prefix_id).text(option.text);
+                })).val(
+                    has_old_prefix    ?    old_prefix :
+                    has_stored_prefix ? stored_prefix :
+                    ''
+                );
+                macro_defaults.prefix_id = prefix_widget.val()||'';
+            } else {
+                prefix_widget.empty().hide();
+            }
+            callback();
+        });
+    });
+
+    var post = new NotificationSelector(this.notification_selector_args(
+        { html: 'post', type: 'post' },
+        args.post_selector_args,
+        { known_keys: ['list of posts in merged thread'], key_prefix: 'post ' }
+    ));
+
+    var pm = new NotificationSelector(this.notification_selector_args(
+        { html: 'PM', type: 'PM' },
+        args.pm_selector_args,
+        { known_keys: ['list of posts in merged thread'], key_prefix: 'pm ' }
+    ));
+
+    var message_selector = $(
+        '&lt;div>' +
+            '&lt;label title="post a new reply in this thread">&lt;input type="checkbox" name="post">post to thread&lt;/label>' +
+            '&lt;label>&lt;input type="checkbox" name="pm">PM the thread creator&lt;/label>' +
+        '&lt;/div>'
+    ).appendTo(args.message_selector_args.container);
+    message_selector.find('input').change(callback)
+        .last().parent().attr( 'title', 'send a private message to ' + thread_creator.username );
+
+    var sender_selector = $(
+        '&lt;div>' +
+            '&lt;label title="more official, protects your privacy">&lt;input type="radio" value="team" name="sender" checked>send from mod team account&lt;/label>' +
+            '&lt;label title="more individual, can ease tensions">&lt;input type="radio" value="personal" name="sender">send from personal account&lt;/label>' +
+        '&lt;/div>'
+    ).appendTo(args.sender_selector_args.container);
+    sender_selector.find('input').change(function() {
+        if ( this.checked == (this.value == 'team' ) )
+            post.bb = pm.bb = args.mod_team_bb;
+        else
+            post.bb = pm.bb = args.bb;
+    }).filter(':checked').change();
+
+    var bump_selector = $(
+        '&lt;div>' +
+            '&lt;label title="push this thread up to the top of the listings">&lt;input type="radio" name="bump" value="bump">bump thread&lt;/label>' +
+            '&lt;label>&lt;input type="radio" name="bump" checked>no bump&lt;/label>' +
+            '&lt;label title="hide this thread far down in the listings">&lt;input type="radio" name="bump" value="debump">de-bump thread&lt;/label>' +
+        '&lt;/div>'
+    ).appendTo(args.bump_selector_args.container);
+    bump_selector.find('input').change(callback);
+
+    var template_selector = $(
+        '&lt;select title="select a template reply or specify actions by hand" name="response_template">&lt;option value="No template">No template&lt;/option>&lt;/select>'
+    ).appendTo(args.template_selector_args.container);
+
+    var seen_macros = {};
+    var macros_to_insert = recent_macros.get().reverse().filter(function(macro) {
+        if ( seen_macros.hasOwnProperty(macro.name) ) return false;
+        seen_macros[macro.name] = true;
+        return true;
+    });
+    if ( macros_to_insert.length ) {
+        $('&lt;optgroup>').attr( 'label', 'Recent' )
+            .appendTo(template_selector)
+            .append(
+                macros_to_insert.map(function(macro) {
+                    return $('&lt;option>')
+                        .text (macro.name)
+                        .val  (macro.template)
+                        .attr( 'title', policy.resolve(['hint',macro.template]) )
+                        .data( 'macro', macro )
+                })
+            );
+    }
+    template_selector.append(
+
+        this.resolve( 'visible templates', {}, 'array of items' ).map(function(templates) {
+            templates = templates.value.split( /\s*[:,]\s*/g );
+            var name = templates.shift();
+            var optgroup = $('&lt;optgroup>').attr( 'label', name );
+            optgroup.append( templates.map(function(t) {
+                return $('&lt;option>')
+                    .text(t)
+                    .val (t)
+                    .attr( 'title', policy.resolve(['hint',t]) )
+            }) );
+            return optgroup;
+        })
+
+    ).change(function() {
+
+        /*
+         * Update everything based on the new template
+         */
+
+        policy.default_keys[policy.default_keys.length-1].value
+            = variable_suffix[0]
+            = action_data.template
+            = $(this).val();
+
+        title_widget.val(original.title);
+
+        if        ( policy.check( [ 'new thread id' ].concat(variable_suffix) ) ) {
+            status_widget.val( 'merged' );
+            title_widget.val({
+                target_thread_id: parseInt( policy.resolve([ 'new thread id' ].concat(variable_suffix)).toLowerCase(), 10 )
+            });
+        } else if ( policy.check( [ 'deadline' ].concat(variable_suffix) ) ) {
+            var deadline = policy.resolve([ 'deadline' ].concat(variable_suffix)).toLowerCase();
+            status_widget.find('option')
+                .prop( 'selected', false )
+                .filter(function() { return $(this).data('deadline') == deadline })
+                .prop( 'selected', true )
+            ;
+        } else if ( policy.check( [ 'new status' ].concat(variable_suffix) ) ) {
+            status_widget.val( policy.resolve([ 'new status' ].concat(variable_suffix)).toLowerCase() );
+        } else {
+            status_widget.val( original.status );
+        }
+        status_widget.change();
+
+        if ( policy.check( [ 'new thread title' ].concat(variable_suffix) ) ) {
+            title_widget.val({
+                target_thread_id  : args.thread_id,
+                target_thread_desc: policy.resolve( [ 'new thread title' ].concat(variable_suffix), { 'old thread title': args.thread_desc } ),
+                target_forum_id   : args.forum_id,
+            });
+        }
+
+        if ( policy.check( [ 'new icon' ].concat(variable_suffix) ) ) {
+            var icon_name = policy.resolve( [ 'new icon' ].concat(variable_suffix) );
+            metadata.icons.map(function(icon, index) {
+                if ( icon.name == icon_name ) icon_widget.setSelectedIndex(index);
+            });
+        } else if ( forum_has_icons ) {
+            if ( original.icon == -1 ) {
+            metadata.icons.map(function(icon, index) {
+                if ( !icon.file ) icon_widget.setSelectedIndex(index);
+            });
+            } else {
+                icon_widget.setSelectedIndex(original.icon);
+            }
+        }
+
+        if ( policy.check( [ 'new forum' ].concat(variable_suffix) ) ) {
+            var new_forum = policy.resolve( [ 'new forum' ].concat(variable_suffix) ).toLowerCase();
+            forum_widget.find('option')
+                .prop( 'selected', false )
+                .filter(function() { return this.textContent.toLowerCase() == new_forum })
+                .prop( 'selected', true )
+            ;
+        } else {
+            forum_widget.val( original.forum_id );
+        }
+        forum_widget.change();
+
+        if ( policy.check( [ 'new prefix' ].concat(variable_suffix) ) ) {
+            var new_prefix = policy.resolve( [ 'new prefix' ].concat(variable_suffix) );
+            prefix_widget.find('option')
+                .prop( 'selected', false )
+                .filter(function() { return this.textContent.toLowerCase() == new_prefix })
+                .prop( 'selected', true )
+            ;
+        } else {
+            prefix_widget.val( original.prefix );
+        }
+        prefix_widget.change();
+
+        message_selector.find('[name="post"]').prop( 'checked', policy.check( [ 'post bbcode' ].concat(variable_suffix) ) );
+        post.val( policy.notification_selector_args({ html: 'post', type: 'post' }) );
+
+        message_selector.find('[name="pm"]'  ).prop( 'checked', policy.check( [   'pm bbcode' ].concat(variable_suffix) ) );
+        pm  .val( policy.notification_selector_args({ html: 'PM', type: 'PM' }) );
+
+        // record macro defaults even if this action came from a macro, so frequent actions are frequently updated:
+        macro_defaults = {
+            template: variable_suffix[0],
+              status: status_widget.val(),
+            deadline: status_widget.find('option:selected').data('deadline') || '',
+            has_post: message_selector.find('[name="post"]').prop( 'checked' ),
+            has_pm  : message_selector.find('[name="pm"]'  ).prop( 'checked' ),
+
+                     icon   :   forum_has_icons ? icon_widget.getSelectedIndex() : -1,
+                    forum_id:  forum_widget.find('option:selected').val() || '',
+                   prefix_id: prefix_widget.val()||'',
+            target_thread_id:  title_widget.val().target_thread_id || NaN
+        };
+
+        var macro = $( 'option:selected', this ).data( 'macro' );
+        if ( macro ) {
+
+            switch ( macro.status ) {
+            case undefined: break;
+            case 'closed temporarily':
+                status_widget.find('option')
+                    .prop( 'selected', false )
+                    .filter(function() { return $(this).data('deadline') == macro.deadline })
+                    .prop( 'selected', true )
+                ;
+                status_widget.change();
+                title_widget.val({ mode: 'edit' });
+                break;
+            case 'merged':
+                status_widget.val('merged').change();
+                title_widget.val({ mode: 'merge', target_thread_id: macro.target_thread_id });
+                break;
+            default:
+                title_widget.val({ mode: 'edit' });
+                status_widget.val( macro[status] ).change();
+            }
+
+            if ( macro.hasOwnProperty('icon'    ) ) icon_widget.setSelectedIndex( macro.icon );
+            if ( macro.hasOwnProperty('has_pm'  ) ) message_selector.find('[name="pm"]'  ).prop('checked', macro.has_pm  ).change();
+            if ( macro.hasOwnProperty('has_post') ) message_selector.find('[name="post"]').prop('checked', macro.has_post).change();
+
+            if ( macro.hasOwnProperty('prefix_id') ) {
+                if ( macro.hasOwnProperty('forum_id') ) {
+                    forum_widget.val(macro.forum_id);
+                    forum_metadata[macro.forum_id].then(function() {
+                        prefix_widget.val(macro.prefix_id).change();
+                    });
+                } else {
+                    prefix_widget.val(macro.prefix_id).change();
+                }
+            } else if ( macro.hasOwnProperty('forum_id') ) {
+                forum_widget.val(macro.forum_id).change();
+            }
+
+        }
+
+        callback();
+
+    });
+
+    /*
+     * Download information and initialise a few last things
+     */
+
+    this.promise = $.when(
+        args.bb.thread_metadata(args.thread_id),
+        args.bb.forums()
+    ).then(function(_metadata, forums) {
+
+        metadata = _metadata;
+
+        status_widget.val(
+            metadata.deleted   ? 'deleted'   :
+            metadata.moderated ? 'moderated' :
+            metadata.open      ? 'open'      :
+                                 'closed'
+        );
+
+        var selected_index;
+        forum_has_icons = metadata.icons.length;
+        if ( forum_has_icons ) {
+            icon_widget.refresh(
+                metadata.icons.map(function(icon, index) {
+                    if ( icon.icon_id == metadata.icon_id ) selected_index = index;
+                    return {
+                        'iconFilePath': icon.file || 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///////yH5BAEKAAEALAAAAAAQABAAAAIOjI+py+0Po5y02ouzPgUAOw==',
+                        'iconValue': icon.icon_id
+                    };
+                })
+            );
+            icon_widget.setSelectedIndex(selected_index);
+            $('#mod-friend-thread-metadata-icons').show();
+        } else {
+            $('#mod-friend-thread-metadata-icons').hide();
+        }
+        $('#mod-friend-thread-metadata-icons').on( 'changed', function() {
+            policy.default_keys[5].value = (
+                                          metadata.icons[icon_widget.getSelectedIndex()].file
+                ? location.origin + '/' + metadata.icons[icon_widget.getSelectedIndex()].file
+                : 'data:image/gif;base64,R0lGODlhEAAQAIAAAP///////yH5BAEKAAEALAAAAAAQABAAAAIOjI+py+0Po5y02ouzPgUAOw=='
+            );
+            callback();
+        });
+
+        if ( metadata.prefixes.length ) {
+            prefix_widget
+                .show()
+                .empty()
+                .append(metadata.prefixes.map(function(option) { return $('&lt;option>').val(option.prefix_id).text(option.text) }))
+                .val( metadata.prefix_id );
+        }
+
+        (function build_forums(options, prefix, optgroup) {
+            options.forEach(function(option) {
+                if ( option.forum_id ) {
+                    var node = $('&lt;option>').val(option.forum_id);
+                    if ( option.forum_id == args.forum_id )
+                        node.text(prefix + option.name + ' (current forum)').addClass('current-forum');
+                    else
+                        node.text(prefix + option.name);
+                    optgroup.append( node );
+                    if ( option.children )
+                        build_forums( option.children, prefix + '\xA0\xA0\xA0\xA0', optgroup );
+                } else if ( option.children ) {
+                    build_forums( option.children, prefix, $('&lt;optgroup>').attr( 'label', prefix + option.name ).appendTo(forum_widget) );
+                }
+            });
+        })( forums, '', forum_widget );
+        old_forum_id = metadata.forum[metadata.forum.length-1].forum_id;
+        forum_widget.val( metadata.forum[metadata.forum.length-1].forum_id );
+
+        original = action_data.original = {
+            thread_id: args.thread_id,
+            status   : status_widget.val(),
+            title    : $.extend( {}, title_widget.val() ),
+            forum_id : parseInt( forum_widget.val(), 10 ),
+            prefix   : prefix_widget.val() || '',
+            icon     : icon_widget.getSelectedIndex(),
+            icon_id  : forum_has_icons ? icon_widget.getSelectedValue() : undefined,
+        };
+
+        unmerge_data = {
+             forum_id: original.forum_id,
+            thread_id: args.thread_id,
+            title    : original.title.thread_desc,
+              icon_id: original.icon_id,
+            prefix   : original.prefix,
+            status   : original.status,
+                close_thread: metadata.open      ? undefined : true,
+               delete_thread: metadata.deleted   ? true : undefined,
+            unapprove_thread: metadata.moderated ? true : undefined,
+
+            delete_reason: metadata.delete_reason,
+            notes        : metadata.notes,
+        };
+
+        template_selector.change();
+
+    });
+
+}
+ThreadManagementPolicy.prototype = Object.create(Policy.prototype, {
+    _namespace: { writable: false, configurable: false, value: 'thread management' },
+});
+ThreadManagementPolicy.prototype.constructor = ThreadManagementPolicy;
+
+/**
+ * @summary build an action to unmerge a thread
+ * @param {BulletinBoard} bb           Bulletin Board to manipulate
+ * @param {BulletinBoard} mod_team_bb  Bulletin Board to manipulate
+ * @param {Variables}     v            Variables to use
+ * @param {Object}        unmerge_data 'merge data' created during merging
+ * @return {Action}
+ */
+ThreadManagementPolicy.prototype.unmerge_action = function(bb, mod_team_bb, v, unmerge_data) {
+
+    var merge_log = v.resolve('frequently used posts/threads', 'merge log'), merge_post_id;
+
+    return new Action(
+        'root action',
+        new Action(
+            'unmerge wrapper',
+
+            new Action( 'create thread', {
+                fire: function(keys) {
+                    return mod_team_bb.thread_create($.extend(
+                        {
+                            bbcode: v.resolve('thread management', 'unmerge notification bbcode', $.extend( keys, unmerge_data.source_thread ) ),
+                        },
+                        unmerge_data.source_thread
+                    )).then(function(new_thread_id) {
+                        unmerge_data.source_thread.thread_id = new_thread_id;
+                        return { keys: {
+                            'new thread id': new_thread_id,
+                            'old thread title with link': '[thread=' + new_thread_id + ']' + keys['old thread title'] + '[/thread]'
+                        }};
+                    });
+                },
+                description: function() {
+                    return [{ type: 'create thread', target: unmerge_data.source_thread }];
+                }
+            }).then(
+                new Action( 'move posts', {
+                    fire: function(keys) {
+                        return bb.posts_move( keys['new thread id'], unmerge_data.posts );
+                    },
+                    description: function() {
+                        return [{ type: 'move posts', target: { thread: unmerge_data.source_thread, posts: unmerge_data.posts } }];
+                    }
+                }),
+                new Action( 'post to merge log', {
+                    fire: function(keys) {
+                        return bb.thread_reply({
+                            thread_id: merge_log,
+                            title    : v.resolve('thread management', 'unmerge title' , keys),
+                            bbcode   : v.resolve('thread management', 'unmerge bbcode', keys),
+                        }).then(function(post_id) {
+                            merge_post_id = post_id;
+                        });
+                    },
+                    description: function() {
+                        return [
+                            {
+                                type: 'post',
+                                target: {
+                                    thread_desc: 'the merge log',
+                                    thread_id  : merge_log,
+                                    post_id    : merge_post_id
+                                }
+                            },
+                        ];
+                    }
+                }),
+                ( unmerge_data.source_thread.delete_thread || unmerge_data.source_thread.unapprove_thread ) ? new Action( 'change thread status', {
+                    fire: function(keys) {
+                        return bb.thread_edit(unmerge_data.source_thread)
+                    },
+                    description: function() {
+                        return [{ type: 'change thread status', target: unmerge_data.source_thread }];
+                    }
+                }) : undefined
+            )
+
+        ).then(
+            unmerge_data.thread_creator
+            ? new Action( 'add usernote', {
+                fire: function(keys) {
+                    var return_keys = {};
+                    if ( !keys.hasOwnProperty(  'pm result') ) return_keys[  'pm result'] = 'no action';
+                    if ( !keys.hasOwnProperty('post result') ) return_keys['post result'] = 'no action';
+                    $.extend( keys, return_keys );
+                    return args.bb.usernote_add(
+                        thread_creator.user_id,
+                        policy.resolve( 'combined note title' , keys ),
+                        policy.resolve( 'combined note bbcode', keys )
+                    ).then(function() {
+                        if ( keys['notification error' ] == 'fail' ) {
+                            return $.Deferred()
+                                .reject('Notification failed, but the error was postponed so we could add a usernote:\n' + error)
+                                .promise();
+                        } else {
+                            return { keys: return_keys };
+                        }
+                    });
+                },
+                description: function() {
+                    return [{ type: 'usernote', target: thread_creator }];
+                }
+            })
+            : new Action( 'fix results', {
+                fire: function(keys) {
+                    var return_keys = {};
+                    if ( !keys.hasOwnProperty(  'pm result') ) return_keys[  'pm result'] = 'no action';
+                    if ( !keys.hasOwnProperty('post result') ) return_keys['post result'] = 'no action';
+                    return { keys: return_keys };
+                }
+            })
+        )
+    );
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+
+
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 May 2015
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>
