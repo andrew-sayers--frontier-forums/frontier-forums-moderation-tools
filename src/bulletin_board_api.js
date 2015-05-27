@@ -769,11 +769,12 @@ VBulletin.prototype.process_posts = function(posts) {
             user_id          : parseInt( ( username.getAttribute('href') || '             guest' ).substr(13), 10 ),
 
             is_deleted       : post.className.search( /\bpostbitdeleted\b/ ) != -1,
-            is_moderated     : !!post.getElementsByClassName('moderated').length
+            is_moderated     : !!post.getElementsByClassName('moderated').length,
+            is_ignored       : post.className.search( /\bpostbitignored\b/ ) != -1
 
         };
 
-        if ( !ret.is_deleted ) {
+        if ( !ret.is_ignored && !ret.is_deleted ) {
 
             var content    = post.getElementsByClassName('content')[0];
             var ip_element = post.getElementsByClassName('ip'     )[0];
