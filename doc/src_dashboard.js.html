@@ -1399,9 +1399,9 @@ Dashboard.prototype.newbies_init = function(bb, container) {
 
     container.data( 'template', container.find( '.template' ).removeClass( 'template' ).detach() );
 
-    if ( (dashboard.cache['newbies-data-version']||0) != 1 ) {
+    if ( (dashboard.cache['newbies-data-version']||0) != 2 ) {
         delete dashboard.cache['newbies-next'];
-        dashboard.cache['newbies-data-version'] = 1;
+        dashboard.cache['newbies-data-version'] = 2;
     }
 
     if ( !dashboard.cache['newbies-next'] ) {
@@ -1514,7 +1514,9 @@ Dashboard.prototype.newbies_refresh = function(bb, container) {
                 };
             });
 
-            container.data( 'newbies-current', current_users );
+            container.data( 'newbies-current', dashboard.cache['newbies-current'] = current_users );
+
+            dashboard.update_cache();
 
             var template = container.data( 'template' );
 
