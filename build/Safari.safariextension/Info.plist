@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.21</string>
+	<string>4.22</string>
 	<key>CFBundleVersion</key>
-	<string>4.21</string>
+	<string>4.22</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -67,6 +67,7 @@
 				<string>lib/Chart.js</string>
 				<string>lib/json-stable-stringify.js</string>
 				<string>lib/jquery.timeago.js</string>
+				<string>lib/iconselect.js</string>
 				<string>src/debug_log.js</string>
 				<string>src/bulletin_board_api.js</string>
 				<string>src/cacheable.js</string>
@@ -76,12 +77,15 @@
 				<string>src/widgets/action_widget.js</string>
 				<string>src/shared_store.js</string>
 				<string>src/available_users.js</string>
+				<string>src/recent_list.js</string>
+				<string>src/parse_duration.js</string>
 				<string>src/widgets/extra_post.js</string>
 				<string>src/widgets/severity_slider.js</string>
 				<string>src/widgets/notification_selector.js</string>
 				<string>src/widgets/duplicate_account_list.js</string>
 				<string>src/widgets/vbulletin_popup_menu.js</string>
 				<string>src/widgets/deadline.js</string>
+				<string>src/widgets/thread_title_selector.js</string>
 				<string>src/variables.js</string>
 				<string>src/violations.js</string>
 				<string>src/dashboard.js</string>
@@ -92,16 +96,18 @@
 				<string>src/policies/policy.js</string>
 				<string>src/policies/duplicate_account_policy.js</string>
 				<string>src/policies/inappropriate_username_policy.js</string>
-				<string>src/policies/mod_team_reply_policy.js</string>
+				<string>src/policies/thread_management_policy.js</string>
 				<string>src/legacy.js</string>
 				<string>src/main.js</string>
 			</array>
 		</dict>
 		<key>Stylesheets</key>
 		<array>
+			<string>lib/iconselect.css</string>
 			<string>src/widgets/severity_slider.css</string>
 			<string>src/widgets/notification_selector.css</string>
 			<string>src/widgets/duplicate_account_list.css</string>
+			<string>src/widgets/thread_title_selector.css</string>
 			<string>src/main.css</string>
 		</array>
 	</dict>

@@ -1,7 +1,7 @@
 {
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.21",
+	"version": "4.22",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -26,6 +26,7 @@
 				"lib/Chart.js",
 				"lib/json-stable-stringify.js",
 				"lib/jquery.timeago.js",
+				"lib/iconselect.js",
 				"src/debug_log.js",
 				"src/bulletin_board_api.js",
 				"src/cacheable.js",
@@ -35,12 +36,15 @@
 				"src/widgets/action_widget.js",
 				"src/shared_store.js",
 				"src/available_users.js",
+				"src/recent_list.js",
+				"src/parse_duration.js",
 				"src/widgets/extra_post.js",
 				"src/widgets/severity_slider.js",
 				"src/widgets/notification_selector.js",
 				"src/widgets/duplicate_account_list.js",
 				"src/widgets/vbulletin_popup_menu.js",
 				"src/widgets/deadline.js",
+				"src/widgets/thread_title_selector.js",
 				"src/variables.js",
 				"src/violations.js",
 				"src/dashboard.js",
@@ -51,16 +55,18 @@
 				"src/policies/policy.js",
 				"src/policies/duplicate_account_policy.js",
 				"src/policies/inappropriate_username_policy.js",
-				"src/policies/mod_team_reply_policy.js",
+				"src/policies/thread_management_policy.js",
 				"src/legacy.js",
 				"src/main.js"
 			],
 			"run_at": "document_start",
 			"all_frames": true,
 			"css": [
+				"lib/iconselect.css",
 				"src/widgets/severity_slider.css",
 				"src/widgets/notification_selector.css",
 				"src/widgets/duplicate_account_list.css",
+				"src/widgets/thread_title_selector.css",
 				"src/main.css"
 			]
 		}
@@ -77,6 +83,7 @@
 		"http://frontiermods.replayirc.com:443/*",
 		"https://forums.frontier.co.uk./*",
 		"https://forumstest.frontier.co.uk./*",
+		"http://api.stopforumspam.org/*",
 		"*://forums.frontier.co.uk/*",
 		"*://forumstest.frontier.co.uk/*",
 		"*://forums.frontier.co.uk./*",
