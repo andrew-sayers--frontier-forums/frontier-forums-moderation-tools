@@ -5,6 +5,11 @@ Tools to ease the moderation process on [The Frontier Forums](http://forums.fron
 
 Based on BabelExt, see [the source code documentation](http://andrew-sayers--frontier-forums.github.io/frontier-forums-moderation-tools/).
 
+### Building ###
+
+To build run ./script/build.sh build chrome|safari|amo
+
+
 ### What is BabelExt? ###
 
 BabelExt is a library (or perhaps more of a boilerplate) meant to simplify the
@@ -116,7 +121,7 @@ This automatically fixes broken hard links and updates `BabelExt.resources` ever
 
 - You're good to go! If you just want to try out the BabelExt kitchen sink demo, navigate to [http://babelext.com/demo/](http://babelext.com/demo/)
 
-- Further Firefox development information can be found at [https://addons.mozilla.org/en-US/developers/docs/sdk/latest/](https://addons.mozilla.org/en-US/developers/docs/sdk/latest/)
+- Further Firefox development information: [Add-on SDK](https://addons.mozilla.org/en-US/developers/docs/sdk/latest/) and [setting up an extension development environment](https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment)
 
 ### Safari ###
 
