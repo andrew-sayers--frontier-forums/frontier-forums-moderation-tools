@@ -132,9 +132,7 @@ Action.prototype.fire = function(bb, keys) {
     var blockers = this.blockers();
     if ( blockers.length ) {
         alert( ['Blocked - please resolve the following issues:\n'].concat(blockers).join( "\n* " ) );
-        var dfd = new jQuery.Deferred();
-        dfd.reject();
-        return dfd.promise();
+        return $.Deferred().reject().promise();
     }
 
     var promises_per_level = [ 0 ];
@@ -229,7 +227,7 @@ Action.prototype.fire = function(bb, keys) {
      * STEP TWO: fire actions in turn
      */
 
-    var graph_dfd = new jQuery.Deferred();
+    var graph_dfd = $.Deferred();
 
     var progress = 0;
 
@@ -422,9 +420,7 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
     var blockers = this.blockers();
     if ( blockers.length ) {
         alert( ['Blocked - please resolve the following issues:\n'].concat(blockers).join( "\n* " ) );
-        var dfd = new jQuery.Deferred();
-        dfd.reject();
-        return dfd.promise();
+        return $.Deferred().reject().promise();
     }
 
 
@@ -457,9 +453,7 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
                 "Please make sure you and the server are online, then try again."
             );
         }
-        var dfd = new jQuery.Deferred;
-        dfd.reject();
-        return dfd.promise();
+        return $.Deferred().reject().promise();
     });
 
 }

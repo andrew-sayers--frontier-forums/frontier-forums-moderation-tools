@@ -46,9 +46,7 @@ function SharedStore(args) {
     } else {
         console.log( "Shared store lock URL not specified - writes to the shared store may overwrite other people's information!" );
         this.lock = this.unlock = this.refresh = function() {
-            var dfd = new jQuery.Deferred();
-            dfd.resolve('1');
-            return dfd.promise();
+            return $.Deferred().resolve('1').promise();
         }
     }
 
@@ -166,7 +164,7 @@ SharedStore.prototype.transaction = function(updater) {
 
     var ss = this;
 
-    var dfd = new jQuery.Deferred();
+    var dfd = $.Deferred();
 
     function babel_xhr() { return new BabelExt.XMLHttpRequest() };
 

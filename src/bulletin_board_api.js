@@ -207,9 +207,7 @@ BulletinBoard.prototype.get = function( url, data ) {
             var err = bb.detect_post_error( reply );
             if ( err !== null ) {
                 debug_log.log( "Couldn't load page", err );
-                var dfd = new jQuery.Deferred();
-                dfd.reject();
-                return dfd;
+                return $.Deferred().reject().promise();
             } else {
                 return reply;
             }
@@ -255,9 +253,7 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                     if ( err !== null ) {
                         debug_log.log( "Couldn't load page", err );
                         alert( "Couldn't load page " + url + "\n\nError:\n" + err );
-                        var dfd = new jQuery.Deferred();
-                        dfd.reject(err);
-                        return dfd;
+                        return jQuery.Deferred().reject(err).promise();
                     } else {
                         return reply;
                     }
@@ -364,9 +360,7 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page, skip_ima
         var posts = bb.process_posts(bb.get_posts(html));
 
         if ( !posts.length ) {
-            var dfd = new jQuery.Deferred();
-            dfd.reject('no posts found');
-            return dfd.promise();
+            return $.Deferred().reject('no posts found').promise();
         }
 
         var more_pages = [];
@@ -386,9 +380,7 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page, skip_ima
                 function(          ) { return 'Failed to load some later pages in ' + bb.url_for.thread_show({ thread_id: thread_id }) }
             );
         } else {
-            var dfd = new jQuery.Deferred();
-            dfd.resolve( posts );
-            return dfd.promise();
+            return $.Deferred().resolve( posts ).promise();
         }
     }
 
@@ -837,7 +829,7 @@ VBulletin.prototype._get_token = function() {
 
 VBulletin.prototype._add_standard_data = function(data) {
 
-    var dfd = new jQuery.Deferred();
+    var dfd = $.Deferred();
 
     data = $.extend( data, this.standard_post_data );
 
@@ -2207,9 +2199,7 @@ VBulletin.prototype.user_signature_get = function(user_id) {
 
         if ( !this._modcp_data ) {
             // populate _modcp_data without making an extra request
-            var dfd = new jQuery.Deferred();
-            dfd.resolve(bb._parse_modcp_data(html));
-            bb._modcp_data = dfd.promise();
+            bb._modcp_data = $.Deferred().resolve(bb._parse_modcp_data(html)).promise();
         }
 
         return $(html).find('[name="signature"]').val();
@@ -2647,7 +2637,7 @@ VBulletin.prototype.posts_moderated = function() {
  */
 VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, page_bottom_selector ) {
 
-    var dfd = new jQuery.Deferred();
+    var dfd = $.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
 
     var login_attempt_count = 0;
@@ -2717,7 +2707,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
  */
 VBulletin.prototype.login = function( iframe, default_user ) {
 
-    var dfd = new jQuery.Deferred();
+    var dfd = $.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
 
     if ( !this._origin ) {

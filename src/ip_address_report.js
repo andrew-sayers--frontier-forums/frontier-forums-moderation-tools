@@ -169,9 +169,7 @@ IPAddressReport.prototype.action = function() {
 
                         }
 
-                        var dfd = new jQuery.Deferred();
-                        dfd.resolve({ keys: { 'ip address report': report._cache_bbcode } });
-                        return dfd.promise();
+                        return $.Deferred().resolve({ keys: { 'ip address report': report._cache_bbcode } }).promise();
 
                     }
 

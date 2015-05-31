@@ -54,11 +54,7 @@ function ExtraPost( args ) {
                     })};
                 });
             } else {
-                var dfd = new jQuery.Deferred();
-                dfd.resolve({ keys: {
-                    'extra actions': '(none)'
-                }});
-                return dfd.promise();
+                return $.Deferred().resolve({ keys: { 'extra actions': '(none)' }}).promise();
             }
         },
         function() { // description

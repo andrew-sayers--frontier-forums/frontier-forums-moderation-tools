@@ -38,9 +38,7 @@ function Cacheable(args) {
     if ( needs_refresh ) {
         this.promise = this.refresh(args);
     } else {
-        var dfd = new jQuery.Deferred();
-        this.promise = dfd.promise();
-        dfd.resolve();
+        this.promise = $.Deferred().resolve().promise();
     }
 
 }

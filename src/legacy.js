@@ -702,7 +702,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             document.title.replace( /\[PID: ([0-9]*)\] \[TID: ([0-9]*)\]/, function(match, post_id, thread_id) {
                 stash.  post_to_review_id = post_id;
                 stash.thread_to_review_id = thread_id;
-                var dfd = new jQuery.Deferred();
+                var dfd = jQuery.Deferred();
                 stash.review_post_promise = dfd.promise();
                 $.get( '/showthread.php?t='+thread_id+'&p='+post_id+'&viewfull=1', function(html) {
                     var html = $(html);

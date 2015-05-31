@@ -65,7 +65,7 @@ function form_keys( bb, form, callback ) {
     var type_handlers = {
           user: function(val) { return bb.  users_complete( val ).then(function(vals) { return vals.map(function(val) { return { name: val.username, value: val.  user_id } }); }) },
         thread: function(val) { return bb.threads_complete( val ).then(function(vals) { return vals.map(function(val) { return { name: val.title   , value: val.thread_id } }); }) },
-          post: function(   ) { var dfd = new jQuery.Deferred(); dfd.resolve([]); return dfd.promise() }
+          post: function(   ) { return $.Deferred().resolve([]).promise() }
     };
 
     var timeout, known = {
