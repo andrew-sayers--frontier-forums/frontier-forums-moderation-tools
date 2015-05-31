@@ -689,7 +689,7 @@ function ThreadManagementPolicy(args) {
     bump_selector.find('input').change(callback);
 
     var template_selector = $(
-        '<select title="select a template reply or specify actions by hand" name="response_template"><option value="No template">No template</option></select>'
+        '<select title="select a template reply or specify actions by hand" name="response_template"><option value="No template">Please choose a template...</option></select>'
     ).appendTo(args.template_selector_args.container);
 
     var seen_macros = {};
