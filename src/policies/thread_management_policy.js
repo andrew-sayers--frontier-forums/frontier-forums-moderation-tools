@@ -532,7 +532,7 @@ function ThreadManagementPolicy(args) {
                  forum_widget              .prop( 'disabled', true );
                 prefix_widget              .prop( 'disabled', true );
                 bump_selector.find('input').prop( 'disabled', true );
-                title_widget.val({ mode: 'merge' });
+                title_widget.val({ mode: 'merge', target_thread_id: null, target_thread_desc: '' });
                 title_widget.focus();
                 $('#mod-friend-thread-metadata-icons').addClass('disabled');
                 was_merged = true;
