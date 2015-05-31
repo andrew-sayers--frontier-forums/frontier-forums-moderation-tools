@@ -425,31 +425,34 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
 
 
     return bb.ping().then(function(data) {
-        if ( data.result == 'success' && data.duration < 1000 ) {
-            return bb.thread_reply({
-                thread_id: thread_id,
-                title    : v.resolve(namespace, [ name + ' title', 'before' ], keys),
-                bbcode   : v.resolve(namespace, [ name + ' body' , 'before' ], keys)
-            }).then(function(journal_post_id) {
+        if ( data.result == 'success' ) {
+            if ( ( data.duration < 1000 ) ||
+                 (typeof(prompt(
+                     'This might make things worse!\n' +
+                     "Recommended: click 'cancel' to stop the action, then try again in a few hours\n" +
+                     "Alternative: read the link below then click 'OK' to continue anyway\n",
+                     location.origin + bb.url_for.thread_show({ thread_id: v.resolve( 'frequently used posts/threads', 'Slow Server explanation thread' ) })
+                 )) == 'string')
+               ) {
+                return bb.thread_reply({
+                    thread_id: thread_id,
+                    title    : v.resolve(namespace, [ name + ' title', 'before' ], keys),
+                    bbcode   : v.resolve(namespace, [ name + ' body' , 'before' ], keys)
+                }).then(function(journal_post_id) {
 
-                keys['journal thread id'] = thread_id;
-                keys['journal post id' ] = journal_post_id;
+                    keys['journal thread id'] = thread_id;
+                    keys['journal post id' ] = journal_post_id;
 
-                return action.fire(bb, keys).then(
-                    function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
-                    function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'failed'    ) }
-                );
+                    return action.fire(bb, keys).then(
+                        function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
+                        function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'failed'    ) }
+                    );
 
-            });
-        } else if ( data.result == 'success' ) {
-            alert(
-                'The server took ' + (data.duration/1000) + ' seconds to respond to a simple request.\n' +
-                "If we tried to complete this action now, the server might not process all of our requests.\n" +
-                "Please try again when the server has calmed down."
-            );
+                });
+            }
         } else {
             alert(
-                'The server could not be contacted after ' + (data.duration/1000) + ' seconds.\n' +
+                'The server could not be contacted.\n' +
                 "Please make sure you and the server are online, then try again."
             );
         }
