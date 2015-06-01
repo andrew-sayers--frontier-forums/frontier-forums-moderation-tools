@@ -399,7 +399,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                         // make sure we stay logged in to ModCP
                         var title = document.title;
                         $(mod_cp_iframe).one( 'load', function() { document.title = title });
-                        mod_cp_iframe.src = stash.modcp_url( 'user.php?do=viewuser&'+new Date().getTime() );
+                        mod_cp_iframe.contentWindow.location.reload();
                     }, 60000);
                     var message;
                     var mod_cp = $( mod_cp_iframe.contentDocument.body );
