@@ -752,41 +752,60 @@ VBulletin.prototype.get_pages = function(doc) {
     return ret;
 }
 
-VBulletin.prototype.process_posts = function(posts) {
+// shared processing between posts and user notes - note this will not usually be called as a member function:
+VBulletin.prototype._process_post_note = function(element, type, parse_date) {
+
+    // this is a surprisingly tight loop when downloading a large thread (up to 10,000 posts in quick succession),
+    // so we mostly avoid jQuery and go straight to DOM accessors
+
+    var username = element.getElementsByClassName('username')[0];
+    var title    = element.getElementsByClassName('title'   )[0];
+    var date     = element.getElementsByClassName('date'    )[0];
+
+    var ret = {
+
+        container_element: element,
+
+        date             : date.textContent,
+        date_element     : date,
+        date_object      : parse_date ? parse_date( date.textContent ) : undefined,
+
+        title            : title ? title.textContent.replace(/^\s*/, '').replace(/\s*$/, '') : '',
+
+        username         : username.textContent,
+        user_id          : parseInt( ( username.getAttribute('href') || '             guest' ).substr(13), 10 ),
+
+        is_deleted       : element.className.search( /\bpostbitdeleted\b/ ) != -1,
+        is_moderated     : !!element.getElementsByClassName('moderated').length,
+        is_ignored       : element.className.search( /\bpostbitignored\b/ ) != -1
+
+    };
+
+    ret[type + '_id'] = parseInt( element.id.substr(5), 10 );
+
+    var content = element.getElementsByClassName('content')[0];
+    if ( content ) {
+        ret.message         = $.trim(content.textContent);
+        ret.message_element = $(content);
+    }
+
+    return ret;
+}
+
+VBulletin.prototype.process_posts = function(posts, parse_date) {
     // this is a surprisingly tight loop when downloading a large thread (up to 10,000 posts in quick succession),
     // so we mostly avoid jQuery and go straight to DOM accessors
     if ( !posts ) posts = this.get_posts();
+    var process = this._process_post_note;
     return posts.map(function(post) {
 
-        var username = post.getElementsByClassName('username')[0];
-        var title    = post.getElementsByClassName('title'  )[0];
-
-        var ret = {
-
-            container_element: post,
-            post_id          : parseInt( post.id.substr(5), 10 ),
-
-            date             : post.getElementsByClassName('date')[0].textContent,
-
-            title            : title ? title.textContent.replace(/^\s*/, '').replace(/\s*$/, '') : '',
-
-            username         : username.textContent,
-            user_id          : parseInt( ( username.getAttribute('href') || '             guest' ).substr(13), 10 ),
-
-            is_deleted       : post.className.search( /\bpostbitdeleted\b/ ) != -1,
-            is_moderated     : !!post.getElementsByClassName('moderated').length,
-            is_ignored       : post.className.search( /\bpostbitignored\b/ ) != -1
-
-        };
+        var ret = process(post, 'post');
 
         if ( !ret.is_ignored && !ret.is_deleted ) {
 
-            var content    = post.getElementsByClassName('content')[0];
-            var ip_element = post.getElementsByClassName('ip'     )[0];
+            var ip_element = post.getElementsByClassName('ip')[0];
 
             $.extend(ret, {
-                message        : content.textContent.replace(/^\s*/, '').replace(/\s*$/, ''),
-                message_element: $(content),
                 linking        : $(post.getElementsByClassName('postlinking')[0]),
                 ip_element     : ip_element ? $(ip_element) : $('<div>'),
                 report_element : $(post.getElementsByClassName('report')[0]),
@@ -1937,6 +1956,21 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
             message_backup: bbcode,
         }
     );
+}
+
+/**
+ * @summary Get user notes for a user
+ * @param {Number} user_id ID of the user
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_notes = function( user_id ) {
+    var bb = this;
+    return this.get( '/usernote.php?u=' + user_id ).then(function(html, status, jqXHR) {
+        var parse_date = bb.date_parser( html, jqXHR );
+        return $(html).find('#posts > li').map(function() {
+            return bb._process_post_note( this, 'note', parse_date )
+        }).get();
+    });
 }
 
 /**
