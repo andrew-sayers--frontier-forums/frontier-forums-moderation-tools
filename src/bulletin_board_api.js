@@ -203,13 +203,13 @@ BulletinBoard.prototype.get = function( url, data ) {
         type: 'GET',
         data: data
     }).then(
-        function(reply) {
+        function(reply, status, jqXHR) {
             var err = bb.detect_post_error( reply );
             if ( err !== null ) {
                 debug_log.log( "Couldn't load page", err );
                 return $.Deferred().reject().promise();
             } else {
-                return reply;
+                return $.Deferred().resolve( reply, status, jqXHR ).promise();
             }
         },
         debug_log.log
@@ -248,14 +248,14 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                 xhr : function() { return new BabelExt.XMLHttpRequest() },
                 data: data
             }).then(
-                function(reply) {
+                function(reply, status, jqXHR) {
                     var err = bb.detect_post_error( reply );
                     if ( err !== null ) {
                         debug_log.log( "Couldn't load page", err );
                         alert( "Couldn't load page " + url + "\n\nError:\n" + err );
                         return jQuery.Deferred().reject(err).promise();
                     } else {
-                        return reply;
+                        return $.Deferred().resolve( reply, status, jqXHR ).promise();
                     }
                 },
                 debug_log.log
