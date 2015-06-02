@@ -2927,3 +2927,53 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
         $('blockquote').text( 'Redirecting...' );
     });
 }
+
+/**
+ * @summary build a function to parse dates on a page
+ * @param {string} html  page contents
+ * @param {jqXHR}  jqXHR page XMLHttpRequest (to get the unambiguous server date)
+ * @return {Date} date
+ * @description VBulletin often returns dates relative to "now", which depends on
+ * time zones, server error etc.  To reliably parse dates, we need to get the server
+ * time from the HTTP headers.
+ */
+VBulletin.prototype.date_parser = function( html, jqXHR ) {
+
+    var timezone = 0;
+    html.replace( /<div id="footer_time" class="shade footer_time">All times are GMT ([-+])([0-9]+)/, function( match, plusminus, amount ) {
+        timezone = parseInt( amount, 10 ) * 1000*60*60;
+        if ( plusminus == '-' ) timezone *= -1;
+    });
+
+    var today = new Date( jqXHR.getResponseHeader('Date') ).getTime() - timezone;
+    today = today - ( today % (1000*60*60*24) ) - timezone;
+
+    return function(time) {
+        var ret = null;
+
+        // dates of the form "Today, 12:34PM", "Today 12:34 PM" etc.:
+        time.replace( /^\s*([^, ]+?),?\s*([0-9]+):([0-9]+)\s*([AP])M/, function( match, date, hour, minute, ap ) {
+            switch ( date ) {
+            case 'Today'    : ret = today                ; break;
+            case 'Yesterday': ret = today - 1000*60*60*24; break;
+            default:
+                ret = new Date( date.split('/').reverse().join('-') ).getTime() - timezone;
+            }
+            ret = new Date( ret + ( parseInt( hour, 10 ) * 60 + (ap=='P' ? 12*60 : 0) + parseInt( minute, 10 ) ) * 60000 );
+        });
+        if ( ret ) return ret;
+
+        // Dates of the form "Today":
+        time.replace( /\b(?:Today|Yesterday|([0-9][0-9])\/([0-9][0-9])\/([0-9][0-9][0-9][0-9]))\b/, function( date, day, month, year ) {
+            switch ( date ) {
+            case 'Today'    : ret = today                ; return;
+            case 'Yesterday': ret = today - 1000*60*60*24; return;
+            default:
+                ret = new Date( [ year, month, day ].join('-') ).getTime() - timezone;
+            }
+            ret = new Date( ret );
+        });
+        return ret;
+    }
+
+}
