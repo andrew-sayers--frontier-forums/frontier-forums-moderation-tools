@@ -2218,22 +2218,22 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
             pm_notification: (
                 bb._config['unPMable user groups'].filter(function(group) { return group == primary_group }).length
-                ?             null                  // new users cannot receive messages
+                ?             { receive: false }                  // new users cannot receive messages
                 : (
                     ( html.find('input[id^="rb_1_options\\[receivepm\\]"]').is(':checked') ) // receive PMs
                     ? (
                         ( html.find('input[id^="rb_1_options\\[emailonpm\\]"]').is(':checked') // notification e-mail
                         ? (
                             ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
-                            ? [ 'popup', 'e-mail' ] // will receive a popup and an e-mail
-                            : [          'e-mail' ] // will receive an e-mail
+                            ? { receive: true, notified: true , popup: true , email: true } // will receive a popup and an e-mail
+                            : { receive: true, notified: true , popup: false, email: true } // will receive an e-mail
                         )
                         : ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
-                            ? [ 'popup'           ] // will receive a popup
-                            : [                   ] // will receive messages, but won't receive notification
+                            ? { receive: true, notified: true , popup: true , email: false } // will receive a popup
+                            : { receive: true, notified: false, popup: false, email: false } // will receive messages, but won't receive notification
                         )
                     )
-                    :         null                  // cannot receive messages
+                    :         { receive: false }                  // cannot receive messages
                 )
             )
         };
