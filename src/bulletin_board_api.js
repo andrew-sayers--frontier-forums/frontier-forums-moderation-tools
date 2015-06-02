@@ -1993,7 +1993,7 @@ VBulletin.prototype.user_current = function() {
  */
 VBulletin.prototype.user_info = function(user_id) {
     var bb = this;
-    return this.get('/member.php?u='+user_id+'&tab=infractions&pp=50').then(function(html) {
+    return this.get('/member.php?u='+user_id+'&tab=infractions&pp=' + bb.default_reply_count).then(function(html) {
         html = $(html);
 
         var join_date = $.trim(html.find( '.userinfo dd' ).first().text());
@@ -2226,7 +2226,7 @@ VBulletin.prototype.user_signature_set = function(user_id, signature) {
  */
 VBulletin.prototype.users_list_new = function() {
 
-    return this.get( '/memberlist.php?order=desc&sort=joindate&pp=100' ).then(function(html) {
+    return this.get( '/memberlist.php?order=desc&sort=joindate&pp=' + this.default_reply_count ).then(function(html) {
         return $(html).find('#memberlist_table tr:not(.columnsort) a.username').map(function() {
             var $this = $(this);
             return {
@@ -2368,8 +2368,8 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
 
     return bb.get(
         recent
-        ? '/forumdisplay.php?pp=200&sort=lastpost&order=desc&daysprune=1&f=' + forum_id
-        : '/forumdisplay.php?pp=200&sort=lastpost&order=desc&daysprune=-1&f=' + forum_id
+        ? '/forumdisplay.php?pp=' + bb.default_reply_count + '&sort=lastpost&order=desc&daysprune=1&f=' + forum_id
+        : '/forumdisplay.php?pp=' + bb.default_reply_count + '&sort=lastpost&order=desc&daysprune=-1&f=' + forum_id
     ).then(function(html) {
 
         var is_moderator = html.search( '<script type="text/javascript" src="clientscript/vbulletin_inlinemod.js?' ) != -1;
@@ -2464,7 +2464,7 @@ VBulletin.prototype.activity = function(min_date, min_post_id) {
             mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60 ) ),
             minid      : min_post_id || 1,
             minscore   : 0,
-            pp         : 200,
+            pp         : this.default_reply_count,
             show       : 'all',
             sortby     : 'recent',
             time       : 'anytime'
