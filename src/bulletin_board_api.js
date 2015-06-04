@@ -2027,15 +2027,23 @@ VBulletin.prototype.user_current = function() {
  */
 VBulletin.prototype.user_info = function(user_id) {
     var bb = this;
-    return this.get('/member.php?u='+user_id+'&tab=infractions&pp=' + bb.default_reply_count).then(function(html) {
+    return this.get('/member.php?u='+user_id+'&tab=infractions&pp=' + bb.default_reply_count).then(function(html, status, jqXHR) {
+        var parse_date = bb.date_parser( html, jqXHR );
         html = $(html);
 
-        var join_date = $.trim(html.find( '.userinfo dd' ).first().text());
+        var stats = {};
+        html.find('.member_blockrow > dl').each(function() { stats[ $('dt',this).text() ] = $('dd',this) });
+
+        var join_date = $.trim(stats['Join Date'].text());
         var title     = $.trim(html.find('#userinfo .usertitle').text());
         var username  = $.trim(html.find('.member_username').text());
 
         var ret = {
+            username: username,
+            user_id : user_id,
             joined: join_date,
+            join_date: parse_date(join_date),
+            activity_date: parse_date($.trim(stats['Last Activity'].text())),
             title : title,
 
             user_note_count: parseInt( html.find('a[href="usernote.php?u='+user_id+'"]').text().replace( /^(?:.*[^0-9])?\(([0-9]+)\).*/, "$1" ), 10 ),
@@ -2054,6 +2062,32 @@ VBulletin.prototype.user_info = function(user_id) {
         if ( html.find('.infractions_block').length ) {
 
             var infractions = html.find( '#infractionslist > li' ); // all infractions, even those expired or reversed
+
+            ret.infractions = infractions.map(function() {
+                var post_link = $('.inflistinfo a', this), status = $.trim( $('.inflistexpires', this ).text() ), start_date = parse_date( $( '.inflistdate', this ).text() );
+                switch ( status ) {
+                case 'Expired' : status = { status: 'expired' , end_date: start_date                 }; break;
+                case 'Reversed': status = { status: 'reversed', end_date: null                       }; break;
+                case 'Never'   : status = { status: 'active'  , end_date: new Date(8640000000000000) }; break; // highest supported date
+                default        : status = { status: 'active'  , end_date: parse_date(status)         }; break;
+                }
+                return $.extend(
+                    {
+                        type    : ( $('.inlineimg', this).attr('src').search( 'redcard' ) == -1 ) ? 'warning' : 'infraction',
+                        reason  : $( '.infraction_reason em', this ).text(),
+                        user_id : $( '.postby a', this ).text(),
+                        username: parseInt( $( '.postby a', this ).attr( 'href' ).split( '?u=' )[1], 10 ),
+                        points  : parseInt( $.trim($( '.inflistpoints', this ).text()), 10 ),
+                        start_date: start_date
+                    },
+                    status,
+                    post_link.length ? {
+                          post_id: parseInt( post_link.attr('href').replace( /.*[?&]p=([0-9]*).*/, "$1" ), 10 ),
+                        thread_id: parseInt( post_link.attr('href').replace( /.*[?&]t=([0-9]*).*/, "$1" ), 10 ),
+                        thread_title: post_link.text()
+                    } : {}
+                );
+            }).get();
 
             var interesting_user_notes = ret.user_note_count - infractions.length;
             if ( interesting_user_notes > 0 ) {
