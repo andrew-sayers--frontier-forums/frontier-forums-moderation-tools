@@ -2222,6 +2222,51 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
 }
 
+
+/**
+ * @summary Get posts for a user
+ * @param {Number}  user_id       ID of user to get posts for
+ * @param {Boolean} get_all_pages whether to download results on pages after the first
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_posts = function(user_id, get_all_pages) {
+    var bb = this;
+    function get_page(html, status, jqXHR) {
+        var parse_date = bb.date_parser( html, jqXHR );
+        return $(html).find('#searchbits > li').map(function() {
+            return {
+                date: parse_date( $('.postdate', this).text() ),
+
+                username:           $('.username_container > a', this).text(),
+                user_id : parseInt( $('.username_container > a', this).attr('href').split('?u=')[1], 10 ),
+
+                post_id  : parseInt( this.id.substr(5), 10 ),
+                thread_id: parseInt( $('h2 a', this).attr('href').split('?t=')[1], 10 ),
+                thread_title: $('h2 a', this).text(),
+
+                message: $.trim( $('blockquote', this).text() )
+            };
+        }).get();
+    }
+    return bb.get( '/search.php?do=finduser&userid=' + user_id + '&contenttype=vBForum_Post&showposts=1&pp=' + bb.default_reply_count ).then(
+        get_all_pages ? function(html, status, jqXHR) {
+            var match = /var RELPATH = "([^"]*)";[^]*<a href="javascript:\/\/" class="popupctrl">Page 1 of ([0-9]*)/.exec(html);
+            if ( match ) {
+                var ret = [ get_page( html, status, jqXHR ) ], requests = [];
+                for ( var n=1; n!= match[2]; ++n )
+                    (function(n) {
+                        requests.push(
+                            bb.get( match[1] + '&pp=' + bb.default_reply_count + '&page=' + (n+1) ).then(function(html, status, jqXHR) { ret[n] = get_page(html, status, jqXHR ) })
+                        );
+                    })(n);
+                return $.when.apply( $, requests ).then(function() { return [].concat.apply( [], ret ) });
+            } else {
+                return get_page( html, status, jqXHR );
+            }
+        } : get_page
+    );
+}
+
 /**
  * @summary Get user's signature user from ModCP
  * @param {Number} user_id ID of user to get signature for
