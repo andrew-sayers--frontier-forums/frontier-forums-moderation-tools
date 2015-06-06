@@ -151,9 +151,9 @@ DuplicateAccountPolicy.prototype._Single = function(args, users, callback) {
 
     var account_type;
     if ( args.user.is_primary ) {
-        account_type =    'primary account'; if ( this.severity_level.type == 'warning' ) this.severity_level.type == 'PM';
+        account_type =    'primary account'; if ( this.severity_level.type == 'warning' ) this.severity_level.type = 'PM';
     } else {
-        account_type = 'additional account'; if ( this.severity_level.type == 'warning' ) this.severity_level.type == 'infraction';
+        account_type = 'additional account'; if ( this.severity_level.type == 'warning' ) this.severity_level.type = 'infraction';
     }
 
     users = users.map(function(user) { return $.extend( { is_target: user == args.user }, user ) });
