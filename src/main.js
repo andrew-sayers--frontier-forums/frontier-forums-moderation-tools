@@ -186,6 +186,7 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
                 var now = new Date().getTime();
 
                 return posts.filter(function(post) {
+                    if ( post.is_ignored || post.is_deleted ) return false;
                     var data = bb.parse_post('action data', post);
                     if ( !data ) return false;
                     if ( (data.deadline || data.date + 1000*60*60*24*7) > now ) return;
