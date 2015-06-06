@@ -229,7 +229,8 @@ function NotificationSelector( args ) {
 
             if ( value.level == 'PM' || value.level == 'post' ) {
                 var title_element = notification.element.find('.'+value.level + ' .title');
-                title_element.val( notification.set_value( title_element.val(), 'title', [keys.violation], keys ) ).change();
+                var text = notification.set_value( title_element.val(), 'title', [keys.violation], keys );
+                if ( typeof(text) == 'string' ) title_element.val( text ).change();
             } else if ( value.level != 'none' ) {
                 [ 'top', 'bottom' ].forEach(function(location) {
                     notification.element.find('.'+value.level + ' .message-' + location).html(
@@ -238,7 +239,8 @@ function NotificationSelector( args ) {
             }
 
             var bbcode_element = notification.element.find('.'+value.level + ' textarea');
-            bbcode_element.val( notification.set_value( bbcode_element.val(), 'bbcode', [keys.violation], keys ) ).change();
+            var text = notification.set_value( bbcode_element.val(), 'bbcode', [keys.violation], keys );
+            if ( typeof(text) == 'string' ) bbcode_element.val( text ).change();
 
             if ( notification.element.hasClass('preview') ) {
                 var level_element = notification.element.children('.'+value.level);
