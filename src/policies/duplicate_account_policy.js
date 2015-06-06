@@ -45,7 +45,7 @@ function DuplicateAccountPolicy(args) {
                 break;
             }
             // old accounts should know better:
-            if ( Math.abs( dupes[n].moderation_info.join_date - user.join_date ) >= 1000*60*60*24 ) args.severity = 1;
+            if ( Math.abs( dupes[n].moderation_info.join_date - args.user.join_date ) >= 1000*60*60*24 ) args.severity = 1;
         };
 
     }
