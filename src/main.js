@@ -1546,6 +1546,35 @@ function handle_moderation_links() {
     $(function(){$('img[src="images/misc/moderated.gif"],img[src="images/misc/moderated_small.gif"]').wrap('<a href="/modcp/moderate.php?do=posts"></a>')});
 }
 
+function handle_member_page( bb, loading_html ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: '/member.php',
+        match_elements: '#view-stats_mini',
+        callback: function(stash, pathname, params) {
+            $('<li><a href="#download-info"><span class="mod-friend-icon">&#x21e9;</span> Download all info</a>')
+                .appendTo('#usermenu')
+                .click(function(event) {
+                    var a = $(this), original_html = a.html();
+                    a.html( loading_html );
+                    $.when(
+                        bb.user_info (params.u),
+                        bb.user_notes(params.u),
+                        bb.user_posts(params.u, true)
+                    ).then(function(info, notes, posts) {
+                        a.html(original_html);
+                        var link = $('<a>')
+                            .attr( 'download', 'Info for ' + $('.member_username').text() + '.json' )
+                            .attr( 'href', 'data:application/octet-stream,'+encodeURIComponent(JSON.stringify({ info: info, notes: notes, posts: posts })) )
+                            .appendTo(document.body);
+                        link[0].click(); // for some reason, link.click() doesn't work
+                        link.remove();
+                    });
+                    event.preventDefault();
+                });
+        }
+    }
+)}
+
 /*
  * MAIN BLOCK (not run in iFrames)
  */
@@ -1730,6 +1759,7 @@ if (window.location == window.parent.location ) {
                     handle_moderation_links     ();
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();
+                    handle_member_page          ( bb, loading_html );
                     handle_thread_management    ( bb, mod_team_bb, v, mc, ss, loading_html );
                     handle_merge_log            ( bb, mod_team_bb, v );
                     handle_thread_form          ( bb, v, handle_error );

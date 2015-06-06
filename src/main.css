@@ -358,3 +358,9 @@ a.dashboard-refresh {
     width: 100%;
     margin: 0;
 }
+
+.mod-friend-icon {
+    display: inline-block;
+    min-width: 16px;
+    text-align: center;
+}
