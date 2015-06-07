@@ -323,7 +323,6 @@ Policy.prototype.extra_post_args = function(level) {
 
     return this._build_widget_args( ret, [{ type: 'severity' , value: level }], Array.prototype.slice.call( arguments, 1 ) );
 
-
 }
 
 /**
