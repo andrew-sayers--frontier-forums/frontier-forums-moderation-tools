@@ -964,7 +964,6 @@ function build_firefox() {
 
     // Move the .xpi into place, fix its install.rdf, and update firefox-unpacked:
     function finalise_xpi(err, stdout, stderr) {
-        fs.makeDirectory('out');
         var xpi = 'out/' + settings.name + '.xpi';
         if ( fs.exists(xpi) ) fs.remove(xpi);
         fs.list('build/Firefox').forEach(function(file) { if ( file.search(/\.xpi$/) != -1 ) fs.move( 'build/Firefox/' + file, xpi ); });
@@ -1004,6 +1003,7 @@ function build_chrome() {
     });
 
     var manifest = {
+        "short_name": settings.short_title || settings.title,
         "name": settings.title,
         "author": settings.author,
         "version": settings.version,
@@ -1631,13 +1631,14 @@ case 'build':
     break;
 
 case 'release':
+    fs.makeDirectory('out');
     if ( args.length != 3 ) usage();
     switch ( args[2] ) {
     case 'amo'   : release_amo   (local_settings.   amo_login_info); break;
     case 'chrome': release_chrome(local_settings.chrome_login_info); break;
     case 'opera' : release_opera (local_settings. opera_login_info); break;
     case 'safari': release_safari(local_settings.safari_login_info); break;
-    default       : console.log( "Please specify 'amo', 'chrome', 'opera' or 'safari', not '" + args[2] + "'" ); break;
+    default      : console.log( "Please specify 'amo', 'chrome', 'opera' or 'safari', not '" + args[2] + "'" ); break;
     }
     break;
 

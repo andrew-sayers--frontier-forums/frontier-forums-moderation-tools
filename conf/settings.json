@@ -9,6 +9,7 @@
     // General config parameters
     "name":        "frontier-forums-moderation-tools",
     "title":       "Frontier forums moderation tools",
+    "short_title": "Mod tools",
     "description": "Add moderator tools to the Frontier Forums",
     "license":     "MPL 2.0",
     "author":      "Andrew Sayers",
