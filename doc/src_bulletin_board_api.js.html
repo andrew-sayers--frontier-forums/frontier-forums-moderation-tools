@@ -853,6 +853,8 @@
 
                 <li data-name="VBulletin#css_keys"><a href="VBulletin.html#css_keys">css_keys</a></li>
 
+                <li data-name="VBulletin#date_parser"><a href="VBulletin.html#date_parser">date_parser</a></li>
+
                 <li data-name="VBulletin#detect_post_error"><a href="VBulletin.html#detect_post_error">detect_post_error</a></li>
 
                 <li data-name="VBulletin#editor_get"><a href="VBulletin.html#editor_get">editor_get</a></li>
@@ -969,7 +971,11 @@
 
                 <li data-name="VBulletin#user_moderation_info"><a href="VBulletin.html#user_moderation_info">user_moderation_info</a></li>
 
+                <li data-name="VBulletin#user_notes"><a href="VBulletin.html#user_notes">user_notes</a></li>
+
                 <li data-name="VBulletin#user_overlapping"><a href="VBulletin.html#user_overlapping">user_overlapping</a></li>
+
+                <li data-name="VBulletin#user_posts"><a href="VBulletin.html#user_posts">user_posts</a></li>
 
                 <li data-name="VBulletin#user_signature_get"><a href="VBulletin.html#user_signature_get">user_signature_get</a></li>
 
@@ -1279,13 +1285,13 @@ BulletinBoard.prototype.get = function( url, data ) {
         type: 'GET',
         data: data
     }).then(
-        function(reply) {
+        function(reply, status, jqXHR) {
             var err = bb.detect_post_error( reply );
             if ( err !== null ) {
                 debug_log.log( "Couldn't load page", err );
                 return $.Deferred().reject().promise();
             } else {
-                return reply;
+                return $.Deferred().resolve( reply, status, jqXHR ).promise();
             }
         },
         debug_log.log
@@ -1324,14 +1330,14 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                 xhr : function() { return new BabelExt.XMLHttpRequest() },
                 data: data
             }).then(
-                function(reply) {
+                function(reply, status, jqXHR) {
                     var err = bb.detect_post_error( reply );
                     if ( err !== null ) {
                         debug_log.log( "Couldn't load page", err );
                         alert( "Couldn't load page " + url + "\n\nError:\n" + err );
                         return jQuery.Deferred().reject(err).promise();
                     } else {
-                        return reply;
+                        return $.Deferred().resolve( reply, status, jqXHR ).promise();
                     }
                 },
                 debug_log.log
@@ -1828,41 +1834,60 @@ VBulletin.prototype.get_pages = function(doc) {
     return ret;
 }
 
-VBulletin.prototype.process_posts = function(posts) {
+// shared processing between posts and user notes - note this will not usually be called as a member function:
+VBulletin.prototype._process_post_note = function(element, type, parse_date) {
+
+    // this is a surprisingly tight loop when downloading a large thread (up to 10,000 posts in quick succession),
+    // so we mostly avoid jQuery and go straight to DOM accessors
+
+    var username = element.getElementsByClassName('username')[0];
+    var title    = element.getElementsByClassName('title'   )[0];
+    var date     = element.getElementsByClassName('date'    )[0];
+
+    var ret = {
+
+        container_element: element,
+
+        date             : date.textContent,
+        date_element     : date,
+        date_object      : parse_date ? parse_date( date.textContent ) : undefined,
+
+        title            : title ? title.textContent.replace(/^\s*/, '').replace(/\s*$/, '') : '',
+
+        username         : username.textContent,
+        user_id          : parseInt( ( username.getAttribute('href') || '             guest' ).substr(13), 10 ),
+
+        is_deleted       : element.className.search( /\bpostbitdeleted\b/ ) != -1,
+        is_moderated     : !!element.getElementsByClassName('moderated').length,
+        is_ignored       : element.className.search( /\bpostbitignored\b/ ) != -1
+
+    };
+
+    ret[type + '_id'] = parseInt( element.id.substr(5), 10 );
+
+    var content = element.getElementsByClassName('content')[0];
+    if ( content ) {
+        ret.message         = $.trim(content.textContent);
+        ret.message_element = $(content);
+    }
+
+    return ret;
+}
+
+VBulletin.prototype.process_posts = function(posts, parse_date) {
     // this is a surprisingly tight loop when downloading a large thread (up to 10,000 posts in quick succession),
     // so we mostly avoid jQuery and go straight to DOM accessors
     if ( !posts ) posts = this.get_posts();
+    var process = this._process_post_note;
     return posts.map(function(post) {
 
-        var username = post.getElementsByClassName('username')[0];
-        var title    = post.getElementsByClassName('title'  )[0];
-
-        var ret = {
-
-            container_element: post,
-            post_id          : parseInt( post.id.substr(5), 10 ),
-
-            date             : post.getElementsByClassName('date')[0].textContent,
-
-            title            : title ? title.textContent.replace(/^\s*/, '').replace(/\s*$/, '') : '',
-
-            username         : username.textContent,
-            user_id          : parseInt( ( username.getAttribute('href') || '             guest' ).substr(13), 10 ),
-
-            is_deleted       : post.className.search( /\bpostbitdeleted\b/ ) != -1,
-            is_moderated     : !!post.getElementsByClassName('moderated').length,
-            is_ignored       : post.className.search( /\bpostbitignored\b/ ) != -1
-
-        };
+        var ret = process(post, 'post');
 
         if ( !ret.is_ignored &amp;&amp; !ret.is_deleted ) {
 
-            var content    = post.getElementsByClassName('content')[0];
-            var ip_element = post.getElementsByClassName('ip'     )[0];
+            var ip_element = post.getElementsByClassName('ip')[0];
 
             $.extend(ret, {
-                message        : content.textContent.replace(/^\s*/, '').replace(/\s*$/, ''),
-                message_element: $(content),
                 linking        : $(post.getElementsByClassName('postlinking')[0]),
                 ip_element     : ip_element ? $(ip_element) : $('&lt;div>'),
                 report_element : $(post.getElementsByClassName('report')[0]),
@@ -3016,6 +3041,21 @@ VBulletin.prototype.usernote_add = function( user_id, title, bbcode ) {
 }
 
 /**
+ * @summary Get user notes for a user
+ * @param {Number} user_id ID of the user
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_notes = function( user_id ) {
+    var bb = this;
+    return this.get( '/usernote.php?u=' + user_id ).then(function(html, status, jqXHR) {
+        var parse_date = bb.date_parser( html, jqXHR );
+        return $(html).find('#posts > li').map(function() {
+            return bb._process_post_note( this, 'note', parse_date )
+        }).get();
+    });
+}
+
+/**
  * @summary Get information about a user note
  * @param {string} note_id ID of the note
  * @return {jQuery.Promise}
@@ -3069,15 +3109,23 @@ VBulletin.prototype.user_current = function() {
  */
 VBulletin.prototype.user_info = function(user_id) {
     var bb = this;
-    return this.get('/member.php?u='+user_id+'&amp;tab=infractions&amp;pp=50').then(function(html) {
+    return this.get('/member.php?u='+user_id+'&amp;tab=infractions&amp;pp=' + bb.default_reply_count).then(function(html, status, jqXHR) {
+        var parse_date = bb.date_parser( html, jqXHR );
         html = $(html);
 
-        var join_date = $.trim(html.find( '.userinfo dd' ).first().text());
+        var stats = {};
+        html.find('.member_blockrow > dl').each(function() { stats[ $('dt',this).text() ] = $('dd',this) });
+
+        var join_date = $.trim(stats['Join Date'].text());
         var title     = $.trim(html.find('#userinfo .usertitle').text());
         var username  = $.trim(html.find('.member_username').text());
 
         var ret = {
+            username: username,
+            user_id : user_id,
             joined: join_date,
+            join_date: parse_date(join_date),
+            activity_date: parse_date($.trim(stats['Last Activity'].text())),
             title : title,
 
             user_note_count: parseInt( html.find('a[href="usernote.php?u='+user_id+'"]').text().replace( /^(?:.*[^0-9])?\(([0-9]+)\).*/, "$1" ), 10 ),
@@ -3096,6 +3144,32 @@ VBulletin.prototype.user_info = function(user_id) {
         if ( html.find('.infractions_block').length ) {
 
             var infractions = html.find( '#infractionslist > li' ); // all infractions, even those expired or reversed
+
+            ret.infractions = infractions.map(function() {
+                var post_link = $('.inflistinfo a', this), status = $.trim( $('.inflistexpires', this ).text() ), start_date = parse_date( $( '.inflistdate', this ).text() );
+                switch ( status ) {
+                case 'Expired' : status = { status: 'expired' , end_date: start_date                 }; break;
+                case 'Reversed': status = { status: 'reversed', end_date: null                       }; break;
+                case 'Never'   : status = { status: 'active'  , end_date: new Date(8640000000000000) }; break; // highest supported date
+                default        : status = { status: 'active'  , end_date: parse_date(status)         }; break;
+                }
+                return $.extend(
+                    {
+                        type    : ( $('.inlineimg', this).attr('src').search( 'redcard' ) == -1 ) ? 'warning' : 'infraction',
+                        reason  : $( '.infraction_reason em', this ).text(),
+                        user_id : $( '.postby a', this ).text(),
+                        username: parseInt( $( '.postby a', this ).attr( 'href' ).split( '?u=' )[1], 10 ),
+                        points  : parseInt( $.trim($( '.inflistpoints', this ).text()), 10 ),
+                        start_date: start_date
+                    },
+                    status,
+                    post_link.length ? {
+                          post_id: parseInt( post_link.attr('href').replace( /.*[?&amp;]p=([0-9]*).*/, "$1" ), 10 ),
+                        thread_id: parseInt( post_link.attr('href').replace( /.*[?&amp;]t=([0-9]*).*/, "$1" ), 10 ),
+                        thread_title: post_link.text()
+                    } : {}
+                );
+            }).get();
 
             var interesting_user_notes = ret.user_note_count - infractions.length;
             if ( interesting_user_notes > 0 ) {
@@ -3264,6 +3338,51 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
 }
 
+
+/**
+ * @summary Get posts for a user
+ * @param {Number}  user_id       ID of user to get posts for
+ * @param {Boolean} get_all_pages whether to download results on pages after the first
+ * @return {jQuery.Promise}
+ */
+VBulletin.prototype.user_posts = function(user_id, get_all_pages) {
+    var bb = this;
+    function get_page(html, status, jqXHR) {
+        var parse_date = bb.date_parser( html, jqXHR );
+        return $(html).find('#searchbits > li').map(function() {
+            return {
+                date: parse_date( $('.postdate', this).text() ),
+
+                username:           $('.username_container > a', this).text(),
+                user_id : parseInt( $('.username_container > a', this).attr('href').split('?u=')[1], 10 ),
+
+                post_id  : parseInt( this.id.substr(5), 10 ),
+                thread_id: parseInt( $('h2 a', this).attr('href').split('?t=')[1], 10 ),
+                thread_title: $('h2 a', this).text(),
+
+                message: $.trim( $('blockquote', this).text() )
+            };
+        }).get();
+    }
+    return bb.get( '/search.php?do=finduser&amp;userid=' + user_id + '&amp;contenttype=vBForum_Post&amp;showposts=1&amp;pp=' + bb.default_reply_count ).then(
+        get_all_pages ? function(html, status, jqXHR) {
+            var match = /var RELPATH = "([^"]*)";[^]*&lt;a href="javascript:\/\/" class="popupctrl">Page 1 of ([0-9]*)/.exec(html);
+            if ( match ) {
+                var ret = [ get_page( html, status, jqXHR ) ], requests = [];
+                for ( var n=1; n!= match[2]; ++n )
+                    (function(n) {
+                        requests.push(
+                            bb.get( match[1] + '&amp;pp=' + bb.default_reply_count + '&amp;page=' + (n+1) ).then(function(html, status, jqXHR) { ret[n] = get_page(html, status, jqXHR ) })
+                        );
+                    })(n);
+                return $.when.apply( $, requests ).then(function() { return [].concat.apply( [], ret ) });
+            } else {
+                return get_page( html, status, jqXHR );
+            }
+        } : get_page
+    );
+}
+
 /**
  * @summary Get user's signature user from ModCP
  * @param {Number} user_id ID of user to get signature for
@@ -3302,7 +3421,7 @@ VBulletin.prototype.user_signature_set = function(user_id, signature) {
  */
 VBulletin.prototype.users_list_new = function() {
 
-    return this.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=100' ).then(function(html) {
+    return this.get( '/memberlist.php?order=desc&amp;sort=joindate&amp;pp=' + this.default_reply_count ).then(function(html) {
         return $(html).find('#memberlist_table tr:not(.columnsort) a.username').map(function() {
             var $this = $(this);
             return {
@@ -3444,8 +3563,8 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
 
     return bb.get(
         recent
-        ? '/forumdisplay.php?pp=200&amp;sort=lastpost&amp;order=desc&amp;daysprune=1&amp;f=' + forum_id
-        : '/forumdisplay.php?pp=200&amp;sort=lastpost&amp;order=desc&amp;daysprune=-1&amp;f=' + forum_id
+        ? '/forumdisplay.php?pp=' + bb.default_reply_count + '&amp;sort=lastpost&amp;order=desc&amp;daysprune=1&amp;f=' + forum_id
+        : '/forumdisplay.php?pp=' + bb.default_reply_count + '&amp;sort=lastpost&amp;order=desc&amp;daysprune=-1&amp;f=' + forum_id
     ).then(function(html) {
 
         var is_moderator = html.search( '&lt;script type="text/javascript" src="clientscript/vbulletin_inlinemod.js?' ) != -1;
@@ -3540,7 +3659,7 @@ VBulletin.prototype.activity = function(min_date, min_post_id) {
             mindateline: Math.max( min_date, Math.floor( new Date().getTime()/1000 - 60*60 ) ),
             minid      : min_post_id || 1,
             minscore   : 0,
-            pp         : 200,
+            pp         : this.default_reply_count,
             show       : 'all',
             sortby     : 'recent',
             time       : 'anytime'
@@ -4003,6 +4122,56 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
         $('blockquote').text( 'Redirecting...' );
     });
 }
+
+/**
+ * @summary build a function to parse dates on a page
+ * @param {string} html  page contents
+ * @param {jqXHR}  jqXHR page XMLHttpRequest (to get the unambiguous server date)
+ * @return {Date} date
+ * @description VBulletin often returns dates relative to "now", which depends on
+ * time zones, server error etc.  To reliably parse dates, we need to get the server
+ * time from the HTTP headers.
+ */
+VBulletin.prototype.date_parser = function( html, jqXHR ) {
+
+    var timezone = 0;
+    html.replace( /&lt;div id="footer_time" class="shade footer_time">All times are GMT ([-+])([0-9]+)/, function( match, plusminus, amount ) {
+        timezone = parseInt( amount, 10 ) * 1000*60*60;
+        if ( plusminus == '-' ) timezone *= -1;
+    });
+
+    var today = new Date( jqXHR.getResponseHeader('Date') ).getTime() - timezone;
+    today = today - ( today % (1000*60*60*24) ) - timezone;
+
+    return function(time) {
+        var ret = null;
+
+        // dates of the form "Today, 12:34PM", "Today 12:34 PM" etc.:
+        time.replace( /^\s*([^, ]+?),?\s*([0-9]+):([0-9]+)\s*([AP])M/, function( match, date, hour, minute, ap ) {
+            switch ( date ) {
+            case 'Today'    : ret = today                ; break;
+            case 'Yesterday': ret = today - 1000*60*60*24; break;
+            default:
+                ret = new Date( date.split('/').reverse().join('-') ).getTime() - timezone;
+            }
+            ret = new Date( ret + ( parseInt( hour, 10 ) * 60 + (ap=='P' ? 12*60 : 0) + parseInt( minute, 10 ) ) * 60000 );
+        });
+        if ( ret ) return ret;
+
+        // Dates of the form "Today":
+        time.replace( /\b(?:Today|Yesterday|([0-9][0-9])\/([0-9][0-9])\/([0-9][0-9][0-9][0-9]))\b/, function( date, day, month, year ) {
+            switch ( date ) {
+            case 'Today'    : ret = today                ; return;
+            case 'Yesterday': ret = today - 1000*60*60*24; return;
+            default:
+                ret = new Date( [ year, month, day ].join('-') ).getTime() - timezone;
+            }
+            ret = new Date( ret );
+        });
+        return ret;
+    }
+
+}
 </code></pre>
         </article>
     </section>
@@ -4015,7 +4184,7 @@ VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 31 May 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 07 June 2015
         </footer>
     </div>
 </div>
