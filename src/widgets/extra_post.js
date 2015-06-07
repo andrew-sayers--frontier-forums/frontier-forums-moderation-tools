@@ -71,14 +71,14 @@ function ExtraPost( args ) {
         }
     );
 
-    this.value = {
+    $.extend(this.value, {
         visible        : null,
         checked        : null,
         text           : null,
         thread_id      : null,
         thread_desc    : null,
         keys           : null
-    };
+    });
 
     this.val(args);
 
