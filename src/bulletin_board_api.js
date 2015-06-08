@@ -2075,8 +2075,8 @@ VBulletin.prototype.user_info = function(user_id) {
                     {
                         type    : ( $('.inlineimg', this).attr('src').search( 'redcard' ) == -1 ) ? 'warning' : 'infraction',
                         reason  : $( '.infraction_reason em', this ).text(),
-                        user_id : $( '.postby a', this ).text(),
-                        username: parseInt( $( '.postby a', this ).attr( 'href' ).split( '?u=' )[1], 10 ),
+                        user_id : parseInt( $( '.postby a', this ).attr( 'href' ).split( '?u=' )[1], 10 ),
+                        username:           $( '.postby a', this ).text(),
                         points  : parseInt( $.trim($( '.inflistpoints', this ).text()), 10 ),
                         start_date: start_date
                     },
