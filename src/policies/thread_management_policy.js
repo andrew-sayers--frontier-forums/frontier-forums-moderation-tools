@@ -740,7 +740,7 @@ function ThreadManagementPolicy(args) {
         title_widget.val(original.title);
 
         if        ( policy.check( [ 'new thread id' ].concat(variable_suffix) ) ) {
-            status_widget.val( 'merged' );
+            status_widget.val( 'merged' ).change();
             title_widget.val({
                 target_thread_id: parseInt( policy.resolve([ 'new thread id' ].concat(variable_suffix)).toLowerCase(), 10 )
             });
@@ -750,13 +750,13 @@ function ThreadManagementPolicy(args) {
                 .prop( 'selected', false )
                 .filter(function() { return $(this).data('deadline') == deadline })
                 .prop( 'selected', true )
+                .change()
             ;
         } else if ( policy.check( [ 'new status' ].concat(variable_suffix) ) ) {
-            status_widget.val( policy.resolve([ 'new status' ].concat(variable_suffix)).toLowerCase() );
+            status_widget.val( policy.resolve([ 'new status' ].concat(variable_suffix)).toLowerCase() ).change();
         } else {
-            status_widget.val( original.status );
+            status_widget.val( original.status ).change();
         }
-        status_widget.change();
 
         if ( policy.check( [ 'new thread title' ].concat(variable_suffix) ) ) {
             title_widget.val({
