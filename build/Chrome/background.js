@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener(
 				var xhr = new XMLHttpRequest();
 				xhr.open(request.method, request.url, true, request.user, request.password);
 				if (request.method === "POST") {
-					xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 					// xhr.setRequestHeader("Content-length", request.data.length);
 					// xhr.setRequestHeader("Connection", "close");
 				}
