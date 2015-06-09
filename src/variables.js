@@ -130,7 +130,7 @@ Variables.prototype.get = function( namespace, names, forum_id, thread_id ) {
         names = names.slice(1);
     }
 
-    target_namespace = namespace + ': ' + this.get_language( thread_id, forum_id );
+    var target_namespace = namespace + ': ' + this.get_language( thread_id, forum_id );
 
     // STEP TWO: get the best matching variable given the target language
     var text = null, old_match_quality = 0, matching_namespaces = [];
