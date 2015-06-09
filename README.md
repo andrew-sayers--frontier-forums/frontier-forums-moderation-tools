@@ -118,6 +118,8 @@ This automatically fixes broken hard links and updates `BabelExt.resources` ever
 
 - You're good to go! If you just want to try out the BabelExt kitchen sink demo, navigate to [http://babelext.com/demo/](http://babelext.com/demo/)
 
+- To make console.log work as expected in your extension code, go to about:config and create a new setting "extensions.sdk.console.logLevel" with value "info" (see [MDN's log level documentation](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#Logging_Levels))
+
 - Further Firefox development information: [Add-on SDK](https://addons.mozilla.org/en-US/developers/docs/sdk/latest/) and [setting up an extension development environment](https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment)
 
 ### Safari ###
