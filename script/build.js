@@ -399,6 +399,7 @@ function build_resources() {
         build_time: new Date().toString()
     }) + ";\n";
     var xhr_regexp = "BabelExt._xhr_regexp = new RegExp('" + ( settings.xhr_regexp || '(?!)' ) + "');\n";
+    var xhr_escape = "BabelExt._xhr_escape = " + (!!settings.xhr_escape) + ";\n";
 
     if ( settings.resources ) {
         var resources = {};
@@ -409,11 +410,11 @@ function build_resources() {
             'lib/BabelExtResources.js', "BabelExt.resources._resources = " +
                 // prettify our JavaScript a bit, for the benefit of reviewers:
                 JSON.stringify(resources, null, ' ').replace( /\\n(?!")/g, "\\n\" +\n    \"" ) + ";\n" +
-                about + xhr_regexp,
+                about + xhr_regexp + xhr_escape,
             'w'
         );
     } else {
-        fs.write( 'lib/BabelExtResources.js', about + xhr_regexp, 'w' );
+        fs.write( 'lib/BabelExtResources.js', about + xhr_regexp + xhr_escape, 'w' );
     }
 }
 

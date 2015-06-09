@@ -53,6 +53,13 @@
         "http://www.w3.org/*"
     ],
 
+    /*
+     * browsers are supposed to escape Unicode characters one byte at a time (%AB%CD%EF),
+     * but in practice some websites only support the old, deprecated "%u1234".
+     * This forces cross-site requests to use the old encoding:
+     */
+    "xhr_escape": true,
+
     "maintenanceInterval": 5 * 1000, // the 'maintain' command will pause for this long between updates
 
     "environment_specific": {
