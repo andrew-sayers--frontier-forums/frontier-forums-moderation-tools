@@ -72,7 +72,7 @@ pageMod.PageMod({
 				var xhr = new XMLHttpRequest();
 				xhr.open(request.method, request.url, true, request.user, request.password);
 				if (request.method === "POST") {
-					xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
 				}
 				Object.keys(request.headers).forEach(function(header) { xhr.setRequestHeader(header, request.headers[header]) });
 				if ( typeof(request.overrideMimeType) != 'undefined' ) xhr.overrideMimeType = request.overrideMimeType;

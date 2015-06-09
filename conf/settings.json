@@ -133,7 +133,7 @@
     "match_secure_domain": true,
 
     "xhr_patterns": [
-        // allowed URL patterns for cross-site/mixed content XMLHttpRequests
+        // whitelisted URL patterns for cross-site/mixed content XMLHttpRequests
         // See https://developer.chrome.com/extensions/match_patterns
         "http://altairvista.com:1234/*",
         "http://frontiermods.replayirc.com:443/*",
@@ -141,6 +141,13 @@
         "https://forumstest.frontier.co.uk./*",
         "http://api.stopforumspam.org/*"
     ],
+
+    /*
+     * browsers are supposed to escape Unicode characters one byte at a time (%AB%CD%EF),
+     * but in practice some websites only support the old, deprecated "%u1234".
+     * This forces cross-site requests to use the old encoding:
+     */
+    "xhr_escape": true,
 
     "maintenanceInterval": 5 * 1000, // the 'maintain' command will pause for this long between updates
 
