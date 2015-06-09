@@ -120,6 +120,8 @@ This automatically fixes broken hard links and updates `BabelExt.resources` ever
 
 - To make console.log work as expected in your extension code, go to about:config and create a new setting "extensions.sdk.console.logLevel" with value "info" (see [MDN's log level documentation](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#Logging_Levels))
 
+- To debug cross-site requests created using BabelExt.XMLHttpRequest, use the [Browser Toolbox](https://developer.mozilla.org/en-US/docs/Tools/Browser_Toolbox)'s debugger.  This extension is restartless so most requests should appear in Firebug and the developer console, but cross-site requests use a lower-level technique that can only be accessed with the debugger.
+
 - Further Firefox development information: [Add-on SDK](https://addons.mozilla.org/en-US/developers/docs/sdk/latest/) and [setting up an extension development environment](https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment)
 
 ### Safari ###
