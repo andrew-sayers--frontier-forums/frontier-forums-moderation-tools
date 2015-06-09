@@ -48,7 +48,7 @@
     "match_secure_domain": true,
 
     "xhr_patterns": [
-        // allowed URL patterns for cross-site/mixed content XMLHttpRequests
+        // whitelisted URL patterns for cross-site/mixed content XMLHttpRequests
         // See https://developer.chrome.com/extensions/match_patterns
         "http://www.w3.org/*"
     ],
