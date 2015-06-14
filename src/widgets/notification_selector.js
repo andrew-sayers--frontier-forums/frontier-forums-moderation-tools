@@ -177,6 +177,14 @@ function NotificationSelector( args ) {
         keys     : null,
     });
 
+    args.bb.user_moderation_info(args.user.user_id).then(function(info) {
+        if ( info.pm_notification.receive ) {
+            if ( !info.pm_notification.notified )
+                notification.element.find('.pm-warning').addClass('warning');
+        } else
+            notification.element.find('.pm-warning').addClass('error');
+    });
+
     this.button = $('<input class="notification-text-button" type="button">')
         .val( notification.element.hasClass('preview') ? 'switch to edit mode' : 'switch to preview mode' )
         .on( 'click', function() {
