@@ -449,6 +449,80 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page, skip_ima
 }
 
 /**
+ * @summary get information about the specified account and suspected duplicate accounts
+ * @param {Number} user_id user ID
+ * @return {jQuery.Promise} promise
+ * @example
+ * bb.get_duplicates(1234)
+ *     .progress( completed, total )
+ *     .then(function(user) {
+ *         console.log( user.suspiciousness, user.suspected_duplicates ); // see user_moderation_info() for details on users
+ *     });
+ */
+BulletinBoard.prototype.user_duplicates = function(user_id) {
+
+    var bb = this, dfd = $.Deferred();
+
+    $.when(
+        bb.user_info           (           user_id  ),
+        bb.user_moderation_info(           user_id  ),
+        bb.user_overlapping    ({ user_id: user_id })
+    ).then(function(info, mod_info, users) {
+
+        if ( !mod_info ) {
+            dfd.resolve();
+            return;
+        }
+
+        var completed_promises = 0;
+
+        var promises = users.map(function(user) {
+            return bb.user_info(user.user_id).then(function(info) {
+                dfd.notify( ++completed_promises, users.length*2 );
+                user.suspiciousness = (
+                    ( info.is_banned        && 8 ) | // same IP as a currently-banned user - DODGEY!
+                    ( info.infraction_count && 4 ) | // same IP as an infracted user - probably dodgey
+                    ( info.   warning_count && 2 ) | // same IP as a user with a warning - might well be dodgey
+                    1     // same IP as another user - could be dodgey
+                );
+                user.info = info;
+            });
+        }).concat(
+            users.map(function(user) {
+                return bb.user_moderation_info(user.user_id).then(function(info) {
+                    dfd.notify( ++completed_promises, users.length*2 );
+                    user.moderation_info = info;
+                });
+            })
+        );
+
+        return $.when.apply( $, promises ).then(function() {
+            var user_info = {
+                           info:     info,
+                moderation_info: mod_info,
+
+                user_id : mod_info.user_id,
+                username: mod_info.username,
+                email   : mod_info.email
+            };
+            if ( users.length ) {
+                users.sort(function(a,b) { return b.suspiciousness - a.suspiciousness || a.username.localeCompare(b.username) });
+                user_info.suspiciousness = users[0].suspiciousness;
+            } else {
+                user_info.suspiciousness = 0;
+            }
+            user_info.suspected_duplicates = users;
+            dfd.resolve( user_info );
+        });
+
+    });
+
+    return dfd.promise();
+
+}
+
+
+/**
  * @summary Escape an object in a way that's safe to put in a forum post
  * @param {string}   name   object name
  * @param {Object}   object object to stringify
