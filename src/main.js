@@ -1576,6 +1576,40 @@ function handle_member_page( bb, loading_html ) { BabelExt.utils.dispatch(
     }
 )}
 
+function handle_pm_page( bb, v ) { BabelExt.utils.dispatch(
+    {
+        match_pathname: '/private.php',
+        match_params: {
+            do: [ 'newpm' ] // 'insertpm' would be harder to support, and arguably not a good idea anyway
+        },
+        callback: function(stash, pathname, params) {
+
+            function add_warning( className, message, title ) {
+                $(function() {
+                    $("head").append(
+                        "<style type='text/css'>" +
+                            v.parse( BabelExt.resources.get('res/main.css'), bb.css_keys() ) +
+                            "</style>"
+                    );
+                    $('<div class="pm-warning ' + className + '"><div class="' + className + '"></div></div>')
+                        .insertAfter('#pmrecips')
+                        .children().text( message ).attr( 'title', title );
+                });
+            }
+
+            bb.user_moderation_info(params.u).then(function(info) {
+                if ( info.pm_notification.receive ) {
+                    if ( !info.pm_notification.notified )
+                        add_warning( 'warning', info.username + ' has disabled PM notifications', 'This user will receive PMs, but will not be notified so probably won\'t notice' );
+                } else
+                    add_warning( 'error', info.username + ' cannot receive PMs', 'Attempts to send PMs to this user will fail' );
+            });
+
+        }
+    }
+)}
+
+
 /*
  * MAIN BLOCK (not run in iFrames)
  */
@@ -1761,6 +1795,7 @@ if (window.location == window.parent.location ) {
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();
                     handle_member_page          ( bb, loading_html );
+                    handle_pm_page              ( bb, v );
                     handle_thread_management    ( bb, mod_team_bb, v, mc, ss, loading_html );
                     handle_merge_log            ( bb, mod_team_bb, v );
                     handle_thread_form          ( bb, v, handle_error );

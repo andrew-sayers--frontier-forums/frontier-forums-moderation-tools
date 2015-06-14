@@ -364,3 +364,23 @@ a.dashboard-refresh {
     min-width: 16px;
     text-align: center;
 }
+
+.pm-warning .warning,
+.pm-warning .error {
+    display: none;
+    clear: both;
+    float: none;
+    margin: 0.5em;
+    padding: 0.5em 0.5em 0.5em 22px;
+    background: #a00 no-repeat scroll 4px center;
+}
+
+.pm-warning.warning .warning {
+    display: inline-block;
+    background-color: #ee8;
+}
+
+.pm-warning.error .error {
+    display: inline-block;
+    color: white;
+}

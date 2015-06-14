@@ -10,3 +10,10 @@
 
 .dashboard-newbies            a.collapse { background-image: url("images.{{theme}}/buttons/collapse_40b.png")           }
 .dashboard-newbies .collapsed a.collapse { background-image: url("images.{{theme}}/buttons/collapse_40b_collapsed.png") }
+
+
+.pm-warning.error .error,
+.pm-warning.warning .warning {
+    /* not dynamic, just goes here so the url() is relative to the page instead of the extension */
+    background-image: url("images/icons/vbposticons/icon4.gif");
+}
