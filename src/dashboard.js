@@ -360,59 +360,22 @@ Dashboard.prototype.newbies_refresh = function(bb, container) {
     var user_count = 0;
 
     // get a new user account (called recursively until the time limit is reached):
-    function get_user(user_info, users) {
-
+    function get_user(user_info) {
         if ( user_info ) {
-            ++user_count;
-
-            return $.when.apply( $, // get user info about suspected duplicate accounts
-                users.map(function(user) {
-                    return bb.user_info(user.user_id).then(function(info) {
-                        user.suspiciousness = (
-                            ( info.is_banned        && 8 ) | // same IP as a currently-banned user - DODGEY!
-                            ( info.infraction_count && 4 ) | // same IP as an infracted user - probably dodgey
-                            ( info.   warning_count && 2 ) | // same IP as a user with a warning - might well be dodgey
-                                                       1     // same IP as another user - could be dodgey
-                        );
-                        user.info = info;
-                    });
-                }).concat(
-                    users.map(function(user) {
-                        return bb.user_moderation_info(user.user_id).then(function(info) {
-                            user.moderation_info = info;
-                        });
-                    })
-                )
-            ).then(function() {
-                if ( users.length ) {
-                    users.sort(function(a,b) { return b.suspiciousness - a.suspiciousness || a.username.localeCompare(b.username) });
-                    user_info.suspiciousness = users[0].suspiciousness;
-                } else {
-                    user_info.suspiciousness = 0;
-                }
-
-                user_info.suspected_duplicates = users;
-                ++dashboard.cache['newbies-next'];
-                current_users.push(user_info);
-                dashboard.update_cache();
-
-                if ( new Date().getTime() < end_time ) {
-                    // get another account
-                    return $.when(
-                        bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
-                        bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
-                    ).then(get_user);
-                }
-            });
-
+            ++dashboard.cache['newbies-next'];
+            current_users.push(user_info);
+            dashboard.update_cache();
+            if ( new Date().getTime() < end_time ) // get another account
+                return bb.user_duplicates(dashboard.cache['newbies-next']).then(get_user)
         }
-
-    };
+    }
 
     function get_newbies(user_id) {
 
         if ( dashboard.cache['newbies-next'] < user_id )
             dashboard.cache['newbies-next'] = user_id;
+
+        // dashboard.cache['newbies-next'] = 90000; // uncomment this to force some newbies to be checked
 
         current_users = current_users.filter(function(user) {
             if ( user.user_id >= user_id ) return true
@@ -420,10 +383,7 @@ Dashboard.prototype.newbies_refresh = function(bb, container) {
             return false;
         });
 
-        return $.when(
-            bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
-            bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
-        ).then(get_user).then(function() {
+        return bb.user_duplicates(dashboard.cache['newbies-next']).then(get_user).then(function() {
 
             // If the section has already been initialised and there are no new users, return unchanged:
             if ( container.data( 'signature' ) && !user_count ) return;
