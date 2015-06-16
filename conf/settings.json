@@ -67,6 +67,7 @@
         "src/widgets/vbulletin_popup_menu.js",
         "src/widgets/deadline.js",
         "src/widgets/thread_title_selector.js",
+        "src/widgets/collapse.js",
         "src/widgets/help.js",
 
         /* Basic functionality */
@@ -99,6 +100,7 @@
          "src/widgets/notification_selector.css",
          "src/widgets/duplicate_account_list.css",
          "src/widgets/thread_title_selector.css",
+         "src/widgets/collapse.css",
 
          /* User-visible functionality */
          "src/main.css"
@@ -122,6 +124,8 @@
         "res/widgets/duplicate_account_list.html",
         "res/widgets/vbulletin_popup_menu.html",
         "res/widgets/thread_title_selector.html",
+        "res/widgets/collapse.html",
+        "res/widgets/collapse.css",
         "res/widgets/help.html",
         "res/widgets/help.css",
 

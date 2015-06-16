@@ -1,0 +1,2 @@
+.mod-friend-collapse                      { background-image: url("images.{{theme}}/buttons/collapse_40b.png")           }
+.mod-friend-collapse.mod-friend-collapsed { background-image: url("images.{{theme}}/buttons/collapse_40b_collapsed.png") }
