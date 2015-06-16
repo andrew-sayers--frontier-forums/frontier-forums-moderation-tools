@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: ThreadTitleSelector</title>
+    <title>Source: src/widgets/help.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -1096,558 +1096,64 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="ThreadTitleSelector.html">Class: ThreadTitleSelector</h1>
+        <h1 class="page-title" data-filename="src_widgets_help.js.html">Source: src/widgets/help.js</h1>
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>/**
+ * @file Help icon
+ * @author Andrew Sayers
+ * @summary Help icon
+ */
+
+/**
+ * @summary Help icon
+ * @constructor
+ * @extends Widget
+ * @param {Object} args widget arguments
+ * @example
+ *
+ * var collapse = new Help({
+ *     bb: bb,
+ *     v : v,
+ *     thread_id: 1234, // clicking the icon will go here
+ * });
+ *
+ */
+function Help( args ) {
+
+    Widget.call( this, args, 'help' );
+
+    this.bb = args.bb;
+
+    if ( !Help.css_added ) {
+        Help.css_added = true;
+        $("head").append(
+            "&lt;style type='text/css'>" +
+                args.v.parse( BabelExt.resources.get('res/widgets/help.css'), args.bb.css_keys() ) +
+            "&lt;/style>"
+        );
+    }
+
+    this.val( args.thread_id );
+
+}
+
+Help.prototype = Object.create(Widget, {
+    bb: { writable: true, configurable: false }
+});
+Help.prototype.constructor = Help;
+
+Help.prototype.val = function( thread_id ) {
+    this.element.attr( 'href', this.bb.url_for.thread_show({ thread_id: thread_id }) );
+}
+</code></pre>
+        </article>
+    </section>
 
-
-
-
-<section>
-
-<header>
-    <h2>
-    ThreadTitleSelector
-    </h2>
-
-</header>
-
-<article>
-    <div class="container-overview">
-
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="ThreadTitleSelector">
-
-            new ThreadTitleSelector<span class="signature">(args)</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_widgets_thread_title_selector.js.html">src/widgets/thread_title_selector.js</a>, <a href="src_widgets_thread_title_selector.js.html#line29">line 29</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">Select a thread title</p>
-
-</dt>
-<dd>
-
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>args</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                widget arguments</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h5>Example</h5>
-
-
-
-    <pre class="prettyprint"><code>var selector = new ThreadTitleSelector({
-    target_thread_id  : 1234, // initial target thread ID
-    target_forum_id   : 12, // initial target forum ID
-    target_thread_desc: 'initial target name',
-    mode              : 'edit', // or 'merge' to pick a merge target by title
-
-    thread_id  : 2345, // current thread ID
-    forum_id   : 23, // current forum ID
-    bb         : bb, // BulletinBoard object
-    ss         : ss, // SharedStore object
-    callback   : function(keys) { ... }, // called with the current data
-    container  : notification_appended_to_this,
-});</code></pre>
-
-
-
-</dd>
-
-
-    </div>
-
-
-        <h3 class="subsection-title">Extends</h3>
-
-        <ul>
-            <li><a href="Widget.html">Widget</a></li>
-        </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="check">
-
-            check<span class="signature">(thread_id)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_widgets_thread_title_selector.js.html">src/widgets/thread_title_selector.js</a>, <a href="src_widgets_thread_title_selector.js.html#line231">line 231</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">check whether the specified thread is a valid merge target</p>
-
-</dt>
-<dd>
-
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>thread_id</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Number</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                thread to check</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Returns:</h5>
-
-
-
-<table class="params">
-    <thead>
-    <tr>
-
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-
-            <td class="type">
-
-                        jQuery.Promise
-
-
-            </td>
-            <td class="description last"></td>
-        </tr>
-
-    </tbody>
-</table>
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="focus">
-
-            focus<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_widgets_thread_title_selector.js.html">src/widgets/thread_title_selector.js</a>, <a href="src_widgets_thread_title_selector.js.html#line253">line 253</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">Give focus to this widget</p>
-
-</dt>
-<dd>
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="val">
-
-            val<span class="signature">(value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_widgets_thread_title_selector.js.html">src/widgets/thread_title_selector.js</a>, <a href="src_widgets_thread_title_selector.js.html#line270">line 270</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">Get/set widget's value</p>
-
-</dt>
-<dd>
-
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>value</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                new value</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Returns:</h5>
-
-
-
-<table class="params">
-    <thead>
-    <tr>
-
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-
-            <td class="type">
-
-                        Object
-
-
-            </td>
-            <td class="description last">(new) value</td>
-        </tr>
-
-    </tbody>
-</table>
-
-
-
-
-        <h5>Example</h5>
-
-
-
-    <pre class="prettyprint"><code>widget.val({
-    mode: 'merge', // or 'edit'
-    target_thread_id  : 1234,
-    target_thread_desc: 1234,
-});</code></pre>
-
-
-
-</dd>
-
-        </dl>
-
-
-
-
-
-</article>
-
-</section>
 
 
 
@@ -1656,7 +1162,7 @@
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 16 June 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 16 June 2015
         </footer>
     </div>
 </div>

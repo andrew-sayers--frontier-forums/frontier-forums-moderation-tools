@@ -382,6 +382,29 @@
             </ul>
         </li>
 
+        <li class="item" data-name="Help">
+            <span class="title">
+                <a href="Help.html">Help</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Help#val"><a href="Help.html#val">val</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
         <li class="item" data-name="InappropriateUsernamePolicy">
             <span class="title">
                 <a href="InappropriateUsernamePolicy.html">InappropriateUsernamePolicy</a>
@@ -3300,22 +3323,22 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
             pm_notification: (
                 bb._config['unPMable user groups'].filter(function(group) { return group == primary_group }).length
-                ?             null                  // new users cannot receive messages
+                ?             { receive: false }                  // new users cannot receive messages
                 : (
                     ( html.find('input[id^="rb_1_options\\[receivepm\\]"]').is(':checked') ) // receive PMs
                     ? (
                         ( html.find('input[id^="rb_1_options\\[emailonpm\\]"]').is(':checked') // notification e-mail
                         ? (
                             ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
-                            ? [ 'popup', 'e-mail' ] // will receive a popup and an e-mail
-                            : [          'e-mail' ] // will receive an e-mail
+                            ? { receive: true, notified: true , popup: true , email: true } // will receive a popup and an e-mail
+                            : { receive: true, notified: true , popup: false, email: true } // will receive an e-mail
                         )
                         : ( html.find('input[id^="rb_1_user\\[pmpopup\\]"]').is(':checked') ) // notification popup
-                            ? [ 'popup'           ] // will receive a popup
-                            : [                   ] // will receive messages, but won't receive notification
+                            ? { receive: true, notified: true , popup: true , email: false } // will receive a popup
+                            : { receive: true, notified: false, popup: false, email: false } // will receive messages, but won't receive notification
                         )
                     )
-                    :         null                  // cannot receive messages
+                    :         { receive: false }                  // cannot receive messages
                 )
             )
         };
@@ -3890,7 +3913,9 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 
 /**
  * @summary log in to the site
- * @param {jQuery} iframe iframe element to use
+ * @param {jQuery} iframe       iframe element to use
+ * @param {String} default_user account to log in as
+ * @param {String} hint         hint to show the user
  * @param {jQuery.Promise}
  *
  * @description
@@ -3900,7 +3925,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
  * (this could be done automatically when logging in to the current site,
  * but not when logging in to another domain)
  */
-VBulletin.prototype.login = function( iframe, default_user ) {
+VBulletin.prototype.login = function( iframe, default_user, hint ) {
 
     var dfd = $.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
@@ -3928,6 +3953,11 @@ VBulletin.prototype.login = function( iframe, default_user ) {
                     setTimeout(function() {
                         // Firefox will silently refuse to reply unless we wait a little while
                         event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+                    }, 10 );
+                } else if ( event.data == 'BulletinBoard VBulletin get hint' ) {
+                    setTimeout(function() {
+                        // Firefox will silently refuse to reply unless we wait a little while
+                        event.source.postMessage( 'BulletinBoard VBulletin hint ' + (hint||''), event.origin );
                     }, 10 );
                 } else if ( event.data == 'BulletinBoard VBulletin show' ) {
                     dfd.notify('show');
@@ -4030,8 +4060,12 @@ VBulletin.iframe_callbacks = function(target_origin, cookie_domains) {
                                     window.parent.postMessage( 'BulletinBoard VBulletin show', target_origin );
                             }, 50 );
                         });
+                        event.data.replace( /^BulletinBoard VBulletin hint (.*)/, function(match, hint) {
+                            $(hint).insertAfter('#navbar_password');
+                        });
                     }, false);
                     window.parent.postMessage( 'BulletinBoard VBulletin get default user', target_origin );
+                    window.parent.postMessage( 'BulletinBoard VBulletin get hint', target_origin );
                     $(document.body)
                         .css({ overflow: 'hidden' }).html( $('#navbar_loginform')[0].outerHTML )
                         .children().css({ 'text-align': 'center', 'width': '450px' });
@@ -4184,7 +4218,7 @@ VBulletin.prototype.date_parser = function( html, jqXHR ) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 10 June 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 16 June 2015
         </footer>
     </div>
 </div>
