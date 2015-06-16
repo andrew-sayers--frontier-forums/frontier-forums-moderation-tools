@@ -635,6 +635,8 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
 
                 element = $( BabelExt.resources.get('res/thread management.html') ).appendTo(document.body).hide();
 
+                new Help({ bb: bb, v: v, insertBefore: element.find('iframe').first(), thread_id: 157501 });
+
                 // Fire the root action:
                 element.find('input[type="submit"]').click(function() {
                     var button = $(this);
