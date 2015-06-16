@@ -9,6 +9,7 @@
 
 .duplicate-account-list td.email-user  , .duplicate-account-list td.at { padding-right: 0 }
 .duplicate-account-list td.email-domain, .duplicate-account-list td.at { padding-left : 0 }
+.duplicate-account-list td.email-user  , .duplicate-account-list td.at, .duplicate-account-list td.email-domain { vertical-align: top }
 
 .duplicate-account-list tr.dupe-unknown > td:not(.primary):not(.main):not(.dupe-unknown),
 .duplicate-account-list tr.dupe-loading > td:not(.primary):not(.main):not(.dupe-loading),
