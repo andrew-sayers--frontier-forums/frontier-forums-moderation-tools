@@ -130,6 +130,7 @@
         "res/widgets/help.css",
 
         "res/thread management.html",
+        "res/member-tabs/dupe.html",
 
         "res/error_box.html",
         "res/variables_thread_post.html"

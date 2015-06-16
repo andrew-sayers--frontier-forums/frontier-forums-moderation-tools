@@ -40,6 +40,7 @@ ol.dashboard-body {
     clear: both;
 }
 
+#view-dupe-content textarea,
 .dashboard-newbies textarea {
     width: 100%;
     height: 20em;
@@ -58,7 +59,7 @@ ol.dashboard-body {
     vertical-align: top;
 }
 
-.dashboard-newbies a.collapse {
+.dashboard-newbies > div > h4 > a.collapse {
     width: 13px;
     height: 13px;
     display: inline-block;
@@ -67,22 +68,27 @@ ol.dashboard-body {
     /* background-image: see res/main.css */
 }
 
+.dupe-actions      .posthead, #view-dupe-content .dupes, .dupe-actions      .notification,
 .dashboard-newbies .posthead, .dashboard-newbies .dupes, .dashboard-newbies .notification {
     clear: both;
     margin-bottom: 1em
 }
 
+#view-dupe-content .dupes table td,
+#view-dupe-content .dupes table th,
 .dashboard-newbies .dupes table td,
 .dashboard-newbies .dupes table th {
     border: none;
 }
 
+#view-dupe-content .issues,
 .dashboard-newbies .issues {
     float: right;
     display: inline-block;
     margin-right: 1em;
 }
 
+#view-dupe-content fieldset,
 .dashboard-newbies fieldset,
 .mod-friend-thread-management fieldset {
     clear: both;
@@ -91,6 +97,7 @@ ol.dashboard-body {
     /* border-color: see res/main.css */
     padding: 1em;
 }
+#view-dupe-content legend,
 .dashboard-newbies legend, #dashboard-newbies h1,
 .mod-friend-thread-management legend {
     /* color: see res/main.css */
@@ -99,6 +106,7 @@ ol.dashboard-body {
     margin-bottom: 0.25em
 }
 
+#view-dupe-content .notification-text-button,
 .dashboard-newbies .notification-text-button,
 .mod-friend-thread-management .button {
     float: right;
@@ -320,6 +328,7 @@ a.dashboard-refresh {
     margin-bottom: 0.5em;
 }
 
+#view-dupe-content .submit input,
 .mod-friend-unmerge input,
 .mod-friend-variables-upload-form input.cancel {
     float: right;
@@ -383,4 +392,22 @@ a.dashboard-refresh {
 .pm-warning.error .error {
     display: inline-block;
     color: white;
+}
+
+#view-dupe-content {
+    border: none;
+}
+
+#view-dupe-content:not(.loading) > .mod-friend-progressing:not(.submit),
+#view-dupe-content.loading > *:not(.mod-friend-progressing) {
+    display: none
+}
+
+#view-dupe-content.loading .mod-friend-progress {
+    width: 100%;
+}
+
+#view-dupe-content th {
+    font-weight: bold;
+    text-align: center;
 }

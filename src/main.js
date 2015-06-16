@@ -406,6 +406,7 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
 
                         /*
                          * Initialise the duplicate account block
+                         * NOTE: this is very similar to the equivalent block on the member page.  They might need to be merged, depending how they evolve
                          */
 
                         var user = block.data('user');
@@ -458,6 +459,7 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
                         ? root_action.fire_with_journal(
                             bb,
                             {
+                                context      : 'associated',
                                 'min user id': min_user_id,
                                 'max user id': max_user_id,
                                 'summary'    :
@@ -799,9 +801,9 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
 
 /**
  * @summary Handle the merge log
- * @param {BulletinBoard}      bb          Bulletin Board to manipulate
- * @param {BulletinBoard}      mod_team_bb Bulletin Board to manipulate
- * @param {Variables}          v           Variables to use
+ * @param {BulletinBoard} bb          Bulletin Board to manipulate
+ * @param {BulletinBoard} mod_team_bb Bulletin Board to manipulate
+ * @param {Variables}     v           Variables to use
  */
 function handle_merge_log( bb, mod_team_bb, v ) { BabelExt.utils.dispatch(
     {
@@ -873,8 +875,8 @@ function handle_merge_log( bb, mod_team_bb, v ) { BabelExt.utils.dispatch(
 
 /**
  * @summary Handle variables threads/forums
- * @param {BulletinBoard} bb Bulletin Board to manipulate
- * @param {Variables}     v  Variables to use
+ * @param {BulletinBoard} bb          Bulletin Board to manipulate
+ * @param {Variables}     v           Variables to use
  */
 function handle_variables( bb, v ) { BabelExt.utils.dispatch(
     {
@@ -1568,7 +1570,17 @@ function handle_moderation_links() {
     $(function(){$('img[src="images/misc/moderated.gif"],img[src="images/misc/moderated_small.gif"]').wrap('<a href="/modcp/moderate.php?do=posts"></a>')});
 }
 
-function handle_member_page( bb, loading_html ) { BabelExt.utils.dispatch(
+/**
+ * @summary Handle the member page
+ * @param {BulletinBoard}      bb Bulletin Board to manipulate
+ * @param {BulletinBoard}      mod_team_bb Bulletin Board to manipulate
+ * @param {Variables}          v  Variables to use
+ * @param {Violations}         vi Violations to use
+ * @param {SharedStore}        ss Shared Store to use
+ * @param {MiscellaneousCache} mc Miscellaneous Cache to use
+ * @param {string}             loading_html HTML to show while loading
+ */
+function handle_member_page( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { BabelExt.utils.dispatch(
     {
         match_pathname: '/member.php',
         match_elements: '#view-stats_mini',
@@ -1594,7 +1606,110 @@ function handle_member_page( bb, loading_html ) { BabelExt.utils.dispatch(
                     event.preventDefault();
                 });
         }
+    },
+
+    {
+        match_pathname: '/member.php',
+        match_elements: '.profile_content',
+        callback: function(stash, pathname, params) {
+
+            var root_action, summary, policy;
+
+            var dupe = $(BabelExt.resources.get('res/member-tabs/dupe.html')).appendTo('.profile_content');
+            var dupe_iframe = dupe.find('iframe').hide();
+            $('<dd class="userprof_moduleinactive"><a onclick="return tabViewPicker(this);" href="#dupe-content" id="dupe-tab">Duplicates</a></dd>')
+                .appendTo('#tab_container > dl')
+                .one( 'click', function(event) {
+
+                    _handle_login_modcp( bb, dupe_iframe ).progress(function() { dupe_iframe.show() }).then(function() {
+                        dupe_iframe.hide();
+
+                        bb.user_duplicates(params.u).progress(function(current, total) {
+                            dupe.find('.mod-friend-percent').css({ width: (100 * current / total ) + '%', color: 'blue' });
+                        }).then(function(users) {
+
+                            dupe.removeClass('loading');
+
+                            // NOTE: this block is very similar to the equivalent block on the dashboard.  They might need to be merged, depending how they evolve
+
+                            var dupe_action_container = dupe.find('.dupe-actions');
+
+                            policy = new DuplicateAccountPolicy({
+                                user: users,
+                                severity_slider_args: { container: dupe.find('.slider' ) },
+                                duplicate_account_list_args: { container: dupe.find('.dupes' ) },
+                                build_dupe_args: function(users) {
+                                    dupe_action_container.empty();
+                                    return users.map(function(user, index) {
+                                        var element = $('<fieldset class="dupe-user-action"><legend></legend><div class="notification"><span class="mode-switcher"></span></div></fieldset>')
+                                            .appendTo(dupe_action_container);
+                                        element.find('legend').text( 'User action: ' + user.username );
+                                        return {
+                                            user: user,
+                                            severity_slider_args: { container: element.find('.slider' ) },
+                                            notification_selector_args: { container: element.find('.notification' ) },
+                                            extra_post_args: { visible: !index },
+                                            mode_switcher_args: { container: element.find('.mode-switcher') },
+                                        }
+                                    });
+                                },
+                                callback: function(action, _summary) {
+                                    root_action = action;
+                                    summary = _summary;
+                                    if ( action ) {
+                                        var title = action.title();
+                                        title[0] = title[0][0].toUpperCase() + title[0].slice(1);
+                                        dupe.find('.submit > [type="submit"]').prop( 'disabled', false ).val( title.join('; ') );
+                                    } else {
+                                        dupe.find('.submit > [type="submit"]').prop( 'disabled', true ).val( 'Please select some actions' );
+                                    }
+                                },
+
+                                v : v,
+                                bb: bb,
+                                vi: vi,
+                                ss: ss,
+                                mc: mc,
+                                loading_html: loading_html
+
+                            });
+
+                        });
+
+                    });
+
+                });
+
+            // Fire the root action:
+            dupe.find('.submit > [type="submit"]').click(function() {
+                var button = $(this);
+                var progress_bar = button.parent().addClass('mod-friend-progressing').find('.mod-friend-percent').css({ width: 0 });
+                root_action.fire_with_journal(
+                    bb,
+                    {
+                        context               : 'associated',
+                        'primary user account': $('.member_username').text(),
+                        'summary'    : summary,
+                        'extra notes': dupe.find('[name="extra-notes"]').val()
+                    },
+                    v,
+                    v.resolve( 'frequently used posts/threads', 'newbie management log' ),
+                    'newbie actions',
+                    'log',
+                    [mod_team_bb]
+                ).progress(function(percent) {
+                    progress_bar.css({ width: percent + '%' });
+                }).always(function() {
+                    progress_bar.closest('.mod-friend-progressing').removeClass('mod-friend-progressing');
+                }).done(function() {
+                    button.prop( 'disabled', true ).val( 'validated!' );
+                });
+            });
+
+
+        }
     }
+
 )}
 
 function handle_pm_page( bb, v ) { BabelExt.utils.dispatch(
@@ -1821,7 +1936,7 @@ if (window.location == window.parent.location ) {
                     handle_moderation_links     ();
                     handle_moderation_checkboxes();
                     handle_modcp_user           ();
-                    handle_member_page          ( bb, loading_html );
+                    handle_member_page          ( bb, mod_team_bb, v, vi, ss, mc, loading_html );
                     handle_pm_page              ( bb, v );
                     handle_thread_management    ( bb, mod_team_bb, v, mc, ss, loading_html );
                     handle_merge_log            ( bb, mod_team_bb, v );
