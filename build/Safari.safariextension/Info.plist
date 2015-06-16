@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.24.2</string>
+	<string>4.25</string>
 	<key>CFBundleVersion</key>
-	<string>4.24.2</string>
+	<string>4.25</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
@@ -86,6 +86,7 @@
 				<string>src/widgets/vbulletin_popup_menu.js</string>
 				<string>src/widgets/deadline.js</string>
 				<string>src/widgets/thread_title_selector.js</string>
+				<string>src/widgets/help.js</string>
 				<string>src/variables.js</string>
 				<string>src/violations.js</string>
 				<string>src/dashboard.js</string>
