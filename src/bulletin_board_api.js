@@ -1361,9 +1361,16 @@ VBulletin.prototype.post_summary = function( post ) {
 
     if ( post.title ) return post.title;
 
-    var message = post.message_element.clone()
-    message.find('.bbcode_container,.spoiler').remove();
-    return $.trim(message.text())
+    var message;
+    if ( post.hasOwnProperty('message_element') ) {
+        message = post.message_element.clone()
+        message.find('.bbcode_container,.spoiler').remove();
+        message = $.trim(message.text());
+    } else {
+        message = post.message;
+    }
+
+    return message
         .replace( /\s+/g, ' ' )
         // if there are more than 15 words, truncate after the first 10:
         .replace( /^(\S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+) \S+ \S+ \S+ \S+ \S+ .*/, "$1\u2026" );
