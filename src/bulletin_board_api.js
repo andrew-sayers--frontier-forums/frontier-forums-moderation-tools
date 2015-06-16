@@ -576,6 +576,8 @@ function VBulletin(args) {
 
     var bb = this;
 
+    var default_dateline = new Date().getTime();
+
     if ( bb.session_id ) {
         setInterval(
             function() {
@@ -662,6 +664,14 @@ function VBulletin(args) {
                 '/member.php',
                 [
                     { key: 'user_id', param: 'u' }
+                ],
+                args
+            )},
+            user_avatar: function(args) { return bb.build_url(
+                '/image.php',
+                [
+                    { key: 'user_id', param: 'u' },
+                    { key: 'date'   , param: 'dateline', 'default': default_dateline }
                 ],
                 args
             )},
