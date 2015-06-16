@@ -67,6 +67,7 @@
         "src/widgets/vbulletin_popup_menu.js",
         "src/widgets/deadline.js",
         "src/widgets/thread_title_selector.js",
+        "src/widgets/help.js",
 
         /* Basic functionality */
         "src/variables.js",
@@ -121,6 +122,8 @@
         "res/widgets/duplicate_account_list.html",
         "res/widgets/vbulletin_popup_menu.html",
         "res/widgets/thread_title_selector.html",
+        "res/widgets/help.html",
+        "res/widgets/help.css",
 
         "res/thread management.html",
 
