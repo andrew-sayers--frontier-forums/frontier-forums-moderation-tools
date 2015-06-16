@@ -2808,7 +2808,9 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 
 /**
  * @summary log in to the site
- * @param {jQuery} iframe iframe element to use
+ * @param {jQuery} iframe       iframe element to use
+ * @param {String} default_user account to log in as
+ * @param {String} hint         hint to show the user
  * @param {jQuery.Promise}
  *
  * @description
@@ -2818,7 +2820,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
  * (this could be done automatically when logging in to the current site,
  * but not when logging in to another domain)
  */
-VBulletin.prototype.login = function( iframe, default_user ) {
+VBulletin.prototype.login = function( iframe, default_user, hint ) {
 
     var dfd = $.Deferred();
     var title = document.title; // iframes tend to overwrite the document title
@@ -2846,6 +2848,11 @@ VBulletin.prototype.login = function( iframe, default_user ) {
                     setTimeout(function() {
                         // Firefox will silently refuse to reply unless we wait a little while
                         event.source.postMessage( 'BulletinBoard VBulletin default user ' + (default_user||''), event.origin );
+                    }, 10 );
+                } else if ( event.data == 'BulletinBoard VBulletin get hint' ) {
+                    setTimeout(function() {
+                        // Firefox will silently refuse to reply unless we wait a little while
+                        event.source.postMessage( 'BulletinBoard VBulletin hint ' + (hint||''), event.origin );
                     }, 10 );
                 } else if ( event.data == 'BulletinBoard VBulletin show' ) {
                     dfd.notify('show');
@@ -2948,8 +2955,12 @@ VBulletin.iframe_callbacks = function(target_origin, cookie_domains) {
                                     window.parent.postMessage( 'BulletinBoard VBulletin show', target_origin );
                             }, 50 );
                         });
+                        event.data.replace( /^BulletinBoard VBulletin hint (.*)/, function(match, hint) {
+                            $(hint).insertAfter('#navbar_password');
+                        });
                     }, false);
                     window.parent.postMessage( 'BulletinBoard VBulletin get default user', target_origin );
+                    window.parent.postMessage( 'BulletinBoard VBulletin get hint', target_origin );
                     $(document.body)
                         .css({ overflow: 'hidden' }).html( $('#navbar_loginform')[0].outerHTML )
                         .children().css({ 'text-align': 'center', 'width': '450px' });
