@@ -24,6 +24,21 @@
  */
 
 /**
+ * @summary Log in to ModCP only
+ * @param {BulletinBoard} bb        Bulletin Board to manipulate
+ * @param {jQuery}        bb_iframe iframe to use for ModCP login box
+ * @return {jQuery.Promise}
+ */
+function _handle_login_modcp( bb, bb_iframe ) { return bb.moderation_page( bb_iframe, '/modcp/index.php?do=nav', '.navlink', '.navlink' ) }
+/**
+ * @summary Log in to the mod team account only
+ * @param {BulletinBoard} bb        Bulletin Board to manipulate
+ * @param {jQuery}        bb_iframe iframe to use for mod team login box
+ * @return {jQuery.Promise}
+ */
+function _handle_login_team ( bb, bb_iframe ) { return bb.login          ( bb_iframe, 'Frontier Moderation Team', '<span> &larr; ask on Skype</span>' ) }
+
+/**
  * @summary Log in wherever we need to
  * @param {BulletinBoard} bb                 Bulletin Board to manipulate
  * @param {BulletinBoard} mod_team_bb        Bulletin Board to manipulate
@@ -34,8 +49,8 @@
 function _handle_login( bb, mod_team_bb, bb_iframe, mod_team_bb_iframe ) {
     var dfd = $.Deferred();
     $.when(
-        bb.moderation_page(          bb_iframe, '/modcp/index.php?do=nav', '.navlink', '.navlink' ).progress(function() { dfd.notify() }),
-        mod_team_bb.login ( mod_team_bb_iframe, 'Frontier Moderation Team'                        ).progress(function() { dfd.notify() })
+        _handle_login_modcp(          bb,          bb_iframe ).progress(function() { dfd.notify() }),
+        _handle_login_team ( mod_team_bb, mod_team_bb_iframe ).progress(function() { dfd.notify() })
     ).then(function() { dfd.resolve() }, function() { dfd.reject() });
     return dfd.promise();
 }
