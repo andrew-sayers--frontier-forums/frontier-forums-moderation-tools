@@ -1,18 +1,58 @@
-<table class="duplicate-account-list">
-  <thead>
-    <tr>
-      <th>Primary
-      <th>Account
-      <th colspan="4">Notes
-    </tr>
-  <tbody>
-    <tr class="multi">
-      <td class="primary"><input type="radio" title="Select whichever you think is the user's primary account" name="primary-username">
-      <td class="main"><input type="text" style="width: 100%" class="user" list="mod-friend-data-for-user" name="duplicate-username" required placeholder="name, ID or URL">
-      <td colspan="4" class="dupe-unknown">(no such user)
-      <td colspan="4" class="dupe-loading">Loading user info <img src="images/misc/progress.gif" alt="loading, please wait">
-      <td>[<a class="member" href="">member&nbsp;page</a>]
-      <td class="email-user"><a href=""></a><td class="at"><a href="">@</a><td class="email-domain"><a></a> <span class="notes"></span>
-    </tr>
-  </tbody>
-</table>
+<div class="duplicate-account-list">
+
+  <table>
+    <thead>
+      <tr>
+        <th class="heatmap">Heatmap
+        <th class="duplicate">Primary
+        <th colspan="2">Account
+        <th colspan="3">Address
+        <th>Notes
+      </tr>
+      <tbody>
+        <tr class="multi">
+          <td class="dupe-unknown">
+          <td class="dupe-loading">
+          <td class="heatmap">
+          <td class="duplicate primary"><input type="radio" title="Select whichever you think is the user's primary account" name="primary-username">
+          <td class="main"><input type="text" style="width: 100%" class="user" list="mod-friend-data-for-user" name="duplicate-username" required placeholder="name, ID or URL">
+          <td colspan="4" class="dupe-unknown">(no such user)
+          <td colspan="4" class="dupe-loading">Loading user info <img src="images/misc/progress.gif" alt="loading, please wait">
+          <td>[<a class="member" href="">member&nbsp;page</a>]
+          <td class="email-user"><a href=""></a><td class="at"><a href="">@</a><td class="email-domain"><a></a><td class="notes">
+        </tr>
+      </tbody>
+  </table>
+
+  <div class="timeline"></div>
+
+  <ol id="posts" class="posts" start="1">
+    <li class="postbitlegacy postbitim postcontainer old mod-friend-collapsed">
+      <div class="posthead">
+        <span class="postdate old"><time class="date"></time></span>
+        &nbsp; <span class="summary"></span>
+      </div>
+      <div class="postdetails">
+        <div class="userinfo">
+          <div class="username_container">
+            <a class="username"><strong></strong></a>
+          </div>
+          <a class="postuseravatar"><img></a>
+        </div>
+        <div class="postbody">
+          <div class="postrow">
+            <h2 class="title icon"></h2>
+            <div class="content">
+              <div>
+                <blockquote class="postcontent restore"></blockquote>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <div class="timeline-popup" style="display: none"><div class="header"><span></span><a class="close" href="#close-popup"></a></div><ul class="body"></ul></div>
+
+</div>

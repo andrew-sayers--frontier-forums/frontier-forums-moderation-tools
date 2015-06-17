@@ -121,6 +121,7 @@
         "res/widgets/deadline.html",
         "res/widgets/notification_selector.html",
         "res/widgets/severity_slider.html",
+        "res/widgets/duplicate_account_list.css",
         "res/widgets/duplicate_account_list.html",
         "res/widgets/vbulletin_popup_menu.html",
         "res/widgets/thread_title_selector.html",

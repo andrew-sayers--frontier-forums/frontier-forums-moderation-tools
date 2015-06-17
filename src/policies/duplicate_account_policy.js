@@ -56,17 +56,21 @@ function DuplicateAccountPolicy(args) {
         username: args.user.username,
         user_id : args.user.user_id,
         email   : args.user.email,
-        notes   : args.user.summary,
+        notes   : args.user.info.infraction_summary + ' ' + args.user.moderation_info.summary,
         is_primary: true,
+            info:   args.user.info,
+        mod_info:   args.user.moderation_info,
     }]
         .concat(args.user.suspected_duplicates.map(function(user) {
             return {
-                username  : user.username,
-                user_id   : user.user_id,
-                email     : user.moderation_info.email,
-                notes     : user.info.infraction_summary + ' ' + user.moderation_info.summary,
-                is_banned : user.info.is_banned,
-                is_primary: false
+                     username  : user.username,
+                     user_id   : user.user_id,
+                     email     : user.moderation_info.email,
+                     notes     : user.info.infraction_summary + ' ' + user.moderation_info.summary,
+                     is_banned : user.info.is_banned,
+                     is_primary: false,
+                           info:   user.info,
+                moderation_info:   user.moderation_info,
             };
         }));
 
@@ -82,6 +86,7 @@ function DuplicateAccountPolicy(args) {
     }));
     new DuplicateAccountList(this.duplicate_account_list_args(null, args.duplicate_account_list_args,
         {
+            show_heatmap: true,
             required: users.slice(0,1),
             default : users.slice(1),
             callback: function(u) {

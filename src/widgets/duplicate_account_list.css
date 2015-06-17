@@ -9,11 +9,208 @@
 
 .duplicate-account-list td.email-user  , .duplicate-account-list td.at { padding-right: 0 }
 .duplicate-account-list td.email-domain, .duplicate-account-list td.at { padding-left : 0 }
-.duplicate-account-list td.email-user  , .duplicate-account-list td.at, .duplicate-account-list td.email-domain { vertical-align: top }
 
+.duplicate-account-list:not(.heatmap) .heatmap,
 .duplicate-account-list tr.dupe-unknown > td:not(.primary):not(.main):not(.dupe-unknown),
 .duplicate-account-list tr.dupe-loading > td:not(.primary):not(.main):not(.dupe-loading),
 .duplicate-account-list tr:not(.dupe-unknown) > td.dupe-unknown,
 .duplicate-account-list tr:not(.dupe-loading) > td.dupe-loading {
     display: none;
+}
+
+.duplicate-account-list ol.posts {
+    margin: 0.5em 0;
+    padding-right: 2px;
+    max-height: 30em;
+    overflow-y: scroll;
+    clear:both;
+}
+
+
+/*
+ * TIMELINE CSS
+ */
+
+.duplicate-account-list a.user-with-heatmap {
+    float: left;
+    display: block;
+    clear: both;
+    line-height: 28px;
+    margin: 4px;
+}
+.duplicate-account-list .user-heatmap {
+    float: left;
+    width: 96px;
+    height: 28px;
+    margin-right: 4px;
+    margin: 0;
+}
+.duplicate-account-list .user-heatmap > div {
+    width: 100%;
+    height: 4px;
+    margin: 0;
+}
+.duplicate-account-list .user-heatmap .posts {
+    border-radius: 50%;
+    margin: 0;
+}
+.duplicate-account-list .user-heatmap > div > div {
+    float: left;
+    width: 4px;
+    height: 4px;
+    margin: 0;
+}
+
+.duplicate-account-list .timeline-container {
+    float: left;
+    overflow-x: auto;
+    margin-bottom: 1em;
+}
+.duplicate-account-list .user-timeline {
+    width: 1165px;
+}
+.duplicate-account-list .user-timeline div {
+    float: left;
+    background: #eee;
+}
+.duplicate-account-list .user-timeline > div { /* year */
+    border-right: 1px solid #aaa;
+}
+.duplicate-account-list .user-timeline > div:first-child { border-top: 1px solid #aaa; }
+.duplicate-account-list .user-timeline > div > div { /* month */
+    width: 96px;
+    border-left: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+}
+.duplicate-account-list .user-timeline > div > div > div.month-marker { /* month */
+    width: 0;
+    height: 124px;
+}
+.duplicate-account-list .user-timeline > div > div > div { /* day */
+    width: 96px;
+    height: 4px;
+}
+.duplicate-account-list .user-timeline > div > div > div > a,
+.duplicate-account-list .user-timeline > div > div > div > div { /* hour */
+    float: left;
+    display: block;
+    height: 4px;
+    width: 4px;
+}
+.duplicate-account-list .user-timeline span {
+    display: block;
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 2px;
+}
+
+.duplicate-account-list .user-timeline .infraction {
+    background: red;
+    background-size: cover;
+}
+
+.duplicate-account-list .user-timeline .post {
+    border-radius: 50%;
+    background: #ccf;
+    background-size: cover;
+}
+
+.duplicate-account-list .timeline-popup .join span,
+.duplicate-account-list .user-timeline .join,
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-join:before {
+    background: -moz-linear-gradient(left, rgba(0,0,0,1) 0%, rgba(255,255,255,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(255,255,255,0))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, rgba(0,0,0,1) 0%,rgba(255,255,255,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, rgba(0,0,0,1) 0%,rgba(255,255,255,0) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, rgba(0,0,0,1) 0%,rgba(255,255,255,0) 100%); /* IE10+ */
+    background: linear-gradient(to right, rgba(0,0,0,1) 0%,rgba(255,255,255,0) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#00ffffff',GradientType=1 ); /* IE6-9 */
+}
+
+.duplicate-account-list .timeline-popup .active span,
+.duplicate-account-list .user-timeline .active,
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-activity:before {
+    background: -moz-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(0,0,0,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(0,0,0,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left, rgba(255,255,255,0) 0%,rgba(0,0,0,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left, rgba(255,255,255,0) 0%,rgba(0,0,0,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left, rgba(255,255,255,0) 0%,rgba(0,0,0,1) 100%); /* IE10+ */
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%,rgba(0,0,0,1) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#000000',GradientType=1 ); /* IE6-9 */
+}
+
+.duplicate-account-list h2 {
+    clear: both;
+}
+
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate {
+    width: unset;
+    min-width: 15em;
+}
+
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-infraction {
+    margin-left: 7px;
+    padding-left: 18px;
+}
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-note,
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-join,
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-activity {
+    margin-left: 7px;
+    padding-left: 0;
+    padding-right: 10px;
+    background-image: none;
+}
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-note:before {
+    font-size: 120%;
+    content: "\266b ";
+}
+.duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-join:before, .duplicate-account-list #posts .postbitlegacy .posthead .postdate.mod-friend-event-activity:before {
+    content: '\A0';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 0.25em;
+}
+
+/*
+ * POPUP CSS
+ */
+
+.duplicate-account-list .timeline-popup {
+    position: absolute;
+    border: 1px solid black;
+    background: white;
+    border-radius: 0 1em 1em;
+    font-size: small;
+    padding: 1em;
+    box-shadow: 3px 3px 6px black;
+}
+
+.duplicate-account-list .timeline-popup .header .close {
+    float: right;
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAh9JREFUeNqElGFLVFEQhs89u+pqW1lmbVtZiQVB5BcxKIjM+udBfYiCxYzCCjWM1sXMTVPXvL0jz8CwLXXh2bv3nnPnvDPznlOkf18VURMjohA9sc+9HPRBMeDZJo6Ka2JKnBfDIeAPsSFWxQ7zy0EBPVhTzInGf9Rvi5b4JI7EsacUA98Wj8Q4z79RsYUyU1gNpbAssth0pVU+LEnvoRjinaW1Ir5Tt5Kx0+KmmCHYPXEglmyOK6yjrM7zB/FWtAloyg7FnthF7U/KYkEviI7oesA74hb/11D2ACXfCFSS5hNxV3ymHJcpgwXeyEy6TjBTskyRz7LyIjUd5v8UmQyRxTbfXrF5pvCcmKXQHdLtkOJVLGSp3eCjxKItBNjCF1HZtp8xVncr9LBAi7tZaCJ0/Z14yVimxn7Vc7BOCn5yG63QhDj+3j3H/SjurNy3jWqs6g1YpCR+2RZcYPe4f2th/DDT/j1eTFDsU+JpqNkSaSaCPaNhJfVzL3erpGTWmKbADYzcDA14EbK4z7xm2KoJb25VKHTGOpkU11H9RbwKNbOFfyFira9h5o51b4ilfYZ0Rrgv04CSWnmjOhh6Dk/6uzcmwidl0ngsJr3AKDWV3XCsNSjPGPMsk+fs/V4RulWgbB5Dpz67JMwbL/PgaxY98W+lb4KdGl8ZHA2WyJCCqo8Ea4fN8NeJHT+2ml6iSX4K7dPNzXAKHYempT8CDADCjaBc/a1bhQAAAABJRU5ErkJggg==");
+    width: 20px;
+    height: 20px;
+}
+
+.duplicate-account-list .timeline-popup .header {
+    border-bottom: 1px solid black;
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+}
+
+.duplicate-account-list li.mod-friend-collapsed {
+    margin-bottom: 0;
+}
+.duplicate-account-list li.mod-friend-collapsed .postdetails {
+    display: none;
+}
+.duplicate-account-list div.posthead {
+    margin-bottom: 0;
+}
+
+.duplicate-account-list .timeline-popup li span {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
 }

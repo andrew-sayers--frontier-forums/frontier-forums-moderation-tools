@@ -1,0 +1,8 @@
+.duplicate-account-list .postbitlegacy .posthead .postdate.mod-friend-event-infraction,
+.duplicate-account-list .timeline-popup .infraction span {
+    background: url("images.{{theme}}/buttons/red-card_sm.png") center no-repeat;
+}
+
+.duplicate-account-list .timeline-popup .post span {
+    background: url("images.{{theme}}/statusicon/post_old.png") center no-repeat;
+}
