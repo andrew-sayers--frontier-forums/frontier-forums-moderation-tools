@@ -837,7 +837,7 @@ VBulletin.prototype._get_token = function() {
     if ( this._origin ) {
         return this.security_token || 'guest';
     } else {
-        var token = this.security_token || $('input[name="securitytoken"]').val();
+        var token = $('input[name="securitytoken"]').val(); // this.security_token isn't used on the page's domain
         if ( token ) return token;
         BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
         var token = document.head.getAttribute('data-securitytoken');
@@ -878,6 +878,10 @@ VBulletin.prototype.detect_post_error = function(reply) {
     if ( reply.getElementsByTagName && reply.getElementsByTagName('error').length ) // XML response
         return reply.getElementsByTagName('error')[0].textContent
     else if ( reply.search && !reply.search(/^\s*</) ) { // looks like HTML
+        if ( !this._origin ) reply.replace( /\bvar SECURITYTOKEN = "([^"]*)"/, function(match, securitytoken) {
+            // contains a security token - replace our current token with this one
+            $('input[name="securitytoken"]').val(securitytoken);
+        });
         if (  reply.search(' class="standard_error"') != -1 ) { // HTML error
             var this_script = '';
             reply.replace( /var THIS_SCRIPT = "([^"]+)";/, function(match,_this_script) { this_script = _this_script });
