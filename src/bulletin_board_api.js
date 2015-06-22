@@ -2811,6 +2811,32 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 }
 
 /**
+ * @summary log in to the site without user interaction
+ * @param {String} username account to log in as
+ * @param {String} password account password
+ * @param {jQuery.Promise}
+ *
+ * @description
+ * This function logs in automatically.  If you need the user to type the password,
+ * use .login() instead.
+ */
+VBulletin.prototype.login_auto = function( username, password ) {
+    var bb = this;
+    return bb.get( '/faq.php' ).then(function(html) { // get any page, to check if we're logged in
+        if ( /var SECURITYTOKEN = "guest";/.test(html) ) { // not logged in
+            return bb.post(
+                '/login.php?do=login',
+                {
+                    do: 'login',
+                    vb_login_username: username,
+                    vb_login_password: password
+                }
+            );
+        }
+    });
+}
+
+/**
  * @summary log in to the site
  * @param {jQuery} iframe       iframe element to use
  * @param {String} default_user account to log in as
