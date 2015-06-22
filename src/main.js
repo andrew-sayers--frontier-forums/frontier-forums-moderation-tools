@@ -46,11 +46,12 @@ function _handle_login_team ( bb, bb_iframe ) { return bb.login          ( bb_if
  * @param {jQuery}        mod_team_bb_iframe iframe to use for mod team login box
  * @return {jQuery.Promise}
  */
-function _handle_login( bb, mod_team_bb, bb_iframe, mod_team_bb_iframe ) {
+function _handle_login( v, bb, mod_team_bb, bb_iframe ) {
     var dfd = $.Deferred();
     $.when(
         _handle_login_modcp(          bb,          bb_iframe ).progress(function() { dfd.notify() }),
-        _handle_login_team ( mod_team_bb, mod_team_bb_iframe ).progress(function() { dfd.notify() })
+        mod_team_bb.login_auto( v.resolve( 'policy', 'team account username' ), v.resolve( 'policy', 'team account password' ) )
+        //_handle_login_team ( mod_team_bb, mod_team_bb_iframe ).progress(function() { dfd.notify() })
     ).then(function() { dfd.resolve() }, function() { dfd.reject() });
     return dfd.promise();
 }
@@ -568,12 +569,12 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
              */
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
-           body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe><iframe style="margin:auto"></iframe>' );
+           body_wrapper = $('.body_wrapper').html( '<iframe style="margin:auto"></iframe>' );
            _handle_login(
+               v,
                bb,
                mod_team_bb,
-               body_wrapper.find('iframe').first(),
-               body_wrapper.find('iframe').last ()
+               body_wrapper.find('iframe')
            ).then(function() {
 
                 // delayed from the top of the function, because we need the mod team's session ID:
@@ -658,10 +659,10 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
                 });
 
                 var promise = _handle_login(
+                    v,
                     bb,
                     mod_team_bb,
-                    element.find('iframe').first(),
-                    element.find('iframe').last ()
+                    element.find('iframe')
                 ).progress(function() {
                     element.   addClass('logging-in'); initialise_showhide();
                 }).then(function() {
@@ -831,12 +832,12 @@ function handle_merge_log( bb, mod_team_bb, v ) { BabelExt.utils.dispatch(
                     button.find('input')
                         .val('Unmerge: ' + root_action.title().join('; '))
                         .click(function() {
-                            var iframes = $('<iframe></iframe><iframe></iframe>').hide().insertAfter(this);
+                            var iframes = $('<iframe></iframe>').hide().insertAfter(this);
                             _handle_login(
+                                v,
                                 bb,
                                 mod_team_bb,
-                                iframes.first(),
-                                iframes.last ()
+                                iframes
                             ).progress(function() { iframes.show() })
                             .then(function() {
                                 iframes.hide();
@@ -1806,6 +1807,8 @@ if (window.location == window.parent.location ) {
                     v : v,
                     vi: vi
                 }));
+
+                mod_team_bb.login_auto( v.resolve( 'policy', 'team account username' ), v.resolve( 'policy', 'team account password' ) );
 
                 $.when( vi.promise, mc.promise, ss.promise ).then(function() {
                     handle_posts                ( bb, v, vi, loading_html );
