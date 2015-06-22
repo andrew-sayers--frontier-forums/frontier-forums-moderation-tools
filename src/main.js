@@ -1769,6 +1769,8 @@ if (window.location == window.parent.location ) {
 
                 var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
                 var ss = new SharedStore({
+                    error_callback: handle_error,
+                    v: v,
                     lock_url: v.resolve( 'policy', 'shared store lock URL' ),
                     store   : function(data) {
                         return bb.usernote_edit(

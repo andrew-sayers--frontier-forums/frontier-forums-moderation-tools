@@ -14,7 +14,9 @@
  * var shared_store = new SharedStore({
  *     lock_url: 'http://.../...', // third-party URL to lock the store during writing
  *     store   : function(data) {...}, // called when we want to store a new string
- *     retrieve: function() {...} // called when we want to download a string
+ *     retrieve: function() {...}, // called when we want to download a string
+ *     error_callback: function(message, resolutions),
+ *     v: v
  * });
  *
  * @description Stores data in a location shared between several users.
@@ -35,6 +37,8 @@ function SharedStore(args) {
     this.change_cbs   = [];
     this.interval_cbs = [];
     this.data         = '{}';
+    this.error_callback = args.error_callback;
+    this.v = args.v;
 
     var ss = this;
     this.promise = this.retrieve().then(function(data) { ss.data = data });
@@ -66,6 +70,9 @@ SharedStore.prototype = Object.create(Object, {
 
       change_cbs: { writable: true, configurable: false },
     interval_cbs: { writable: true, configurable: false },
+
+    error_callback: { writable: true, configurable: false },
+    v: { writable: true, configurable: false }
 
 });
 
@@ -240,7 +247,12 @@ SharedStore.prototype.transaction = function(updater) {
 
             }
         }, function() {
-            console.log( 'Could not get lock - is the server down?' );
+            ss.error_callback(
+                'Could not lock shared store',
+                ss.v.resolve( 'policy', 'shared store resolutions', {}, 'array of items' ).map(function(item) {
+                    return { message: item.value, href: item.url };
+                })
+            );
             dfd.reject();
         });
     }
