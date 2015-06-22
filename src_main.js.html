@@ -910,6 +910,8 @@
 
                 <li data-name="VBulletin#login"><a href="VBulletin.html#login">login</a></li>
 
+                <li data-name="VBulletin#login_auto"><a href="VBulletin.html#login_auto">login_auto</a></li>
+
                 <li data-name="VBulletin#moderation_page"><a href="VBulletin.html#moderation_page">moderation_page</a></li>
 
                 <li data-name="VBulletin#on_posts_modified"><a href="VBulletin.html#on_posts_modified">on_posts_modified</a></li>
@@ -1151,11 +1153,12 @@ function _handle_login_team ( bb, bb_iframe ) { return bb.login          ( bb_if
  * @param {jQuery}        mod_team_bb_iframe iframe to use for mod team login box
  * @return {jQuery.Promise}
  */
-function _handle_login( bb, mod_team_bb, bb_iframe, mod_team_bb_iframe ) {
+function _handle_login( v, bb, mod_team_bb, bb_iframe ) {
     var dfd = $.Deferred();
     $.when(
         _handle_login_modcp(          bb,          bb_iframe ).progress(function() { dfd.notify() }),
-        _handle_login_team ( mod_team_bb, mod_team_bb_iframe ).progress(function() { dfd.notify() })
+        mod_team_bb.login_auto( v.resolve( 'policy', 'team account username' ), v.resolve( 'policy', 'team account password' ) )
+        //_handle_login_team ( mod_team_bb, mod_team_bb_iframe ).progress(function() { dfd.notify() })
     ).then(function() { dfd.resolve() }, function() { dfd.reject() });
     return dfd.promise();
 }
@@ -1673,12 +1676,12 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
              */
 
             // log in to ModCP before loading the dashboard (which will then keep us logged in)
-           body_wrapper = $('.body_wrapper').html( '&lt;iframe style="margin:auto">&lt;/iframe>&lt;iframe style="margin:auto">&lt;/iframe>' );
+           body_wrapper = $('.body_wrapper').html( '&lt;iframe style="margin:auto">&lt;/iframe>' );
            _handle_login(
+               v,
                bb,
                mod_team_bb,
-               body_wrapper.find('iframe').first(),
-               body_wrapper.find('iframe').last ()
+               body_wrapper.find('iframe')
            ).then(function() {
 
                 // delayed from the top of the function, because we need the mod team's session ID:
@@ -1763,10 +1766,10 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
                 });
 
                 var promise = _handle_login(
+                    v,
                     bb,
                     mod_team_bb,
-                    element.find('iframe').first(),
-                    element.find('iframe').last ()
+                    element.find('iframe')
                 ).progress(function() {
                     element.   addClass('logging-in'); initialise_showhide();
                 }).then(function() {
@@ -1936,12 +1939,12 @@ function handle_merge_log( bb, mod_team_bb, v ) { BabelExt.utils.dispatch(
                     button.find('input')
                         .val('Unmerge: ' + root_action.title().join('; '))
                         .click(function() {
-                            var iframes = $('&lt;iframe>&lt;/iframe>&lt;iframe>&lt;/iframe>').hide().insertAfter(this);
+                            var iframes = $('&lt;iframe>&lt;/iframe>').hide().insertAfter(this);
                             _handle_login(
+                                v,
                                 bb,
                                 mod_team_bb,
-                                iframes.first(),
-                                iframes.last ()
+                                iframes
                             ).progress(function() { iframes.show() })
                             .then(function() {
                                 iframes.hide();
@@ -2816,13 +2819,15 @@ if (window.location == window.parent.location ) {
                 if ( previous_errors[message] ) return;
                 previous_errors[message] = true;
 
-                var row = $('&lt;tr>&lt;td>&lt;td style="padding-left: 1em">&lt;/tr>').appendTo(handle_error_box.find('tbody'));
+                var row = $('&lt;tr>&lt;td>&lt;td style="padding-left: 1em">&lt;li>&lt;/tr>').appendTo(handle_error_box.find('tbody'));
                 row.children('td').first().text( message );
-                row.children('td'). last().html(
+                row.find('li').append(
                     ( resolutions || [] ).map(function(resolution) {
-                        return $('&lt;a>').text( resolution.message ).attr( 'href', resolution.href );
+                        var li = $('&lt;li>&lt;a>');
+                        li.children().text( resolution.message ).attr( 'href', resolution.href );
+                        return li;
                     })
-                ).children(':not(:last-child)').after(', ');
+                );
                 $(function() { handle_error_box.show() });
 
             }
@@ -2874,6 +2879,8 @@ if (window.location == window.parent.location ) {
 
                 var shared_store_note_id = v.resolve( 'policy', 'shared store note ID' );
                 var ss = new SharedStore({
+                    error_callback: handle_error,
+                    v: v,
                     lock_url: v.resolve( 'policy', 'shared store lock URL' ),
                     store   : function(data) {
                         return bb.usernote_edit(
@@ -2907,6 +2914,8 @@ if (window.location == window.parent.location ) {
                     v : v,
                     vi: vi
                 }));
+
+                mod_team_bb.login_auto( v.resolve( 'policy', 'team account username' ), v.resolve( 'policy', 'team account password' ) );
 
                 $.when( vi.promise, mc.promise, ss.promise ).then(function() {
                     handle_posts                ( bb, v, vi, loading_html );
@@ -2948,7 +2957,7 @@ if (window.location == window.parent.location ) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 16 June 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 22 June 2015
         </footer>
     </div>
 </div>
