@@ -1711,13 +1711,15 @@ if (window.location == window.parent.location ) {
                 if ( previous_errors[message] ) return;
                 previous_errors[message] = true;
 
-                var row = $('<tr><td><td style="padding-left: 1em"></tr>').appendTo(handle_error_box.find('tbody'));
+                var row = $('<tr><td><td style="padding-left: 1em"><li></tr>').appendTo(handle_error_box.find('tbody'));
                 row.children('td').first().text( message );
-                row.children('td'). last().html(
+                row.find('li').append(
                     ( resolutions || [] ).map(function(resolution) {
-                        return $('<a>').text( resolution.message ).attr( 'href', resolution.href );
+                        var li = $('<li><a>');
+                        li.children().text( resolution.message ).attr( 'href', resolution.href );
+                        return li;
                     })
-                ).children(':not(:last-child)').after(', ');
+                );
                 $(function() { handle_error_box.show() });
 
             }
