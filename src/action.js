@@ -333,12 +333,13 @@ Action.prototype.fire = function(bb, keys) {
 
 /**
  * @summary call fire(), with values logged to a journal post
- * @param {BulletinBoard} bb        BulletinBoard
- * @param {Object}        keys      keys to pass to all actions
- * @param {Variables}     v         object to retrieve variables from
- * @param {Number}        thread_id thread to post the journal in
- * @param {string}        namespace namespace to retrieve journal variables from
- * @param {name}          name      unique name of this action
+ * @param {BulletinBoard}         bb        BulletinBoard
+ * @param {Object}                keys      keys to pass to all actions
+ * @param {Variables}             v         object to retrieve variables from
+ * @param {Number}                thread_id thread to post the journal in
+ * @param {string}                namespace namespace to retrieve journal variables from
+ * @param {name}                  name      unique name of this action
+ * @param {Array.<BulletinBoard>} extra_bbs other BulletinBoards to check before firing
  * @return {jQuery.Promise} promise representing the full graph of actions
  *
  * @description To improve the audit trail for large actions, you might want to
@@ -350,7 +351,7 @@ Action.prototype.fire = function(bb, keys) {
  * named [ name + ( ' title' or ' body' ), 'before' or 'after' ], e.g.
  * [ name+' title', 'before' ] will be used to get the title for the "before" post.
  */
-Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace, name) {
+Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace, name, extra_bbs) {
 
     var action = this;
 
@@ -423,40 +424,52 @@ Action.prototype.fire_with_journal = function(bb, keys, v, thread_id, namespace,
         return $.Deferred().reject().promise();
     }
 
-
-    return bb.ping().then(function(data) {
-        if ( data.result == 'success' ) {
-            if ( ( data.duration < 1000 ) ||
-                 (typeof(prompt(
-                     'This might make things worse!\n' +
-                     "Recommended: click 'cancel' to stop the action, then try again in a few hours\n" +
-                     "Alternative: read the link below then click 'OK' to continue anyway\n",
-                     location.origin + bb.url_for.thread_show({ thread_id: v.resolve( 'frequently used posts/threads', 'Slow Server explanation thread' ) })
-                 )) == 'string')
-               ) {
-                return bb.thread_reply({
-                    thread_id: thread_id,
-                    title    : v.resolve(namespace, [ name + ' title', 'before' ], keys),
-                    bbcode   : v.resolve(namespace, [ name + ' body' , 'before' ], keys)
-                }).then(function(journal_post_id) {
-
-                    keys['journal thread id'] = thread_id;
-                    keys['journal post id' ] = journal_post_id;
-
-                    return action.fire(bb, keys).then(
-                        function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
-                        function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'failed'    ) }
-                    );
-
-                });
+    var promises = [
+        bb.ping().then(function(data) {
+            if ( data.result == 'success' ) {
+                if ( ( data.duration < 1000 ) ||
+                     (typeof(prompt(
+                         'This might make things worse!\n' +
+                         "Recommended: click 'cancel' to stop the action, then try again in a few hours\n" +
+                         "Alternative: read the link below then click 'OK' to continue anyway\n",
+                         location.origin + bb.url_for.thread_show({ thread_id: v.resolve( 'frequently used posts/threads', 'Slow Server explanation thread' ) })
+                     )) == 'string')
+                   )
+                    return; // successful return
+            } else {
+                alert(
+                    'The server could not be contacted.\n' +
+                    "Please make sure you and the server are online, then try again."
+                );
             }
-        } else {
-            alert(
-                'The server could not be contacted.\n' +
-                "Please make sure you and the server are online, then try again."
+            return $.Deferred().reject().promise(); // only reached if we don't get the successful return above
+        }),
+        bb.check_login().fail(function(message) {
+            alert(message + "\nPlease resolve this problem, then try again.");
+        })
+    ];
+    if ( extra_bbs ) extra_bbs.forEach(function(extra_bb) {
+        promises.push(extra_bb.check_login().fail(function(message) {
+            alert(message + "\nPlease resolve this problem, then try again.");
+        }));
+    });
+
+    return $.when.apply( $, promises ).then(function() {
+        return bb.thread_reply({
+            thread_id: thread_id,
+            title    : v.resolve(namespace, [ name + ' title', 'before' ], keys),
+            bbcode   : v.resolve(namespace, [ name + ' body' , 'before' ], keys)
+        }).then(function(journal_post_id) {
+
+            keys['journal thread id'] = thread_id;
+            keys['journal post id' ] = journal_post_id;
+
+            return action.fire(bb, keys).then(
+                function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'succeeded' ) },
+                function(completed_promises, keys) { return finalise( completed_promises, journal_post_id, keys, 'failed'    ) }
             );
-        }
-        return $.Deferred().reject().promise();
+
+        });
     });
 
 }

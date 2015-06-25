@@ -130,5 +130,6 @@ first_action.fire_with_journal(
     v,
     12345, // journal thread ID
     'my namespace',
-    'my action name'
+    'my action name',
+    [ other_bb1, other_bb2 ] // other BulletinBoard objects used by actions - all given a sanity check before the action starts
 );

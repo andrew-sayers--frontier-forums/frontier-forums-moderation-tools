@@ -469,7 +469,8 @@ function handle_dashboard( bb, mod_team_bb, v, vi, ss, mc, loading_html ) { Babe
                             v,
                             v.resolve( 'frequently used posts/threads', 'newbie management log' ),
                             'newbie actions',
-                            'log'
+                            'log',
+                            [mod_team_bb]
                         )
                         : ss.transaction(function(data) { data.newbie_policy_base_user_id = max_user_id; return true })
                     ,
@@ -648,7 +649,8 @@ function handle_thread_management( bb, mod_team_bb, v, mc, ss, loading_html ) {
                         v,
                         v.resolve('frequently used posts/threads', 'thread management log' ),
                         'thread management',
-                        'log'
+                        'log',
+                        [mod_team_bb]
                     ).progress(function(percent) {
                         progress_bar.css({ width: percent + '%' });
                     }).always(function() {
@@ -852,7 +854,8 @@ function handle_merge_log( bb, mod_team_bb, v ) { BabelExt.utils.dispatch(
                                     v,
                                     v.resolve('frequently used posts/threads', 'thread management log' ),
                                     'thread management',
-                                    'log'
+                                    'log',
+                                    [mod_team_bb]
                                 ).progress(function(percent) {
                                     progress_bar.css({ width: percent + '%' });
                                 }).always(function() {
