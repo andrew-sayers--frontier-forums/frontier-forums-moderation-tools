@@ -515,42 +515,10 @@ function VBulletin(args) {
                 });
             }, 1000*60*30 );
     } else {
-        var securitytoken = '';
-        $(function() { securitytoken = bb._get_token() });
-        setInterval(
-            function() {
-
-                if ( bb._origin ) {
-
-                    BabelExt.memoryStorage.get( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, function(data) {
-                        if ( data.value ) {
-                            var credentials = JSON.parse(data.value);
-                            if ( credentials.creation_time + 60*60*1000 > new Date().getTime() ) {
-                                bb.session_id     = credentials.session_id;
-                                bb.security_token = credentials.security_token;
-                                if ( credentials.creation_time + 20*60*1000 < new Date().getTime() ) {
-                                    return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
-                                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
-                                            creation_time : new Date().getTime(),
-                                            security_token: bb.security_token
-                                        }));
-                                    });
-                                }
-                            }
-                        }
-                    });
-
-                } else if ( bb._get_token() == securitytoken ) { // skip this if the token was already updated
-
-                    return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
-                        securitytoken = xml.getElementsByTagName('securitytoken')[0].textContent;
-                        $('input[name="securitytoken"]').val(securitytoken);
-                    });
-
-                }
-            },
-            1000*60*30 // every 30 minutes
-        );
+        $(function() {
+            this.security_token = bb._get_token();
+            setInterval(function() { bb.check_login(true) }, 1000*60 ); // update security credentials every 30 minutes
+        });
     }
 
     $.extend(
@@ -695,7 +663,7 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
     // only used if "origin" is set:
     default_user  : { writable: true, configurable: false },
     session_id    : { writable: true, configurable: false },
-    security_token: { writable: true, configurable: false },
+    security_token: { writable: true, configurable: false, default: '' },
 
     default_reply_count: { writable: false, configurable: false, value: 200 },
 
@@ -732,6 +700,66 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 /*
  * UTILITY FUNCTIONS
  */
+
+/**
+ * @summary Check we're logged in, and update login credentials
+ * @param {boolean=} lazy only updating credentials if it's been 20 minutes since the last update
+ * @return {jQuery.Promise} promise that returns when credential update succeeds or fails
+ * @description you should only need set "lazy" for code that runs on a timer, potentially in many tabs.
+ * This stops people with many tabs open from spamming the server too often.
+ */
+VBulletin.prototype.check_login = function(lazy) {
+
+    var bb = this;
+
+    if ( bb._origin ) {
+
+        var dfd = $.Deferred();
+        BabelExt.memoryStorage.get( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, function(data) {
+            if ( data.value ) {
+                var credentials = JSON.parse(data.value);
+                if ( credentials.creation_time + 60*60*1000 > new Date().getTime() ) { // update settings if the session is still valid (sessions last for one hour)
+                    bb.session_id     = credentials.session_id;
+                    bb.security_token = credentials.security_token;
+                }
+                if ( !lazy || credentials.creation_time + 20*60*1000 < new Date().getTime() ) { // get new settings if the session is more than 20 minutes old
+                    bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
+                        var securitytoken = xml.getElementsByTagName('securitytoken');
+                        if ( !securitytoken.length    ) return dfd.reject('No security token on ' + bb._origin + ' (this should not happen)').promise();
+                        securitytoken = securitytoken[0].textContent;
+                        if ( securitytoken == 'guest' ) return dfd.reject('You have been logged out from ' + bb._origin                     ).promise();
+                        BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + bb.default_user, JSON.stringify({
+                            creation_time : new Date().getTime(),
+                            security_token: bb.security_token = securitytoken
+                        }));
+                        dfd.resolve();
+                    });
+                } else {
+                    dfd.resolve();
+                }
+            } else {
+                dfd.reject('No login information for ' + bb._origin);
+            }
+        });
+        return dfd.promise();
+
+    } else if ( bb._get_token() == this.security_token ) { // skip this if the token was already updated
+
+        return bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
+            var securitytoken = xml.getElementsByTagName('securitytoken');
+            if ( !securitytoken.length    ) return $.Deferred().reject('No security token (this should not happen)').promise();
+            securitytoken = securitytoken[0].textContent;
+            if ( securitytoken == 'guest' ) return $.Deferred().reject('You have been logged out'                  ).promise();
+            $('input[name="securitytoken"]').val(this.security_token = securitytoken);
+        });
+
+    } else {
+
+        return $.Deferred().resolve();
+
+    }
+
+}
 
 VBulletin.prototype.fix_url = function(url) {
     url = BulletinBoard.prototype.fix_url.call(this, url);
@@ -837,7 +865,7 @@ VBulletin.prototype._get_token = function() {
     if ( this._origin ) {
         return this.security_token || 'guest';
     } else {
-        var token = $('input[name="securitytoken"]').val(); // this.security_token isn't used on the page's domain
+        var token = $('input[name="securitytoken"]').val(); // more reliable than this.security_token, as it is also set by vBulletin code
         if ( token ) return token;
         BabelExt.utils.runInEmbeddedPage( 'document.head.setAttribute("data-securitytoken", SECURITYTOKEN );' );
         var token = document.head.getAttribute('data-securitytoken');
@@ -2823,6 +2851,7 @@ VBulletin.prototype.moderation_page = function( iframe, url, page_top_selector, 
 VBulletin.prototype.login_auto = function( username, password ) {
     var bb = this;
     return bb.get( '/faq.php' ).then(function(html) { // get any page, to check if we're logged in
+        bb.default_user = username;
         if ( /var SECURITYTOKEN = "guest";/.test(html) ) { // not logged in
             return bb.post(
                 '/login.php?do=login',
@@ -2831,7 +2860,17 @@ VBulletin.prototype.login_auto = function( username, password ) {
                     vb_login_username: username,
                     vb_login_password: password
                 }
-            );
+            ).then(function(html) {
+                if ( bb._origin ) {
+                    html.replace( /var SECURITYTOKEN = "([^"]*)";/                                       , function( match, t ) { bb.security_token = t });
+                    $(html).find('#redirect_button a.textcontrol').attr('href').replace( /[\?&]s=([^&]+)/, function( match, s ) { bb.session_id     = s });
+                    BabelExt.memoryStorage.set( 'VBulletin login ' + bb._origin + ' ' + username, JSON.stringify({
+                        creation_time : new Date().getTime(),
+                        session_id    : bb.session_id,
+                        security_token: bb.security_token
+                    }));
+                }
+            });
         }
     });
 }
