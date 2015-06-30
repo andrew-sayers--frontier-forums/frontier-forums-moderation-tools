@@ -124,6 +124,8 @@ This automatically fixes broken hard links and updates `BabelExt.resources` ever
 
 - Further Firefox development information: [Add-on SDK](https://addons.mozilla.org/en-US/developers/docs/sdk/latest/) and [setting up an extension development environment](https://developer.mozilla.org/en-US/Add-ons/Setting_up_extension_development_environment)
 
+- When Firefox can't compile your JavaScript because of a syntax error, it doesn't give much useful feedback.  Try compiling it with NodeJS instead - it won't compile, but it will give you a line number and a useful error message.
+
 ### Safari ###
 
 - Click the gear icon, and choose Settings -> Preferences -> Advanced
