@@ -176,7 +176,7 @@ function _waitForEvent( test, callback ) { // low-level interface - see waitFor*
         } else if ( new Date().getTime() > expiry ) {
             clearInterval(interval);
             //callback('fail');
-            console.log('Waited for ' + timeout + 'ms, but ' + failure_reason + ' - see fail.png and fail.html');
+            console.log('Waited on ' + page.url + ' for ' + timeout + 'ms, but ' + failure_reason + ' - see fail.png and fail.html');
             fs.write( 'fail.html', page.content );
             page.render('fail.png');
             return program_counter.end(1);
