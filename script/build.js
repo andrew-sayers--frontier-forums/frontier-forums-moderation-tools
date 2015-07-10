@@ -480,7 +480,7 @@ function update_settings() {
          */
         var regexps = [];
         settings.xhr_patterns.forEach(function(pattern) {
-            if ( pattern.replace( /^(\*|https?|file|ftp):\/\/(\*|(?:\*\.)?[^\/*]*)\/(.*)$/, function( url, protocol, domain, path ) {
+            if ( pattern.replace( /^(\*|https?|file|ftp):\/\/((?:\*|(?:\*\.)?[^\/*:]*)(?::\*|:[0-9]+)?)\/(.*)$/, function( url, protocol, domain, path ) {
                 protocol = ( protocol == '*' ) ? 'https?' : protocol.replace( /[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g , "\\$&");
                 domain   = domain.replace( /[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g , "\\$&").replace( '*', '[^/]*' );
                 path     = path  .replace( /[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g , "\\$&").replace( '*', '.*' );
