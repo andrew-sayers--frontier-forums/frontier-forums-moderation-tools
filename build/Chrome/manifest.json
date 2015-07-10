@@ -2,7 +2,7 @@
 	"short_name": "Mod tools",
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.26.1",
+	"version": "4.26.2",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -82,7 +82,7 @@
 	},
 	"permissions": [
 		"http://altairvista.com:1234/*",
-		"http://frontiermods.replayirc.com:443/*",
+		"*://frontiermods.replayirc.com:*/*",
 		"https://forums.frontier.co.uk./*",
 		"https://forumstest.frontier.co.uk./*",
 		"http://api.stopforumspam.org/*",
