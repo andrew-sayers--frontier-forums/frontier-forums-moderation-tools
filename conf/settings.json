@@ -139,7 +139,14 @@
         // whitelisted URL patterns for cross-site/mixed content XMLHttpRequests
         // See https://developer.chrome.com/extensions/match_patterns
         "http://altairvista.com:1234/*",
-        "*://frontiermods.replayirc.com:*/*",
+        "http://frontiermods.replayirc.com:80/*",
+        "http://frontiermods.replayirc.com:8080/*",
+        "http://frontiermods.replayirc.com:443/*",
+        "http://frontiermods.replayirc.com:445/*",
+        "http://frontiermods.replayirc.com:4405/*",
+        "http://frontiermods.replayirc.com:4055/*",
+        "http://frontiermods.replayirc.com:40540/*",
+        "http://frontiermods.replayirc.com:44000/*",
         "https://forums.frontier.co.uk./*",
         "https://forumstest.frontier.co.uk./*",
         "http://api.stopforumspam.org/*"
