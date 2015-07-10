@@ -159,7 +159,7 @@ function _waitForEvent( test, callback ) { // low-level interface - see waitFor*
 
     // originally based on http://newspaint.wordpress.com/2013/04/05/waiting-for-page-to-load-in-phantomjs/
 
-    var timeout = 20000;
+    var timeout = 40000;
     var expiry = new Date().getTime() + timeout;
 
     var interval = setInterval(checkEvent,100);
@@ -480,7 +480,7 @@ function update_settings() {
          */
         var regexps = [];
         settings.xhr_patterns.forEach(function(pattern) {
-            if ( pattern.replace( /^(\*|https?|file|ftp):\/\/(\*|(?:\*\.)?[^\/*]*)\/(.*)$/, function( url, protocol, domain, path ) {
+            if ( pattern.replace( /^(\*|https?|file|ftp):\/\/((?:\*|(?:\*\.)?[^\/*:]*)(?::\*|:[0-9]+)?)\/(.*)$/, function( url, protocol, domain, path ) {
                 protocol = ( protocol == '*' ) ? 'https?' : protocol.replace( /[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g , "\\$&");
                 domain   = domain.replace( /[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g , "\\$&").replace( '*', '[^/]*' );
                 path     = path  .replace( /[\-\[\]\/\{\}\(\)\+\?\.\\\^\$\|]/g , "\\$&").replace( '*', '.*' );
@@ -1334,7 +1334,10 @@ function release_chrome(login_info) {
         }
     }
 
-    page( 'https://chrome.google.com/webstore/developer/edit/' + login_info.id, function(page) {
+    // As of June 2015, the Chrome store has recently changed to provide fewer useful IDs/classes.
+    // Rather than rely on machine-generated classes to remain constant, we force the site to en-GB and rely on the text to remain constant.
+    // Yuck :(
+    page( 'https://chrome.google.com/webstore/developer/edit/' + login_info.id + '?hl=en-GB', function(page) {
 
         page.hideConsoleMessage();
 
@@ -1352,10 +1355,10 @@ function release_chrome(login_info) {
     function change_details(page) {
 
         if ( settings.icons[128] ) {
-            page.click(".id-upload-icon-image");
+            page.click('div[sectionheader="upload-icon"] input[type="button"]');
             setTimeout(function() {
                 page.submit_form(
-                    '.id-upload-image.cx-bold',
+                    '#cx-img-uploader input[type="button"][value="Upload"]',
                     {
                         '#cx-img-uploader-input': settings.icons[128]
                     },
@@ -1375,13 +1378,13 @@ function release_chrome(login_info) {
 
         function publish_details() {
             page.submit_form(
-                '.id-publish',
+                '#cx-dev-edit-submit-btns input[type="button"][value="Publish changes"]',
                 {
                     '#cx-dev-edit-desc': settings.description
                 },
                 function() {
                     setTimeout(function() {
-                        page.click('.id-confirm-dialog-publish-ok');
+                        page.click('#cx-confirm-publish input[type="button"][value="OK"]');
                         page.waitForElementsPresent(
                             [ '#hist_state' ],
                             get_access_code
@@ -1578,13 +1581,17 @@ function maintain() {
                     name_links[ file.name ] = file;
                 } else if ( !id_links.hasOwnProperty(file.id) ) {
                     var source = name_links[ file.name.replace( /^build\/(?:[^\/]+)\//, '' ) ];
-                    // need to recreate
-                    if ( file.modified > source.modified ) {
-                        console.log( file.name + ' is newer than ' + source.name + ' - please save the built contents back to the original' );
+                    if ( source ) {
+                        // need to recreate
+                        if ( file.modified > source.modified ) {
+                            console.log( file.name + ' is newer than ' + source.name + ' - please save the built contents back to the original' );
+                        } else {
+                            console.log( 'Relinking ' + file.name + ' to ' + source.name );
+                            fs.remove( file.name );
+                            hardLink(  source.name, file.name );
+                        }
                     } else {
-                        console.log( 'Relinking ' + file.name + ' to ' + source.name );
-                        fs.remove( file.name );
-                        hardLink(  source.name, file.name );
+                        console.log( "Please create '" + file.name + '" or remove it from settings.json' );
                     }
                 }
             });
