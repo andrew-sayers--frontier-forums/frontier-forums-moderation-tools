@@ -1201,6 +1201,9 @@ VBulletin.prototype.post_create = function( date, username, user_title, post_tit
  * @param {Number} post_ID ID of post to retrieve
  * @param {string=} reason  deletion reason
  * @return {jQuery.Promise}
+ * @description VBulletin supports hard-deleting posts (or just their attachments).
+ * We do not expose this functionality because there is no circumstance where a
+ * moderator would want to destroy their paper trail.
  */
 VBulletin.prototype.post_delete = function( post_id, reason ) {
     return this.post(
@@ -1210,6 +1213,7 @@ VBulletin.prototype.post_delete = function( post_id, reason ) {
             postid    : post_id,
             reason    : reason,
             deletepost: 'delete',
+            keepattachments: 1
         }
     );
 }
@@ -1226,6 +1230,7 @@ VBulletin.prototype.post_delete_multi = function( post_ids, reason ) {
             deletetype: 1,
             p: 0,
             postid: 0
+            // TODO: figure out what to send for "keepattachments" if we ever put this back in
         }
 
     );
