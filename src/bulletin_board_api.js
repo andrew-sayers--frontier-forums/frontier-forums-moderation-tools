@@ -846,12 +846,14 @@ VBulletin.prototype.process_posts = function(posts, parse_date) {
             var edited = post.getElementsByClassName('lastedited');
             if ( edited.length ) {
                 var a = $('a[href]', edited[0]);
-                ret.edit_username = a.text().substr(15);
-                ret.edit_user_id  = parseInt( a.attr('href').split('?p=')[1], 10 );
-                edited[0].textContent.replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
-                    ret.edit_time = time;
-                    ret.edit_reason = reason;
-                });
+                if ( a.length ) { // this has been seen false on the test site - might as well prepare in case it happens live some day
+                    ret.edit_username = a.text().substr(15);
+                    ret.edit_user_id  = parseInt( a.attr('href').split('?p=')[1], 10 );
+                    edited[0].textContent.replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
+                        ret.edit_time = time;
+                        ret.edit_reason = reason;
+                    });
+                }
             }
 
         }
