@@ -2060,6 +2060,10 @@ VBulletin.prototype.user_current = function() {
 VBulletin.prototype.user_info = function(user_id) {
     var bb = this;
     return this.get('/member.php?u='+user_id+'&tab=infractions&pp=' + bb.default_reply_count).then(function(html, status, jqXHR) {
+
+        // ignore non-existant users:
+        if ( html.search( /<div class="standard_error">/ ) != -1 ) return;
+
         var parse_date = bb.date_parser( html, jqXHR );
         html = $(html);
 
