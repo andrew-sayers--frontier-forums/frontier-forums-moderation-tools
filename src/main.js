@@ -1451,7 +1451,7 @@ function handle_posts( bb, v, vi, loading_html ) {
             event, this, 'the IP information page',
             v.resolve( 'policy', 'ip links', keys, 'array of items' ).map(function(item) {
                 var ret = $('<a>')
-                    .text( 'Check\u00a0on\u00a0' + item.value.replace( /\s+/, '\u00A0' ) )
+                    .text( 'Check\u00a0on\u00a0' + item.value.replace( /\s+/g, '\u00A0' ) )
                     .attr( 'href', item.url )
                 ;
                 if ( !item.url.search(/^[a-z]*:\/\/api.stopforumspam.org/) ) {
