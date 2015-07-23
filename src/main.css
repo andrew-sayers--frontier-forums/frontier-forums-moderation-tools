@@ -1,7 +1,7 @@
 /*
  * DASHBOARD CSS
  */
-#breadcrumb {
+#breadcrumb.dashboard {
     margin-bottom: 1em;
 }
 
