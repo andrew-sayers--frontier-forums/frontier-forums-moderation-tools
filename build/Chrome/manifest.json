@@ -2,7 +2,7 @@
 	"short_name": "Mod tools",
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.26.3",
+	"version": "4.27",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -46,6 +46,7 @@
 				"src/widgets/vbulletin_popup_menu.js",
 				"src/widgets/deadline.js",
 				"src/widgets/thread_title_selector.js",
+				"src/widgets/collapse.js",
 				"src/widgets/help.js",
 				"src/variables.js",
 				"src/violations.js",
@@ -69,6 +70,7 @@
 				"src/widgets/notification_selector.css",
 				"src/widgets/duplicate_account_list.css",
 				"src/widgets/thread_title_selector.css",
+				"src/widgets/collapse.css",
 				"src/main.css"
 			]
 		}
