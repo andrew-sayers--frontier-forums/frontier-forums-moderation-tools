@@ -197,6 +197,8 @@
 
                 <li data-name="BulletinBoard#thread_posts"><a href="BulletinBoard.html#thread_posts">thread_posts</a></li>
 
+                <li data-name="BulletinBoard#user_duplicates"><a href="BulletinBoard.html#user_duplicates">user_duplicates</a></li>
+
                 <li data-name="BulletinBoard#when"><a href="BulletinBoard.html#when">when</a></li>
 
             </ul>
@@ -223,6 +225,29 @@
                 <li data-name="Cacheable#refresh"><a href="Cacheable.html#refresh">refresh</a></li>
 
                 <li data-name="Cacheable#update_cache"><a href="Cacheable.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Collapse">
+            <span class="title">
+                <a href="Collapse.html">Collapse</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Collapse#val"><a href="Collapse.html#val">val</a></li>
 
             </ul>
             <ul class="events itemMembers">
@@ -302,6 +327,8 @@
             <ul class="methods itemMembers">
 
             <span class="subtitle">Methods</span>
+
+                <li data-name="DuplicateAccountList#_heatmap"><a href="DuplicateAccountList.html#_heatmap">_heatmap</a></li>
 
                 <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
 
@@ -992,6 +1019,8 @@
 
                 <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
+                <li data-name="VBulletin#user_duplicates"><a href="VBulletin.html#user_duplicates">user_duplicates</a></li>
+
                 <li data-name="VBulletin#user_info"><a href="VBulletin.html#user_info">user_info</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
@@ -1558,6 +1587,80 @@ BulletinBoard.prototype.thread_posts = function( thread_id, first_page, skip_ima
 }
 
 /**
+ * @summary get information about the specified account and suspected duplicate accounts
+ * @param {Number} user_id user ID
+ * @return {jQuery.Promise} promise
+ * @example
+ * bb.get_duplicates(1234)
+ *     .progress( completed, total )
+ *     .then(function(user) {
+ *         console.log( user.suspiciousness, user.suspected_duplicates ); // see user_moderation_info() for details on users
+ *     });
+ */
+BulletinBoard.prototype.user_duplicates = function(user_id) {
+
+    var bb = this, dfd = $.Deferred();
+
+    $.when(
+        bb.user_info           (           user_id  ),
+        bb.user_moderation_info(           user_id  ),
+        bb.user_overlapping    ({ user_id: user_id })
+    ).then(function(info, mod_info, users) {
+
+        if ( !mod_info ) {
+            dfd.resolve();
+            return;
+        }
+
+        var completed_promises = 0;
+
+        var promises = users.map(function(user) {
+            return bb.user_info(user.user_id).then(function(info) {
+                dfd.notify( ++completed_promises, users.length*2 );
+                user.suspiciousness = (
+                    ( info.is_banned        &amp;&amp; 8 ) | // same IP as a currently-banned user - DODGEY!
+                    ( info.infraction_count &amp;&amp; 4 ) | // same IP as an infracted user - probably dodgey
+                    ( info.   warning_count &amp;&amp; 2 ) | // same IP as a user with a warning - might well be dodgey
+                    1     // same IP as another user - could be dodgey
+                );
+                user.info = info;
+            });
+        }).concat(
+            users.map(function(user) {
+                return bb.user_moderation_info(user.user_id).then(function(info) {
+                    dfd.notify( ++completed_promises, users.length*2 );
+                    user.moderation_info = info;
+                });
+            })
+        );
+
+        return $.when.apply( $, promises ).then(function() {
+            var user_info = {
+                           info:     info,
+                moderation_info: mod_info,
+
+                user_id : mod_info.user_id,
+                username: mod_info.username,
+                email   : mod_info.email
+            };
+            if ( users.length ) {
+                users.sort(function(a,b) { return b.suspiciousness - a.suspiciousness || a.username.localeCompare(b.username) });
+                user_info.suspiciousness = users[0].suspiciousness;
+            } else {
+                user_info.suspiciousness = 0;
+            }
+            user_info.suspected_duplicates = users;
+            dfd.resolve( user_info );
+        });
+
+    });
+
+    return dfd.promise();
+
+}
+
+
+/**
  * @summary Escape an object in a way that's safe to put in a forum post
  * @param {string}   name   object name
  * @param {Object}   object object to stringify
@@ -1610,6 +1713,8 @@ function VBulletin(args) {
     BulletinBoard.call(this, args);
 
     var bb = this;
+
+    var default_dateline = new Date().getTime();
 
     if ( bb.session_id ) {
         setInterval(
@@ -1697,6 +1802,14 @@ function VBulletin(args) {
                 '/member.php',
                 [
                     { key: 'user_id', param: 'u' }
+                ],
+                args
+            )},
+            user_avatar: function(args) { return bb.build_url(
+                '/image.php',
+                [
+                    { key: 'user_id', param: 'u' },
+                    { key: 'date'   , param: 'dateline', 'default': default_dateline }
                 ],
                 args
             )},
@@ -1955,12 +2068,14 @@ VBulletin.prototype.process_posts = function(posts, parse_date) {
             var edited = post.getElementsByClassName('lastedited');
             if ( edited.length ) {
                 var a = $('a[href]', edited[0]);
-                ret.edit_username = a.text().substr(15);
-                ret.edit_user_id  = parseInt( a.attr('href').split('?p=')[1], 10 );
-                edited[0].textContent.replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
-                    ret.edit_time = time;
-                    ret.edit_reason = reason;
-                });
+                if ( a.length ) { // this has been seen false on the test site - might as well prepare in case it happens live some day
+                    ret.edit_username = a.text().substr(15);
+                    ret.edit_user_id  = parseInt( a.attr('href').split('?p=')[1], 10 );
+                    edited[0].textContent.replace( /; ([^;]*?)\.\s*Reason:\s*(.*?)\s*$/, function(match, time, reason) {
+                        ret.edit_time = time;
+                        ret.edit_reason = reason;
+                    });
+                }
             }
 
         }
@@ -2308,6 +2423,9 @@ VBulletin.prototype.post_create = function( date, username, user_title, post_tit
  * @param {Number} post_ID ID of post to retrieve
  * @param {string=} reason  deletion reason
  * @return {jQuery.Promise}
+ * @description VBulletin supports hard-deleting posts (or just their attachments).
+ * We do not expose this functionality because there is no circumstance where a
+ * moderator would want to destroy their paper trail.
  */
 VBulletin.prototype.post_delete = function( post_id, reason ) {
     return this.post(
@@ -2317,6 +2435,7 @@ VBulletin.prototype.post_delete = function( post_id, reason ) {
             postid    : post_id,
             reason    : reason,
             deletepost: 'delete',
+            keepattachments: 1
         }
     );
 }
@@ -2333,6 +2452,7 @@ VBulletin.prototype.post_delete_multi = function( post_ids, reason ) {
             deletetype: 1,
             p: 0,
             postid: 0
+            // TODO: figure out what to send for "keepattachments" if we ever put this back in
         }
 
     );
@@ -2468,9 +2588,16 @@ VBulletin.prototype.post_summary = function( post ) {
 
     if ( post.title ) return post.title;
 
-    var message = post.message_element.clone()
-    message.find('.bbcode_container,.spoiler').remove();
-    return $.trim(message.text())
+    var message;
+    if ( post.hasOwnProperty('message_element') ) {
+        message = post.message_element.clone()
+        message.find('.bbcode_container,.spoiler').remove();
+        message = $.trim(message.text());
+    } else {
+        message = post.message;
+    }
+
+    return message
         .replace( /\s+/g, ' ' )
         // if there are more than 15 words, truncate after the first 10:
         .replace( /^(\S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+ \S+) \S+ \S+ \S+ \S+ \S+ .*/, "$1\u2026" );
@@ -3169,6 +3296,10 @@ VBulletin.prototype.user_current = function() {
 VBulletin.prototype.user_info = function(user_id) {
     var bb = this;
     return this.get('/member.php?u='+user_id+'&amp;tab=infractions&amp;pp=' + bb.default_reply_count).then(function(html, status, jqXHR) {
+
+        // ignore non-existant users:
+        if ( html.search( /&lt;div class="standard_error">/ ) != -1 ) return;
+
         var parse_date = bb.date_parser( html, jqXHR );
         html = $(html);
 
@@ -4291,7 +4422,7 @@ VBulletin.prototype.date_parser = function( html, jqXHR ) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 10 July 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 July 2015
         </footer>
     </div>
 </div>

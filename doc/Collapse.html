@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Dashboard</title>
+    <title>Class: Collapse</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -1129,7 +1129,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Dashboard.html">Class: Dashboard</h1>
+        <h1 class="page-title" data-filename="Collapse.html">Class: Collapse</h1>
 
 
 
@@ -1138,7 +1138,7 @@
 
 <header>
     <h2>
-    Dashboard
+    Collapse
     </h2>
 
 </header>
@@ -1151,145 +1151,24 @@
 
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Dashboard">
+        <h4 class="name" id="Collapse">
 
-            new Dashboard<span class="signature">()</span>
+            new Collapse<span class="signature">(args)</span>
         </h4>
 
 
         <div class="tag-source">
-            <a href="src_dashboard.js.html">src/dashboard.js</a>, <a href="src_dashboard.js.html#line36">line 36</a>
+            <a href="src_widgets_collapse.js.html">src/widgets/collapse.js</a>, <a href="src_widgets_collapse.js.html#line23">line 23</a>
         </div>
 
     </div>
 
 
-    <p class="summary">Dashboard displaying miscellaneous real-time information</p>
+    <p class="summary">(Un-)collapse a box</p>
 
 </dt>
 <dd>
 
-
-    <div class="description">Dashboards display information about the bulletin board you're on.
-Currently supported: 'thread', 'forum', 'mod_queue' and 'newbies'.
-
-Most configuration is done through the HTML in the "container" parameter.
-Elements with class "dashboard-header" have the dashboard header inserted.
-Elements with class "dashboard-section" are set to dashboard sections (based on their "data-monitor" parameter)
-Elements with class "dashboard-body" within "dashboard-section" receive the contents of the section
-Elements with class "dashboard-refresh" will trigger a refresh of the current section when clicked
-Elements with class "dashboard-done" are treated as buttons to (un)mark a section done
-
-Section elements have classes "loading", "empty", "nonempty", "done" and "undone" set as appropriate.
-Section elements can have a 'bb' data item if they need to access a different bulletin board</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h5>Example</h5>
-
-
-
-    <pre class="prettyprint"><code>var dashboard = new Dashboard({
-    cache             : { ... }, // values previously passed to cache, or an empty object on first run
-    cache_updater     : function(cache) { ... }, // save object to pass in next time
-    container         : $(...), // element containing dashboard content
-    interval          : 60000   // each monitor will be polled once per this many milliseconds
-});</code></pre>
-
-
-
-</dd>
-
-
-    </div>
-
-
-        <h3 class="subsection-title">Extends</h3>
-
-        <ul>
-            <li><a href="Cacheable.html">Cacheable</a></li>
-        </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-
-<dt>
-    <div class="nameContainer inherited">
-        <h4 class="name" id="refresh">
-
-                <span class="inherited"><a href="Cacheable.html#refresh">inherited</a></span>
-
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line74">line 74</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Reload the cached values</div>
 
 
 
@@ -1335,7 +1214,161 @@ Section elements can have a 'bb' data item if they need to access a different bu
 
             <td class="description last">
 
-                cacheable arguments (as passed to Cacheable())</td>
+                widget arguments</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h5>Example</h5>
+
+
+
+    <pre class="prettyprint"><code>var collapse = new Collapse({
+    v : v,
+    bb: bb,
+    collapsed: true, // initial state (default: false)
+    callback: function(collapsed) { ... },
+    container: collapse_appended_to_this
+});</code></pre>
+
+
+
+</dd>
+
+
+    </div>
+
+
+        <h3 class="subsection-title">Extends</h3>
+
+        <ul>
+            <li><a href="Widget.html">Widget</a></li>
+        </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+
+<dt>
+    <div class="nameContainer inherited">
+        <h4 class="name" id="val">
+
+                <span class="inherited"><a href="Widget.html#val">inherited</a></span>
+
+            val<span class="signature">(value)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Object}</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_widgets_widget.js.html">src/widgets/widget.js</a>, <a href="src_widgets_widget.js.html#line42">line 42</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Get/set widget's values</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>value</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Object</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                new value</td>
         </tr>
 
 
@@ -1396,86 +1429,15 @@ Section elements can have a 'bb' data item if they need to access a different bu
 
             <td class="type">
 
-                        jQuery.Promise
+                        Object
 
 
             </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
+            <td class="description last">(new) value</td>
         </tr>
 
     </tbody>
 </table>
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer inherited">
-        <h4 class="name" id="update_cache">
-
-                <span class="inherited"><a href="Cacheable.html#update_cache">inherited</a></span>
-
-            update_cache<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line60">line 60</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Update this.cache using the passed cache_updater() callback</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
 
 
 

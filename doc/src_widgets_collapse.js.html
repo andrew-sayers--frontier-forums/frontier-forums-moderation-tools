@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Class: Dashboard</title>
+    <title>Source: src/widgets/collapse.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -1129,368 +1129,71 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="Dashboard.html">Class: Dashboard</h1>
+        <h1 class="page-title" data-filename="src_widgets_collapse.js.html">Source: src/widgets/collapse.js</h1>
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source "><code>/**
+ * @file (Un-)collapse a box
+ * @author Andrew Sayers
+ * @summary (Un-)collapse a box
+ */
+
+/**
+ * @summary (Un-)collapse a box
+ * @constructor
+ * @extends Widget
+ * @param {Object} args widget arguments
+ * @example
+ *
+ * var collapse = new Collapse({
+ *     v : v,
+ *     bb: bb,
+ *     collapsed: true, // initial state (default: false)
+ *     callback: function(collapsed) { ... },
+ *     container: collapse_appended_to_this
+ * });
+ *
+ */
+function Collapse( args ) {
+
+    Widget.call( this, args, 'collapse' );
+
+    if ( !Collapse.css_added ) {
+        Collapse.css_added = true;
+        $("head").append(
+            "&lt;style type='text/css'>" +
+                args.v.parse( BabelExt.resources.get('res/widgets/collapse.css'), args.bb.css_keys() ) +
+            "&lt;/style>"
+        );
+    }
+
+    var collapsed = args.collapsed;
+
+    if ( args.collapsed ) $(this.element).addClass('mod-friend-collapsed');
+
+    this.element.click(function(event) {
+        $(this).toggleClass('mod-friend-collapsed');
+        if ( args.callback ) args.callback( collapsed ^= true );
+        event.stopPropagation();
+        event.preventDefault();
+    });
+
+}
+
+Collapse.prototype = Object.create(Widget);
+Collapse.prototype.constructor = Collapse;
+
+Collapse.prototype.val = function( collapse ) {
+    if ( $(this.element).hasClass('mod-friend-collapsed') != collapse ) $(this.element).click();
+}
+</code></pre>
+        </article>
+    </section>
 
-
-
-
-<section>
-
-<header>
-    <h2>
-    Dashboard
-    </h2>
-
-</header>
-
-<article>
-    <div class="container-overview">
-
-
-
-
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="Dashboard">
-
-            new Dashboard<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_dashboard.js.html">src/dashboard.js</a>, <a href="src_dashboard.js.html#line36">line 36</a>
-        </div>
-
-    </div>
-
-
-    <p class="summary">Dashboard displaying miscellaneous real-time information</p>
-
-</dt>
-<dd>
-
-
-    <div class="description">Dashboards display information about the bulletin board you're on.
-Currently supported: 'thread', 'forum', 'mod_queue' and 'newbies'.
-
-Most configuration is done through the HTML in the "container" parameter.
-Elements with class "dashboard-header" have the dashboard header inserted.
-Elements with class "dashboard-section" are set to dashboard sections (based on their "data-monitor" parameter)
-Elements with class "dashboard-body" within "dashboard-section" receive the contents of the section
-Elements with class "dashboard-refresh" will trigger a refresh of the current section when clicked
-Elements with class "dashboard-done" are treated as buttons to (un)mark a section done
-
-Section elements have classes "loading", "empty", "nonempty", "done" and "undone" set as appropriate.
-Section elements can have a 'bb' data item if they need to access a different bulletin board</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h5>Example</h5>
-
-
-
-    <pre class="prettyprint"><code>var dashboard = new Dashboard({
-    cache             : { ... }, // values previously passed to cache, or an empty object on first run
-    cache_updater     : function(cache) { ... }, // save object to pass in next time
-    container         : $(...), // element containing dashboard content
-    interval          : 60000   // each monitor will be polled once per this many milliseconds
-});</code></pre>
-
-
-
-</dd>
-
-
-    </div>
-
-
-        <h3 class="subsection-title">Extends</h3>
-
-        <ul>
-            <li><a href="Cacheable.html">Cacheable</a></li>
-        </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <h3 class="subsection-title">Methods</h3>
-
-        <dl>
-
-<dt>
-    <div class="nameContainer inherited">
-        <h4 class="name" id="refresh">
-
-                <span class="inherited"><a href="Cacheable.html#refresh">inherited</a></span>
-
-            <span class="type-signature ">abstract</span>refresh<span class="signature">(args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{jQuery.Promise}</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line74">line 74</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Reload the cached values</div>
-
-
-
-
-
-
-
-
-
-<table class="params">
-    <thead>
-	<tr>
-
-		<th>Name</th>
-
-
-		<th>Type</th>
-
-
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-
-
-        <tr>
-
-                <td class="name"><code>args</code></td>
-
-
-            <td class="type">
-
-
-<span class="param-type">Object</span>
-
-
-
-            </td>
-
-
-
-            <td class="description last">
-
-                cacheable arguments (as passed to Cacheable())</td>
-        </tr>
-
-
-	</tbody>
-</table>
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Returns:</h5>
-
-
-
-<table class="params">
-    <thead>
-    <tr>
-
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-
-            <td class="type">
-
-                        jQuery.Promise
-
-
-            </td>
-            <td class="description last">promise that will return when the cache has been refreshed</td>
-        </tr>
-
-    </tbody>
-</table>
-
-
-
-
-</dd>
-
-
-
-<dt>
-    <div class="nameContainer inherited">
-        <h4 class="name" id="update_cache">
-
-                <span class="inherited"><a href="Cacheable.html#update_cache">inherited</a></span>
-
-            update_cache<span class="signature">()</span>
-        </h4>
-
-
-        <div class="tag-source">
-            <a href="src_cacheable.js.html">src/cacheable.js</a>, <a href="src_cacheable.js.html#line60">line 60</a>
-        </div>
-
-    </div>
-
-
-</dt>
-<dd>
-
-
-    <div class="description">Update this.cache using the passed cache_updater() callback</div>
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-</dd>
-
-        </dl>
-
-
-
-
-
-</article>
-
-</section>
 
 
 
@@ -1499,7 +1202,7 @@ Section elements can have a 'bb' data item if they need to access a different bu
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 July 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 July 2015
         </footer>
     </div>
 </div>

@@ -197,6 +197,8 @@
 
                 <li data-name="BulletinBoard#thread_posts"><a href="BulletinBoard.html#thread_posts">thread_posts</a></li>
 
+                <li data-name="BulletinBoard#user_duplicates"><a href="BulletinBoard.html#user_duplicates">user_duplicates</a></li>
+
                 <li data-name="BulletinBoard#when"><a href="BulletinBoard.html#when">when</a></li>
 
             </ul>
@@ -223,6 +225,29 @@
                 <li data-name="Cacheable#refresh"><a href="Cacheable.html#refresh">refresh</a></li>
 
                 <li data-name="Cacheable#update_cache"><a href="Cacheable.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Collapse">
+            <span class="title">
+                <a href="Collapse.html">Collapse</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Collapse#val"><a href="Collapse.html#val">val</a></li>
 
             </ul>
             <ul class="events itemMembers">
@@ -302,6 +327,8 @@
             <ul class="methods itemMembers">
 
             <span class="subtitle">Methods</span>
+
+                <li data-name="DuplicateAccountList#_heatmap"><a href="DuplicateAccountList.html#_heatmap">_heatmap</a></li>
 
                 <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
 
@@ -992,6 +1019,8 @@
 
                 <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
 
+                <li data-name="VBulletin#user_duplicates"><a href="VBulletin.html#user_duplicates">user_duplicates</a></li>
+
                 <li data-name="VBulletin#user_info"><a href="VBulletin.html#user_info">user_info</a></li>
 
                 <li data-name="VBulletin#user_ips"><a href="VBulletin.html#user_ips">user_ips</a></li>
@@ -1469,59 +1498,22 @@ Dashboard.prototype.newbies_refresh = function(bb, container) {
     var user_count = 0;
 
     // get a new user account (called recursively until the time limit is reached):
-    function get_user(user_info, users) {
-
+    function get_user(user_info) {
         if ( user_info ) {
-            ++user_count;
-
-            return $.when.apply( $, // get user info about suspected duplicate accounts
-                users.map(function(user) {
-                    return bb.user_info(user.user_id).then(function(info) {
-                        user.suspiciousness = (
-                            ( info.is_banned        &amp;&amp; 8 ) | // same IP as a currently-banned user - DODGEY!
-                            ( info.infraction_count &amp;&amp; 4 ) | // same IP as an infracted user - probably dodgey
-                            ( info.   warning_count &amp;&amp; 2 ) | // same IP as a user with a warning - might well be dodgey
-                                                       1     // same IP as another user - could be dodgey
-                        );
-                        user.info = info;
-                    });
-                }).concat(
-                    users.map(function(user) {
-                        return bb.user_moderation_info(user.user_id).then(function(info) {
-                            user.moderation_info = info;
-                        });
-                    })
-                )
-            ).then(function() {
-                if ( users.length ) {
-                    users.sort(function(a,b) { return b.suspiciousness - a.suspiciousness || a.username.localeCompare(b.username) });
-                    user_info.suspiciousness = users[0].suspiciousness;
-                } else {
-                    user_info.suspiciousness = 0;
-                }
-
-                user_info.suspected_duplicates = users;
-                ++dashboard.cache['newbies-next'];
-                current_users.push(user_info);
-                dashboard.update_cache();
-
-                if ( new Date().getTime() &lt; end_time ) {
-                    // get another account
-                    return $.when(
-                        bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
-                        bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
-                    ).then(get_user);
-                }
-            });
-
+            ++dashboard.cache['newbies-next'];
+            current_users.push(user_info);
+            dashboard.update_cache();
+            if ( new Date().getTime() &lt; end_time ) // get another account
+                return bb.user_duplicates(dashboard.cache['newbies-next']).then(get_user)
         }
-
-    };
+    }
 
     function get_newbies(user_id) {
 
         if ( dashboard.cache['newbies-next'] &lt; user_id )
             dashboard.cache['newbies-next'] = user_id;
+
+        // dashboard.cache['newbies-next'] = 90000; // uncomment this to force some newbies to be checked
 
         current_users = current_users.filter(function(user) {
             if ( user.user_id >= user_id ) return true
@@ -1529,10 +1521,7 @@ Dashboard.prototype.newbies_refresh = function(bb, container) {
             return false;
         });
 
-        return $.when(
-            bb.user_moderation_info(           dashboard.cache['newbies-next']  ),
-            bb.user_overlapping    ({ user_id: dashboard.cache['newbies-next'] })
-        ).then(get_user).then(function() {
+        return bb.user_duplicates(dashboard.cache['newbies-next']).then(get_user).then(function() {
 
             // If the section has already been initialised and there are no new users, return unchanged:
             if ( container.data( 'signature' ) &amp;&amp; !user_count ) return;
@@ -1883,7 +1872,7 @@ Dashboard.prototype.example_refresh = function(bb, container) {
 
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 10 July 2015
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 27 July 2015
         </footer>
     </div>
 </div>
