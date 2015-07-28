@@ -251,7 +251,7 @@ BulletinBoard.prototype.post = function( url, data, use_form ) {
                 function(reply, status, jqXHR) {
                     var err = bb.detect_post_error( reply );
                     if ( err !== null ) {
-                        debug_log.log( "Couldn't load page", err );
+                        debug_log.log( "Couldn't load page", url, err );
                         alert( "Couldn't load page " + url + "\n\nError:\n" + err );
                         return jQuery.Deferred().reject(err).promise();
                     } else {
