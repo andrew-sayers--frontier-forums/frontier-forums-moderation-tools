@@ -197,6 +197,8 @@
 
                 <li data-name="BulletinBoard#thread_posts"><a href="BulletinBoard.html#thread_posts">thread_posts</a></li>
 
+                <li data-name="BulletinBoard#user_duplicates"><a href="BulletinBoard.html#user_duplicates">user_duplicates</a></li>
+
                 <li data-name="BulletinBoard#when"><a href="BulletinBoard.html#when">when</a></li>
 
             </ul>
@@ -223,6 +225,29 @@
                 <li data-name="Cacheable#refresh"><a href="Cacheable.html#refresh">refresh</a></li>
 
                 <li data-name="Cacheable#update_cache"><a href="Cacheable.html#update_cache">update_cache</a></li>
+
+            </ul>
+            <ul class="events itemMembers">
+
+            </ul>
+        </li>
+
+        <li class="item" data-name="Collapse">
+            <span class="title">
+                <a href="Collapse.html">Collapse</a>
+
+            </span>
+            <ul class="members itemMembers">
+
+            </ul>
+            <ul class="typedefs itemMembers">
+
+            </ul>
+            <ul class="methods itemMembers">
+
+            <span class="subtitle">Methods</span>
+
+                <li data-name="Collapse#val"><a href="Collapse.html#val">val</a></li>
 
             </ul>
             <ul class="events itemMembers">
@@ -302,6 +327,8 @@
             <ul class="methods itemMembers">
 
             <span class="subtitle">Methods</span>
+
+                <li data-name="DuplicateAccountList#_heatmap"><a href="DuplicateAccountList.html#_heatmap">_heatmap</a></li>
 
                 <li data-name="DuplicateAccountList#val"><a href="DuplicateAccountList.html#val">val</a></li>
 
@@ -991,6 +1018,8 @@
                 <li data-name="VBulletin#user_ban"><a href="VBulletin.html#user_ban">user_ban</a></li>
 
                 <li data-name="VBulletin#user_current"><a href="VBulletin.html#user_current">user_current</a></li>
+
+                <li data-name="VBulletin#user_duplicates"><a href="VBulletin.html#user_duplicates">user_duplicates</a></li>
 
                 <li data-name="VBulletin#user_info"><a href="VBulletin.html#user_info">user_info</a></li>
 
@@ -2201,6 +2230,258 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="handle_member_page">
+
+            handle_member_page<span class="signature">(bb, mod_team_bb, v, vi, ss, mc, loading_html)</span>
+        </h4>
+
+
+        <div class="tag-source">
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1583">line 1583</a>
+        </div>
+
+    </div>
+
+
+    <p class="summary">Handle the member page</p>
+
+</dt>
+<dd>
+
+
+
+
+
+
+
+
+
+
+<table class="params">
+    <thead>
+	<tr>
+
+		<th>Name</th>
+
+
+		<th>Type</th>
+
+
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+
+
+        <tr>
+
+                <td class="name"><code>bb</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="BulletinBoard.html">BulletinBoard</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Bulletin Board to manipulate</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>mod_team_bb</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="BulletinBoard.html">BulletinBoard</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Bulletin Board to manipulate</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>v</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="Variables.html">Variables</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Variables to use</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>vi</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="Violations.html">Violations</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Violations to use</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>ss</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="SharedStore.html">SharedStore</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Shared Store to use</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>mc</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="MiscellaneousCache.html">MiscellaneousCache</a></span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                Miscellaneous Cache to use</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>loading_html</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+            <td class="description last">
+
+                HTML to show while loading</td>
+        </tr>
+
+
+	</tbody>
+</table>
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="handle_merge_log">
 
             handle_merge_log<span class="signature">(bb, mod_team_bb, v)</span>
@@ -2208,7 +2489,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line806">line 806</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line808">line 808</a>
         </div>
 
     </div>
@@ -2368,7 +2649,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1557">line 1557</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1559">line 1559</a>
         </div>
 
     </div>
@@ -2437,7 +2718,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1541">line 1541</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1543">line 1543</a>
         </div>
 
     </div>
@@ -2506,7 +2787,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1267">line 1267</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1269">line 1269</a>
         </div>
 
     </div>
@@ -2577,7 +2858,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1567">line 1567</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1569">line 1569</a>
         </div>
 
     </div>
@@ -2646,7 +2927,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1097">line 1097</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1099">line 1099</a>
         </div>
 
     </div>
@@ -2760,7 +3041,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1127">line 1127</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1129">line 1129</a>
         </div>
 
     </div>
@@ -2897,7 +3178,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1289">line 1289</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1291">line 1291</a>
         </div>
 
     </div>
@@ -3080,7 +3361,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1027">line 1027</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1029">line 1029</a>
         </div>
 
     </div>
@@ -3149,7 +3430,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line620">line 620</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line622">line 622</a>
         </div>
 
     </div>
@@ -3378,7 +3659,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1070">line 1070</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line1072">line 1072</a>
         </div>
 
     </div>
@@ -3447,7 +3728,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <div class="tag-source">
-            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line879">line 879</a>
+            <a href="src_main.js.html">src/main.js</a>, <a href="src_main.js.html#line881">line 881</a>
         </div>
 
     </div>
@@ -3802,7 +4083,7 @@ and builds a set of keys based on the inputs, in a format that can be passed to 
 
 
         <footer>
-            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 10 July 2015
+            Documentation generated by <a target="_blank" href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-beta1</a> on 29 July 2015
         </footer>
     </div>
 </div>

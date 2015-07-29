@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Source: lib/iconselect.js</title>
+    <title>Source: src/widgets/collapse.js</title>
 
 
     <script src="scripts/prettify/prettify.js"></script>
@@ -1129,355 +1129,68 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="lib_iconselect.js.html">Source: lib/iconselect.js</h1>
+        <h1 class="page-title" data-filename="src_widgets_collapse.js.html">Source: src/widgets/collapse.js</h1>
 
 
 
 
     <section>
         <article>
-            <pre class="prettyprint source "><code>/*!
- * Copyright (c) 2012 Matteo Spinelli, http://cubiq.org/
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use,
- * copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following
- * conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
- * OTHER DEALINGS IN THE SOFTWARE.
+            <pre class="prettyprint source "><code>/**
+ * @file (Un-)collapse a box
+ * @author Andrew Sayers
+ * @summary (Un-)collapse a box
  */
 
 /**
+ * @summary (Un-)collapse a box
+ * @constructor
+ * @extends Widget
+ * @param {Object} args widget arguments
+ * @example
  *
- * Created with NetBeans IDE
- *
- * Code     : Icon Select JS
- * Version  : 1.0
- *
- * User     : Bugra OZDEN
- * Site     : http://www.bugraozden.com
- * Mail     : bugra.ozden@gmail.com
- *
- * Date     : 10/30/13
- * Time     : 01:10 PM
+ * var collapse = new Collapse({
+ *     v : v,
+ *     bb: bb,
+ *     collapsed: true, // initial state (default: false)
+ *     callback: function(collapsed) { ... },
+ *     container: collapse_appended_to_this
+ * });
  *
  */
+function Collapse( args ) {
 
-IconSelect.DEFAULT = {};
-IconSelect.DEFAULT.SELECTED_ICON_WIDTH = 48;
-IconSelect.DEFAULT.SELECTED_ICON_HEIGHT = 48;
-IconSelect.DEFAULT.SELECTED_BOX_PADDING = 1;
-IconSelect.DEFAULT.SELECTED_BOX_PADDING_RIGHT = 12;
-IconSelect.DEFAULT.ICONS_WIDTH = 32;
-IconSelect.DEFAULT.ICONS_HEIGHT = 32;
-IconSelect.DEFAULT.BOX_ICON_SPACE = 1;
-IconSelect.DEFAULT.HORIZONTAL_ICON_NUMBER = 3;
-IconSelect.DEFAULT.VECTORAL_ICON_NUMBER = 3;
+    Widget.call( this, args, 'collapse' );
 
-function IconSelect($$elementID, $$parameters) {
-
-    var _icons = [];
-    var _selectedIndex = -1;
-
-    var _default = IconSelect.DEFAULT;
-
-    function _init() {
-
-        //parametreler boş gelirse
-        if(!$$parameters) $$parameters = {};
-        //En üst elementi seç
-        if(_View.setIconSelectElement($$elementID)){
-
-            //set parameters
-            $$parameters = _Model.checkParameters($$parameters);
-            //create UI
-            var ui = _View.createUI($$parameters, $$elementID);
-            //basıldığında göster/gizle
-            _View.iconSelectElement.onclick = function(){
-                if ( this.className.search(/\bdisabled\b/) == -1 ) _View.showBox();
-            };
-
-            //Başlangıçta gizle
-            _View.showBox(false);
-
-            //Nesneye basıldığında gizlemeyi iptal et.
-            _View.iconSelectElement.addEventListener('click', function($event){
-                $event.stopPropagation();
-            });
-
-            //dışarı basıldığında gizle.
-            window.addEventListener('click', function(event){
-                if ( event.target.className.search(/\bdisabled\b/) == -1 ) _View.showBox(false);
-            });
-
-        }else{
-            alert("Element not found.");
-        }
-
+    if ( !Collapse.css_added ) {
+        Collapse.css_added = true;
+        $("head").append(
+            "&lt;style type='text/css'>" +
+                args.v.parse( BabelExt.resources.get('res/widgets/collapse.css'), args.bb.css_keys() ) +
+            "&lt;/style>"
+        );
     }
 
-    //Tüm iconları yeniden yükle.
-    this.refresh = function($icons){
+    var collapsed = args.collapsed;
 
-        _icons = [];
+    if ( args.collapsed ) $(this.element).addClass('mod-friend-collapsed');
 
-        var setSelectedIndex = this.setSelectedIndex;
+    this.element.click(function(event) {
+        $(this).toggleClass('mod-friend-collapsed');
+        if ( args.callback ) args.callback( collapsed ^= true );
+        event.stopPropagation();
+        event.preventDefault();
+    });
 
-        for(var i = 0; i &lt; $icons.length; i++){
-            $icons[i].element = _View.createIcon($icons[i].iconFilePath, $icons[i].iconValue, i, $$parameters);
-            $icons[i].element.onclick = function(){
-                setSelectedIndex(this.childNodes[0].getAttribute('icon-index'));
+}
 
-            };
-            _icons.push($icons[i]);
+Collapse.prototype = Object.create(Widget);
+Collapse.prototype.constructor = Collapse;
 
-        }
-
-        var horizontalIconNumber = Math.round(($icons.length) / $$parameters.vectoralIconNumber);
-
-        _View.boxElement.style.height = (($$parameters.iconsHeight + 2) * horizontalIconNumber) +
-                ((horizontalIconNumber + 1) * $$parameters.boxIconSpace);
-        this.setSelectedIndex(0);
-
-    };
-
-    //icon listesini al.
-    this.getIcons = function(){ return _icons; };
-
-    //iconu seçili hale gelir.
-    this.setSelectedIndex = function($index){
-
-        var icon;
-
-        if(_icons.length > $index)
-            icon = _icons[$index];
-
-        if(icon){
-            //eski icondan seçilme özelliğini kaldır.
-            if(_selectedIndex != -1) _icons[_selectedIndex].element.setAttribute('class','icon');
-            _selectedIndex = $index;
-            _View.selectedIconImgElement.setAttribute('src', icon.iconFilePath);
-            if(_selectedIndex != -1) _icons[_selectedIndex].element.setAttribute('class','icon selected');
-        }
-
-        _View.iconSelectElement.dispatchEvent(new Event('changed'));
-
-        //_View.showBox(false);
-
-    };
-
-    this.getSelectedIndex = function(){ return _selectedIndex; };
-    this.getSelectedValue = function(){ return _icons[_selectedIndex].iconValue };
-    this.getSelectedFilePath = function(){ return _icons[_selectedIndex].iconFilePath };
-
-
-
-    //### VIEW CLASS ###
-
-    function _View(){}
-
-    _View.iconSelectElement;
-    _View.boxElement;
-    _View.boxScrollElement;
-    _View.selectedIconImgElement;
-    _View.selectedIconElement;
-
-    _View.showBox = function($isShown){
-
-         if($isShown == null) {
-             $isShown = (_View.boxElement.style.display == "none") ? true : false;
-         }
-
-        if($isShown) {
-            _View.boxElement.style.display = "block";
-            _View.boxScrollElement.style.display = "block";
-        }else{
-            _View.boxElement.style.display = "none";
-            _View.boxScrollElement.style.display = "none";
-        }
-
-        _View.boxElement.style.display = ($isShown) ? "block" : "none";
-
-
-
-    };
-
-    _View.setIconSelectElement = function($elementID){
-        _View.iconSelectElement = document.getElementById($elementID);
-        return _View.iconSelectElement;
-    };
-
-    _View.clearUI = function(){
-        _View.iconSelectElement.innerHTML = "";
-    };
-
-    _View.clearIcons = function(){
-        _View.boxElement.innerHTML = "";
-    };
-
-    _View.createUI = function($parameters){
-
-        /* HTML MODEL
-
-        &lt;div id="my-icon-select" class="icon-select">
-            &lt;div class="selected-box">
-                &lt;div class="selected-icon">&lt;img src="images/icons/i2.png">&lt;/div>
-                &lt;div class="component-icon">&lt;img src="images/control/icon-select/arrow.png">&lt;/div>
-                &lt;div class="box">
-                    &lt;div class="icon">&lt;img src="images/icons/i1.png">&lt;/div>
-                    &lt;div class="icon selected">&lt;img src="images/icons/i2.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i3.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i4.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i3.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i4.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i5.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i6.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i7.png">&lt;/div>
-                    &lt;div class="icon">&lt;img src="images/icons/i8.png">&lt;/div>
-                &lt;/div>
-            &lt;/div>
-        &lt;/div>
-
-        */
-
-        _View.clearUI();
-
-        _View.iconSelectElement.setAttribute('class', 'icon-select');
-
-        var selectedBoxElement = document.createElement('div');
-        selectedBoxElement.setAttribute('class' ,'selected-box');
-
-        var selectedIconElement = document.createElement('div');
-        selectedIconElement.setAttribute('class' ,'selected-icon');
-
-        _View.selectedIconImgElement = document.createElement('img');
-        _View.selectedIconImgElement.setAttribute('src', '');
-        selectedIconElement.appendChild(_View.selectedIconImgElement);
-
-        var componentIconElement = document.createElement('div');
-        componentIconElement.setAttribute('class', 'component-icon');
-
-        var componentIconImgElement = document.createElement('img');
-        componentIconImgElement.setAttribute('src', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAIBAMAAADD3ygIAAAAJ1BMVEUAAABBQUFDQ0NISEhNTU1UVFRWVlZvb297e3uJiYmMjIy0tLS9vb22IlZ/AAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAHdElNRQffBQwPGSwPDrZUAAAAIElEQVQI12NgKGBg4LRkYDiScoABBjYqbmDgigIyGhgAUGgFAccAk0kAAAAASUVORK5CYII=' );
-        componentIconElement.appendChild(componentIconImgElement);
-
-        _View.boxScrollElement = document.createElement('div');
-        _View.boxScrollElement.setAttribute('id',$$elementID + "-box-scroll");
-        _View.boxScrollElement.setAttribute('class', 'box');
-
-        _View.boxElement = document.createElement('div');
-
-        //_View.boxElement.setAttribute('class', 'box');
-        _View.boxScrollElement.appendChild(_View.boxElement);
-
-        _View.selectedIconImgElement.setAttribute('width', $parameters.selectedIconWidth);
-        _View.selectedIconImgElement.setAttribute('height', $parameters.selectedIconHeight);
-        selectedIconElement.style.width = $parameters.selectedIconWidth;
-        selectedIconElement.style.height = $parameters.selectedIconHeight;
-        selectedBoxElement.style.width = $parameters.selectedIconWidth + $parameters.selectedBoxPadding + $parameters.selectedBoxPaddingRight;
-        selectedBoxElement.style.height = $parameters.selectedIconHeight + ($parameters.selectedBoxPadding * 2);
-        selectedIconElement.style.top = $parameters.selectedBoxPadding;
-        selectedIconElement.style.left = $parameters.selectedBoxPadding;
-        componentIconElement.style.bottom = 4 + $parameters.selectedBoxPadding;
-
-        _View.boxScrollElement.style.left = parseInt(selectedBoxElement.style.width) + 1;
-
-        _View.boxScrollElement.style.width = (($parameters.iconsWidth + 2) * $parameters.vectoralIconNumber) +
-                (($parameters.vectoralIconNumber + 1) * $parameters.boxIconSpace);
-        _View.boxScrollElement.style.height = (($parameters.iconsHeight + 2) * $parameters.horizontalIconNumber) +
-                (($parameters.horizontalIconNumber + 1) * $parameters.boxIconSpace);
-
-        _View.boxElement.style.left = _View.boxScrollElement.style.left;
-        _View.boxElement.style.width = _View.boxScrollElement.style.width;
-
-        _View.iconSelectElement.appendChild(selectedBoxElement);
-        selectedBoxElement.appendChild(selectedIconElement);
-        selectedBoxElement.appendChild(componentIconElement);
-        selectedBoxElement.appendChild(_View.boxScrollElement);
-
-
-        var results = {};
-        results['iconSelectElement'] = _View.iconSelectElement;
-        results['selectedBoxElement'] = selectedBoxElement;
-        results['selectedIconElement'] = selectedIconElement;
-        results['selectedIconImgElement'] = _View.selectedIconImgElement;
-        results['componentIconElement'] = componentIconElement;
-        results['componentIconImgElement'] = componentIconImgElement;
-
-        return results;
-
-
-       //trigger: created ( run setValues )
-
-    };
-
-    _View.createIcon = function($iconFilePath, $iconValue, $index, $parameters){
-
-        /* HTML MODEL
-
-         &lt;div class="icon">&lt;img src="images/icons/i1.png">&lt;/div>
-
-         */
-
-        var iconElement = document.createElement('div');
-        iconElement.setAttribute('class', 'icon');
-        iconElement.style.width = $parameters.iconsWidth;
-        iconElement.style.height = $parameters.iconsHeight;
-        iconElement.style.marginLeft = $parameters.boxIconSpace;
-        iconElement.style.marginTop = $parameters.boxIconSpace;
-
-        var iconImgElement = document.createElement('img');
-        iconImgElement.setAttribute('src', $iconFilePath);
-        iconImgElement.setAttribute('icon-value', $iconValue);
-        iconImgElement.setAttribute('icon-index', $index);
-        iconImgElement.setAttribute('width', $parameters.iconsWidth);
-        iconImgElement.setAttribute('height', $parameters.iconsHeight);
-
-        iconElement.appendChild(iconImgElement);
-        _View.boxElement.appendChild(iconElement);
-
-        return iconElement;
-
-    };
-
-    //### MODEL CLASS ###
-
-    function _Model(){}
-
-    //TODO: params değişkenini kaldır yeni oluştursun.
-    _Model.checkParameters = function($parameters){
-
-        $parameters.selectedIconWidth          = ($parameters.selectedIconWidth)          ? $parameters.selectedIconWidth        : _default.SELECTED_ICON_WIDTH;
-        $parameters.selectedIconHeight         = ($parameters.selectedIconHeight)         ? $parameters.selectedIconHeight       : _default.SELECTED_ICON_HEIGHT;
-        $parameters.selectedBoxPadding         = ($parameters.selectedBoxPadding)         ? $parameters.selectedBoxPadding       : _default.SELECTED_BOX_PADDING;
-        $parameters.selectedBoxPaddingRight    = ($parameters.selectedBoxPaddingRight)    ? $parameters.selectedBoxPaddingRight  : _default.SELECTED_BOX_PADDING_RIGHT;
-        $parameters.iconsWidth                 = ($parameters.iconsWidth)                 ? $parameters.iconsWidth               : _default.ICONS_WIDTH;
-        $parameters.iconsHeight                = ($parameters.iconsHeight)                ? $parameters.iconsHeight              : _default.ICONS_HEIGHT;
-        $parameters.boxIconSpace               = ($parameters.boxIconSpace)               ? $parameters.boxIconSpace             : _default.BOX_ICON_SPACE;
-        $parameters.vectoralIconNumber         = ($parameters.vectoralIconNumber)         ? $parameters.vectoralIconNumber       : _default.VECTORAL_ICON_NUMBER;
-        $parameters.horizontalIconNumber       = ($parameters.horizontalIconNumber)       ? $parameters.horizontalIconNumber     : _default.HORIZONTAL_ICON_NUMBER;
-
-        return $parameters;
-
-    };
-
-    _init();
-
-}</code></pre>
+Collapse.prototype.val = function( collapse ) {
+    if ( $(this.element).hasClass('mod-friend-collapsed') != collapse ) $(this.element).click();
+}
+</code></pre>
         </article>
     </section>
 
