@@ -749,6 +749,12 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
     session_id    : { writable: true, configurable: false },
     security_token: { writable: true, configurable: false, default: '' },
 
+    /*
+     * I suspect Chrome initialises all tabs when the browser opens,
+     * causing a race condition when they all reset sessions at the same time:
+     */
+    session_timeout: { writable: false, configurable: false, default: Math.floor( ( Math.random()*10 + 20 ) * 60 * 1000 ) },
+
     default_reply_count: { writable: false, configurable: false, value: 200 },
 
     standard_post_data: {
@@ -787,7 +793,7 @@ VBulletin.prototype = Object.create(BulletinBoard.prototype, {
 
 /**
  * @summary Check we're logged in, and update login credentials
- * @param {boolean=} lazy only updating credentials if it's been 20 minutes since the last update
+ * @param {boolean=} lazy only updating credentials if the session_timeout has elapsed
  * @return {jQuery.Promise} promise that returns when credential update succeeds or fails
  * @description you should only need set "lazy" for code that runs on a timer, potentially in many tabs.
  * This stops people with many tabs open from spamming the server too often.
@@ -806,7 +812,7 @@ VBulletin.prototype.check_login = function(lazy) {
                     bb.session_id     = credentials.session_id;
                     bb.security_token = credentials.security_token;
                 }
-                if ( !lazy || credentials.creation_time + 20*60*1000 < new Date().getTime() ) { // get new settings if the session is more than 20 minutes old
+                if ( !lazy || credentials.creation_time + bb.session_timeout < new Date().getTime() ) {
                     bb.post( '/ajax.php?do=securitytoken', { do: 'securitytoken' } ).then(function(xml) {
                         var securitytoken = xml.getElementsByTagName('securitytoken');
                         if ( !securitytoken.length    ) return dfd.reject('No security token on ' + bb._origin + ' (this should not happen)').promise();
