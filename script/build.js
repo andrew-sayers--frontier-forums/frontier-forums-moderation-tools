@@ -1341,14 +1341,12 @@ function release_chrome(login_info) {
 
         page.hideConsoleMessage();
 
-        page.submit_form(
-            "#signIn",
-            {
-                "#Email" : login_info.username,
-                "#Passwd": login_info.password,
-            },
-            function() { change_details(page) }
-        );
+        // as of July 2015, Google have decided to have seperate "login" and "password" forms:
+        page.submit_form( '#next', { '#Email': login_info.username }, function() {
+            page.submit_form( '#signIn', { '#Passwd': login_info.password }, function() {
+                change_details(page)
+            });
+        });
 
     });
 
