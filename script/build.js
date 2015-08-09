@@ -1185,8 +1185,6 @@ function release_amo(login_info) {
 
     page( 'https://addons.mozilla.org/en-US/developers/addon/' + name + '/edit', function(page) { get_changelog(function(changelog) {
 
-        page.evaluate( function() { Tabzilla.disableEasterEgg() });
-
         page.submit_form(
             "#login-submit",
             {
