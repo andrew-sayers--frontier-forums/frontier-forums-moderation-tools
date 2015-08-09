@@ -2654,8 +2654,8 @@ VBulletin.prototype.forum_threads = function(forum_id, recent) {
 
             var understate_text = $.trim($('.prefix.understate', this).text());
             var status = 'open';
-            if      ( understate_text.search( /^Closed:/ ) == 0 ) status = 'closed';
-            else if ( understate_text.search( /^Moved:/  ) == 0 ) status = 'moved';
+            if      ( $(this).hasClass('lock')                     ) status = 'closed';
+            else if ( $(this).hasClass('moved')                    ) status = 'moved';
             else if ( $( '.prefix_closed'          , this ).length ) status = 'closed'
             else if ( $( '.prefix_deleted,.deleted', this ).length ) status = 'deleted'
             ;
