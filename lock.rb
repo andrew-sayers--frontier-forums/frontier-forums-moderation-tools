@@ -92,6 +92,7 @@ app = Proc.new do |env|
     when 'lock' # get a lock
       if lock_time < Time.now.to_i
       then
+        if lock_time; then lock_id += 1; end # invalidate a timed-out lock
         lock_time = Time.now.to_i +  5 # acquire the lock for 5 seconds
         max_lock_time = lock_time + 10 # can refresh the lock for up to 10 more seconds
         result = "#{lock_id}"
@@ -113,7 +114,7 @@ app = Proc.new do |env|
       if lock_time != 0 && path[3] == "#{lock_id}"
       then
         lock_time = 0
-        lock_id += 1;
+        lock_id += 1 # so future refreshes/unlocks on this lock will fail
         result = "1"
       else
         result = "0"
