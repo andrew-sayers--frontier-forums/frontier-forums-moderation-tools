@@ -24,10 +24,26 @@
 # in order to start getting locks.  Note: getting locks just lets
 # you DOS other users of the service, i.e. reveal your existence.
 #
+#
+# __NOTES FOR RE-IMPLEMENTERS__
+#
+# * The API above is the most important thing to copy
+# * When a user requests a lock, they should only be allowed if there is no lock currently active
+# * Locks should expire after a few seconds (this server holds a lock open for 5 seconds) in case browsers go away
+# * Make sure to handle this case: a browser requests a lock, then its clock is reset so it keeps refreshing (or trying to unlock) long after it should have stopped
+#   * refreshing a lock should only be possible for a few seconds (10 on the server)
+#   * refreshing and closing a lock should only work if the correct lock ID is specified
+#
+#
+# __NOTES FOR USERS__
+#
 # You will need a config file "lock.yml" that looks something like:
 # config:
 # 	path_prefix: ...
 # 	port: ...
+#
+# This code was once seen binding only to localhost no matter what.
+# Restarting the server fixed that issue.
 
 require 'rack'
 
