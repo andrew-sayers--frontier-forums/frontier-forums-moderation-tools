@@ -29,7 +29,7 @@
  * @param {jQuery}        bb_iframe iframe to use for ModCP login box
  * @return {jQuery.Promise}
  */
-function _handle_login_modcp( bb, bb_iframe ) { return bb.moderation_page( bb_iframe, '/modcp/index.php?do=nav', '.navlink', '.navlink' ) }
+function _handle_login_modcp( bb, bb_iframe ) { return bb.moderation_page( bb_iframe, '/fdmod/index.php?do=nav', '.navlink', '.navlink' ) }
 /**
  * @summary Log in to the mod team account only
  * @param {BulletinBoard} bb        Bulletin Board to manipulate
@@ -1542,7 +1542,7 @@ function handle_posts( bb, v, vi, loading_html ) {
  */
 function handle_modcp_user() { BabelExt.utils.dispatch(
     {
-        match_pathname: '/modcp/user.php',
+        match_pathname: '/fdmod/user.php',
         match_params: {
             'do': 'viewuser'
         },
@@ -1558,8 +1558,8 @@ function handle_modcp_user() { BabelExt.utils.dispatch(
  */
 function handle_modcp_doips( bb ) {
     BabelExt.utils.dispatch(
-        { match_pathname: '/modcp/user.php', match_params: { do: 'doips', ipaddress: true , username: false }, callback: function(s, p, params) { bb.redirect_modcp_ipsearch(params) } },
-        { match_pathname: '/modcp/user.php', match_params: { do: 'doips', ipaddress: false, username: true  }, callback: function(s, p, params) { bb.redirect_modcp_ipsearch(params) } }
+        { match_pathname: '/fdmod/user.php', match_params: { do: 'doips', ipaddress: true , username: false }, callback: function(s, p, params) { bb.redirect_modcp_ipsearch(params) } },
+        { match_pathname: '/fdmod/user.php', match_params: { do: 'doips', ipaddress: false, username: true  }, callback: function(s, p, params) { bb.redirect_modcp_ipsearch(params) } }
     );
 }
 
@@ -1567,7 +1567,7 @@ function handle_modcp_doips( bb ) {
  * @summary Link to Moderated Posts page from moderation links
  */
 function handle_moderation_links() {
-    $(function(){$('img[src="images/misc/moderated.gif"],img[src="images/misc/moderated_small.gif"]').wrap('<a href="/modcp/moderate.php?do=posts"></a>')});
+    $(function(){$('img[src="images/misc/moderated.gif"],img[src="images/misc/moderated_small.gif"]').wrap('<a href="/fdmod/moderate.php?do=posts"></a>')});
 }
 
 /**

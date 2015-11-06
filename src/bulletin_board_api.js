@@ -626,12 +626,12 @@ function VBulletin(args) {
             )},
 
             moderation_inline: function() { return bb.build_url( '/inlinemod.php' ) },
-            moderation_posts : function() { return bb.build_url( '/modcp/moderate.php?do=posts' ) },
-            moderation_user  : function() { return bb.build_url( '/modcp/user.php' ) },
+            moderation_posts : function() { return bb.build_url( '/fdmod/moderate.php?do=posts' ) },
+            moderation_user  : function() { return bb.build_url( '/fdmod/user.php' ) },
 
             // This is a fake URL - you will need to call redirect_modcp_ipsearch() on the page:
             moderation_ipsearch: function(args) { return bb.build_url(
-                '/modcp/user.php',
+                '/fdmod/user.php',
                 [
                     { key: 'action'    , param: 'do', default: 'doips' },
                     { key: 'ip_address', param: 'ipaddress' },
@@ -1918,7 +1918,7 @@ VBulletin.prototype.thread_whoposted = function( thread_id ) {
  * });
  */
 VBulletin.prototype.user_ban = function( data ) {
-    return this.post( '/modcp/banning.php?do=dobanuser', {
+    return this.post( '/fdmod/banning.php?do=dobanuser', {
         do         : 'dobanuser',
         username   : data.username,
         usergroupid: data.group_id,
@@ -1947,7 +1947,7 @@ VBulletin.prototype._parse_modcp_data = function(html) {
  */
 VBulletin.prototype._get_modcp_data = function() {
     if ( ! this._modcp_data )
-        this._modcp_data = this.get( '/modcp/user.php?do=doips' ).then(this._parse_modcp_data);
+        this._modcp_data = this.get( '/fdmod/user.php?do=doips' ).then(this._parse_modcp_data);
     return this._modcp_data;
 }
 
@@ -1967,7 +1967,7 @@ VBulletin.prototype.user_ips = function( user, get_overlapping ) {
 
     return this._get_modcp_data().then(function(data) {
         // Note: this page accepts a "userid" parameter, even though there's no such input in the form:
-        return bb.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
+        return bb.post( '/fdmod/user.php?do=doips', $.extend( {}, data, { do: 'doips', username: user.username, userid: user.user_id, depth: get_overlapping ? 2 : 1 } ) ).then(function(html) {
             html = $(html);
             var ret = {
                 registration_ip: html.find('#cpform_table .alt1').eq(1).text(),
@@ -2010,7 +2010,7 @@ VBulletin.prototype.ip_users = function( ip ) {
 
     return this._get_modcp_data().then(function(data) {
 
-        return bb.post( '/modcp/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
+        return bb.post( '/fdmod/user.php?do=doips', $.extend( {}, data, { do: 'doips', ipaddress: ip, depth: 1 } ) ).then(function(html) {
             html = $(html);
             var domain_name = html.find('#cpform_table .alt1 b').first().text();
             if ( domain_name == 'Could Not Resolve Hostname' ) domain_name = ip;
@@ -2285,7 +2285,7 @@ VBulletin.prototype.user_info = function(user_id) {
         }
 
         if ( html.find('#usermenu a[href^="modcp/banning.php?do=liftban"]').length ) {
-            return bb.get( '/modcp/banning.php?do=editreason&userid=' + user_id ).then(function(html) {
+            return bb.get( '/fdmod/banning.php?do=editreason&userid=' + user_id ).then(function(html) {
                 ret.is_banned = true;
                 // ignore warnings/infractions/notes for banned users:
                 ret.infraction_summary = '<span style="color: red">BANNED: ' + $('<div/>').text($.trim($(html).find( '#it_reason_1' ).val())).html() + '</span>';
@@ -2308,7 +2308,7 @@ VBulletin.prototype.user_moderation_info = function(user_id) {
 
     var bb = this;
 
-    return this.get( '/modcp/user.php?do=viewuser&u=' + user_id ).then(function(html) {
+    return this.get( '/fdmod/user.php?do=viewuser&u=' + user_id ).then(function(html) {
         html = $(html);
 
         var name = html.find( '[name="user\\[username\\]"]' ).val();
@@ -2448,7 +2448,7 @@ VBulletin.prototype.user_posts = function(user_id, get_all_pages) {
  */
 VBulletin.prototype.user_signature_get = function(user_id) {
     var bb = this;
-    return bb.get( '/modcp/user.php?do=editsig&u=' + user_id ).then(function(html) {
+    return bb.get( '/fdmod/user.php?do=editsig&u=' + user_id ).then(function(html) {
 
         if ( !this._modcp_data ) {
             // populate _modcp_data without making an extra request
@@ -2469,7 +2469,7 @@ VBulletin.prototype.user_signature_get = function(user_id) {
 VBulletin.prototype.user_signature_set = function(user_id, signature) {
     var bb = this;
     return this._get_modcp_data().then(function(data) {
-        return bb.post( '/modcp/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
+        return bb.post( '/fdmod/user.php?do=doeditsig', $.extend( {}, data, { do: 'doeditsig', signature: signature, userid: user_id } ) );
     });
 }
 
@@ -2830,7 +2830,7 @@ VBulletin.prototype.css_keys = function() {
  */
 VBulletin.prototype.posts_moderated = function() {
 
-    return this.get( '/modcp/moderate.php?do=posts' ).then(function(html) {
+    return this.get( '/fdmod/moderate.php?do=posts' ).then(function(html) {
         html = $(html);
         var ret = {
             threads: [],
@@ -3186,7 +3186,7 @@ VBulletin.prototype.editor_get = function() {
  * @return {Object} one, five and fifteen minute load averages; total, logged-in and logged-out users online
  */
 VBulletin.prototype.server_stats = function( ) {
-    return this.get( '/modcp/index.php?do=home' ).then(function(html) {
+    return this.get( '/fdmod/index.php?do=home' ).then(function(html) {
         var ret;
         $(html).find('.alt1').eq(1).text().replace(
             /^\s*([0-9.]+)\s*([0-9.]+)\s*([0-9.]+)\s*\|\s*([0-9,]+) Users Online \(([0-9,]+) members and ([0-9,]+) guests\)\s*$/,
@@ -3213,7 +3213,7 @@ VBulletin.prototype.server_stats = function( ) {
  */
 VBulletin.prototype.redirect_modcp_ipsearch = function(params) {
     var bb = this;
-    bb.get( '/modcp/user.php?do=doips' ).then(function(html) {
+    bb.get( '/fdmod/user.php?do=doips' ).then(function(html) {
         function redirect() {
             var form = $(html).find('#cpform').hide().appendTo(bb.doc.find('body'));
             [ 'ipaddress', 'username', 'depth' ].forEach(function(param) {

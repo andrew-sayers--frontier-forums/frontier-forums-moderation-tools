@@ -13,7 +13,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
             /*
              * Legacy compatibility:
              */
-            stash.modcp_url = function(url) { return '/modcp/' + url }
+            stash.modcp_url = function(url) { return '/fdmod/' + url }
 
             /**
              * @summary Return a list of strings containing <a> elements linking to lists of known spammers
@@ -182,7 +182,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                 var iframe = $('<iframe></iframe>').insertBefore(container.find('.postcontent')); // TODO: refactor to get this back out of the promise
                 var modcp_promise = bb.moderation_page(
                     iframe,
-                    '/modcp/user.php?do=viewuser&u='+user_id
+                    '/fdmod/user.php?do=viewuser&u='+user_id
                 );
 
                 /*
@@ -337,7 +337,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
                     // create the block (and add easy-to-add info):
                     container.find('#user-info').html(
                         '<div class="view-stats_mini"></div>' +
-                        '<div><a id="browsing_options" href="/modcp/user.php?do=viewuser&u='+user_id+'#ctrl_options[receivepm]"><b>Browsing options</b></a></div>' +
+                        '<div><a id="browsing_options" href="/fdmod/user.php?do=viewuser&u='+user_id+'#ctrl_options[receivepm]"><b>Browsing options</b></a></div>' +
                         '<div class="profile_content"><div id="infractions_block"><b>Infractions</b>: none</div></div>' +
                         '<ol id="user_notes"><li><b>User notes</b>: none</ol>'
                     );
@@ -491,7 +491,7 @@ function handle_legacy( bb, v, vi, loading_html ) { BabelExt.utils.dispatch(
      * MODERATION QUEUE PAGE
      */
     {
-        match_pathname: '/modcp/moderate.php',
+        match_pathname: '/fdmod/moderate.php',
         match_elements: '.copyright',
         callback: function(stash) {
 
