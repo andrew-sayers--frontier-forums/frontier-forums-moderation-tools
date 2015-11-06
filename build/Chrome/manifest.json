@@ -2,7 +2,7 @@
 	"short_name": "Mod tools",
 	"name": "Frontier forums moderation tools",
 	"author": "Andrew Sayers",
-	"version": "4.27.2",
+	"version": "4.27.3",
 	"manifest_version": 2,
 	"description": "Add moderator tools to the Frontier Forums",
 	"background": {
@@ -92,6 +92,7 @@
 		"http://frontiermods.replayirc.com:4055/*",
 		"http://frontiermods.replayirc.com:40540/*",
 		"http://frontiermods.replayirc.com:44000/*",
+		"http://fdmlock.azurewebsites.net/*",
 		"https://forums.frontier.co.uk./*",
 		"https://forumstest.frontier.co.uk./*",
 		"http://api.stopforumspam.org/*",

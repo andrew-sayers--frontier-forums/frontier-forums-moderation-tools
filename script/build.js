@@ -934,7 +934,10 @@ function build_firefox() {
         return program_counter.end(1);
     };
     page.onResourceReceived = function(response) {
-        if ( fs.exists('build/firefox-addon-sdk-url.txt') && fs.read('build/firefox-addon-sdk-url.txt') == response.redirectURL ) {
+        var etag = '';
+        for ( var n=0; n!=response.headers.length; ++n )
+            if ( response.headers[n].name.toLowerCase() == 'etag' ) etag = response.headers[n].value;
+        if ( fs.exists('build/firefox-addon-sdk-url.txt') && fs.read('build/firefox-addon-sdk-url.txt') == etag ) {
             console.log( 'Firefox Addon SDK is up-to-date.' );
             build_xpi();
         } else {
